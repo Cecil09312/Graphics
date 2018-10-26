@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/AlarmItem.qml</file>
+        <file>qml/ToolBarWindow.qml</file>
+        <file>qml/LoginWindow.qml</file>
+        <file>qml/CustomTreeView.qml</file>
+        <file>qml/TreeViewSetting.qml</file>
+    </qresource>
+</RCC>
