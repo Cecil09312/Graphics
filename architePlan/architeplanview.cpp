@@ -6,7 +6,6 @@
 ArchitePlanView::ArchitePlanView(QWidget *parent)
     : QWidget(parent)
 {
-
     initWidget();
     connect(m_treeView,&TreeView::treeIndex,this,[=](QStandardItem*item)
     {
