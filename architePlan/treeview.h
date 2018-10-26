@@ -19,6 +19,15 @@ signals:
     void treeIndex(QStandardItem*item);
     void deleteIndex(QStandardItem*item);
     void clearIndex();
+    void insertAnchPixmap(QStandardItem*item,const QString &fileName);
+
+public slots:
+    void addRootItem();
+    void addChildItem(QModelIndex index);
+    void deleteTreeItem(QModelIndex index);
+    void clearItem();
+    void setItemName(const QString &name);
+    void insertPixmap(const QString &fileName);
 
 protected:
     void mousePressEvent(QMouseEvent *event);

@@ -14,13 +14,14 @@ class GraphicsWidget : public QWidget
 public:
     GraphicsWidget(QWidget *parent = 0);
     ~GraphicsWidget();
+public slots:
+    void loadPixmap(const QString &fileName);
 private:
     //PixmapItem *m_pixmapItem;
     GraphicsView *m_graphicsView;
     GraphicsScene *m_scene;
-    QGraphicsSvgItem *m_svgItem;
-protected:
-    void wheelEvent(QWheelEvent *event);
+   // QGraphicsSvgItem *m_svgItem;
+    QGraphicsPixmapItem *m_pixmapItem;
 };
 
 

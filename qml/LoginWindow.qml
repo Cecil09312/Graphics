@@ -66,50 +66,11 @@ Rectangle
            onClicked:
            {
              //loginWindow.visible= false;
+
            }
        }
 
 
    }
-
-//   VirtualKeyboardSettings
-//   {
-//   }
-//   Binding {
-//       target: VirtualKeyboardSettings
-//       property: "fullScreenMode"
-//       value: (Screen.width / Screen.height) > (60.0 / 9.0)
-//   }
-
-//   InputPanel {
-//       id: inputPanel
-//       z: 99
-//       //更改x,y即可更改键盘位置
-//       x: 0
-//       y: parent.height
-//       //更改width即可更改键盘大小
-//       width:loginWindow.width
-
-//       states: State {
-//           name: "visible"
-//           when: inputPanel.active
-//           PropertyChanges {
-//               target: inputPanel
-//               y: parent.height - inputPanel.height
-//           }
-//       }
-//       transitions: Transition {
-//           from: ""
-//           to: "visible"
-//           reversible: true
-//           ParallelAnimation {
-//               NumberAnimation {
-//                   properties: "y"
-//                   duration: 250
-//                   easing.type: Easing.InOutQuad
-//               }
-//           }
-//       }
-//   }
 
 }

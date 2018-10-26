@@ -5,7 +5,8 @@
 #include <QLineEdit>
 #include <QHeaderView>
 #include <algorithm>
-
+#include <QQmlContext>
+#include "graphicsWidget/graphicswidget.h"
 
 TreeView::TreeView(QWidget *parent):
     QTreeView(parent)
@@ -14,14 +15,7 @@ TreeView::TreeView(QWidget *parent):
     initMenu();
     connect(m_addAction,&QAction::triggered,this,[=]()
     {
-        int rootCount= m_stdModel->rowCount();
-        int totalRowCounts = getTotalCount();
-        QStandardItem *rootItem =new QStandardItem(QString("第%1层").arg(rootCount+1));
-        m_stdModel->insertRow(rootCount,rootItem);
-        m_treeIndexMap[rootItem]=totalRowCounts;
-        emit treeIndex(rootItem);
-        m_parentIndexList.push_back(totalRowCounts);
-
+       addRootItem();
     });
     connect(m_closeAction,&QAction::triggered,this,[=]()
     {
@@ -30,31 +24,7 @@ TreeView::TreeView(QWidget *parent):
     connect(m_addChildAction,&QAction::triggered,this,[=]()
     {
         QModelIndex index = indexAt(m_rootPoint);
-        if(!index.parent().isValid())
-        {
-            if(index.isValid())
-            {
-                QStandardItem *standardItem = m_stdModel->item(index.row());
-                int totalRowCounts = getTotalCount();
-                if(standardItem)
-                {
-                    int rowCount =0;
-                    QList<int >childRowList = m_childIndexMap[index.row()];
-                    int size = childRowList.size();
-                    if(childRowList.size()>0)
-                    {
-                        auto it= std::minmax_element(childRowList.begin(),childRowList.end()).second;
-                        rowCount = *it+1;
-                    }
-                    QStandardItem*childItem = new QStandardItem(QString("%1").arg(rowCount+1));
-                    standardItem->setChild(size,childItem);
-                    m_treeIndexMap[childItem] = totalRowCounts;
-                    emit treeIndex(childItem);
-                    m_childIndexMap[index.row()].push_back(rowCount);
-                }
-            }
-
-        }
+        addChildItem(index);
     });
 
     connect(m_editAction,&QAction::triggered,this,[=]()
@@ -65,47 +35,11 @@ TreeView::TreeView(QWidget *parent):
     connect(m_deleteAction,&QAction::triggered,this,[=]()
     {
         QModelIndex index = indexAt(m_rootPoint);
-        if(index.isValid())
-        {
-
-            QStandardItem *standardItem = m_stdModel->itemFromIndex(index);
-            emit deleteIndex(standardItem);
-            if(standardItem->parent()==nullptr)
-            {
-                m_stdModel->removeRow(index.row());
-                if(m_parentIndexList.size()>index.row())
-                {
-                    m_parentIndexList.removeAt(index.row());
-                }
-
-            }
-            else
-            {
-                QStandardItem *parentItem =standardItem->parent();
-                if(parentItem)
-                {
-                    if(parentItem->rowCount()>index.row())
-                    {
-                        parentItem->removeRow(index.row());
-                        m_stdModel->setItem(index.parent().row(),parentItem);
-                        if(m_childIndexMap[index.parent().row()].size()>index.row())
-                            m_childIndexMap[index.parent().row()].removeAt(index.row());
-                    }
-                }
-
-            }
-
-        }
-
+        deleteTreeItem(index);
     });
     connect(m_clearAction,&QAction::triggered,this,[=]()
     {
-        emit clearIndex();
-        m_stdModel->clear();
-        m_treeIndexMap.clear();
-        m_childIndexMap.clear();
-        m_parentIndexList.clear();
-
+        clearItem();
     });
 
 
@@ -122,6 +56,104 @@ TreeView::~TreeView()
 QMap<QStandardItem *, int> &TreeView::getTreeIndexMap()
 {
     return m_treeIndexMap;
+}
+
+void TreeView::addRootItem()
+{
+    int rootCount= m_stdModel->rowCount();
+    int totalRowCounts = getTotalCount();
+    QStandardItem *rootItem =new QStandardItem(QString("第%1层").arg(rootCount+1));
+    m_stdModel->insertRow(rootCount,rootItem);
+    m_treeIndexMap[rootItem]=totalRowCounts;
+    emit treeIndex(rootItem);
+    m_parentIndexList.push_back(totalRowCounts);
+}
+
+void TreeView::addChildItem(QModelIndex index)
+{
+
+    if(!index.parent().isValid())
+    {
+        if(index.isValid())
+        {
+            QStandardItem *standardItem = m_stdModel->item(index.row());
+            int totalRowCounts = getTotalCount();
+            if(standardItem)
+            {
+                int rowCount =0;
+                QList<int >childRowList = m_childIndexMap[index.row()];
+                int size = childRowList.size();
+                if(childRowList.size()>0)
+                {
+                    auto it= std::minmax_element(childRowList.begin(),childRowList.end()).second;
+                    rowCount = *it+1;
+                }
+                QStandardItem*childItem = new QStandardItem(QString("%1").arg(rowCount+1));
+                standardItem->setChild(size,childItem);
+                m_treeIndexMap[childItem] = totalRowCounts;
+                emit treeIndex(childItem);
+                m_childIndexMap[index.row()].push_back(rowCount);
+            }
+        }
+
+    }
+}
+
+void TreeView::deleteTreeItem(QModelIndex index)
+{
+    if(index.isValid())
+    {
+        QStandardItem *standardItem = m_stdModel->itemFromIndex(index);
+        emit deleteIndex(standardItem);
+        if(standardItem->parent()==nullptr)
+        {
+            m_stdModel->removeRow(index.row());
+            if(m_parentIndexList.size()>index.row())
+            {
+                m_parentIndexList.removeAt(index.row());
+            }
+
+        }
+        else
+        {
+            QStandardItem *parentItem =standardItem->parent();
+            if(parentItem)
+            {
+                if(parentItem->rowCount()>index.row())
+                {
+                    parentItem->removeRow(index.row());
+                    m_stdModel->setItem(index.parent().row(),parentItem);
+                    if(m_childIndexMap[index.parent().row()].size()>index.row())
+                        m_childIndexMap[index.parent().row()].removeAt(index.row());
+                }
+            }
+
+        }
+
+    }
+}
+
+void TreeView::clearItem()
+{
+    emit clearIndex();
+    m_stdModel->clear();
+    m_treeIndexMap.clear();
+    m_childIndexMap.clear();
+    m_parentIndexList.clear();
+}
+
+void TreeView::setItemName(const QString &name)
+{
+    QModelIndex index = indexAt(m_rootPoint);
+    QStandardItem*item = m_stdModel->itemFromIndex(index);
+    item->setText(name);
+}
+
+void TreeView::insertPixmap(const QString &fileName)
+{
+    QModelIndex index = indexAt(m_rootPoint);
+    QStandardItem*item = m_stdModel->itemFromIndex(index);
+    emit insertAnchPixmap(item,fileName);
 }
 
 void TreeView::mousePressEvent(QMouseEvent *event)
@@ -162,6 +194,7 @@ void TreeView::initWidget()
     m_architeSettingView = new QQuickView;
     m_architeSettingView->setSource(QUrl("qrc:/qml/TreeViewSetting.qml"));
     m_architeSettingView->setGeometry(500,50,m_architeSettingView->width(),m_architeSettingView->height());
+    m_architeSettingView->rootContext()->setContextProperty("TreeView",this);
     header()->hide();
     setModel(m_stdModel);
 }
@@ -175,14 +208,12 @@ void TreeView::initMenu()
     m_deleteAction= new QAction(tr("删除"),m_menu);
     m_clearAction= new QAction(tr("清空"),m_menu);
     m_closeAction = new QAction(tr("关闭"),m_menu);
-
     m_menu->addAction(m_addAction);
     m_menu->addAction(m_addChildAction);
     m_menu->addAction(m_editAction);
     m_menu->addAction(m_deleteAction);
     m_menu->addAction(m_clearAction);
     m_menu->addAction(m_closeAction);
-
 
 }
 

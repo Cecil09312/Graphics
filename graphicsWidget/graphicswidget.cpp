@@ -15,20 +15,29 @@ GraphicsWidget::GraphicsWidget(QWidget *parent)
     QHBoxLayout *hLayout = new QHBoxLayout;
     m_graphicsView = new GraphicsView(this);
     m_scene = new GraphicsScene(m_graphicsView);
-    m_svgItem = new QGraphicsSvgItem(":/images/background.svg");
-   // m_graphicsView->setStyleSheet("border-image:url(:/images/background.svg)");
+    m_pixmapItem = new QGraphicsPixmapItem;
     hLayout->addWidget(m_graphicsView);
     m_graphicsView->setScene(m_scene);
-    m_scene->addItem(m_svgItem);
+    //m_scene->addItem(m_svgItem);
+    m_scene->addItem(m_pixmapItem);
     setLayout(hLayout);
+
 }
 
 GraphicsWidget::~GraphicsWidget()
 {
-    delete m_svgItem;
+    //delete m_svgItem;
+    delete m_pixmapItem ;
 }
 
-void GraphicsWidget::wheelEvent(QWheelEvent *event)
+void GraphicsWidget::loadPixmap(const QString &fileName)
 {
-    qDebug() << event->modifiers();
+    QString name = fileName;
+    QList<QString> nameList=  name.split("file:///");
+    int size = nameList.size();
+    if(size>0)
+        name = nameList.at(size-1);
+   m_pixmapItem->setPixmap(QPixmap(name));
 }
+
+

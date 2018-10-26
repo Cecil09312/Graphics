@@ -24,7 +24,6 @@ private:
 private:
     QWidget *m_alarmContainer;
     QWidget *m_toolBarContainer;
-
     ArchitePlanView *m_architePlanView;
     InfoTableView*m_infoTableView;
     QQuickView *m_loginQuickView;

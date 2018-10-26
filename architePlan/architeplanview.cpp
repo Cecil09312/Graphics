@@ -14,8 +14,8 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
         if(m_widgetMap[page]==nullptr)
         {
             GraphicsWidget *widget = new GraphicsWidget(this);
-            QLabel *label = new QLabel(widget);
-            label->setText(QString("widget:%1").arg(page));
+//            QLabel *label = new QLabel(widget);
+//            label->setText(QString("widget:%1").arg(page));
             m_widgetMap[page]=widget;
             m_stackedWidget->addWidget(widget);
         }
@@ -67,6 +67,16 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
         m_stackedWidget->removeWidget(widget);
         m_widgetMap.remove(page);
         m_treeView->getTreeIndexMap().remove(item);
+    });
+
+    connect(m_treeView,&TreeView::insertAnchPixmap,this,[=](QStandardItem*item,const QString &fileName)
+    {
+        QMap<QStandardItem*,int>itemMap;
+        itemMap = m_treeView->getTreeIndexMap();
+        int page =itemMap[item];
+        GraphicsWidget*widget = m_widgetMap[page];
+        if(widget!=nullptr)
+        widget->loadPixmap(fileName);
     });
 
 }
