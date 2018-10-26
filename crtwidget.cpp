@@ -4,6 +4,7 @@
 #include <QQuickView>
 #include <QQmlComponent>
 #include <QQmlContext>
+#include <QSplitter>
 CrtWidget::CrtWidget(QWidget *parent) :
     QWidget(parent)
 {
@@ -57,14 +58,15 @@ void CrtWidget::initWidget()
 
     m_architePlanView = new ArchitePlanView(this);
     m_architePlanView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-
-    QVBoxLayout *vLayout = new QVBoxLayout;
-    vLayout->addWidget(m_architePlanView);
     m_infoTableView = new InfoTableView(this);
-    m_infoTableView->setMaximumHeight(180);
-    m_infoTableView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
-    vLayout->addWidget(m_infoTableView);
-    globalHLayout->addLayout(vLayout);
+    m_infoTableView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+    QSplitter *splitter = new QSplitter(Qt::Vertical,this);
+    splitter->setChildrenCollapsible(false);
+    splitter->addWidget(m_architePlanView);
+    splitter->addWidget(m_infoTableView);
+    splitter->setStretchFactor(splitter->indexOf(m_architePlanView), 80);
+    splitter->setStretchFactor(splitter->indexOf(m_infoTableView), 20);
+    globalHLayout->addWidget(splitter);
     globalVLayout->addLayout(globalHLayout);
     globalVLayout->setSpacing(0);
     globalVLayout->setContentsMargins(QMargins(0,0,0,0));

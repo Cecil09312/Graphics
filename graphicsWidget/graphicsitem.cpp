@@ -13,19 +13,19 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene, QObject *parent):
     m_propertyAnimation->setEndValue(QColor(Qt::red));
     m_propertyAnimation->setDuration(1000);
     m_propertyAnimation->setLoopCount(-1);
-   // qDebug() << m_propertyAnimation->currentValue();
-   // m_propertyAnimation->start();
+    // qDebug() << m_propertyAnimation->currentValue();
+    // m_propertyAnimation->start();
     connect(m_propertyAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &/*value*/)
     {
-      QColor color =qvariant_cast<QColor> (m_propertyAnimation->currentValue());
-       m_color = color;
-       if(m_graphicsScene)
-       {
-           m_graphicsScene->update();
-       }
+        QColor color =qvariant_cast<QColor> (m_propertyAnimation->currentValue());
+        m_color = color;
+        if(m_graphicsScene)
+        {
+            m_graphicsScene->update();
+        }
     });
 
-   setAcceptHoverEvents(true);
+    setAcceptHoverEvents(true);
 
 }
 
@@ -35,7 +35,7 @@ GraphicsItem::~GraphicsItem()
     {
         m_propertyAnimation->stop();
 
-       m_propertyAnimation->deleteLater();
+        m_propertyAnimation->deleteLater();
     }
 }
 
@@ -86,17 +86,17 @@ void GraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 void GraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
     QString toolTip = QString("x:%1,y:%2").arg(event->scenePos().rx()).arg(event->scenePos().ry());
-      setToolTip(toolTip);
-      event->accept();
-     // qDebug() << toolTip;
+    setToolTip(toolTip);
+    event->accept();
+    // qDebug() << toolTip;
 }
 
 
 void GraphicsItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 {
     QString toolTip = QString("x:%1,y:%2").arg(event->scenePos().rx()).arg(event->scenePos().ry());
-      setToolTip(toolTip);
-      event->accept();
+    setToolTip(toolTip);
+    event->accept();
 
 }
 

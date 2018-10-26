@@ -1,6 +1,7 @@
 #include "architeplanview.h"
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QSplitter>
 
 ArchitePlanView::ArchitePlanView(QWidget *parent)
     : QWidget(parent)
@@ -14,8 +15,6 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
         if(m_widgetMap[page]==nullptr)
         {
             GraphicsWidget *widget = new GraphicsWidget(this);
-//            QLabel *label = new QLabel(widget);
-//            label->setText(QString("widget:%1").arg(page));
             m_widgetMap[page]=widget;
             m_stackedWidget->addWidget(widget);
         }
@@ -93,41 +92,18 @@ void ArchitePlanView::initWidget()
     m_treeView = new TreeView(this);
     m_stackedWidget = new QStackedWidget(this);
     m_tabWidget = new QTabWidget(this);
-    // m_graphicsWidget = new GraphicsWidget(this);
-
-
-    //    m_quickView = new QQuickView;
-
-    //    m_quickView->setSource(QUrl("qrc:/qml/CustomTreeView.qml"));
-    //    m_widget = QWidget::createWindowContainer(m_quickView,this);
-    //    m_widget->setMinimumWidth(180);
-    //    m_widget->setMaximumWidth(180);
-    //    m_widget->setMinimumHeight(500);
-
-    m_treeView->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
+    m_treeView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     m_treeView->setMaximumWidth(180);
     m_stackedWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     m_stackedWidget->setStyleSheet("QStackedWidget{border:1px solid black}");
     m_treeView->setStyleSheet("QTreeView{border:1px solid black}");
-
-    QHBoxLayout*hLayout = new QHBoxLayout;
+    QSplitter *splitter = new QSplitter(this);
+    splitter->setChildrenCollapsible(false);
     QHBoxLayout*globalHLayout = new QHBoxLayout;
-    hLayout->addWidget(m_stackedWidget);
-    hLayout->addWidget(m_treeView);
-    //hLayout->addWidget(m_widget);
-    hLayout->setContentsMargins(QMargins(0,0,0,0));
-    hLayout->setSpacing(0);
-    QWidget *firstPageWidget = new QWidget(this);
-    firstPageWidget->setLayout(hLayout);
-
-    //m_stackedWidget->addWidget(m_graphicsWidget);
-    //m_widgetList.push_back(m_graphicsWidget);
-    m_tabWidget->addTab(firstPageWidget,tr("建筑平面图"));
+    splitter->addWidget(m_stackedWidget);
+    splitter->addWidget(m_treeView);
+    m_tabWidget->addTab(splitter,tr("建筑平面图"));
     globalHLayout->addWidget(m_tabWidget);
     globalHLayout->setContentsMargins(QMargins(0,0,0,0));
     setLayout(globalHLayout);
-
-    //    m_architeSettingView = new QQuickView;
-    //   m_architeSettingView->setSource(QUrl("qrc:/qml/TreeViewSetting.qml"));
-
 }
