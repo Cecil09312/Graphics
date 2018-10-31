@@ -7,6 +7,10 @@
 #include <algorithm>
 #include <QQmlContext>
 #include "graphicsWidget/graphicswidget.h"
+#include "jsonEdit/jsonedit.h"
+#include <QQmlComponent>
+#include <QQuickItem>
+#include <QQmlEngine>
 
 TreeView::TreeView(QWidget *parent):
     QTreeView(parent)
@@ -15,7 +19,7 @@ TreeView::TreeView(QWidget *parent):
     initMenu();
     connect(m_addAction,&QAction::triggered,this,[=]()
     {
-       addRootItem();
+        addRootItem();
     });
     connect(m_closeAction,&QAction::triggered,this,[=]()
     {
@@ -29,6 +33,8 @@ TreeView::TreeView(QWidget *parent):
 
     connect(m_editAction,&QAction::triggered,this,[=]()
     {
+        QObject *obj= m_architeSettingView->rootObject();
+        QMetaObject::invokeMethod(obj,"clearTextField");
         m_architeSettingView->show();
     });
 
@@ -47,6 +53,7 @@ TreeView::TreeView(QWidget *parent):
 
 TreeView::~TreeView()
 {
+
     delete m_menu;
     delete m_architeSettingView;
 }
@@ -58,7 +65,37 @@ QMap<QStandardItem *, int> &TreeView::getTreeIndexMap()
     return m_treeIndexMap;
 }
 
-void TreeView::addRootItem()
+void TreeView::saveTreeItem()
+{
+    for(int i=0;i<m_stdModel->rowCount();i++)
+    {
+        QMap<QString,QVariant> rootMap;
+        QStandardItem *parentItem = m_stdModel->item(i);
+        if(parentItem)
+        {
+            rootMap["name"] =parentItem->text();
+            JsonEdit::instance()->insertRoot(rootMap);
+            if(parentItem->hasChildren())
+            {
+                for(int j=0;j<parentItem->rowCount();j++)
+                {
+                    QStandardItem *childItem = parentItem->child(j);
+
+                    if(childItem)
+                    {
+                        QMap<QString,QVariant> childMap;
+                        childMap["name"] = childItem->text();
+                        JsonEdit::instance()->insertChild(i,childMap);
+                    }
+                }
+            }
+
+        }
+
+    }
+}
+
+QStandardItem * TreeView::addRootItem()
 {
     int rootCount= m_stdModel->rowCount();
     int totalRowCounts = getTotalCount();
@@ -67,9 +104,10 @@ void TreeView::addRootItem()
     m_treeIndexMap[rootItem]=totalRowCounts;
     emit treeIndex(rootItem);
     m_parentIndexList.push_back(totalRowCounts);
+    return rootItem;
 }
 
-void TreeView::addChildItem(QModelIndex index)
+QStandardItem* TreeView::addChildItem(QModelIndex index)
 {
 
     if(!index.parent().isValid())
@@ -93,9 +131,22 @@ void TreeView::addChildItem(QModelIndex index)
                 m_treeIndexMap[childItem] = totalRowCounts;
                 emit treeIndex(childItem);
                 m_childIndexMap[index.row()].push_back(rowCount);
+                return childItem;
+            }
+            else
+            {
+                return nullptr;
             }
         }
+        else
+        {
+            return nullptr;
+        }
 
+    }
+    else
+    {
+        return nullptr;
     }
 }
 
@@ -156,6 +207,11 @@ void TreeView::insertPixmap(const QString &fileName)
     emit insertAnchPixmap(item,fileName);
 }
 
+void TreeView::architeSettingViewClose()
+{
+    m_architeSettingView->close();
+}
+
 void TreeView::mousePressEvent(QMouseEvent *event)
 {
 
@@ -191,10 +247,12 @@ void TreeView::initWidget()
 {
     m_stdModel = new QStandardItemModel(this);
     m_itemDelegate = new ItemDelegate(this);
-    m_architeSettingView = new QQuickView;
+
+    m_architeSettingView = new QQuickView();
     m_architeSettingView->setSource(QUrl("qrc:/qml/TreeViewSetting.qml"));
     m_architeSettingView->setGeometry(500,50,m_architeSettingView->width(),m_architeSettingView->height());
     m_architeSettingView->rootContext()->setContextProperty("TreeView",this);
+
     header()->hide();
     setModel(m_stdModel);
 }

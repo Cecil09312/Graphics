@@ -30,14 +30,31 @@ GraphicsWidget::~GraphicsWidget()
     delete m_pixmapItem ;
 }
 
+QPixmap GraphicsWidget::graphicsPixmap() const
+{
+    return m_pixmapItem->pixmap();
+}
+
+QString GraphicsWidget::pixmapName()
+{
+   return m_pixmapName;
+}
+
 void GraphicsWidget::loadPixmap(const QString &fileName)
 {
-    QString name = fileName;
-    QList<QString> nameList=  name.split("file:///");
-    int size = nameList.size();
-    if(size>0)
-        name = nameList.at(size-1);
-   m_pixmapItem->setPixmap(QPixmap(name));
+    m_pixmapName = fileName;
+    if(m_pixmapName.startsWith("file:///"))
+    {
+        QList<QString> nameList=  m_pixmapName.split("file:///");
+        int size = nameList.size();
+        if(size>0)
+        {
+            m_pixmapName = nameList.at(size-1);
+        }
+    }
+
+   m_pixmapItem->setPixmap(QPixmap(m_pixmapName));
+
 }
 
 

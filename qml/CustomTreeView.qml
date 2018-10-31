@@ -14,15 +14,6 @@ Contrals1_4.TreeView
 
      }
 
-//     Contrals1_4.TableViewColumn {
-//         role: "name"
-//         title: qsTr("Name")
-//         width: treeView.width/2
-
-
-//     }
-
-     // model: fileSystemModel
 
      itemDelegate: Item {
          Text {

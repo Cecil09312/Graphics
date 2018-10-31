@@ -6,6 +6,7 @@ import QtQuick.Window 2.3
 import Qt.labs.platform 1.0
 Rectangle
 {
+    id:treeViewSettingRec
     width: 480;
     height:240;
     GridLayout
@@ -37,7 +38,7 @@ Rectangle
             text: qsTr("确认")
             onClicked:
             {
-              TreeView.setItemName(primaryArchiteName.text);
+                TreeView.setItemName(primaryArchiteName.text);
             }
         }
 
@@ -64,7 +65,8 @@ Rectangle
             text: qsTr("选择图片")
             onClicked:
             {
-              fileDialog.open();
+
+                fileDialog.open();
             }
         }
 
@@ -82,19 +84,31 @@ Rectangle
             Layout.row: 2
             Layout.column: 2
             text: qsTr("退出")
+            onClicked:
+            {
+              TreeView.architeSettingViewClose();
+            }
         }
 
 
     }
-    FileDialog {
-         id: fileDialog
-         currentFile: "."
-         folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
-         onAccepted:
-         {
-             primArchImageTextField.text = fileDialog.currentFile;
-             TreeView.insertPixmap(primArchImageTextField.text);
-           // console.log(fileDialog.currentFile);
-         }
-     }
+    FileDialog
+    {
+        id: fileDialog
+        currentFile: "."
+        folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
+        onAccepted:
+        {
+            primArchImageTextField.text = fileDialog.currentFile;
+            TreeView.insertPixmap(primArchImageTextField.text);
+        }
+    }
+
+    function clearTextField()
+    {
+        primaryArchiteName.clear();
+        primArchImageTextField.clear();
+        primaryArchiteName.focus=false;
+        primArchImageTextField.focus = false;
+    }
 }

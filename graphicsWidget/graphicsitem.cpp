@@ -2,7 +2,9 @@
 #include <QDebug>
 #include "graphicsWidget/graphicsscene.h"
 GraphicsItem::GraphicsItem(GraphicsScene *scene, QObject *parent):
-    QObject(parent)
+    QObject(parent),
+    m_radius(12)
+
 {
     m_graphicsScene = scene;
     setFlags(ItemIsMovable|ItemIsSelectable);
@@ -14,7 +16,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene, QObject *parent):
     m_propertyAnimation->setDuration(1000);
     m_propertyAnimation->setLoopCount(-1);
     // qDebug() << m_propertyAnimation->currentValue();
-    // m_propertyAnimation->start();
+     m_propertyAnimation->start();
     connect(m_propertyAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &/*value*/)
     {
         QColor color =qvariant_cast<QColor> (m_propertyAnimation->currentValue());
@@ -26,6 +28,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene, QObject *parent):
     });
 
     setAcceptHoverEvents(true);
+     m_text = QString("%1").arg(qrand()%100);
 
 }
 
@@ -42,15 +45,46 @@ GraphicsItem::~GraphicsItem()
 QRectF GraphicsItem::boundingRect() const
 {
     qreal penWidth = 1;
-    return QRectF(-10 - penWidth / 2, -10 - penWidth / 2,
-                  20 + penWidth, 20 + penWidth);
+    if(m_radius>0)
+    {
+        return QRectF(-m_radius - penWidth / 2, -m_radius - penWidth / 2,
+                      m_radius*2 + penWidth, m_radius*2 + penWidth);
+    }
+    else
+    {
+
+        return QRectF(-10 - penWidth / 2, -10 - penWidth / 2,
+                      20 + penWidth, 20 + penWidth);
+    }
 
 }
 
 void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*/*option*/, QWidget */*widget*/)
 {
     painter->setBrush(m_color);
-    painter->drawRoundedRect(-10, -10, 20, 20, 5, 5);
+
+//     QPen pen;
+//     pen.setWidth(0);
+//     pen.setColor(Qt::red);
+//     painter->setPen(pen);
+    if(m_radius>0)
+    {
+        //pen.setColor(Qt::red);
+
+        painter->drawEllipse(QPointF(0,0),m_radius,m_radius);
+        painter->drawText(QPointF(-m_radius-5,-m_radius-5),m_text);
+
+    }
+    else
+    {
+
+        painter->drawEllipse(QPointF(0,0),12,12);
+        painter->drawText(QPointF(-17,-17),m_text);
+    }
+
+
+
+   // painter->drawRoundedRect(-10, -10, 20, 20, 5, 5);
 }
 
 void GraphicsItem::setColor(const QColor &color)

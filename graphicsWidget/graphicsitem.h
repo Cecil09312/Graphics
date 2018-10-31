@@ -32,6 +32,8 @@ private:
     QPropertyAnimation *m_propertyAnimation;
     QColor m_color;
     GraphicsScene *m_graphicsScene;
+    qreal m_radius;
+    QString m_text;
 
 };
 

@@ -2,11 +2,44 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QSplitter>
+#include "jsonEdit/jsonedit.h"
+
 
 ArchitePlanView::ArchitePlanView(QWidget *parent)
     : QWidget(parent)
 {
     initWidget();
+    initFromJsonFile();
+}
+
+ArchitePlanView::~ArchitePlanView()
+{
+    m_treeView->saveTreeItem();
+    saveArchiteInfo();
+}
+
+
+
+void ArchitePlanView::initWidget()
+{
+    m_treeView = new TreeView(this);
+    m_stackedWidget = new QStackedWidget(this);
+    m_tabWidget = new QTabWidget(this);
+    m_treeView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+    m_treeView->setMaximumWidth(180);
+    m_stackedWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+    m_stackedWidget->setStyleSheet("QStackedWidget{border:1px solid black}");
+    m_treeView->setStyleSheet("QTreeView{border:1px solid black}");
+    QSplitter *splitter = new QSplitter(this);
+    splitter->setChildrenCollapsible(false);
+    QHBoxLayout*globalHLayout = new QHBoxLayout;
+    splitter->addWidget(m_stackedWidget);
+    splitter->addWidget(m_treeView);
+    m_tabWidget->addTab(splitter,tr("建筑平面图"));
+    globalHLayout->addWidget(m_tabWidget);
+    globalHLayout->setContentsMargins(QMargins(0,0,0,0));
+    setLayout(globalHLayout);
+
     connect(m_treeView,&TreeView::treeIndex,this,[=](QStandardItem*item)
     {
         QMap<QStandardItem*,int>map= m_treeView->getTreeIndexMap();
@@ -74,35 +107,115 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
         int page =itemMap[item];
         GraphicsWidget*widget = m_widgetMap[page];
         if(widget!=nullptr)
-        widget->loadPixmap(fileName);
+            widget->loadPixmap(fileName);
     });
 
 }
 
-ArchitePlanView::~ArchitePlanView()
+void ArchitePlanView::saveArchiteInfo()
 {
+    QStandardItemModel *model=dynamic_cast<QStandardItemModel *>(m_treeView->model());
+    for(int i=0;i<model->rowCount();i++)
+    {
+        QStandardItem *parentItem = model->item(i);
+        if(parentItem)
+        {
+            QMap<QString,QVariant> rootImageMap;
+            QMap<QStandardItem*,int>itemMap;
+            itemMap = m_treeView->getTreeIndexMap();
+            int page =itemMap[parentItem];
+            GraphicsWidget*widget = m_widgetMap[page];
+            if(widget!=nullptr)
+            {
+                rootImageMap["path"]=widget->pixmapName();
+                JsonEdit::instance()->setRootImage(model->indexFromItem(parentItem).row(),rootImageMap);
+            }
+            if(parentItem->hasChildren())
+            {
+                for(int j=0;j<parentItem->rowCount();j++)
+                {
+                    QStandardItem *childItem = parentItem->child(j);
 
+                    if(childItem)
+                    {
+                        QMap<QString,QVariant> childImageMap;
+                        QMap<QStandardItem*,int>childItemMap;
+                        childItemMap = m_treeView->getTreeIndexMap();
+                        int page =childItemMap[childItem];
+                        GraphicsWidget*childWidget = m_widgetMap[page];
+                        if(childWidget!=nullptr)
+                        {
+                            childImageMap["path"]=childWidget->pixmapName();
+                            JsonEdit::instance()->setChildImage(model->indexFromItem(parentItem).row(),model->indexFromItem(childItem).row(),childImageMap);
+                        }
+                    }
+                }
+            }
+
+        }
+
+    }
+
+    JsonEdit::instance()->writeFile(c_jsonFilePath);
 }
 
-
-
-void ArchitePlanView::initWidget()
+void ArchitePlanView::initFromJsonFile()
 {
-    m_treeView = new TreeView(this);
-    m_stackedWidget = new QStackedWidget(this);
-    m_tabWidget = new QTabWidget(this);
-    m_treeView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-    m_treeView->setMaximumWidth(180);
-    m_stackedWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-    m_stackedWidget->setStyleSheet("QStackedWidget{border:1px solid black}");
-    m_treeView->setStyleSheet("QTreeView{border:1px solid black}");
-    QSplitter *splitter = new QSplitter(this);
-    splitter->setChildrenCollapsible(false);
-    QHBoxLayout*globalHLayout = new QHBoxLayout;
-    splitter->addWidget(m_stackedWidget);
-    splitter->addWidget(m_treeView);
-    m_tabWidget->addTab(splitter,tr("建筑平面图"));
-    globalHLayout->addWidget(m_tabWidget);
-    globalHLayout->setContentsMargins(QMargins(0,0,0,0));
-    setLayout(globalHLayout);
+    QList<QVariant> valueList=JsonEdit::instance()->readFile(c_jsonFilePath).toList();
+    for(int i=0;i<valueList.size();i++)
+    {
+        QMap<QString,QVariant> parentMap=  valueList.at(i).toMap();
+        if(!parentMap.isEmpty())
+        {
+            QStandardItem *parentItem= m_treeView->addRootItem();
+            parentItem->setText(parentMap["name"].toString());
+            QList<QVariant> childList =  parentMap["child"].toList();
+
+            QMap<QString,QVariant> parentPixmapMap = parentMap["image"].toMap();
+            if(!parentPixmapMap.isEmpty())
+            {
+                QMap<QStandardItem*,int>parentItemMap;
+                parentItemMap = m_treeView->getTreeIndexMap();
+                int page =parentItemMap[parentItem];
+                GraphicsWidget*parentWidget = m_widgetMap[page];
+                if(parentWidget)
+                {
+                    parentWidget->loadPixmap(parentPixmapMap["path"].toString());
+
+                }
+            }
+            for(int j=0;j<childList.size();j++)
+            {
+                QMap<QString,QVariant> childMap=  childList.at(i).toMap();
+                QModelIndex parentIndex= parentItem->index();
+
+                if(parentIndex.isValid())
+                {
+                    QStandardItem *childItem= m_treeView->addChildItem(parentIndex);
+                    if(childItem)
+                    {
+                        childItem->setText(childMap["name"].toString());
+
+                        QMap<QString,QVariant> childPixmapMap = childMap["image"].toMap();
+                        if(!childPixmapMap.isEmpty())
+                        {
+                            QMap<QStandardItem*,int>childItemMap;
+                            childItemMap = m_treeView->getTreeIndexMap();
+                            int page =childItemMap[childItem];
+                            GraphicsWidget*childWidget = m_widgetMap[page];
+                            if(childWidget)
+                            {
+                                childWidget->loadPixmap(childPixmapMap["path"].toString());
+
+                            }
+
+                        }
+
+                    }
+                }
+
+            }
+
+        }
+    }
 }

@@ -15,6 +15,7 @@ public:
     TreeView(QWidget *parent = nullptr);
     ~TreeView();
     QMap<QStandardItem *, int> &getTreeIndexMap();
+    void saveTreeItem();
 signals:
     void treeIndex(QStandardItem*item);
     void deleteIndex(QStandardItem*item);
@@ -22,12 +23,13 @@ signals:
     void insertAnchPixmap(QStandardItem*item,const QString &fileName);
 
 public slots:
-    void addRootItem();
-    void addChildItem(QModelIndex index);
+    QStandardItem *addRootItem();
+    QStandardItem *addChildItem(QModelIndex index);
     void deleteTreeItem(QModelIndex index);
     void clearItem();
     void setItemName(const QString &name);
     void insertPixmap(const QString &fileName);
+    void architeSettingViewClose();
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -35,7 +37,6 @@ private:
     void initWidget();
     void initMenu();
     int getTotalCount();
-
 
 private:
     QMenu *m_menu;

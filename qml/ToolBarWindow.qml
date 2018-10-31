@@ -32,9 +32,7 @@ ToolBar
         ToolButton
         {
             id:logInBtn;
-            // text:qsTr("登陆")
-
-            Layout.alignment: Qt.AlignRight
+            Layout.alignment: Qt.AlignRight;
             width: 30;
             BorderImage
             {

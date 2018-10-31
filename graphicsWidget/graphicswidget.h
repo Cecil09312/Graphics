@@ -14,6 +14,8 @@ class GraphicsWidget : public QWidget
 public:
     GraphicsWidget(QWidget *parent = 0);
     ~GraphicsWidget();
+    QPixmap graphicsPixmap() const;
+    QString pixmapName();
 public slots:
     void loadPixmap(const QString &fileName);
 private:
@@ -22,6 +24,7 @@ private:
     GraphicsScene *m_scene;
    // QGraphicsSvgItem *m_svgItem;
     QGraphicsPixmapItem *m_pixmapItem;
+    QString m_pixmapName;
 };
 
 

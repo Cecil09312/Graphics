@@ -33,7 +33,8 @@ SOURCES += \
     graphicsWidget/pixmapitem.cpp \
     graphicsWidget/graphicswidget.cpp \
     graphicsWidget/graphicsitem.cpp \
-    architePlan/treeview.cpp
+    architePlan/treeview.cpp \
+    jsonEdit/jsonedit.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -44,7 +45,8 @@ HEADERS += \
     graphicsWidget/pixmapitem.h \
     graphicsWidget/graphicswidget.h \
     graphicsWidget/graphicsitem.h \
-    architePlan/treeview.h
+    architePlan/treeview.h \
+    jsonEdit/jsonedit.h
 
 FORMS +=
 

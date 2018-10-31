@@ -25,9 +25,9 @@ Rectangle
         }
         ComboBox
         {
-            model: ["超级用户","工程人员","员工"]
-            Layout.row: 0
-            Layout.column: 1
+            model: ["超级用户","工程人员","员工"];
+            Layout.row: 0;
+            Layout.column: 1;
         }
         Text
         {

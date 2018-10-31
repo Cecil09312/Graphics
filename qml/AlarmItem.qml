@@ -23,8 +23,8 @@ Rectangle
 
             Button
             {
-                Layout.alignment: Qt.AlignRight
-                text: qsTr("末火警")
+                Layout.alignment: Qt.AlignRight;
+                text: qsTr("末火警");
                 Layout.fillWidth: true;
             }
 
