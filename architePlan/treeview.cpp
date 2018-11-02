@@ -6,7 +6,6 @@
 #include <QHeaderView>
 #include <algorithm>
 #include <QQmlContext>
-#include "graphicsWidget/graphicswidget.h"
 #include "jsonEdit/jsonedit.h"
 #include <QQmlComponent>
 #include <QQuickItem>
@@ -47,13 +46,18 @@ TreeView::TreeView(QWidget *parent):
     {
         clearItem();
     });
-
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this,&TreeView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)
+    {
+        m_rootPoint=  QWidget::mapFromGlobal(QCursor::pos());
+        m_menu->exec(QCursor::pos());
+    });
 
 }
 
 TreeView::~TreeView()
 {
-
+    m_menu->close();
     delete m_menu;
     delete m_architeSettingView;
 }
@@ -210,37 +214,6 @@ void TreeView::insertPixmap(const QString &fileName)
 void TreeView::architeSettingViewClose()
 {
     m_architeSettingView->close();
-}
-
-void TreeView::mousePressEvent(QMouseEvent *event)
-{
-
-    if(event->button()==Qt::RightButton||event->button()==Qt::LeftButton)
-    {
-        m_rootPoint = event->pos();
-        QModelIndex index = indexAt(m_rootPoint);
-        if(event->button()==Qt::RightButton)
-        {
-            m_menu->setGeometry(event->globalX(),event->globalY(),100,120);
-            m_menu->show();
-        }
-        else if(event->button()==Qt::LeftButton)
-        {
-            if(!isExpanded(index))
-            {
-                setExpanded(index,true);
-            }
-            else
-            {
-                setExpanded(index,false);
-            }
-            if(index.isValid())
-            {
-                emit clicked(index);
-            }
-        }
-    }
-
 }
 
 void TreeView::initWidget()

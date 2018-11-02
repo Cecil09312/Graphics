@@ -1,16 +1,24 @@
 #include "graphicsview.h"
 #include <QDebug>
 #include <QTransform>
-
+#include <QScrollBar>
+#include <QOpenGLWidget>
+#include "openglWidget/glwidget.h"
 GraphicsView::GraphicsView(QWidget *parent):
     QGraphicsView(parent)
 {
-   zoom(1.5);
+    m_scene = new GraphicsScene(this);
+    m_pixmapItem = new QGraphicsPixmapItem;
+    setScene(m_scene);
+    m_scene->addItem(m_pixmapItem);
+    zoom(1.5);
+    setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
+    setViewport(new QOpenGLWidget(this));
 }
 
 void GraphicsView::zoom(qreal scaleValue)
 {
-    if(scaleValue>1.0&&scaleValue<20.0)
+    if(scaleValue>1.0&&scaleValue<10.0)
     {
         m_scale = scaleValue;
     }
@@ -24,7 +32,6 @@ void GraphicsView::zoom(qreal scaleValue)
 
 void GraphicsView::wheelEvent(QWheelEvent *e)
 {
-
     if (e->angleDelta().ry()>0)
     {
         scale(m_scale,m_scale);
@@ -34,26 +41,32 @@ void GraphicsView::wheelEvent(QWheelEvent *e)
         scale(1.0/m_scale,1.0/m_scale);
     }
     e->accept();
-
 }
 
 
-//void GraphicsView::paintEvent(QPaintEvent *event)
-//{
-//    qDebug() << event->rect().x();
-//}
+QPixmap GraphicsView::graphicsPixmap() const
+{
+    return m_pixmapItem->pixmap();
+}
 
-//void GraphicsView::mouseMoveEvent(QMouseEvent *event)
-//{
+QString GraphicsView::pixmapName()
+{
+    return m_pixmapName;
+}
 
-//}
+void GraphicsView::loadPixmap(const QString &fileName)
+{
+    m_pixmapName = fileName;
+    if(m_pixmapName.startsWith("file:///"))
+    {
+        QList<QString> nameList=  m_pixmapName.split("file:///");
+        int size = nameList.size();
+        if(size>0)
+        {
+            m_pixmapName = nameList.at(size-1);
+        }
+    }
 
-//void GraphicsView::mousePressEvent(QMouseEvent *event)
-//{
+    m_pixmapItem->setPixmap(QPixmap(m_pixmapName));
 
-//}
-
-//void GraphicsView::mouseReleaseEvent(QMouseEvent *event)
-//{
-
-//}
+}

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui quick svg
+QT       += core gui quick svg opengl
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -31,10 +31,10 @@ SOURCES += \
     graphicsWidget/graphicsscene.cpp \
     graphicsWidget/graphicsview.cpp \
     graphicsWidget/pixmapitem.cpp \
-    graphicsWidget/graphicswidget.cpp \
     graphicsWidget/graphicsitem.cpp \
     architePlan/treeview.cpp \
-    jsonEdit/jsonedit.cpp
+    jsonEdit/jsonedit.cpp \
+    openglWidget/glwidget.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -43,7 +43,6 @@ HEADERS += \
     graphicsWidget/graphicsscene.h \
     graphicsWidget/graphicsview.h \
     graphicsWidget/pixmapitem.h \
-    graphicsWidget/graphicswidget.h \
     graphicsWidget/graphicsitem.h \
     architePlan/treeview.h \
     jsonEdit/jsonedit.h

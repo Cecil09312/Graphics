@@ -9,12 +9,14 @@ CrtWidget::CrtWidget(QWidget *parent) :
     QWidget(parent)
 {
     initWidget();
+    setWindowFlags(Qt::FramelessWindowHint);
 }
 
 CrtWidget::~CrtWidget()
 {
     delete m_alarmContainer;
     delete m_toolBarContainer;
+    delete m_loginQuickView;
 }
 
 void CrtWidget::widgetExit()

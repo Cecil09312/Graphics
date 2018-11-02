@@ -3,7 +3,9 @@
 #include <QLabel>
 #include <QSplitter>
 #include "jsonEdit/jsonedit.h"
-
+#include <QGLWidget>
+#include <QOpenGLWidget>
+#include "openglWidget/glwidget.h"
 
 ArchitePlanView::ArchitePlanView(QWidget *parent)
     : QWidget(parent)
@@ -46,7 +48,7 @@ void ArchitePlanView::initWidget()
         int page = map[item];
         if(m_widgetMap[page]==nullptr)
         {
-            GraphicsWidget *widget = new GraphicsWidget(this);
+            GraphicsView *widget = new GraphicsView(this);
             m_widgetMap[page]=widget;
             m_stackedWidget->addWidget(widget);
         }
@@ -85,7 +87,7 @@ void ArchitePlanView::initWidget()
             {
                 QStandardItem*childItem =  item->child(i);
                 int chileItemPage = itemMap[childItem];
-                GraphicsWidget*childWidget = m_widgetMap[chileItemPage];
+                GraphicsView*childWidget = m_widgetMap[chileItemPage];
                 m_stackedWidget->removeWidget(childWidget);
                 m_widgetMap.remove(chileItemPage);
                 m_treeView->getTreeIndexMap().remove(childItem);
@@ -94,7 +96,7 @@ void ArchitePlanView::initWidget()
         }
 
         int page =itemMap[item];
-        GraphicsWidget*widget = m_widgetMap[page];
+        GraphicsView*widget = m_widgetMap[page];
         m_stackedWidget->removeWidget(widget);
         m_widgetMap.remove(page);
         m_treeView->getTreeIndexMap().remove(item);
@@ -105,7 +107,7 @@ void ArchitePlanView::initWidget()
         QMap<QStandardItem*,int>itemMap;
         itemMap = m_treeView->getTreeIndexMap();
         int page =itemMap[item];
-        GraphicsWidget*widget = m_widgetMap[page];
+        GraphicsView*widget = m_widgetMap[page];
         if(widget!=nullptr)
             widget->loadPixmap(fileName);
     });
@@ -124,7 +126,7 @@ void ArchitePlanView::saveArchiteInfo()
             QMap<QStandardItem*,int>itemMap;
             itemMap = m_treeView->getTreeIndexMap();
             int page =itemMap[parentItem];
-            GraphicsWidget*widget = m_widgetMap[page];
+            GraphicsView*widget = m_widgetMap[page];
             if(widget!=nullptr)
             {
                 rootImageMap["path"]=widget->pixmapName();
@@ -142,7 +144,7 @@ void ArchitePlanView::saveArchiteInfo()
                         QMap<QStandardItem*,int>childItemMap;
                         childItemMap = m_treeView->getTreeIndexMap();
                         int page =childItemMap[childItem];
-                        GraphicsWidget*childWidget = m_widgetMap[page];
+                        GraphicsView*childWidget = m_widgetMap[page];
                         if(childWidget!=nullptr)
                         {
                             childImageMap["path"]=childWidget->pixmapName();
@@ -177,7 +179,7 @@ void ArchitePlanView::initFromJsonFile()
                 QMap<QStandardItem*,int>parentItemMap;
                 parentItemMap = m_treeView->getTreeIndexMap();
                 int page =parentItemMap[parentItem];
-                GraphicsWidget*parentWidget = m_widgetMap[page];
+                GraphicsView*parentWidget = m_widgetMap[page];
                 if(parentWidget)
                 {
                     parentWidget->loadPixmap(parentPixmapMap["path"].toString());
@@ -202,7 +204,7 @@ void ArchitePlanView::initFromJsonFile()
                             QMap<QStandardItem*,int>childItemMap;
                             childItemMap = m_treeView->getTreeIndexMap();
                             int page =childItemMap[childItem];
-                            GraphicsWidget*childWidget = m_widgetMap[page];
+                            GraphicsView*childWidget = m_widgetMap[page];
                             if(childWidget)
                             {
                                 childWidget->loadPixmap(childPixmapMap["path"].toString());

@@ -32,7 +32,7 @@ public slots:
     void architeSettingViewClose();
 
 protected:
-    void mousePressEvent(QMouseEvent *event);
+    //void mousePressEvent(QMouseEvent *event);
 private:
     void initWidget();
     void initMenu();

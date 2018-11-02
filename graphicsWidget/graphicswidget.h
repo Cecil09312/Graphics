@@ -2,12 +2,14 @@
 #define WIDGET_H
 
 #include <QWidget>
+#include <QFrame>
 #include "pixmapitem.h"
 #include "graphicsview.h"
 #include <QGraphicsScene>
 #include <QPixmap>
 #include "graphicsscene.h"
-class GraphicsWidget : public QWidget
+#include <QGLWidget>
+class GraphicsWidget : public QFrame
 {
     Q_OBJECT
 
@@ -19,10 +21,8 @@ public:
 public slots:
     void loadPixmap(const QString &fileName);
 private:
-    //PixmapItem *m_pixmapItem;
     GraphicsView *m_graphicsView;
     GraphicsScene *m_scene;
-   // QGraphicsSvgItem *m_svgItem;
     QGraphicsPixmapItem *m_pixmapItem;
     QString m_pixmapName;
 };

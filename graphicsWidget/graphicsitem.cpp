@@ -3,7 +3,7 @@
 #include "graphicsWidget/graphicsscene.h"
 GraphicsItem::GraphicsItem(GraphicsScene *scene, QObject *parent):
     QObject(parent),
-    m_radius(12)
+    m_radius(12.0)
 
 {
     m_graphicsScene = scene;
@@ -15,8 +15,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene, QObject *parent):
     m_propertyAnimation->setEndValue(QColor(Qt::red));
     m_propertyAnimation->setDuration(1000);
     m_propertyAnimation->setLoopCount(-1);
-    // qDebug() << m_propertyAnimation->currentValue();
-     m_propertyAnimation->start();
+   // m_propertyAnimation->start();
     connect(m_propertyAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &/*value*/)
     {
         QColor color =qvariant_cast<QColor> (m_propertyAnimation->currentValue());
@@ -28,7 +27,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene, QObject *parent):
     });
 
     setAcceptHoverEvents(true);
-     m_text = QString("%1").arg(qrand()%100);
+    m_itemText = QString("%1").arg(qrand()%256);
 
 }
 
@@ -62,7 +61,6 @@ QRectF GraphicsItem::boundingRect() const
 void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*/*option*/, QWidget */*widget*/)
 {
     painter->setBrush(m_color);
-
 //     QPen pen;
 //     pen.setWidth(0);
 //     pen.setColor(Qt::red);
@@ -70,19 +68,17 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*/*opt
     if(m_radius>0)
     {
         //pen.setColor(Qt::red);
-
         painter->drawEllipse(QPointF(0,0),m_radius,m_radius);
-        painter->drawText(QPointF(-m_radius-5,-m_radius-5),m_text);
+        painter->drawText(QPointF(-m_radius-5,-m_radius-5),m_itemText);
 
     }
     else
     {
-
         painter->drawEllipse(QPointF(0,0),12,12);
-        painter->drawText(QPointF(-17,-17),m_text);
+        painter->drawText(QPointF(-17,-17),m_itemText);
     }
 
-
+    m_graphicsScene->update();
 
    // painter->drawRoundedRect(-10, -10, 20, 20, 5, 5);
 }
@@ -112,15 +108,77 @@ void GraphicsItem::setAnimationLoopCount(int count)
     m_propertyAnimation->setLoopCount(count);
 }
 
+QPointF GraphicsItem::graphicsItemPos() const
+{
+    return  this->pos();
+}
+
+void GraphicsItem::setAnimationStartValue(const QVariant &value)
+{
+    m_propertyAnimation->setStartValue(value);
+}
+
+void GraphicsItem::setAnimationEndValue(const QVariant &value)
+{
+    m_propertyAnimation->setEndValue(value);
+}
+
+QColor GraphicsItem::color() const
+{
+    return m_color;
+}
+
+qreal GraphicsItem::radius() const
+{
+    return m_radius;
+}
+
+void GraphicsItem::setRadius(qreal radius)
+{
+    m_radius = radius;
+}
+
+QString GraphicsItem::hoverText() const
+{
+    return m_hoverText;
+}
+
+void GraphicsItem::setHoverText(const QString &hoverText)
+{
+    m_hoverText = hoverText;
+}
+
+QString GraphicsItem::itemText() const
+{
+    return m_itemText;
+}
+
+void GraphicsItem::setItemText(const QString &itemText)
+{
+    m_itemText = itemText;
+}
+
+QColor GraphicsItem::itemTextColor() const
+{
+    return m_itemTextColor;
+}
+
+void GraphicsItem::setItemTextColor(const QColor &color)
+{
+    m_itemTextColor = color;
+}
+
+
 void GraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     setPos(event->scenePos());
+    m_graphicsScene->update();
 }
 
 void GraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
-    QString toolTip = QString("x:%1,y:%2").arg(event->scenePos().rx()).arg(event->scenePos().ry());
-    setToolTip(toolTip);
+    m_hoverText = QString("x:%1,y:%2").arg(event->scenePos().rx()).arg(event->scenePos().ry());
+    setToolTip(m_hoverText);
     event->accept();
     // qDebug() << toolTip;
 }

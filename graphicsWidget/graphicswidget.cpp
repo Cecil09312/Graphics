@@ -9,7 +9,7 @@
 #include <QDir>
 
 GraphicsWidget::GraphicsWidget(QWidget *parent)
-    : QWidget(parent)
+    : QFrame(parent)
 {
 
     QHBoxLayout *hLayout = new QHBoxLayout;

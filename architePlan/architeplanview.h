@@ -5,7 +5,7 @@
 #include <QTreeView>
 #include <QStackedWidget>
 #include <QTabWidget>
-#include "graphicsWidget/graphicswidget.h"
+#include "graphicsWidget/graphicsview.h"
 #include <QStandardItemModel>
 #include "treeview.h"
 #include <QQuickView>
@@ -29,9 +29,9 @@ private:
     TreeView *m_treeView;
     QStackedWidget *m_stackedWidget;
     QTabWidget *m_tabWidget;
-    QMap<int,GraphicsWidget *>m_widgetMap;
+    QMap<int,GraphicsView *>m_widgetMap;
     const QString c_jsonFilePath=QCoreApplication::applicationDirPath()+"/treeView.json";
-   // GraphicsWidget *m_graphicsWidget;
+
 };
 
 #endif // ARCHITEPLANVIEW_H
