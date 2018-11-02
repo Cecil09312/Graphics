@@ -19,6 +19,10 @@ Rectangle
                 Layout.alignment: Qt.AlignLeft;
                 text: qsTr("首火警")
                 Layout.fillWidth: true;
+                onClicked:
+                {
+                  CrtWidget.toFirstFireAlarm();
+                }
             }
 
             Button
@@ -26,6 +30,10 @@ Rectangle
                 Layout.alignment: Qt.AlignRight;
                 text: qsTr("末火警");
                 Layout.fillWidth: true;
+                onClicked:
+                {
+                   CrtWidget.toLastFireAlarm();
+                }
             }
 
         }

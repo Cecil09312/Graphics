@@ -16,10 +16,12 @@ protected:
     void mousePressEvent(QGraphicsSceneMouseEvent*event);
 
 public:
-    QList<QGraphicsItem*>getItemList() const;
-    QGraphicsItem*getItem(int pos) const;
+     QList<QGraphicsItem*>getItemList() const;
+     QGraphicsItem*getItem(int pos) const;
+     static QList<QGraphicsItem *> getTypeItemList(const QString &type);
 private:
-    QList<QGraphicsItem*>m_itemList;
+     QList<QGraphicsItem*>m_itemList;
+     static  QMap<QString,QList<QGraphicsItem*> >s_typeItemMap;
 
 };
 

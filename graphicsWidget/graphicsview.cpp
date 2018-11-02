@@ -54,6 +54,16 @@ QString GraphicsView::pixmapName()
     return m_pixmapName;
 }
 
+QList<QGraphicsItem *> GraphicsView::getItemList()
+{
+    return m_scene->getItemList();
+}
+
+QGraphicsItem *GraphicsView::getItem(int pos)
+{
+    return m_scene->getItem(pos);
+}
+
 void GraphicsView::loadPixmap(const QString &fileName)
 {
     m_pixmapName = fileName;

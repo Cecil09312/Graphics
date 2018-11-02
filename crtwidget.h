@@ -19,6 +19,8 @@ public:
 public slots:
     void widgetExit();
     void loginWidgetShow();
+    void toFirstFireAlarm();
+    void toLastFireAlarm();
 private:
     void initWidget();
 private:

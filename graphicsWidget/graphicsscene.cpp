@@ -6,7 +6,7 @@
 #include <QDebug>
 #include "graphicsWidget/graphicsitem.h"
 
-
+QMap<QString,QList<QGraphicsItem*> > GraphicsScene::s_typeItemMap = QMap<QString,QList<QGraphicsItem*> >();
 GraphicsScene::GraphicsScene(QObject *parent):
     QGraphicsScene(parent)
 {
@@ -20,10 +20,11 @@ void GraphicsScene::addGraphicsItem(qreal ax, qreal ay)
 
 void GraphicsScene::addGraphicsItem(const QPointF &pointF)
 {
-    GraphicsItem *rectItem= new GraphicsItem(this);
-    rectItem->setPos(pointF);
-    this->addItem(rectItem);
-    m_itemList.push_back(rectItem);
+    GraphicsItem *item= new GraphicsItem(this);
+    item->setPos(pointF);
+    this->addItem(item);
+    m_itemList.push_back(item);
+    s_typeItemMap[tr("火警")].push_back(item);
 }
 
 void GraphicsScene::removeGraphicsItem(qreal ax, qreal ay)
@@ -38,10 +39,12 @@ void GraphicsScene::removeGraphicsItem(const QPointF &pointF)
     {
         for(int j=0;j<m_itemList.size();j++)
         {
-            if(graphicsItemList.at(i)==m_itemList.at(j))
+            QGraphicsItem* item = graphicsItemList.at(i);
+            if(item==m_itemList.at(j))
             {
                 removeItem(graphicsItemList.at(i));
                 m_itemList.removeAt(j);
+                s_typeItemMap[tr("火警")].removeOne(item);
                 break;
             }
 
@@ -88,6 +91,11 @@ QGraphicsItem *GraphicsScene::getItem(int pos) const
     {
         return nullptr;
     }
+}
+
+QList<QGraphicsItem *> GraphicsScene::getTypeItemList(const QString &type)
+{
+    return s_typeItemMap[type];
 }
 
 

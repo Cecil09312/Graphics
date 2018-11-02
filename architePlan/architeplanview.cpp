@@ -20,6 +20,29 @@ ArchitePlanView::~ArchitePlanView()
     saveArchiteInfo();
 }
 
+void ArchitePlanView::creatAlarm()
+{
+    //   int page =m_stackedWidget->count();
+
+    //   if(m_widgetMap.size()>0)
+    //   {
+    //       m_widgetMap
+    //   }
+
+    //   GraphicsScene::getItemList();
+
+}
+
+void ArchitePlanView::firstFireAlarm()
+{
+    findFireAlarm(0);
+}
+
+void ArchitePlanView::lastFireAlarm()
+{
+    findFireAlarm(-1);
+}
+
 
 
 void ArchitePlanView::initWidget()
@@ -38,6 +61,7 @@ void ArchitePlanView::initWidget()
     splitter->addWidget(m_stackedWidget);
     splitter->addWidget(m_treeView);
     m_tabWidget->addTab(splitter,tr("建筑平面图"));
+    //m_tabWidget->addTab(new QWidget(this),tr("平面图"));
     globalHLayout->addWidget(m_tabWidget);
     globalHLayout->setContentsMargins(QMargins(0,0,0,0));
     setLayout(globalHLayout);
@@ -218,6 +242,45 @@ void ArchitePlanView::initFromJsonFile()
 
             }
 
+        }
+    }
+}
+
+void ArchitePlanView::findFireAlarm(int pos)
+{
+    QList<QGraphicsItem*>itemList= GraphicsScene::getTypeItemList(tr("火警"));
+    int listSize = itemList.size();
+    QList<GraphicsView *>viewList = m_widgetMap.values();
+    if(viewList.size()>0)
+    {
+        if(listSize>0)
+        {
+            for(int i=0;i<viewList.size();i++)
+            {
+                GraphicsView * currentView = viewList.at(i);
+                QList<QGraphicsItem*>viewItemList= currentView->getItemList();
+                foreach (QGraphicsItem*currentItem, viewItemList)
+                {
+                    if(listSize>pos && pos>=0)
+                    {
+                        if(currentItem==itemList.at(pos))
+                        {
+                            m_tabWidget->setCurrentIndex(0);
+                            m_stackedWidget->setCurrentWidget(currentView);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        if(currentItem==itemList.at(listSize-1))
+                        {
+                            m_tabWidget->setCurrentIndex(0);
+                            m_stackedWidget->setCurrentWidget(currentView);
+                            return;
+                        }
+                    }
+                }
+            }
         }
     }
 }

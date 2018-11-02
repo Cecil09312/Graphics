@@ -29,6 +29,16 @@ void CrtWidget::loginWidgetShow()
     m_loginQuickView->show();
 }
 
+void CrtWidget::toFirstFireAlarm()
+{
+    m_architePlanView->firstFireAlarm();
+}
+
+void CrtWidget::toLastFireAlarm()
+{
+    m_architePlanView->lastFireAlarm();
+}
+
 void CrtWidget::initWidget()
 {
     QVBoxLayout *globalVLayout = new QVBoxLayout;
@@ -47,7 +57,7 @@ void CrtWidget::initWidget()
 
     QQuickView *alarmQuickView = new QQuickView;
     alarmQuickView->setSource(QUrl("qrc:/qml/AlarmItem.qml"));
-
+    alarmQuickView->rootContext()->setContextProperty("CrtWidget",this);
     m_alarmContainer = QWidget::createWindowContainer(alarmQuickView, this,Qt::SubWindow);
 
     m_alarmContainer->setMinimumHeight(100);

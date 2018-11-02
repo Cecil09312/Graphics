@@ -20,11 +20,15 @@ public:
 signals:
 
 public slots:
+     void creatAlarm();
+     void firstFireAlarm();
+     void lastFireAlarm();
 
 private:
     void initWidget();
     void saveArchiteInfo();
     void initFromJsonFile();
+    void findFireAlarm(int pos);
 private:
     TreeView *m_treeView;
     QStackedWidget *m_stackedWidget;

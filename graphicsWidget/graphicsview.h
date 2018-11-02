@@ -15,6 +15,8 @@ public:
     GraphicsView(QWidget *parent = Q_NULLPTR);
     QPixmap graphicsPixmap() const;
     QString pixmapName();
+    QList<QGraphicsItem *> getItemList();
+    QGraphicsItem * getItem(int pos);
 public slots:
     void zoom(qreal scaleValue);
     void loadPixmap(const QString &fileName);
