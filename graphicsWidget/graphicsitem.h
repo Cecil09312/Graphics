@@ -6,11 +6,13 @@
 #include <QPropertyAnimation>
 #include <QGraphicsSceneMouseEvent>
 #include <QObject>
+
 class GraphicsScene;
 
 class GraphicsItem : public QObject,public QGraphicsItem
 {
     Q_OBJECT
+    Q_INTERFACES(QGraphicsItem)
     Q_PROPERTY(QColor color READ color WRITE setColor/* NOTIFY colorChanged*/)
     Q_PROPERTY(qreal radius READ radius WRITE setRadius/* NOTIFY radiusChanged*/)
     Q_PROPERTY(QString hoverText READ hoverText WRITE setHoverText/* NOTIFY hoverTextChanged*/)
@@ -20,8 +22,7 @@ public:
     GraphicsItem(GraphicsScene *scene,QObject *parent=nullptr);
     ~GraphicsItem();
     QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-               QWidget *widget);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *);
     void startAnimation();
     void stopAnimation();
     void setAnimationDuration(int duration);

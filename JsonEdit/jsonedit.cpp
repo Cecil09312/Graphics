@@ -7,30 +7,34 @@
 #include <QFile>
 #include <QMutex>
 #include<QMutexLocker>
+#include <QFuture>
+#include <QtConcurrent>
 
-JsonEdit *JsonEdit:: m_jsonEdit = nullptr;
-JsonEdit::AutoDelete autoDelete;
+//JsonEdit *JsonEdit:: m_jsonEdit = nullptr;
+//JsonEdit::AutoDelete autoDelete;
 JsonEdit::JsonEdit(QObject *parent) : QObject(parent)
 {
+
     // m_childMap["child"] = "";
-
+    m_rootList = QList<QVariant>();
 }
 
-JsonEdit *JsonEdit::instance()
-{
-    if(m_jsonEdit==nullptr)
-    {
-        QMutex mutex;
-        QMutexLocker mutexLocker(&mutex);
-        if(m_jsonEdit==nullptr)
-        {
-            JsonEdit *jsonEdit = new JsonEdit;
-            m_jsonEdit = jsonEdit;
+//JsonEdit *JsonEdit::instance()
+//{
+//    if(m_jsonEdit==nullptr)
+//    {
+//        QMutex mutex;
+//        mutex.lock();
+//        if(m_jsonEdit==nullptr)
+//        {
+//            JsonEdit *jsonEdit = new JsonEdit;
+//            m_jsonEdit = jsonEdit;
+//        }
+//        mutex.unlock();
+//    }
 
-        }
-        return m_jsonEdit;
-    }
-}
+//     return m_jsonEdit;
+//}
 
 void JsonEdit::insertRoot(const QVariant &root)
 {
@@ -114,35 +118,50 @@ QVariant JsonEdit::getChild(int parentIndex)
     }
 }
 
-QList<QVariant> JsonEdit::getRoot() const
+QList<QVariant>JsonEdit::getRoot() const
 {
     return m_rootList;
 }
 
 void JsonEdit::writeFile(const QString &fileName)
 {
-    QFile file(fileName);
-    if(file.open(QIODevice::WriteOnly))
-   {
-       QJsonDocument jsonDoc= QJsonDocument::fromVariant(getRoot());
-       file.write(jsonDoc.toJson());
-    }
-    file.close();
+    QFuture <void > future = QtConcurrent::run([=]()
+    {
+        QFile file(fileName);
+        if(file.open(QIODevice::WriteOnly))
+        {
+            QJsonDocument jsonDoc;
+            if(!getRoot().isEmpty())
+            {
+                jsonDoc= QJsonDocument::fromVariant(getRoot());
+
+            }
+            file.write(jsonDoc.toJson());
+        }
+        file.close();
+    });
+    future.waitForFinished();
+
+
 }
 
 QVariant JsonEdit::readFile(const QString &fileName)
 {
-    QFile file(fileName);
-    QVariant variant;
-    if(file.open(QIODevice::ReadOnly))
-   {
-       QByteArray byteArray = file.readAll();
-       QJsonDocument jsonDoc= QJsonDocument::fromJson(byteArray);
-       variant = jsonDoc.toVariant();
-      // qDebug() << variant;
-    }
-    file.close();
-    return variant;
+    static QJsonDocument jsonDoc = QJsonDocument();
+    QFuture <void > future = QtConcurrent::run([=]()
+    {
+        QFile file(fileName);
+
+        if(file.open(QIODevice::ReadOnly))
+        {
+            QByteArray byteArray = file.readAll();
+            jsonDoc= QJsonDocument::fromJson(byteArray);
+        }
+        file.close();
+    });
+    future.waitForFinished();
+
+    return jsonDoc.toVariant();
 }
 
 void JsonEdit::fileClear()

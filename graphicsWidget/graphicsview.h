@@ -13,6 +13,7 @@ class GraphicsView : public QGraphicsView
 {
 public:
     GraphicsView(QWidget *parent = Q_NULLPTR);
+    ~GraphicsView();
     QPixmap graphicsPixmap() const;
     QString pixmapName();
     QList<QGraphicsItem *> getItemList();

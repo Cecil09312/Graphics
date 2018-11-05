@@ -7,6 +7,8 @@
 #include <QStandardItemModel>
 #include <QItemDelegate>
 #include <QQuickView>
+#include "control/controller.h"
+#include "jsonEdit/jsonedit.h"
 class ItemDelegate;
 class TreeView : public QTreeView
 {
@@ -56,6 +58,7 @@ private:
     QQuickView *m_architeSettingView;
     QStandardItem *m_currentItem;
     //QWidget *m_architeSettingContainer;
+
 };
 
 class ItemDelegate:public QItemDelegate

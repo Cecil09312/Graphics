@@ -14,6 +14,18 @@ GraphicsView::GraphicsView(QWidget *parent):
     zoom(1.5);
     setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
     setViewport(new QOpenGLWidget(this));
+
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this,&GraphicsView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)
+    {
+        m_scene->showMenu(QCursor::pos());
+    });
+
+}
+
+GraphicsView::~GraphicsView()
+{
+
 }
 
 void GraphicsView::zoom(qreal scaleValue)
@@ -76,6 +88,9 @@ void GraphicsView::loadPixmap(const QString &fileName)
             m_pixmapName = nameList.at(size-1);
         }
     }
+#ifdef Q_OS_LINUX
+    m_pixmapName = "/"+m_pixmapName;
+#endif
 
     m_pixmapItem->setPixmap(QPixmap(m_pixmapName));
 

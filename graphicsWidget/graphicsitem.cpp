@@ -1,6 +1,7 @@
 #include "graphicsitem.h"
 #include <QDebug>
 #include "graphicsWidget/graphicsscene.h"
+#include <QStyleOptionGraphicsItem>
 GraphicsItem::GraphicsItem(GraphicsScene *scene, QObject *parent):
     QObject(parent),
     m_radius(12.0)
@@ -58,7 +59,7 @@ QRectF GraphicsItem::boundingRect() const
 
 }
 
-void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*/*option*/, QWidget */*widget*/)
+void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*option, QWidget */*widget*/)
 {
     painter->setBrush(m_color);
 //     QPen pen;
@@ -78,6 +79,14 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*/*opt
         painter->drawText(QPointF(-17,-17),m_itemText);
     }
 
+   if (option->state & QStyle::State_Selected)
+   {
+       painter->setPen(QPen(Qt::black, 0, Qt::DashLine));
+       painter->setBrush(Qt::NoBrush);
+       painter->drawRect(boundingRect().adjusted(m_radius*2, m_radius*2, -m_radius*2, -m_radius*2));
+
+   }
+       //   qt_graphicsItem_highlightSelected(this, painter, option);
     m_graphicsScene->update();
 
    // painter->drawRoundedRect(-10, -10, 20, 20, 5, 5);

@@ -3,7 +3,7 @@ import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import QtQuick.VirtualKeyboard 2.1
 import QtQuick.Window 2.3
-import Qt.labs.platform 1.0
+import QtQuick.Dialogs 1.2
 Rectangle
 {
     id:treeViewSettingRec
@@ -95,11 +95,14 @@ Rectangle
     FileDialog
     {
         id: fileDialog
-        currentFile: "."
-        folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
+        title: "Please choose a file"
+        folder: shortcuts.home
+        //folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
         onAccepted:
         {
-            primArchImageTextField.text = fileDialog.currentFile;
+            console.log(fileDialog.fileUrl.toString());
+
+           primArchImageTextField.text = fileDialog.fileUrl.toString();
             TreeView.insertPixmap(primArchImageTextField.text);
         }
     }

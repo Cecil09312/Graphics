@@ -6,10 +6,11 @@
 #include <QHeaderView>
 #include <algorithm>
 #include <QQmlContext>
-#include "jsonEdit/jsonedit.h"
+//#include "jsonEdit/jsonedit.h"
 #include <QQmlComponent>
 #include <QQuickItem>
 #include <QQmlEngine>
+//#include "control/controller.h"
 
 TreeView::TreeView(QWidget *parent):
     QTreeView(parent)
@@ -78,7 +79,7 @@ void TreeView::saveTreeItem()
         if(parentItem)
         {
             rootMap["name"] =parentItem->text();
-            JsonEdit::instance()->insertRoot(rootMap);
+            Controller<JsonEdit>::instance()->insertRoot(rootMap);
             if(parentItem->hasChildren())
             {
                 for(int j=0;j<parentItem->rowCount();j++)
@@ -89,7 +90,7 @@ void TreeView::saveTreeItem()
                     {
                         QMap<QString,QVariant> childMap;
                         childMap["name"] = childItem->text();
-                        JsonEdit::instance()->insertChild(i,childMap);
+                        Controller<JsonEdit>::instance()->insertChild(i,childMap);
                     }
                 }
             }

@@ -2,7 +2,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QSplitter>
-#include "jsonEdit/jsonedit.h"
+
 #include <QGLWidget>
 #include <QOpenGLWidget>
 #include "openglWidget/glwidget.h"
@@ -19,6 +19,7 @@ ArchitePlanView::~ArchitePlanView()
     m_treeView->saveTreeItem();
     saveArchiteInfo();
 }
+
 
 void ArchitePlanView::creatAlarm()
 {
@@ -154,7 +155,7 @@ void ArchitePlanView::saveArchiteInfo()
             if(widget!=nullptr)
             {
                 rootImageMap["path"]=widget->pixmapName();
-                JsonEdit::instance()->setRootImage(model->indexFromItem(parentItem).row(),rootImageMap);
+              Controller<JsonEdit>::instance()->setRootImage(model->indexFromItem(parentItem).row(),rootImageMap);
             }
             if(parentItem->hasChildren())
             {
@@ -172,7 +173,7 @@ void ArchitePlanView::saveArchiteInfo()
                         if(childWidget!=nullptr)
                         {
                             childImageMap["path"]=childWidget->pixmapName();
-                            JsonEdit::instance()->setChildImage(model->indexFromItem(parentItem).row(),model->indexFromItem(childItem).row(),childImageMap);
+                            Controller<JsonEdit>::instance()->setChildImage(model->indexFromItem(parentItem).row(),model->indexFromItem(childItem).row(),childImageMap);
                         }
                     }
                 }
@@ -182,12 +183,12 @@ void ArchitePlanView::saveArchiteInfo()
 
     }
 
-    JsonEdit::instance()->writeFile(c_jsonFilePath);
+    Controller<JsonEdit>::instance()->writeFile(c_jsonFilePath);
 }
 
 void ArchitePlanView::initFromJsonFile()
 {
-    QList<QVariant> valueList=JsonEdit::instance()->readFile(c_jsonFilePath).toList();
+    QList<QVariant> valueList=Controller<JsonEdit>::instance()->readFile(c_jsonFilePath).toList();
     for(int i=0;i<valueList.size();i++)
     {
         QMap<QString,QVariant> parentMap=  valueList.at(i).toMap();

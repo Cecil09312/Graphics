@@ -10,9 +10,12 @@
 #include "treeview.h"
 #include <QQuickView>
 #include <QCoreApplication>
+#include <QCloseEvent>
+
 class ArchitePlanView : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit ArchitePlanView(QWidget *parent = nullptr);
     ~ArchitePlanView();
@@ -30,6 +33,7 @@ private:
     void initFromJsonFile();
     void findFireAlarm(int pos);
 private:
+
     TreeView *m_treeView;
     QStackedWidget *m_stackedWidget;
     QTabWidget *m_tabWidget;

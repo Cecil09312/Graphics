@@ -10,7 +10,8 @@ class JsonEdit : public QObject
 {
     Q_OBJECT
 public:
-    static JsonEdit *instance();
+    explicit JsonEdit(QObject *parent = nullptr);
+    //static JsonEdit *instance();
     void insertRoot(const QVariant &root);
     void setRootValue(int parentIndex, const QString &name, const QVariant &value);
     void setRootName(int parentIndex, const QString &name);
@@ -24,30 +25,30 @@ public:
     void writeFile(const QString &fileName);
     QVariant readFile(const QString &fileName);
     void fileClear();
-public:
-    class AutoDelete
-    {
-    public:
-        ~AutoDelete()
-        {
-            if(m_jsonEdit!=nullptr)
-            {
-                delete m_jsonEdit;
-                m_jsonEdit = nullptr;
-            }
-        }
-    };
+//public:
+//    class AutoDelete
+//    {
+//    public:
+//        ~AutoDelete()
+//        {
+//            if(m_jsonEdit!=nullptr)
+//            {
+//                delete m_jsonEdit;
+//                m_jsonEdit = nullptr;
+//            }
+//        }
+//    };
 
 signals:
 
 public slots:
-private:
-    explicit JsonEdit(QObject *parent = nullptr);
+//private:
+//    explicit JsonEdit(QObject *parent = nullptr);
 
 
 private:
     QList<QVariant>m_rootList;
-    static JsonEdit *m_jsonEdit;
+   // static JsonEdit *m_jsonEdit;
 };
 
 #endif // JSONVALUE_H

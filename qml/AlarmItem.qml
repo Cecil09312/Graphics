@@ -1,7 +1,7 @@
-import QtQuick 2.11
+import QtQuick 2.9
 import QtQuick.Extras 1.4
 import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.4
+import QtQuick.Controls 2.2
 
 Rectangle
 {
@@ -217,6 +217,7 @@ Rectangle
     {
 
         anchors.top: alarmIndicatorLayout.bottom;
+
         width: parent.width-40;
         spacing: 5;
         anchors.left: parent.left;
@@ -228,6 +229,7 @@ Rectangle
         {
             id:repeater;
             Layout.fillHeight: true;
+
             model: ListModel
             {
                 ListElement
@@ -254,7 +256,7 @@ Rectangle
                 text: name;
                 anchors.leftMargin: 20;
                 width: parent.width;
-                height: 30;
+                //height: 30;
 //                background: Rectangle
 //                {
 //                   border.width:1;
