@@ -7,8 +7,7 @@
 #include <QStandardItemModel>
 #include <QItemDelegate>
 #include <QQuickView>
-#include "control/controller.h"
-#include "jsonEdit/jsonedit.h"
+//class Controller;
 class ItemDelegate;
 class TreeView : public QTreeView
 {

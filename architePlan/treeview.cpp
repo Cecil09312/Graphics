@@ -6,12 +6,10 @@
 #include <QHeaderView>
 #include <algorithm>
 #include <QQmlContext>
-//#include "jsonEdit/jsonedit.h"
 #include <QQmlComponent>
 #include <QQuickItem>
 #include <QQmlEngine>
-//#include "control/controller.h"
-
+#include "jsonEdit/jsonedit.h"
 TreeView::TreeView(QWidget *parent):
     QTreeView(parent)
 {
@@ -79,7 +77,7 @@ void TreeView::saveTreeItem()
         if(parentItem)
         {
             rootMap["name"] =parentItem->text();
-            Controller<JsonEdit>::instance()->insertRoot(rootMap);
+            JsonEdit::instance()->insertRoot(rootMap);
             if(parentItem->hasChildren())
             {
                 for(int j=0;j<parentItem->rowCount();j++)
@@ -90,7 +88,7 @@ void TreeView::saveTreeItem()
                     {
                         QMap<QString,QVariant> childMap;
                         childMap["name"] = childItem->text();
-                        Controller<JsonEdit>::instance()->insertChild(i,childMap);
+                        JsonEdit::instance()->insertChild(i,childMap);
                     }
                 }
             }
@@ -163,12 +161,11 @@ void TreeView::deleteTreeItem(QModelIndex index)
         emit deleteIndex(standardItem);
         if(standardItem->parent()==nullptr)
         {
-            m_stdModel->removeRow(index.row());
             if(m_parentIndexList.size()>index.row())
             {
                 m_parentIndexList.removeAt(index.row());
             }
-
+            m_stdModel->removeRow(index.row());
         }
         else
         {
@@ -177,15 +174,17 @@ void TreeView::deleteTreeItem(QModelIndex index)
             {
                 if(parentItem->rowCount()>index.row())
                 {
+
+                    if(m_childIndexMap[index.parent().row()].size()>index.row())
+                    {
+                        m_childIndexMap[index.parent().row()].removeAt(index.row());
+                    }
                     parentItem->removeRow(index.row());
                     m_stdModel->setItem(index.parent().row(),parentItem);
-                    if(m_childIndexMap[index.parent().row()].size()>index.row())
-                        m_childIndexMap[index.parent().row()].removeAt(index.row());
                 }
             }
 
         }
-
     }
 }
 

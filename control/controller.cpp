@@ -1,21 +1,40 @@
 #include "controller.h"
-//template<class T>
-//T *Controller<T>:: m_t = nullptr;
-////template<class T>
-//// Controller<T>::AutoDelete m_autoDelete;
-//template<class T>
-//T *Controller<T>::instance()
-//{
-//    QMutex mutex;
-//    if(m_t==nullptr)
-//    {
-//        mutex.lock();
-//        if(m_t==nullptr)
-//        {
-//            T*t = new T;
-//            m_t = t;
-//        }
-//        mutex.unlock();
-//    }
-//    return m_t;
-//}
+Controller*Controller::m_controller = nullptr;
+Controller::AutoDelete controlAutoDelete;
+Controller *Controller::instance()
+{
+    if(m_controller==nullptr)
+    {
+        QMutex mutex;
+        mutex.lock();
+        if(m_controller==nullptr)
+        {
+            Controller *controller = new Controller;
+            m_controller = controller;
+        }
+
+        mutex.unlock();
+    }
+    return m_controller;
+}
+
+Controller::~Controller()
+{
+    if(m_dataStore!=nullptr)
+    {
+        delete m_dataStore;
+        m_dataStore= nullptr;
+       // qDebug() << "Delete:" << "m_dataStore";
+    }
+
+}
+
+DataStore *Controller::getDataStore()
+{
+    return  m_dataStore;
+}
+
+Controller::Controller()
+{
+   m_dataStore = new DataStore;
+}

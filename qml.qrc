@@ -5,5 +5,6 @@
         <file>qml/LoginWindow.qml</file>
         <file>qml/CustomTreeView.qml</file>
         <file>qml/TreeViewSetting.qml</file>
+        <file>qml/GraphicsItemEditor.qml</file>
     </qresource>
 </RCC>

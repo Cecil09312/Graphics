@@ -6,7 +6,9 @@
 #include <QGLWidget>
 #include <QOpenGLWidget>
 #include "openglWidget/glwidget.h"
-
+//#include "control/controller.h"
+#include "dataStore/datastore.h"
+#include "jsonEdit/jsonedit.h"
 ArchitePlanView::ArchitePlanView(QWidget *parent)
     : QWidget(parent)
 {
@@ -155,7 +157,7 @@ void ArchitePlanView::saveArchiteInfo()
             if(widget!=nullptr)
             {
                 rootImageMap["path"]=widget->pixmapName();
-              Controller<JsonEdit>::instance()->setRootImage(model->indexFromItem(parentItem).row(),rootImageMap);
+              JsonEdit::instance()->setRootImage(model->indexFromItem(parentItem).row(),rootImageMap);
             }
             if(parentItem->hasChildren())
             {
@@ -173,7 +175,7 @@ void ArchitePlanView::saveArchiteInfo()
                         if(childWidget!=nullptr)
                         {
                             childImageMap["path"]=childWidget->pixmapName();
-                            Controller<JsonEdit>::instance()->setChildImage(model->indexFromItem(parentItem).row(),model->indexFromItem(childItem).row(),childImageMap);
+                            JsonEdit::instance()->setChildImage(model->indexFromItem(parentItem).row(),model->indexFromItem(childItem).row(),childImageMap);
                         }
                     }
                 }
@@ -183,12 +185,12 @@ void ArchitePlanView::saveArchiteInfo()
 
     }
 
-    Controller<JsonEdit>::instance()->writeFile(c_jsonFilePath);
+    JsonEdit::instance()->writeFile(c_jsonFilePath);
 }
 
 void ArchitePlanView::initFromJsonFile()
 {
-    QList<QVariant> valueList=Controller<JsonEdit>::instance()->readFile(c_jsonFilePath).toList();
+    QList<QVariant> valueList=JsonEdit::instance()->readFile(c_jsonFilePath).toList();
     for(int i=0;i<valueList.size();i++)
     {
         QMap<QString,QVariant> parentMap=  valueList.at(i).toMap();
@@ -249,7 +251,7 @@ void ArchitePlanView::initFromJsonFile()
 
 void ArchitePlanView::findFireAlarm(int pos)
 {
-    QList<QGraphicsItem*>itemList= GraphicsScene::getTypeItemList(tr("火警"));
+    QList<QGraphicsItem*>itemList= Controller::instance()->getDataStore()->getTypeItemList(tr("火警"));
     int listSize = itemList.size();
     QList<GraphicsView *>viewList = m_widgetMap.values();
     if(viewList.size()>0)

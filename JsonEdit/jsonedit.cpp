@@ -10,31 +10,29 @@
 #include <QFuture>
 #include <QtConcurrent>
 
-//JsonEdit *JsonEdit:: m_jsonEdit = nullptr;
-//JsonEdit::AutoDelete autoDelete;
+JsonEdit *JsonEdit:: m_jsonEdit = nullptr;
+JsonEdit::AutoDelete autoDelete;
 JsonEdit::JsonEdit(QObject *parent) : QObject(parent)
 {
-
-    // m_childMap["child"] = "";
     m_rootList = QList<QVariant>();
 }
 
-//JsonEdit *JsonEdit::instance()
-//{
-//    if(m_jsonEdit==nullptr)
-//    {
-//        QMutex mutex;
-//        mutex.lock();
-//        if(m_jsonEdit==nullptr)
-//        {
-//            JsonEdit *jsonEdit = new JsonEdit;
-//            m_jsonEdit = jsonEdit;
-//        }
-//        mutex.unlock();
-//    }
+JsonEdit *JsonEdit::instance()
+{
+    if(m_jsonEdit==nullptr)
+    {
+        QMutex mutex;
+        mutex.lock();
+        if(m_jsonEdit==nullptr)
+        {
+            JsonEdit *jsonEdit = new JsonEdit;
+            m_jsonEdit = jsonEdit;
+        }
+        mutex.unlock();
+    }
 
-//     return m_jsonEdit;
-//}
+     return m_jsonEdit;
+}
 
 void JsonEdit::insertRoot(const QVariant &root)
 {

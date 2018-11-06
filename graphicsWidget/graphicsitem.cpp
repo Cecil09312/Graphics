@@ -11,16 +11,38 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene, QObject *parent):
     setFlags(ItemIsMovable|ItemIsSelectable);
     m_color = QColor(Qt::green);
     setProperty("color",m_color);
-    m_propertyAnimation = new QPropertyAnimation(this,"color");
-    m_propertyAnimation->setStartValue(QColor(Qt::green));
-    m_propertyAnimation->setEndValue(QColor(Qt::red));
-    m_propertyAnimation->setDuration(1000);
-    m_propertyAnimation->setLoopCount(-1);
-   // m_propertyAnimation->start();
-    connect(m_propertyAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &/*value*/)
+    setProperty("scale",m_radius);
+    m_colorAnimation = new QPropertyAnimation(this,"color");
+    m_colorAnimation->setStartValue(QColor(Qt::black));
+    m_colorAnimation->setEndValue(QColor(Qt::red));
+    m_colorAnimation->setDuration(1000);
+    m_scaleAnimation = new QPropertyAnimation(this,"scale");
+    m_scaleAnimation->setStartValue(0.5);
+    m_scaleAnimation->setEndValue(1.2);
+    m_scaleAnimation->setDuration(1000);
+
+    m_parallelAnimGroup = new QParallelAnimationGroup(this);
+    m_parallelAnimGroup->addAnimation(m_colorAnimation);
+    m_parallelAnimGroup->addAnimation(m_scaleAnimation);
+    m_parallelAnimGroup->setLoopCount(-1);
+
+
+   // m_parallelAnimGroup->setDirection(1000);
+   m_parallelAnimGroup->start();
+    connect(m_colorAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &/*value*/)
     {
-        QColor color =qvariant_cast<QColor> (m_propertyAnimation->currentValue());
+        QColor color =qvariant_cast<QColor> (m_colorAnimation->currentValue());
         m_color = color;
+        if(m_graphicsScene)
+        {
+            m_graphicsScene->update();
+        }
+    });
+
+    connect(m_scaleAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &/*value*/)
+    {
+        qreal scale =qvariant_cast<qreal> (m_scaleAnimation->currentValue());
+        setScale(scale);
         if(m_graphicsScene)
         {
             m_graphicsScene->update();
@@ -34,11 +56,9 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene, QObject *parent):
 
 GraphicsItem::~GraphicsItem()
 {
-    if(m_propertyAnimation)
+    if(m_parallelAnimGroup)
     {
-        m_propertyAnimation->stop();
-
-        m_propertyAnimation->deleteLater();
+        m_parallelAnimGroup->stop();
     }
 }
 
@@ -99,22 +119,23 @@ void GraphicsItem::setColor(const QColor &color)
 
 void GraphicsItem::startAnimation()
 {
-    m_propertyAnimation->start();
+    m_parallelAnimGroup->start();
 }
 
 void GraphicsItem::stopAnimation()
 {
-    m_propertyAnimation->stop();
+    m_parallelAnimGroup->stop();
 }
 
 void GraphicsItem::setAnimationDuration(int duration)
 {
-    m_propertyAnimation->setDuration(duration);
+    m_colorAnimation->setDuration(duration);
+    m_scaleAnimation->setDuration(duration);
 }
 
 void GraphicsItem::setAnimationLoopCount(int count)
 {
-    m_propertyAnimation->setLoopCount(count);
+    m_parallelAnimGroup->setLoopCount(count);
 }
 
 QPointF GraphicsItem::graphicsItemPos() const
@@ -122,15 +143,27 @@ QPointF GraphicsItem::graphicsItemPos() const
     return  this->pos();
 }
 
-void GraphicsItem::setAnimationStartValue(const QVariant &value)
+void GraphicsItem::setColorStartValue(const QVariant &value)
 {
-    m_propertyAnimation->setStartValue(value);
+    m_colorAnimation->setStartValue(value);
 }
 
-void GraphicsItem::setAnimationEndValue(const QVariant &value)
+void GraphicsItem::setColorEndValue(const QVariant &value)
 {
-    m_propertyAnimation->setEndValue(value);
+    m_colorAnimation->setEndValue(value);
 }
+
+void GraphicsItem::setScaleStartValue(const QVariant &value)
+{
+    m_scaleAnimation->setStartValue(value);
+}
+
+void GraphicsItem::setScaleEndValue(const QVariant &value)
+{
+    m_scaleAnimation->setEndValue(value);
+}
+
+
 
 QColor GraphicsItem::color() const
 {

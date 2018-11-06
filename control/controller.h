@@ -2,27 +2,39 @@
 #define CONTROLLER_H
 #include <QMutex>
 #include <QDebug>
-
-template<class T>
+#include "dataStore/datastore.h"
 class Controller
 {
 public:
-    static T *instance()
-    {
-        return &m_t;
-    }
+    static Controller *instance();
+    ~Controller();
+    DataStore * getDataStore();
 
-protected:
-    Controller(){}
-    Controller(const Controller&){}
-    Controller &operator=(const Controller&){}
+public:
+    class AutoDelete
+    {
+    public:
+        ~AutoDelete()
+        {
+            if(m_controller!=nullptr)
+            {
+                delete m_controller;
+                m_controller = nullptr;
+               // qDebug() << "Delete:" << "m_controller";
+            }
+        }
+    };
+
 private:
-   static T m_t;
+    Controller();
+
+private:
+    static Controller*m_controller;
+    DataStore *m_dataStore;
 
 };
-#define DECL_SINGLETON(T) friend class Controller<T>
+
 #endif // CONTROLLER_H
-template<class T>__declspec(selectany) T Controller<T>:: m_t ;
 
 
 

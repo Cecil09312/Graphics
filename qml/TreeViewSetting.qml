@@ -3,115 +3,99 @@ import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import QtQuick.VirtualKeyboard 2.1
 import QtQuick.Window 2.3
-import QtQuick.Dialogs 1.2
-Rectangle
-{
-    id:treeViewSettingRec
-    width: 480;
-    height:240;
-    GridLayout
-    {
-        anchors.verticalCenter: parent.verticalCenter;
-        anchors.horizontalCenter: parent.horizontalCenter;
+import Qt.labs.platform 1.0
 
-        Text
-        {
+Rectangle {
+    id: treeViewSettingRec
+    width: 480
+    height: 240
+    GridLayout {
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.horizontalCenter: parent.horizontalCenter
+
+        Text {
             id: primaryArchiteTxt
             text: qsTr("名称修改:")
             Layout.row: 0
             Layout.column: 0
         }
-        TextField
-        {
-            id:primaryArchiteName
+        TextField {
+            id: primaryArchiteName
             Layout.row: 0
             Layout.column: 1
             // echoMode: TextInput.Password
-            inputMethodHints: Qt.ImhNoAutoUppercase|Qt.ImhPreferLowercase|
-                              Qt.ImhSensitiveData|Qt.ImhNoPredictiveText
+            inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase
+                              | Qt.ImhSensitiveData | Qt.ImhNoPredictiveText
         }
-        Button
-        {
-            id:primaryArchiteBtn
+        Button {
+            id: primaryArchiteBtn
             Layout.row: 0
             Layout.column: 2
             text: qsTr("确认")
-            onClicked:
-            {
-                TreeView.setItemName(primaryArchiteName.text);
+            onClicked: {
+                TreeView.setItemName(primaryArchiteName.text)
             }
         }
 
-
-        Text
-        {
+        Text {
             id: primaryImageTxt
             text: qsTr("图片路径:")
             Layout.row: 1
             Layout.column: 0
         }
 
-        TextField
-        {
-            id:primArchImageTextField
+        TextField {
+            id: primArchImageTextField
             Layout.row: 1
             Layout.column: 1
         }
-        Button
-        {
-            id:primArchImageBtn
+        Button {
+            id: primArchImageBtn
             Layout.row: 1
             Layout.column: 2
             text: qsTr("选择图片")
-            onClicked:
-            {
+            onClicked: {
 
-                fileDialog.open();
+                fileDialog.open()
             }
         }
 
-        Button
-        {
-            id:saveBtn
+        RowLayout {
             Layout.row: 2
             Layout.column: 1
-            text: qsTr("保存")
-        }
+            Layout.topMargin: 10
+            spacing: 5
 
-        Button
-        {
-            id:quitBtn
-            Layout.row: 2
-            Layout.column: 2
-            text: qsTr("退出")
-            onClicked:
-            {
-              TreeView.architeSettingViewClose();
+            Button {
+                id: saveBtn
+                text: qsTr("保存")
+            }
+
+            Button {
+                id: quitBtn
+                text: qsTr("退出")
+                onClicked: {
+                    TreeView.architeSettingViewClose()
+                }
             }
         }
-
-
     }
-    FileDialog
-    {
+    FileDialog {
         id: fileDialog
         title: "Please choose a file"
-        folder: shortcuts.home
-        //folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
-        onAccepted:
-        {
-            console.log(fileDialog.fileUrl.toString());
+        folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
 
-           primArchImageTextField.text = fileDialog.fileUrl.toString();
-            TreeView.insertPixmap(primArchImageTextField.text);
+        onAccepted: {
+            console.log(currentFile.toString())
+            primArchImageTextField.text = currentFile.toString()
+            TreeView.insertPixmap(primArchImageTextField.text)
         }
     }
 
-    function clearTextField()
-    {
-        primaryArchiteName.clear();
-        primArchImageTextField.clear();
-        primaryArchiteName.focus=false;
-        primArchImageTextField.focus = false;
+    function clearTextField() {
+        primaryArchiteName.clear()
+        primArchImageTextField.clear()
+        primaryArchiteName.focus = false
+        primArchImageTextField.focus = false
     }
 }

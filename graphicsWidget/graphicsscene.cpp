@@ -5,8 +5,10 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 #include "graphicsWidget/graphicsitem.h"
+#include "control/controller.h"
+#include "dataStore/datastore.h"
 
-QMap<QString,QList<QGraphicsItem*> > GraphicsScene::s_typeItemMap = QMap<QString,QList<QGraphicsItem*> >();
+//QMap<QString,QList<QGraphicsItem*> > GraphicsScene::s_typeItemMap = QMap<QString,QList<QGraphicsItem*> >();
 GraphicsScene::GraphicsScene(QObject *parent):
     QGraphicsScene(parent)
 {
@@ -16,6 +18,8 @@ GraphicsScene::GraphicsScene(QObject *parent):
     m_clearAction = new QAction(tr("清空"),m_menu);
     m_deleteSelectedAction = new QAction(tr("删除选中"),m_menu);
     m_closeAction= new QAction(tr("关闭"),m_menu);
+    m_itemSettingView = new QQuickView;
+    m_itemSettingView->setSource(QUrl("qrc:/qml/GraphicsItemEditor.qml"));
     m_menu->addAction(m_deleteAction);
     m_menu->addAction(m_editAction);
     m_menu->addAction(m_clearAction);
@@ -28,7 +32,7 @@ GraphicsScene::GraphicsScene(QObject *parent):
 
     connect(m_editAction,&QAction::triggered,this,[=]()
     {
-
+          m_itemSettingView->show();
     });
     connect(m_clearAction,&QAction::triggered,this,[=]()
     {
@@ -37,7 +41,8 @@ GraphicsScene::GraphicsScene(QObject *parent):
             removeItem(item);
         }
         m_itemList.clear();
-        s_typeItemMap.clear();
+        //s_typeItemMap.clear();
+        Controller::instance()->getDataStore()->clearTypeItem();
     });
     connect(m_deleteSelectedAction,&QAction::triggered,this,[=]()
     {
@@ -48,18 +53,8 @@ GraphicsScene::GraphicsScene(QObject *parent):
             {
                 removeItem(item);
                 m_itemList.removeOne(item);
-                QList<QString>keyList= s_typeItemMap.keys();
-                foreach (const QString &key, keyList)
-                {
-                    QList<QGraphicsItem*> itemValueList = s_typeItemMap[key];
-                    foreach (QGraphicsItem*valueItem, itemValueList)
-                    {
-                        if(valueItem==item)
-                        {
-                            s_typeItemMap[key].removeOne(item);
-                        }
-                    }
-                }
+                Controller::instance()->getDataStore()->deleteTypeItem(item);
+
             }
 
         }
@@ -86,7 +81,8 @@ void GraphicsScene::addGraphicsItem(const QPointF &pointF)
     item->setPos(pointF);
     this->addItem(item);
     m_itemList.push_back(item);
-    s_typeItemMap[tr("火警")].push_back(item);
+    Controller::instance()->getDataStore()->insertTypeItem(tr("火警"),item);
+    //s_typeItemMap[tr("火警")].push_back(item);
 }
 
 void GraphicsScene::removeGraphicsItem(qreal ax, qreal ay)
@@ -99,14 +95,15 @@ void GraphicsScene::removeGraphicsItem(const QPointF &pointF)
     QList<QGraphicsItem*>graphicsItemList= items(pointF,Qt::IntersectsItemShape, Qt::DescendingOrder, QTransform());
     for(int i=0;i<graphicsItemList.size();i++)
     {
+        //int itemListSize =m_itemList.size();
         for(int j=0;j<m_itemList.size();j++)
         {
             QGraphicsItem* item = graphicsItemList.at(i);
             if(item==m_itemList.at(j))
             {
-                removeItem(graphicsItemList.at(i));
-                m_itemList.removeAt(j);
-                s_typeItemMap[tr("火警")].removeOne(item);
+                m_itemList.removeOne(item);
+                removeItem(item);
+                Controller::instance()->getDataStore()->deleteTypeItem(item);
                 break;
             }
 
@@ -160,10 +157,10 @@ QGraphicsItem *GraphicsScene::getItem(int pos) const
     }
 }
 
-QList<QGraphicsItem *> GraphicsScene::getTypeItemList(const QString &type)
-{
-    return s_typeItemMap[type];
-}
+//QList<QGraphicsItem *> GraphicsScene::getTypeItemList(const QString &type)
+//{
+//    return s_typeItemMap[type];
+//}
 
 
 

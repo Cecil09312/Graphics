@@ -39,6 +39,11 @@ void CrtWidget::toLastFireAlarm()
     m_architePlanView->lastFireAlarm();
 }
 
+void CrtWidget::logWidgetClose()
+{
+    m_loginQuickView->close();
+}
+
 void CrtWidget::initWidget()
 {
     QVBoxLayout *globalVLayout = new QVBoxLayout;
@@ -86,6 +91,7 @@ void CrtWidget::initWidget()
     m_loginQuickView = new QQuickView;
     m_loginQuickView->setSource(QUrl("qrc:/qml/LoginWindow.qml"));
     m_loginQuickView->setGeometry(500,50,m_loginQuickView->width(),m_loginQuickView->height());
+    m_loginQuickView->rootContext()->setContextProperty("CrtWidget",this);
    // loginQuickView->show();
 
 }

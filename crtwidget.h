@@ -21,6 +21,7 @@ public slots:
     void loginWidgetShow();
     void toFirstFireAlarm();
     void toLastFireAlarm();
+    void logWidgetClose();
 private:
     void initWidget();
 private:

@@ -34,7 +34,8 @@ SOURCES += \
     architePlan/treeview.cpp \
     jsonEdit/jsonedit.cpp \
     openglWidget/glwidget.cpp \
-    control/controller.cpp
+    control/controller.cpp \
+    dataStore/datastore.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -46,7 +47,8 @@ HEADERS += \
     graphicsWidget/graphicsitem.h \
     architePlan/treeview.h \
     jsonEdit/jsonedit.h \
-    control/controller.h
+    control/controller.h \
+    dataStore/datastore.h
 
 FORMS +=
 

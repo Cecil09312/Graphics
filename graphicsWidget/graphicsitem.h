@@ -6,6 +6,7 @@
 #include <QPropertyAnimation>
 #include <QGraphicsSceneMouseEvent>
 #include <QObject>
+#include <QParallelAnimationGroup>
 
 class GraphicsScene;
 
@@ -28,8 +29,10 @@ public:
     void setAnimationDuration(int duration);
     void setAnimationLoopCount(int count);
     QPointF graphicsItemPos() const;
-    void setAnimationStartValue(const QVariant &value);
-    void setAnimationEndValue(const QVariant &value);
+    void setColorStartValue(const QVariant &value);
+    void setColorEndValue(const QVariant &value);
+    void setScaleStartValue(const QVariant &value);
+    void setScaleEndValue(const QVariant &value);
 
     void setColor(const QColor &color);
     QColor color() const;
@@ -48,7 +51,9 @@ protected:
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
     void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
 private:
-    QPropertyAnimation *m_propertyAnimation;
+    QPropertyAnimation *m_colorAnimation;
+    QPropertyAnimation *m_scaleAnimation;
+    QParallelAnimationGroup *m_parallelAnimGroup;
     QColor m_color;
     GraphicsScene *m_graphicsScene;
     qreal m_radius;

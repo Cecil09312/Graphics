@@ -3,23 +3,20 @@ import QtQuick.Window 2.2
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 
-ToolBar
-{
-    id:toolBar;
+ToolBar {
+    id: toolBar
     anchors.fill: parent
     //width: 30
-    RowLayout
-    {
-        anchors.bottom: parent.bottom;
+    RowLayout {
+        anchors.bottom: parent.bottom
         anchors.right: parent.right
         anchors.left: parent.left
-        Layout.fillWidth: true;
+        Layout.fillWidth: true
         spacing: 20
-        Text
-        {
-            id: titleText;
-            height: parent.height;
-            verticalAlignment: Text.AlignVCenter;
+        Text {
+            id: titleText
+            height: parent.height
+            verticalAlignment: Text.AlignVCenter
             //horizontalAlignment: Text.AlignHCenter
             font.family: "Times New Roman"
             font.pixelSize: 28
@@ -27,185 +24,149 @@ ToolBar
 
             text: qsTr("消防控制室图形显示装置")
             Layout.alignment: Qt.AlignLeft
-            Layout.fillWidth: true;
+            Layout.fillWidth: true
         }
-        ToolButton
-        {
-            id:logInBtn;
-            Layout.alignment: Qt.AlignRight;
-            width: 30;
-            BorderImage
-            {
+        ToolButton {
+            id: logInBtn
+            Layout.alignment: Qt.AlignRight
+            width: 30
+            BorderImage {
                 id: logInBtnImage
                 source: "qrc:/images/userLogin.png"
-                width: parent.width; height: parent.height
+                width: parent.width
+                height: parent.height
             }
 
-            ToolTip
-            {
+            ToolTip {
 
                 id: logInBtnToolTip
                 visible: logInBtn.hovered
                 text: qsTr("登陆")
-                contentItem: Text
-                {
+                contentItem: Text {
                     text: logInBtnToolTip.text
                     font.family: "Times New Roman"
-                    font.bold: true;
+                    font.bold: true
                     color: "black"
                 }
 
-                background: Rectangle
-                {
+                background: Rectangle {
                     color: "transparent"
-                    BorderImage
-                    {
+                    BorderImage {
                         source: "qrc:/images/dialog.png"
                         anchors.fill: parent
                     }
                 }
-                bottomMargin:30
-
+                bottomMargin: 30
             }
 
-            onClicked:
-            {
-                CrtWidget.loginWidgetShow();
+            onClicked: {
+                CrtWidget.loginWidgetShow()
             }
-
         }
 
-        ToolButton
-        {
-            id:infoSettingBtn;
-            width: 30;
+        ToolButton {
+            id: infoSettingBtn
+            width: 30
             Layout.alignment: Qt.AlignRight
-            BorderImage
-            {
+            BorderImage {
                 id: infoSettingBtnImage
                 source: "qrc:/images/settings.png"
-                width: parent.width; height: parent.height
+                width: parent.width
+                height: parent.height
             }
 
-            ToolTip
-            {
+            ToolTip {
 
                 id: infoSettingToolTip
                 visible: infoSettingBtn.hovered
                 text: qsTr("信息设置")
-                contentItem: Text
-                {
+                contentItem: Text {
                     text: infoSettingToolTip.text
                     font.family: "Times New Roman"
-                    font.bold: true;
+                    font.bold: true
                     color: "black"
                 }
 
-                background: Rectangle
-                {
+                background: Rectangle {
                     color: "transparent"
-                    BorderImage
-                    {
+                    BorderImage {
                         source: "qrc:/images/dialog.png"
                         anchors.fill: parent
                     }
                 }
-                bottomMargin:30
-
+                bottomMargin: 30
             }
         }
 
-        ToolButton
-        {
-            id:helpBtn;
-            width: 30;
-            BorderImage
-            {
+        ToolButton {
+            id: helpBtn
+            width: 30
+            BorderImage {
                 id: helpImage
                 source: "qrc:/images/help.png"
-                width: parent.width; height: parent.height
+                width: parent.width
+                height: parent.height
             }
-            ToolTip
-            {
+            ToolTip {
 
                 id: helpBtnToolTip
                 visible: helpBtn.hovered
                 text: qsTr("帮助")
-                contentItem: Text
-                {
+                contentItem: Text {
                     text: helpBtnToolTip.text
                     font.family: "Times New Roman"
-                    font.bold: true;
+                    font.bold: true
                     color: "black"
                 }
 
-                background: Rectangle
-                {
+                background: Rectangle {
                     color: "transparent"
-                    BorderImage
-                    {
+                    BorderImage {
                         source: "qrc:/images/dialog.png"
                         anchors.fill: parent
                     }
                 }
-                bottomMargin:30
-
+                bottomMargin: 30
             }
-
         }
 
-        ToolButton
-        {
-            id:quitBtn;
+        ToolButton {
+            id: quitBtn
             Layout.alignment: Qt.AlignRight
             width: 30
-            BorderImage
-            {
+            BorderImage {
                 id: closeImage
                 source: "qrc:/images/close.png"
                 anchors.fill: parent
             }
-            onClicked:
-            {
-                CrtWidget.widgetExit();
+            onClicked: {
+                CrtWidget.widgetExit()
             }
 
-            ToolTip
-            {
+            ToolTip {
                 id: quitBtnToolTip
                 visible: quitBtn.hovered
                 text: "退出"
-                contentItem: Text
-                {
+                contentItem: Text {
                     text: quitBtnToolTip.text
                     font.family: "Times New Roman"
-                    font.bold: true;
+                    font.bold: true
                     color: "black"
                 }
 
-                background: Rectangle
-                {
+                background: Rectangle {
                     color: "transparent"
-                    BorderImage
-                    {
+                    BorderImage {
                         source: "qrc:/images/dialog.png"
                         anchors.fill: parent
                     }
                 }
-                bottomMargin:30
-
+                bottomMargin: 30
             }
-
         }
-        Item
-        {
+        Item {
             Layout.alignment: Qt.AlignRight
-            width: 30;
+            width: 30
         }
     }
-
 }
-
-
-
-

@@ -4,6 +4,8 @@
 #include <QList>
 #include <QMenu>
 #include <QAction>
+#include <QQuickView>
+
 class GraphicsScene : public QGraphicsScene
 {
 public:
@@ -21,10 +23,10 @@ protected:
 public:
      QList<QGraphicsItem*>getItemList() const;
      QGraphicsItem*getItem(int pos) const;
-     static QList<QGraphicsItem *> getTypeItemList(const QString &type);
+    // static QList<QGraphicsItem *> getTypeItemList(const QString &type);
 private:
      QList<QGraphicsItem*>m_itemList;
-     static  QMap<QString,QList<QGraphicsItem*> >s_typeItemMap;
+     //static  QMap<QString,QList<QGraphicsItem*> >s_typeItemMap;
      QMenu *m_menu;
      QAction *m_deleteAction;
      QAction *m_editAction;
@@ -32,6 +34,7 @@ private:
      QAction *m_deleteSelectedAction;
      QAction *m_closeAction;
      QPointF m_currentPointF;
+     QQuickView *m_itemSettingView;
 };
 
 #endif // GRAPHICSSCENE_H
