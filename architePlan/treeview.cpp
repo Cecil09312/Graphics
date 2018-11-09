@@ -72,12 +72,12 @@ void TreeView::saveTreeItem()
 {
     for(int i=0;i<m_stdModel->rowCount();i++)
     {
-        QMap<QString,QVariant> rootMap;
+        QHash<QString,QVariant> rootHash;
         QStandardItem *parentItem = m_stdModel->item(i);
         if(parentItem)
         {
-            rootMap["name"] =parentItem->text();
-            JsonEdit::instance()->insertRoot(rootMap);
+            rootHash["name"] =parentItem->text();
+            JsonEdit::instance()->insertRoot(rootHash);
             if(parentItem->hasChildren())
             {
                 for(int j=0;j<parentItem->rowCount();j++)
@@ -86,9 +86,9 @@ void TreeView::saveTreeItem()
 
                     if(childItem)
                     {
-                        QMap<QString,QVariant> childMap;
-                        childMap["name"] = childItem->text();
-                        JsonEdit::instance()->insertChild(i,childMap);
+                        QHash<QString,QVariant> childHash;
+                        childHash["name"] = childItem->text();
+                        JsonEdit::instance()->insertChild(i,childHash);
                     }
                 }
             }

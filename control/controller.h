@@ -9,6 +9,7 @@ public:
     static Controller *instance();
     ~Controller();
     DataStore * getDataStore();
+    QString fileNameFromQml(const QString &name);
 
 public:
     class AutoDelete
@@ -20,14 +21,12 @@ public:
             {
                 delete m_controller;
                 m_controller = nullptr;
-               // qDebug() << "Delete:" << "m_controller";
             }
         }
     };
 
 private:
     Controller();
-
 private:
     static Controller*m_controller;
     DataStore *m_dataStore;

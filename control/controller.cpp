@@ -34,6 +34,25 @@ DataStore *Controller::getDataStore()
     return  m_dataStore;
 }
 
+QString Controller::fileNameFromQml(const QString &name)
+{
+    QString fileName = name;
+
+    if(fileName.startsWith("file:///"))
+    {
+        QList<QString> nameList=  fileName.split("file:///");
+        int size = nameList.size();
+        if(size>0)
+        {
+            fileName = nameList.at(size-1);
+        }
+    }
+#ifdef Q_OS_LINUX
+    fileName = "/"+fileName;
+#endif
+    return fileName;
+}
+
 Controller::Controller()
 {
    m_dataStore = new DataStore;

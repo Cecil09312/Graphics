@@ -70,3 +70,8 @@ void DataStore::clearTypeItem()
 {
     m_typeItemHash.clear();
 }
+
+int DataStore::numOfTypeItem(const QString &type)
+{
+    return m_typeItemHash[type].size();
+}

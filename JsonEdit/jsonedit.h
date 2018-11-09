@@ -2,7 +2,7 @@
 #define JSONEDIT_H
 
 #include <QObject>
-#include <QMap>
+#include <QHash>
 #include <QVariant>
 #include <QMutex>
 #include "control/controller.h"

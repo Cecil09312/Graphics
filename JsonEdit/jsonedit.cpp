@@ -45,9 +45,9 @@ void JsonEdit::setRootValue(int parentIndex, const QString &name, const QVariant
 {
     if(m_rootList.size()>parentIndex)
     {
-        QMap<QString,QVariant> parentMap = m_rootList.at(parentIndex).toMap();
-        parentMap[name] = value;
-        m_rootList.replace(parentIndex,parentMap);
+        QHash<QString,QVariant> parentHash = m_rootList.at(parentIndex).toHash();
+        parentHash[name] = value;
+        m_rootList.replace(parentIndex,parentHash);
     }
 }
 
@@ -65,11 +65,11 @@ void JsonEdit::insertChild(int parentIndex, const QVariant &child)
 {
     if(m_rootList.size()>parentIndex)
     {
-        QMap<QString,QVariant> parentMap = m_rootList.at(parentIndex).toMap();
-        QList<QVariant>childList=parentMap["child"].toList();
+        QHash<QString,QVariant> parentHash = m_rootList.at(parentIndex).toHash();
+        QList<QVariant>childList=parentHash["child"].toList();
         childList.push_back(child);
-        parentMap["child"] = childList;
-        m_rootList.replace(parentIndex,parentMap);
+        parentHash["child"] = childList;
+        m_rootList.replace(parentIndex,parentHash);
     }
 
 }
@@ -80,7 +80,6 @@ void JsonEdit::setChildName(int parentIndex, int childIndex, const QString &name
 }
 
 
-
 void JsonEdit::setChildImage(int parentIndex, int childIndex,const QVariant &value)
 {
     setChildValue(parentIndex, childIndex,"image",value);
@@ -88,18 +87,17 @@ void JsonEdit::setChildImage(int parentIndex, int childIndex,const QVariant &val
 
 void JsonEdit::setChildValue(int parentIndex, int childIndex, const QString &name, const QVariant &value)
 {
-
     if(m_rootList.size()>parentIndex)
     {
-        QMap<QString,QVariant> parentMap = m_rootList.at(parentIndex).toMap();
-        QList<QVariant>childList=parentMap["child"].toList();
+        QHash<QString,QVariant> parentHash= m_rootList.at(parentIndex).toHash();
+        QList<QVariant>childList=parentHash["child"].toList();
         if(childList.size()>childIndex)
         {
-            QMap<QString,QVariant> childMap=  childList.at(childIndex).toMap();
-            childMap[name] = value;
-            childList.replace(childIndex,childMap);
-            parentMap["child"] = childList;
-            m_rootList.replace(parentIndex,parentMap);
+            QHash<QString,QVariant> childHash=  childList.at(childIndex).toHash();
+            childHash[name] = value;
+            childList.replace(childIndex,childHash);
+            parentHash["child"] = childList;
+            m_rootList.replace(parentIndex,parentHash);
         }
     }
 }
@@ -132,15 +130,12 @@ void JsonEdit::writeFile(const QString &fileName)
             if(!getRoot().isEmpty())
             {
                 jsonDoc= QJsonDocument::fromVariant(getRoot());
-
             }
             file.write(jsonDoc.toJson());
         }
         file.close();
     });
     future.waitForFinished();
-
-
 }
 
 QVariant JsonEdit::readFile(const QString &fileName)
@@ -149,7 +144,6 @@ QVariant JsonEdit::readFile(const QString &fileName)
     QFuture <void > future = QtConcurrent::run([=]()
     {
         QFile file(fileName);
-
         if(file.open(QIODevice::ReadOnly))
         {
             QByteArray byteArray = file.readAll();

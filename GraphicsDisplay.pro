@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui quick svg opengl concurrent
+QT       += core gui quick svg opengl concurrent sql texttospeech
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

@@ -19,9 +19,10 @@ class ArchitePlanView : public QWidget
 public:
     explicit ArchitePlanView(QWidget *parent = nullptr);
     ~ArchitePlanView();
+    int numOfTypeAlarm(const QString &type);
 
 signals:
-
+       void alarmHappend(const QString &alarmType);
 public slots:
      void creatAlarm();
      void firstFireAlarm();
@@ -30,16 +31,17 @@ public slots:
 private:
     void initWidget();
     void saveArchiteInfo();
+    QHash<QString, QVariant> saveViewInfo(QStandardItem *item);
     void initFromJsonFile();
+    void setViewFromJson(const QHash<QString, QVariant> &hash, QStandardItem *treeItem);
     void findFireAlarm(int pos);
-private:
 
+private:
     TreeView *m_treeView;
     QStackedWidget *m_stackedWidget;
     QTabWidget *m_tabWidget;
     QMap<int,GraphicsView *>m_widgetMap;
     const QString c_jsonFilePath=QCoreApplication::applicationDirPath()+"/treeView.json";
-
 };
 
 #endif // ARCHITEPLANVIEW_H

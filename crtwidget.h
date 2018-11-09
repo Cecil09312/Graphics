@@ -7,8 +7,9 @@
 #include "architePlan/architeplanview.h"
 #include "infoTable/infotableview.h"
 #include <QQuickView>
+#include <QOpenGLWidget>
 
-class CrtWidget : public QWidget
+class CrtWidget : public QOpenGLWidget
 {
     Q_OBJECT
 
@@ -19,8 +20,8 @@ public:
 public slots:
     void widgetExit();
     void loginWidgetShow();
-    void toFirstFireAlarm();
-    void toLastFireAlarm();
+//    void toFirstFireAlarm();
+//    void toLastFireAlarm();
     void logWidgetClose();
 private:
     void initWidget();
@@ -30,6 +31,7 @@ private:
     ArchitePlanView *m_architePlanView;
     InfoTableView*m_infoTableView;
     QQuickView *m_loginQuickView;
+    QQuickView *m_alarmQuickView;
    // QQuickView *m_architeSettingView;
 };
 

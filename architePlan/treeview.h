@@ -17,6 +17,8 @@ public:
     ~TreeView();
     QMap<QStandardItem *, int> &getTreeIndexMap();
     void saveTreeItem();
+    QStandardItem *addRootItem();
+    QStandardItem *addChildItem(QModelIndex index);
 signals:
     void treeIndex(QStandardItem*item);
     void deleteIndex(QStandardItem*item);
@@ -24,8 +26,6 @@ signals:
     void insertAnchPixmap(QStandardItem*item,const QString &fileName);
 
 public slots:
-    QStandardItem *addRootItem();
-    QStandardItem *addChildItem(QModelIndex index);
     void deleteTreeItem(QModelIndex index);
     void clearItem();
     void setItemName(const QString &name);

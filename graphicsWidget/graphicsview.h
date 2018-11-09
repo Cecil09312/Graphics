@@ -18,17 +18,14 @@ public:
     QString pixmapName();
     QList<QGraphicsItem *> getItemList();
     QGraphicsItem * getItem(int pos);
+
 public slots:
     void zoom(qreal scaleValue);
     void loadPixmap(const QString &fileName);
 
 protected:
-    //    void paintEvent(QPaintEvent*event);
-    //    void mouseMoveEvent(QMouseEvent*event);
-    //    void mousePressEvent(QMouseEvent*event);
-    //    void mouseReleaseEvent(QMouseEvent*event);
-
     void wheelEvent(QWheelEvent*event);
+
 private:
     qreal m_scale;
     GraphicsScene *m_scene;

@@ -7,24 +7,12 @@
 #include "graphicsWidget/graphicsitem.h"
 #include "control/controller.h"
 #include "dataStore/datastore.h"
+#include <QQuickItem>
 
-//QMap<QString,QList<QGraphicsItem*> > GraphicsScene::s_typeItemMap = QMap<QString,QList<QGraphicsItem*> >();
 GraphicsScene::GraphicsScene(QObject *parent):
     QGraphicsScene(parent)
 {
-    m_menu = new QMenu;
-    m_deleteAction = new QAction(tr("删除"),m_menu);
-    m_editAction = new QAction(tr("编辑"),m_menu);
-    m_clearAction = new QAction(tr("清空"),m_menu);
-    m_deleteSelectedAction = new QAction(tr("删除选中"),m_menu);
-    m_closeAction= new QAction(tr("关闭"),m_menu);
-    m_itemSettingView = new QQuickView;
-    m_itemSettingView->setSource(QUrl("qrc:/qml/GraphicsItemEditor.qml"));
-    m_menu->addAction(m_deleteAction);
-    m_menu->addAction(m_editAction);
-    m_menu->addAction(m_clearAction);
-    m_menu->addAction(m_deleteSelectedAction);
-    m_menu->addAction(m_closeAction);
+    init();
     connect(m_deleteAction,&QAction::triggered,this,[=]()
     {
         removeGraphicsItem(m_currentPointF);
@@ -32,7 +20,21 @@ GraphicsScene::GraphicsScene(QObject *parent):
 
     connect(m_editAction,&QAction::triggered,this,[=]()
     {
-          m_itemSettingView->show();
+       GraphicsItem *currentItem= dynamic_cast<GraphicsItem *> (itemAt(m_currentPointF,QTransform()));
+       Q_ASSERT(m_itemSettingObj);
+       if(currentItem!=nullptr)
+       {
+
+        QMetaObject::invokeMethod(m_itemSettingObj,"setSelectColor",Q_ARG(QVariant,currentItem->color()));
+        QMetaObject::invokeMethod(m_itemSettingObj,"setIconName",Q_ARG(QVariant,currentItem->iconName()));
+        QMetaObject::invokeMethod(m_itemSettingObj,"setItemText",Q_ARG(QVariant,currentItem->itemText()));
+        QMetaObject::invokeMethod(m_itemSettingObj,"setItemType",Q_ARG(QVariant,currentItem->typeName()));
+        QMetaObject::invokeMethod(m_itemSettingObj,"setItemSize",Q_ARG(QVariant,currentItem->radius()));
+        QMetaObject::invokeMethod(m_itemSettingObj,"setUseIcon",Q_ARG(QVariant,currentItem->isUseIcon()));
+        QMetaObject::invokeMethod(m_itemSettingObj,"setItemGeoInfo",Q_ARG(QVariant,currentItem->geoInfo()));
+
+       }
+        m_itemSettingView->show();
     });
     connect(m_clearAction,&QAction::triggered,this,[=]()
     {
@@ -41,7 +43,6 @@ GraphicsScene::GraphicsScene(QObject *parent):
             removeItem(item);
         }
         m_itemList.clear();
-        //s_typeItemMap.clear();
         Controller::instance()->getDataStore()->clearTypeItem();
     });
     connect(m_deleteSelectedAction,&QAction::triggered,this,[=]()
@@ -54,7 +55,6 @@ GraphicsScene::GraphicsScene(QObject *parent):
                 removeItem(item);
                 m_itemList.removeOne(item);
                 Controller::instance()->getDataStore()->deleteTypeItem(item);
-
             }
 
         }
@@ -63,6 +63,15 @@ GraphicsScene::GraphicsScene(QObject *parent):
     {
         m_menu->close();
     });
+
+    Q_ASSERT(m_itemSettingObj);
+    connect(m_itemSettingObj,SIGNAL(selectColor(QColor)),this,SLOT(setItemColor(QColor)));
+    connect(m_itemSettingObj,SIGNAL(setSize(qreal)),this,SLOT(setItemSize(qreal)));
+    connect(m_itemSettingObj,SIGNAL(setText(QString)),this,SLOT(setItemText(QString)));
+    connect(m_itemSettingObj,SIGNAL(setGeoInfo(QString)),this,SLOT(setItemGeoInfo(QString)));
+    connect(m_itemSettingObj,SIGNAL(setTypeName(QString)),this,SLOT(setItemTypeName(QString)));
+    connect(m_itemSettingObj,SIGNAL(setIcon(QString)),this,SLOT(setItemIcon(QString)));
+    connect(m_itemSettingObj,SIGNAL(setIsUseIcon(bool)),this,SLOT(setItemUseIcon(bool)));
 }
 
 GraphicsScene::~GraphicsScene()
@@ -81,8 +90,7 @@ void GraphicsScene::addGraphicsItem(const QPointF &pointF)
     item->setPos(pointF);
     this->addItem(item);
     m_itemList.push_back(item);
-    Controller::instance()->getDataStore()->insertTypeItem(tr("火警"),item);
-    //s_typeItemMap[tr("火警")].push_back(item);
+    //Controller::instance()->getDataStore()->insertTypeItem(tr("火警"),item);
 }
 
 void GraphicsScene::removeGraphicsItem(qreal ax, qreal ay)
@@ -92,22 +100,12 @@ void GraphicsScene::removeGraphicsItem(qreal ax, qreal ay)
 
 void GraphicsScene::removeGraphicsItem(const QPointF &pointF)
 {
-    QList<QGraphicsItem*>graphicsItemList= items(pointF,Qt::IntersectsItemShape, Qt::DescendingOrder, QTransform());
-    for(int i=0;i<graphicsItemList.size();i++)
+    QGraphicsItem*currentItem= itemAt(pointF,QTransform());
+    if(currentItem!=nullptr)
     {
-        //int itemListSize =m_itemList.size();
-        for(int j=0;j<m_itemList.size();j++)
-        {
-            QGraphicsItem* item = graphicsItemList.at(i);
-            if(item==m_itemList.at(j))
-            {
-                m_itemList.removeOne(item);
-                removeItem(item);
-                Controller::instance()->getDataStore()->deleteTypeItem(item);
-                break;
-            }
-
-        }
+        m_itemList.removeOne(currentItem);
+        removeItem(currentItem);
+        Controller::instance()->getDataStore()->deleteTypeItem(currentItem);
     }
 }
 
@@ -116,14 +114,17 @@ void GraphicsScene::showMenu(const QPoint &point)
     m_menu->exec(point);
 }
 
+QPointF GraphicsScene::currentScenePos()
+{
+    return m_currentPointF;
+}
+
 void GraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
-
     if(event->button()==Qt::LeftButton)
     {
         addGraphicsItem(event->scenePos().x(),event->scenePos().y());
     }
-
 }
 
 void GraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -135,9 +136,106 @@ void GraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
     }
     else
     {
-        QGraphicsScene::mousePressEvent(event);
+        //        QList<QGraphicsItem*>graphicsItemList= items(event->scenePos(),Qt::IntersectsItemShape, Qt::DescendingOrder, QTransform());
+        //        for(int i=0;i<graphicsItemList.size();i++)
+        //        {
+        //            GraphicsItem *item = dynamic_cast<GraphicsItem *>(graphicsItemList.at(i));
+        //            if(item)
+        //            item->startAnimation();
+        //        }
+
     }
 
+    QGraphicsScene::mousePressEvent(event);
+
+}
+
+void GraphicsScene::setItemColor(QColor color)
+{
+    GraphicsItem *currentItem=dynamic_cast<GraphicsItem *> (itemAt(m_currentPointF,QTransform()));
+    if(currentItem!=nullptr)
+    {
+        currentItem->setColor(color);
+    }
+    update();
+}
+
+void GraphicsScene::setItemSize(qreal size)
+{
+    GraphicsItem *currentItem=dynamic_cast<GraphicsItem *> (itemAt(m_currentPointF,QTransform()));
+    if(currentItem!=nullptr)
+    {
+        currentItem->setRadius(size);
+    }
+    update();
+}
+
+void GraphicsScene::setItemText(QString txt)
+{
+    GraphicsItem *currentItem=dynamic_cast<GraphicsItem *> (itemAt(m_currentPointF,QTransform()));
+    if(currentItem!=nullptr)
+    {
+        currentItem->setItemText(txt);
+    }
+    update();
+}
+
+void GraphicsScene::setItemGeoInfo(QString geoInfo)
+{
+    GraphicsItem *currentItem=dynamic_cast<GraphicsItem *> (itemAt(m_currentPointF,QTransform()));
+    if(currentItem!=nullptr)
+    {
+        currentItem->setGeoInfo(geoInfo);
+    }
+    update();
+}
+
+void GraphicsScene::setItemTypeName(QString name)
+{
+    GraphicsItem *currentItem=dynamic_cast<GraphicsItem *> (itemAt(m_currentPointF,QTransform()));
+    if(currentItem!=nullptr)
+    {
+        currentItem->setTypeName(name);
+    }
+    update();
+}
+
+void GraphicsScene::setItemIcon(QString iconName)
+{
+    GraphicsItem *currentItem=dynamic_cast<GraphicsItem *> (itemAt(m_currentPointF,QTransform()));
+    if(currentItem!=nullptr)
+    {
+        currentItem->setIconName(Controller::instance()->fileNameFromQml(iconName));
+    }
+    update();
+}
+
+void GraphicsScene::setItemUseIcon(bool isUseIcon)
+{
+    GraphicsItem *currentItem=dynamic_cast<GraphicsItem *> (itemAt(m_currentPointF,QTransform()));
+    if(currentItem!=nullptr)
+    {
+        currentItem->setIsUseIcon(isUseIcon);
+    }
+    update();
+}
+
+void GraphicsScene::init()
+{
+    m_menu = new QMenu;
+    m_deleteAction = new QAction(tr("删除"),m_menu);
+    m_editAction = new QAction(tr("编辑"),m_menu);
+    m_clearAction = new QAction(tr("清空"),m_menu);
+    m_deleteSelectedAction = new QAction(tr("删除选中"),m_menu);
+    m_closeAction= new QAction(tr("关闭"),m_menu);
+    m_itemSettingView = new QQuickView;
+    m_itemSettingView->setSource(QUrl("qrc:/qml/GraphicsItemEditor.qml"));
+    m_itemSettingObj= m_itemSettingView->rootObject();
+    m_menu->addAction(m_deleteAction);
+    m_menu->addAction(m_editAction);
+    m_menu->addAction(m_clearAction);
+    m_menu->addAction(m_deleteSelectedAction);
+    m_menu->addAction(m_closeAction);
 }
 
 QList<QGraphicsItem *> GraphicsScene::getItemList() const
@@ -157,10 +255,26 @@ QGraphicsItem *GraphicsScene::getItem(int pos) const
     }
 }
 
-//QList<QGraphicsItem *> GraphicsScene::getTypeItemList(const QString &type)
-//{
-//    return s_typeItemMap[type];
-//}
+void GraphicsScene::setItemInfo(GraphicsItem *item, const QHash<QString, QVariant> &itemHash)
+{
+    if(item!=nullptr)
+    {
+        QString pos= itemHash["pos"].toString();
+        item->setItemText(itemHash["text"].toString());
+        item->setIsUseIcon(itemHash["isUseIcon"].toBool());
+        item->setTypeName(itemHash["typeName"].toString());
+        item->setColor(QColor(itemHash["color"].toString()));
+        item->setIconName(itemHash["iconName"].toString());
+        item->setRadius(itemHash["size"].toDouble());
+        item->setGeoInfo(itemHash["geoInfo"].toString());
+        item->setHoverText(itemHash["hoverText"].toString());
+        item->setPos(pos.section(",",0,0).toDouble(),pos.section(",",1,1).toDouble());
+        addItem(item);
+        m_itemList.push_back(item);
+    }
+}
+
+
 
 
 

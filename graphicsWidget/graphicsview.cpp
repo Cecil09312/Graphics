@@ -4,6 +4,7 @@
 #include <QScrollBar>
 #include <QOpenGLWidget>
 #include "openglWidget/glwidget.h"
+#include "control/controller.h"
 GraphicsView::GraphicsView(QWidget *parent):
     QGraphicsView(parent)
 {
@@ -78,20 +79,6 @@ QGraphicsItem *GraphicsView::getItem(int pos)
 
 void GraphicsView::loadPixmap(const QString &fileName)
 {
-    m_pixmapName = fileName;
-    if(m_pixmapName.startsWith("file:///"))
-    {
-        QList<QString> nameList=  m_pixmapName.split("file:///");
-        int size = nameList.size();
-        if(size>0)
-        {
-            m_pixmapName = nameList.at(size-1);
-        }
-    }
-#ifdef Q_OS_LINUX
-    m_pixmapName = "/"+m_pixmapName;
-#endif
-
+    m_pixmapName = Controller::instance()->fileNameFromQml(fileName);
     m_pixmapItem->setPixmap(QPixmap(m_pixmapName));
-
 }

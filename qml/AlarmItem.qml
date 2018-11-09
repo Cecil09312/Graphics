@@ -16,7 +16,7 @@ Rectangle {
                 text: qsTr("首火警")
                 Layout.fillWidth: true
                 onClicked: {
-                    CrtWidget.toFirstFireAlarm()
+                    ArchitePlanView.firstFireAlarm()
                 }
             }
 
@@ -25,7 +25,7 @@ Rectangle {
                 text: qsTr("末火警")
                 Layout.fillWidth: true
                 onClicked: {
-                    CrtWidget.toLastFireAlarm()
+                    ArchitePlanView.lastFireAlarm()
                 }
             }
         }
@@ -43,6 +43,7 @@ Rectangle {
             active: true
 
             ColorAnimation on color {
+                id: fireAlarmAnimation
                 from: "red"
                 to: "black"
                 duration: 1000
@@ -51,6 +52,7 @@ Rectangle {
             }
         }
         Text {
+            id: fireAlarmNum
             Layout.column: 1
             Layout.row: 0
             text: qsTr("火警 0")
@@ -63,6 +65,7 @@ Rectangle {
             color: "green"
             active: true
             ColorAnimation on color {
+                id: linkageAnimation
                 from: "red"
                 to: "black"
                 duration: 1000
@@ -71,6 +74,7 @@ Rectangle {
             }
         }
         Text {
+            id: linkageNum
             Layout.column: 1
             Layout.row: 1
             text: qsTr("联动 0")
@@ -83,6 +87,7 @@ Rectangle {
             color: "green"
             active: true
             ColorAnimation on color {
+                id: superviseAnimation
                 from: "red"
                 to: "black"
                 duration: 1000
@@ -91,6 +96,7 @@ Rectangle {
             }
         }
         Text {
+            id: superviseNum
             Layout.column: 1
             Layout.row: 2
             text: qsTr("监管 0")
@@ -103,6 +109,7 @@ Rectangle {
             color: "green"
             active: true
             ColorAnimation on color {
+                id: faultAnimation
                 from: "red"
                 to: "black"
                 duration: 1000
@@ -111,6 +118,7 @@ Rectangle {
             }
         }
         Text {
+            id: faultNum
             Layout.column: 1
             Layout.row: 3
             text: qsTr("故障 0")
@@ -124,6 +132,7 @@ Rectangle {
             active: true
             ColorAnimation on color {
 
+                id: feedbackAnimation
                 from: "red"
                 to: "black"
                 duration: 1000
@@ -132,6 +141,7 @@ Rectangle {
             }
         }
         Text {
+            id: feedbackNum
             Layout.column: 1
             Layout.row: 4
             text: qsTr("反馈 0")
@@ -144,6 +154,7 @@ Rectangle {
             color: "green"
             active: true
             ColorAnimation on color {
+                id: shieldAnimation
                 from: "red"
                 to: "black"
                 duration: 1000
@@ -152,17 +163,20 @@ Rectangle {
             }
         }
         Text {
+            id: shieldNum
             Layout.column: 1
             Layout.row: 5
             text: qsTr("屏蔽 0")
         }
 
         StatusIndicator {
+            id: mainConnunication
             Layout.column: 0
             Layout.row: 6
             color: "green"
             active: true
             ColorAnimation on color {
+                id: mainConnunicationAnimation
                 from: "red"
                 to: "black"
                 duration: 1000
@@ -209,7 +223,106 @@ Rectangle {
                 text: name
                 anchors.leftMargin: 20
                 width: parent.width
+
+                onClicked: {
+                    if (text === qsTr("模拟火警")) {
+                        ArchitePlanView.creatAlarm()
+                    }
+                }
             }
         }
+    }
+
+    function startFireAnimation(isRunning) {
+        if (isRunning) {
+            if (!fireAlarmAnimation.running)
+                fireAlarmAnimation.start()
+        } else {
+            fireAlarmAnimation.stop()
+        }
+    }
+
+    function startLinkageAnimation(isRunning) {
+        if (isRunning) {
+            if (!linkageAnimation.running)
+                linkageAnimation.start()
+        } else {
+            linkageAnimation.stop()
+        }
+    }
+
+    function startSuperviseAnimation(isRunning) {
+        if (isRunning) {
+            if (!superviseAnimation.running)
+                superviseAnimation.start()
+        } else {
+            superviseAnimation.stop()
+        }
+    }
+
+    function startFaultAnimation(isRunning) {
+        if (isRunning) {
+            if (!faultAnimation.running)
+                faultAnimation.start()
+        } else {
+            faultAnimation.stop()
+        }
+    }
+
+    function startFeedbackAnimation(isRunning) {
+        if (isRunning) {
+            if (!feedbackAnimation.running)
+                feedbackAnimation.start()
+        } else {
+            feedbackAnimation.stop()
+        }
+    }
+
+    function startShieldAnimation(isRunning) {
+        if (isRunning) {
+            if (!shieldAnimation.running)
+                shieldAnimation.start()
+        } else {
+            shieldAnimation.stop()
+        }
+    }
+
+    function startMainConnunicationAnimation(isRunning) {
+        if (isRunning) {
+            if (!mainConnunicationAnimation.running)
+                mainConnunicationAnimation.start()
+        } else {
+            mainConnunicationAnimation.stop()
+        }
+    }
+
+    function setFireAlarmText(value) {
+        var txt = qsTr("火警 ") + value
+        fireAlarmNum.text = txt
+    }
+
+    function setLinkageText(value) {
+        var txt = qsTr("联动 ") + value
+        linkageNum.text = txt
+    }
+
+    function setSuperviseText(value) {
+        var txt = qsTr("监管 ") + value
+        superviseNum.text = txt
+    }
+
+    function setFaultText(value) {
+        var txt = qsTr("故障 ") + value
+        faultNum.text = txt
+    }
+
+    function setFeedbackText(value) {
+        var txt = qsTr("反馈 ") + value
+        feedbackNum.text = txt
+    }
+
+    function setShieldText(value) {
+        var txt = qsTr("屏蔽 ") + value
+        shieldNum.text = txt
     }
 }

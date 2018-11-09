@@ -5,9 +5,10 @@
 #include <QMenu>
 #include <QAction>
 #include <QQuickView>
-
+class GraphicsItem;
 class GraphicsScene : public QGraphicsScene
 {
+    Q_OBJECT
 public:
     GraphicsScene(QObject *parent = Q_NULLPTR);
     ~GraphicsScene();
@@ -16,17 +17,28 @@ public:
     void removeGraphicsItem(qreal ax, qreal ay);
     void removeGraphicsItem(const QPointF &pointF);
     void showMenu(const QPoint &point );
+    QPointF currentScenePos();
+    QList<QGraphicsItem*>getItemList() const;
+    QGraphicsItem*getItem(int pos) const;
+    void setItemInfo(GraphicsItem*item, const QHash<QString,QVariant>&itemHash);
+
 protected:
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent*event);
     void mousePressEvent(QGraphicsSceneMouseEvent*event);
 
-public:
-     QList<QGraphicsItem*>getItemList() const;
-     QGraphicsItem*getItem(int pos) const;
-    // static QList<QGraphicsItem *> getTypeItemList(const QString &type);
+private slots:
+     void setItemColor(QColor color);
+     void setItemSize(qreal size);
+     void setItemText(QString txt);
+     void setItemGeoInfo(QString geoInfo);
+     void setItemTypeName(QString name);
+     void setItemIcon(QString iconName);
+     void setItemUseIcon(bool isUseIcon);
+private:
+     void init();
+
 private:
      QList<QGraphicsItem*>m_itemList;
-     //static  QMap<QString,QList<QGraphicsItem*> >s_typeItemMap;
      QMenu *m_menu;
      QAction *m_deleteAction;
      QAction *m_editAction;
@@ -35,6 +47,7 @@ private:
      QAction *m_closeAction;
      QPointF m_currentPointF;
      QQuickView *m_itemSettingView;
+     QObject *m_itemSettingObj;
 };
 
 #endif // GRAPHICSSCENE_H

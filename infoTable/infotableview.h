@@ -3,8 +3,9 @@
 
 #include <QWidget>
 #include <QTableView>
+#include <QSqlTableModel>
 
-class InfoTableView : public QWidget
+class InfoTableView : public QTableView
 {
     Q_OBJECT
 public:
@@ -16,7 +17,7 @@ public slots:
 private:
     void initWidget();
 private:
-    QTableView *m_tableView;
+   // QTableView *m_tableView;
 };
 
 #endif // INFOTABLEVIEW_H
