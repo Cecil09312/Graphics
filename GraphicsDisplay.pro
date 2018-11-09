@@ -35,7 +35,8 @@ SOURCES += \
     jsonEdit/jsonedit.cpp \
     openglWidget/glwidget.cpp \
     control/controller.cpp \
-    dataStore/datastore.cpp
+    dataStore/datastore.cpp \
+    speech/speechobj.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -48,7 +49,8 @@ HEADERS += \
     architePlan/treeview.h \
     jsonEdit/jsonedit.h \
     control/controller.h \
-    dataStore/datastore.h
+    dataStore/datastore.h \
+    speech/speechobj.h
 
 FORMS +=
 

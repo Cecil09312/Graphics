@@ -70,6 +70,7 @@ void ArchitePlanView::initWidget()
     m_treeView = new TreeView(this);
     m_stackedWidget = new QStackedWidget(this);
     m_tabWidget = new QTabWidget(this);
+    m_textToSpeech = new QTextToSpeech(this);
     m_treeView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     m_treeView->setMaximumWidth(180);
     m_stackedWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);

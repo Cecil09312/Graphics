@@ -3,6 +3,7 @@
 #include <QMutex>
 #include <QDebug>
 #include "dataStore/datastore.h"
+#include <QTextToSpeech>
 class Controller
 {
 public:

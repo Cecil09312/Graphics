@@ -11,6 +11,7 @@
 #include <QQuickView>
 #include <QCoreApplication>
 #include <QCloseEvent>
+#include <QTextToSpeech>
 
 class ArchitePlanView : public QWidget
 {
@@ -42,6 +43,7 @@ private:
     QTabWidget *m_tabWidget;
     QMap<int,GraphicsView *>m_widgetMap;
     const QString c_jsonFilePath=QCoreApplication::applicationDirPath()+"/treeView.json";
+    QTextToSpeech *m_textToSpeech;
 };
 
 #endif // ARCHITEPLANVIEW_H
