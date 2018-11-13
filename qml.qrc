@@ -6,5 +6,6 @@
         <file>qml/CustomTreeView.qml</file>
         <file>qml/TreeViewSetting.qml</file>
         <file>qml/GraphicsItemEditor.qml</file>
+        <file>qml/SerialPortSetting.qml</file>
     </qresource>
 </RCC>

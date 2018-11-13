@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui quick svg opengl concurrent sql texttospeech
+QT       += core gui quick svg opengl concurrent sql texttospeech serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -36,7 +36,10 @@ SOURCES += \
     openglWidget/glwidget.cpp \
     control/controller.cpp \
     dataStore/datastore.cpp \
-    speech/speechobj.cpp
+    speech/speechobj.cpp \
+    commnication/commobj.cpp \
+    database/sqlitemanager.cpp \
+    database/sqlmanager.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -50,11 +53,15 @@ HEADERS += \
     jsonEdit/jsonedit.h \
     control/controller.h \
     dataStore/datastore.h \
-    speech/speechobj.h
+    speech/speechobj.h \
+    commnication/commobj.h \
+    database/sqlitemanager.h \
+    database/sqlmanager.h
 
 FORMS +=
 
-DISTFILES +=
+DISTFILES += \
+    qml/SerialPortSetting.qml
 
 RESOURCES += \
     qml.qrc \

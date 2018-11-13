@@ -6,6 +6,7 @@
 #include <QQmlContext>
 #include <QSplitter>
 #include <QQuickItem>
+#include "commnication/commobj.h"
 CrtWidget::CrtWidget(QWidget *parent) :
     QOpenGLWidget(parent)
 {
@@ -47,6 +48,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
         }
 
     });
+    qDebug() << CommObj::baudRates();
 
 }
 
