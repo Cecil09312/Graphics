@@ -4,14 +4,17 @@
 #include <QDebug>
 #include "dataStore/datastore.h"
 #include <QTextToSpeech>
-class Controller
+#include "commnication/commobj.h"
+class Controller:public QObject
 {
+    Q_OBJECT
 public:
     static Controller *instance();
     ~Controller();
     DataStore * getDataStore();
     QString fileNameFromQml(const QString &name);
-
+    CommObj *getCommObj();
+// Q_INVOKABLE QList<QString>portNameList();
 public:
     class AutoDelete
     {
@@ -31,6 +34,7 @@ private:
 private:
     static Controller*m_controller;
     DataStore *m_dataStore;
+    CommObj *m_commObj;
 
 };
 

@@ -96,6 +96,10 @@ ToolBar {
                 }
                 bottomMargin: 30
             }
+
+            onClicked: {
+                CrtWidget.settingWindowShow()
+            }
         }
 
         ToolButton {

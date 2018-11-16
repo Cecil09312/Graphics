@@ -12,22 +12,23 @@
 #include <QCoreApplication>
 #include <QCloseEvent>
 #include <QTextToSpeech>
-
+#include "architePlan/sysarchiteplanview.h"
 class ArchitePlanView : public QWidget
 {
     Q_OBJECT
-
 public:
     explicit ArchitePlanView(QWidget *parent = nullptr);
     ~ArchitePlanView();
     int numOfTypeAlarm(const QString &type);
+    Q_INVOKABLE void setGlobalArchitePixmap(const QString &pixmapName);
 
 signals:
-       void alarmHappend(const QString &alarmType);
+    void alarmHappend(const QString &alarmType);
 public slots:
-     void creatAlarm();
-     void firstFireAlarm();
-     void lastFireAlarm();
+    void creatAlarm();
+    void firstFireAlarm();
+    void lastFireAlarm();
+
 
 private:
     void initWidget();
@@ -41,6 +42,8 @@ private:
     TreeView *m_treeView;
     QStackedWidget *m_stackedWidget;
     QTabWidget *m_tabWidget;
+    QWidget *m_globalGraphicsView;
+    SysArchitePlanView *m_sysArchitePlanView;
     QMap<int,GraphicsView *>m_widgetMap;
     const QString c_jsonFilePath=QCoreApplication::applicationDirPath()+"/treeView.json";
     QTextToSpeech *m_textToSpeech;

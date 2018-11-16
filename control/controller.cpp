@@ -26,6 +26,7 @@ Controller::~Controller()
         m_dataStore= nullptr;
        // qDebug() << "Delete:" << "m_dataStore";
     }
+    m_commObj->deleteLater();
 
 }
 
@@ -53,7 +54,18 @@ QString Controller::fileNameFromQml(const QString &name)
     return fileName;
 }
 
+//QList<QString> Controller::portNameList()
+//{
+//    return CommObj::portName();
+//}
+
+CommObj *Controller::getCommObj()
+{
+    return m_commObj;
+}
+
 Controller::Controller()
 {
    m_dataStore = new DataStore;
+   m_commObj = new CommObj();
 }

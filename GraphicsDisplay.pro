@@ -39,7 +39,8 @@ SOURCES += \
     speech/speechobj.cpp \
     commnication/commobj.cpp \
     database/sqlitemanager.cpp \
-    database/sqlmanager.cpp
+    database/sqlmanager.cpp \
+    architePlan/sysarchiteplanview.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -56,12 +57,17 @@ HEADERS += \
     speech/speechobj.h \
     commnication/commobj.h \
     database/sqlitemanager.h \
-    database/sqlmanager.h
+    database/sqlmanager.h \
+    architePlan/sysarchiteplanview.h
 
 FORMS +=
 
 DISTFILES += \
-    qml/SerialPortSetting.qml
+    qml/SerialPortSetting.qml \
+    qml/GraphicsViewSetting.qml \
+    qml/NaviButton.qml \
+    qml/SettingWindow.qml \
+    qml/PasswordSetting.qml
 
 RESOURCES += \
     qml.qrc \

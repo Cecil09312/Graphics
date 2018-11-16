@@ -12,7 +12,7 @@
 class GraphicsView : public QGraphicsView
 {
 public:
-    GraphicsView(QWidget *parent = Q_NULLPTR);
+    GraphicsView(QWidget *parent = Q_NULLPTR,int type = ArthitePlan);
     ~GraphicsView();
     QPixmap graphicsPixmap() const;
     QString pixmapName();
@@ -22,6 +22,12 @@ public:
 public slots:
     void zoom(qreal scaleValue);
     void loadPixmap(const QString &fileName);
+public:
+    enum
+    {
+      ArthitePlan=1,
+      SysArthitePlan
+    };
 
 protected:
     void wheelEvent(QWheelEvent*event);
@@ -29,9 +35,11 @@ protected:
 private:
     qreal m_scale;
     GraphicsScene *m_scene;
+    QGraphicsScene*m_sysViewScene;
     //QGraphicsSvgItem *m_svgItem;
     QGraphicsPixmapItem *m_pixmapItem;
     QString m_pixmapName;
+    int m_viewType;
 };
 
 #endif // GRAPHICSVIEW_H

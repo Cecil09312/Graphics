@@ -4,10 +4,12 @@
 CommObj::CommObj(QObject *parent) : QObject(parent)
 {
     m_thread = new QThread(this);
-    m_serialPort = new QSerialPort(this);
+    m_serialPort = new QSerialPort();
     m_serialPort->moveToThread(m_thread);
     moveToThread(m_thread);
     m_thread->start();
+    qRegisterMetaType<QList<QString> >("QList<QString>");
+    qRegisterMetaType<QList<qint32> >("QList <qint32>");
     connect(m_serialPort,&QSerialPort::readyRead,this,&CommObj::readData);
     connect(this,&CommObj::send,this,[=](const QByteArray &array)
     {
@@ -46,6 +48,7 @@ CommObj::~CommObj()
     close();
     m_thread->quit();
     m_thread->wait();
+    m_serialPort->deleteLater();
 }
 
 QList<QSerialPortInfo> CommObj::getSerialPortInfo()
@@ -71,6 +74,40 @@ QList<qint32> CommObj::baudRates()
     std::sort(baudRateList.begin(),baudRateList.end(),std::greater<qint32>());
     //qSort(baudRateList.begin(),baudRateList.end(),qGreater<qint32>());
     return baudRateList ;
+}
+
+int CommObj::portNameNum()
+{
+    return CommObj::portName().size();
+}
+
+int CommObj::baudRatesNum()
+{
+    return CommObj::baudRates().size();
+}
+
+QString CommObj::portNameValue(int pos)
+{
+    if(pos<portNameNum()&&pos>=0)
+    {
+        return CommObj::portName().at(pos);
+    }
+    else
+    {
+        return "";
+    }
+}
+
+quint32 CommObj::baudRatesValue(int pos)
+{
+    if(pos<baudRatesNum()&&pos>=0)
+    {
+        return CommObj::baudRates().at(pos);
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 void CommObj::setBaudRade(qint32 baud)

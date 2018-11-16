@@ -71,6 +71,8 @@ void ArchitePlanView::initWidget()
     m_stackedWidget = new QStackedWidget(this);
     m_tabWidget = new QTabWidget(this);
     m_textToSpeech = new QTextToSpeech(this);
+    m_globalGraphicsView = new QWidget(this);
+    m_sysArchitePlanView = new SysArchitePlanView(this);
     m_treeView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     m_treeView->setMaximumWidth(180);
     m_stackedWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
@@ -81,7 +83,11 @@ void ArchitePlanView::initWidget()
     QHBoxLayout*globalHLayout = new QHBoxLayout;
     splitter->addWidget(m_stackedWidget);
     splitter->addWidget(m_treeView);
+
     m_tabWidget->addTab(splitter,tr("建筑平面图"));
+    m_tabWidget->addTab(m_globalGraphicsView ,tr("总平面布局图"));
+    m_tabWidget->addTab(m_sysArchitePlanView,tr("系统图"));
+   // m_sysGraphicsView->loadPixmap("D:/program/GraphicsDisplay/images/dialog.png");
     //m_tabWidget->addTab(new QWidget(this),tr("平面图"));
     globalHLayout->addWidget(m_tabWidget);
     globalHLayout->setContentsMargins(QMargins(0,0,0,0));
@@ -316,4 +322,9 @@ int ArchitePlanView::numOfTypeAlarm(const QString &type)
 {
     int num= Controller::instance()->getDataStore()->numOfTypeItem(type);
     return num;
+}
+
+void ArchitePlanView::setGlobalArchitePixmap(const QString &pixmapName)
+{
+    m_globalGraphicsView->setStyleSheet(QString("QWidget{border-image:url(%1)}").arg(pixmapName));
 }

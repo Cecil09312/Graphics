@@ -7,5 +7,10 @@
         <file>qml/TreeViewSetting.qml</file>
         <file>qml/GraphicsItemEditor.qml</file>
         <file>qml/SerialPortSetting.qml</file>
+        <file>qml/GraphicsViewSetting.qml</file>
+        <file>qml/SettingView.qml</file>
+        <file>qml/NaviButton.qml</file>
+        <file>qml/SettingWindow.qml</file>
+        <file>qml/PasswordSetting.qml</file>
     </qresource>
 </RCC>

@@ -8,6 +8,7 @@
 #include "infoTable/infotableview.h"
 #include <QQuickView>
 #include <QOpenGLWidget>
+#include <QQmlApplicationEngine>
 
 class CrtWidget : public QOpenGLWidget
 {
@@ -20,6 +21,7 @@ public:
 public slots:
     void widgetExit();
     void loginWidgetShow();
+    void settingWindowShow();
 //    void toFirstFireAlarm();
 //    void toLastFireAlarm();
     void logWidgetClose();
@@ -32,7 +34,11 @@ private:
     InfoTableView*m_infoTableView;
     QQuickView *m_loginQuickView;
     QQuickView *m_alarmQuickView;
+   // QQuickView *m_settingQuickView;
    // QQuickView *m_architeSettingView;
+
+    QQmlApplicationEngine *m_settingViewEngine;
+   // engine.load(QUrl(QStringLiteral("qrc:/wearable.qml")));
 };
 
 #endif // CRTWIDGET_H

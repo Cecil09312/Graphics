@@ -106,11 +106,11 @@ Rectangle {
             id: faultStatusIndicator
             Layout.column: 0
             Layout.row: 3
-            color: "green"
+            color: "black"
             active: true
             ColorAnimation on color {
                 id: faultAnimation
-                from: "red"
+                from: "yellow"
                 to: "black"
                 duration: 1000
                 loops: Animation.Infinite
@@ -128,7 +128,7 @@ Rectangle {
             id: feedbackStatusIndicator
             Layout.column: 0
             Layout.row: 4
-            color: "green"
+            color: "black"
             active: true
             ColorAnimation on color {
 
@@ -170,13 +170,13 @@ Rectangle {
         }
 
         StatusIndicator {
-            id: mainConnunication
+            id: mainPowerIndicator
             Layout.column: 0
             Layout.row: 6
             color: "green"
             active: true
             ColorAnimation on color {
-                id: mainConnunicationAnimation
+                id: mainPowerAnimation
                 from: "red"
                 to: "black"
                 duration: 1000
@@ -185,16 +185,81 @@ Rectangle {
             }
         }
         Text {
+            id: mainPowerTxt
             Layout.column: 1
             Layout.row: 6
-            text: qsTr("主机通信")
+            text: qsTr("主电")
+        }
+
+        StatusIndicator {
+            id: standbyPowerIndicator
+            Layout.column: 0
+            Layout.row: 7
+            color: "green"
+            active: true
+            ColorAnimation on color {
+                id: standbyPowerAnimation
+                from: "red"
+                to: "black"
+                duration: 1000
+                loops: Animation.Infinite
+                running: false
+            }
+        }
+        Text {
+            id: standbyPowerTxt
+            Layout.column: 1
+            Layout.row: 7
+            text: qsTr("备电")
+        }
+
+        StatusIndicator {
+            id: equiComIndicator
+            Layout.column: 0
+            Layout.row: 8
+            color: "green"
+            active: true
+            ColorAnimation on color {
+                id: equiComAnimation
+                from: "red"
+                to: "black"
+                duration: 1000
+                loops: Animation.Infinite
+                running: false
+            }
+        }
+        Text {
+            id: equiComTxt
+            Layout.column: 1
+            Layout.row: 8
+            text: qsTr("设备通信")
+        }
+
+        StatusIndicator {
+            id: centerComIndictor
+            Layout.column: 0
+            Layout.row: 9
+            color: "green"
+            active: true
+            ColorAnimation on color {
+                id: centerComAnimation
+                from: "red"
+                to: "black"
+                duration: 1000
+                loops: Animation.Infinite
+                running: false
+            }
+        }
+        Text {
+            id: centerComTxt
+            Layout.column: 1
+            Layout.row: 9
+            text: qsTr("中心通信")
         }
     }
 
     Column {
-
         anchors.top: alarmIndicatorLayout.bottom
-
         width: parent.width - 40
         spacing: 5
         anchors.left: parent.left

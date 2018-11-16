@@ -5,21 +5,41 @@
 #include <QOpenGLWidget>
 #include "openglWidget/glwidget.h"
 #include "control/controller.h"
-GraphicsView::GraphicsView(QWidget *parent):
-    QGraphicsView(parent)
+GraphicsView::GraphicsView(QWidget *parent, int type):
+    QGraphicsView(parent),
+    m_viewType(type)
+
 {
-    m_scene = new GraphicsScene(this);
+
     m_pixmapItem = new QGraphicsPixmapItem;
-    setScene(m_scene);
-    m_scene->addItem(m_pixmapItem);
     zoom(1.5);
     setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
     setViewport(new QOpenGLWidget(this));
 
-    setContextMenuPolicy(Qt::CustomContextMenu);
+    if(m_viewType==ArthitePlan)
+    {
+        setContextMenuPolicy(Qt::CustomContextMenu);
+        m_scene = new GraphicsScene(this);
+        setScene(m_scene);
+        m_scene->addItem(m_pixmapItem);
+        m_sysViewScene  = nullptr;
+    }
+    else
+    {
+        m_scene = nullptr;
+        m_sysViewScene = new QGraphicsScene(this);
+        m_sysViewScene->addItem(m_pixmapItem);
+        setScene(m_sysViewScene);
+
+    }
+
     connect(this,&GraphicsView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)
     {
-        m_scene->showMenu(QCursor::pos());
+        if(m_scene!=nullptr)
+        {
+            m_scene->showMenu(QCursor::pos());
+        }
+
     });
 
 }
@@ -69,12 +89,23 @@ QString GraphicsView::pixmapName()
 
 QList<QGraphicsItem *> GraphicsView::getItemList()
 {
-    return m_scene->getItemList();
+    QList<QGraphicsItem*>itemList;
+    if(m_scene!=nullptr)
+    {
+       itemList= m_scene->getItemList();
+    }
+    return itemList;
 }
 
 QGraphicsItem *GraphicsView::getItem(int pos)
 {
-    return m_scene->getItem(pos);
+    QGraphicsItem *item = nullptr;
+    if(m_scene!=nullptr)
+    {
+        item = m_scene->getItem(pos);
+    }
+
+    return item;
 }
 
 void GraphicsView::loadPixmap(const QString &fileName)

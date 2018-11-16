@@ -7,11 +7,14 @@
 #include <QSplitter>
 #include <QQuickItem>
 #include "commnication/commobj.h"
+#include "control/controller.h"
 CrtWidget::CrtWidget(QWidget *parent) :
     QOpenGLWidget(parent)
 {
+
     initWidget();
     setWindowFlags(Qt::FramelessWindowHint);
+
     QObject *alarmObj = m_alarmQuickView->rootObject();
     Q_ASSERT(alarmObj);
     connect(m_architePlanView,&ArchitePlanView::alarmHappend,this,[=](const QString &type)
@@ -48,7 +51,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
         }
 
     });
-    qDebug() << CommObj::baudRates();
+    //qDebug() << CommObj::baudRates();
 
 }
 
@@ -57,6 +60,8 @@ CrtWidget::~CrtWidget()
     delete m_alarmContainer;
     delete m_toolBarContainer;
     delete m_loginQuickView;
+   // delete m_settingQuickView;
+    delete m_settingViewEngine;
 }
 
 void CrtWidget::widgetExit()
@@ -67,6 +72,12 @@ void CrtWidget::widgetExit()
 void CrtWidget::loginWidgetShow()
 {
     m_loginQuickView->show();
+}
+
+void CrtWidget::settingWindowShow()
+{
+    //m_settingQuickView->show();
+    m_settingViewEngine->load(QUrl("qrc:/qml/SettingWindow.qml"));
 }
 
 //void CrtWidget::toFirstFireAlarm()
@@ -86,6 +97,12 @@ void CrtWidget::logWidgetClose()
 
 void CrtWidget::initWidget()
 {
+    qmlRegisterSingletonType<Controller>("serialPortInfo", 1, 0, "SerialPortInfo",
+                                     [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+        Q_UNUSED(engine)
+        Q_UNUSED(scriptEngine)
+        return Controller::instance()->getCommObj();
+    });
     QVBoxLayout *globalVLayout = new QVBoxLayout;
     QQuickView *toolBarQuickView = new QQuickView;
     toolBarQuickView->setSource(QUrl("qrc:/qml/ToolBarWindow.qml"));
@@ -119,6 +136,11 @@ void CrtWidget::initWidget()
     m_loginQuickView->setGeometry(500,50,m_loginQuickView->width(),m_loginQuickView->height());
     m_loginQuickView->rootContext()->setContextProperty("CrtWidget",this);
 
+//    m_settingQuickView  = new  QQuickView;
+//    m_settingQuickView->setSource(QUrl("qrc:/qml/SettingWindow.qml"));
+//    m_settingQuickView->resize(560,420);
+    m_settingViewEngine = new QQmlApplicationEngine;
+
     QHBoxLayout *globalHLayout = new QHBoxLayout;
     globalHLayout->addWidget(m_alarmContainer);
     QSplitter *splitter = new QSplitter(Qt::Vertical,this);
@@ -132,6 +154,6 @@ void CrtWidget::initWidget()
     globalVLayout->setSpacing(0);
     globalVLayout->setContentsMargins(QMargins(0,0,0,0));
     setLayout(globalVLayout);
-   // loginQuickView->show();
+
 
 }
