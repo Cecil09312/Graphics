@@ -5,6 +5,9 @@
 #include "dataStore/datastore.h"
 #include <QTextToSpeech>
 #include "commnication/commobj.h"
+#include "architePlan/sysarchiteplanview.h"
+#include "architePlan/architeplanview.h"
+
 class Controller:public QObject
 {
     Q_OBJECT
@@ -14,6 +17,10 @@ public:
     DataStore * getDataStore();
     QString fileNameFromQml(const QString &name);
     CommObj *getCommObj();
+    void setSysArchitePlanView(SysArchitePlanView*sysArchitePlanView);
+    SysArchitePlanView *getSysArchitePlanView();
+    void setArchitePlanView(ArchitePlanView *architePlanView);
+    ArchitePlanView *getArchitePlanView();
 // Q_INVOKABLE QList<QString>portNameList();
 public:
     class AutoDelete
@@ -35,6 +42,8 @@ private:
     static Controller*m_controller;
     DataStore *m_dataStore;
     CommObj *m_commObj;
+    SysArchitePlanView *m_sysArthitePlanView;
+    ArchitePlanView *m_architePlanView;
 
 };
 

@@ -28,6 +28,7 @@ public slots:
     void creatAlarm();
     void firstFireAlarm();
     void lastFireAlarm();
+    void currentGraphicsViewZoom(bool isZoomIn);
 
 
 private:

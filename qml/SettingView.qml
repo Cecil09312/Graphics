@@ -19,14 +19,14 @@ PathView {
         }
 
         ListElement {
-            title: qsTr("图形界面设置")
+            title: qsTr("建筑平面图设置")
             page: "qrc:/qml/GraphicsViewSetting.qml"
             icon: "geoGraphics"
             iconSource: "qrc:/images/geoGraphics.png"
         }
 
         ListElement {
-            title: qsTr("权限密码设置")
+            title: qsTr("密码设置")
             page: "qrc:/qml/PasswordSetting.qml"
             icon: "passwordSetting"
             iconSource: "qrc:/images/passwordSetting.png"
@@ -40,7 +40,7 @@ PathView {
         }
 
         ListElement {
-            title: qsTr("建筑图纸")
+            title: qsTr("其它设置")
             // page: "GraphicsViewSetting.qml"
             icon: "build"
             iconSource: "qrc:/images/build.png"
@@ -54,8 +54,8 @@ PathView {
         }
 
         ListElement {
-            title: qsTr("其他设置")
-            // page: "GraphicsViewSetting.qml"
+            title: qsTr("系统图设置")
+            page: "qrc:/qml/SysArchitePlanSetting.qml"
             icon: "appOther"
             iconSource: "qrc:/images/appOther.png"
         }

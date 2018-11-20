@@ -49,7 +49,6 @@ Rectangle {
             spacing: 5
             Layout.topMargin: 10
             Button {
-
                 text: qsTr("登陆")
             }
 

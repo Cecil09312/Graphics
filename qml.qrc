@@ -12,5 +12,6 @@
         <file>qml/NaviButton.qml</file>
         <file>qml/SettingWindow.qml</file>
         <file>qml/PasswordSetting.qml</file>
+        <file>qml/SysArchitePlanSetting.qml</file>
     </qresource>
 </RCC>

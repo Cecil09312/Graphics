@@ -6,8 +6,6 @@ Item {
     GridLayout {
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
-        //columns: 2
-        //Layout.spacing: 5
         Text {
             id: userName
             text: qsTr("用户名")
@@ -26,9 +24,6 @@ Item {
             text: qsTr("初始密码")
             Layout.row: 1
             Layout.column: 0
-
-            //            horizontalAlignment: Text.AlignHCenter
-            //            verticalAlignment: Text.AlignBottom
         }
         TextField {
             id: oldPasswordTextFile

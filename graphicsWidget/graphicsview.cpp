@@ -5,17 +5,16 @@
 #include <QOpenGLWidget>
 #include "openglWidget/glwidget.h"
 #include "control/controller.h"
+qreal GraphicsView::m_scale =1;
 GraphicsView::GraphicsView(QWidget *parent, int type):
     QGraphicsView(parent),
     m_viewType(type)
-
 {
 
     m_pixmapItem = new QGraphicsPixmapItem;
     zoom(1.5);
     setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
     setViewport(new QOpenGLWidget(this));
-
     if(m_viewType==ArthitePlan)
     {
         setContextMenuPolicy(Qt::CustomContextMenu);
@@ -30,7 +29,6 @@ GraphicsView::GraphicsView(QWidget *parent, int type):
         m_sysViewScene = new QGraphicsScene(this);
         m_sysViewScene->addItem(m_pixmapItem);
         setScene(m_sysViewScene);
-
     }
 
     connect(this,&GraphicsView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)
@@ -39,7 +37,6 @@ GraphicsView::GraphicsView(QWidget *parent, int type):
         {
             m_scene->showMenu(QCursor::pos());
         }
-
     });
 
 }
@@ -67,11 +64,11 @@ void GraphicsView::wheelEvent(QWheelEvent *e)
 {
     if (e->angleDelta().ry()>0)
     {
-        scale(m_scale,m_scale);
+        zoomIn();
     }
     else
     {
-        scale(1.0/m_scale,1.0/m_scale);
+        zoomOut();
     }
     e->accept();
 }
@@ -92,7 +89,7 @@ QList<QGraphicsItem *> GraphicsView::getItemList()
     QList<QGraphicsItem*>itemList;
     if(m_scene!=nullptr)
     {
-       itemList= m_scene->getItemList();
+        itemList= m_scene->getItemList();
     }
     return itemList;
 }
@@ -112,4 +109,15 @@ void GraphicsView::loadPixmap(const QString &fileName)
 {
     m_pixmapName = Controller::instance()->fileNameFromQml(fileName);
     m_pixmapItem->setPixmap(QPixmap(m_pixmapName));
+}
+
+void GraphicsView::zoomIn()
+{
+    qDebug() <<"m_scale" <<m_scale;
+    scale(m_scale,m_scale);
+}
+
+void GraphicsView::zoomOut()
+{
+    scale(1.0/m_scale,1.0/m_scale);
 }

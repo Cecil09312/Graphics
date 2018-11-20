@@ -20,8 +20,10 @@ public:
     QGraphicsItem * getItem(int pos);
 
 public slots:
-    void zoom(qreal scaleValue);
+    static void zoom(qreal scaleValue);
     void loadPixmap(const QString &fileName);
+    void zoomIn();
+    void zoomOut();
 public:
     enum
     {
@@ -33,13 +35,14 @@ protected:
     void wheelEvent(QWheelEvent*event);
 
 private:
-    qreal m_scale;
+    static qreal m_scale;
     GraphicsScene *m_scene;
     QGraphicsScene*m_sysViewScene;
     //QGraphicsSvgItem *m_svgItem;
     QGraphicsPixmapItem *m_pixmapItem;
     QString m_pixmapName;
     int m_viewType;
+
 };
 
 #endif // GRAPHICSVIEW_H

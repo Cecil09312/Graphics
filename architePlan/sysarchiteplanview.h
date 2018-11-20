@@ -16,6 +16,9 @@ public:
 signals:
 
 public slots:
+    void setSysDrawing(const QString& sysName,const QString &fileName);
+    void setGraphicsViewScale(qreal scale);
+    void currentGraphicsViewZoom(bool isZoomIn);
 private:
     void init();
 private:

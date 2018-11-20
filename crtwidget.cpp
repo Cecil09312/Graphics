@@ -103,6 +103,14 @@ void CrtWidget::initWidget()
         Q_UNUSED(scriptEngine)
         return Controller::instance()->getCommObj();
     });
+
+    qmlRegisterSingletonType<Controller>("sysArchitePlanView", 1, 0, "SysArchitePlanView",
+                                     [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+        Q_UNUSED(engine)
+        Q_UNUSED(scriptEngine)
+        return Controller::instance()->getSysArchitePlanView();
+    });
+
     QVBoxLayout *globalVLayout = new QVBoxLayout;
     QQuickView *toolBarQuickView = new QQuickView;
     toolBarQuickView->setSource(QUrl("qrc:/qml/ToolBarWindow.qml"));
@@ -116,6 +124,14 @@ void CrtWidget::initWidget()
 
     m_architePlanView = new ArchitePlanView(this);
     m_architePlanView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+    Controller::instance()->setArchitePlanView(m_architePlanView);
+    qmlRegisterSingletonType<Controller>("architePlanView", 1, 0, "ArchitePlanView",
+                                     [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+        Q_UNUSED(engine)
+        Q_UNUSED(scriptEngine)
+        return Controller::instance()->getArchitePlanView();
+    });
+
     m_infoTableView = new InfoTableView(this);
     m_infoTableView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 
@@ -136,9 +152,9 @@ void CrtWidget::initWidget()
     m_loginQuickView->setGeometry(500,50,m_loginQuickView->width(),m_loginQuickView->height());
     m_loginQuickView->rootContext()->setContextProperty("CrtWidget",this);
 
-//    m_settingQuickView  = new  QQuickView;
-//    m_settingQuickView->setSource(QUrl("qrc:/qml/SettingWindow.qml"));
-//    m_settingQuickView->resize(560,420);
+
+
+
     m_settingViewEngine = new QQmlApplicationEngine;
 
     QHBoxLayout *globalHLayout = new QHBoxLayout;

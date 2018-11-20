@@ -67,7 +67,10 @@ DISTFILES += \
     qml/GraphicsViewSetting.qml \
     qml/NaviButton.qml \
     qml/SettingWindow.qml \
-    qml/PasswordSetting.qml
+    qml/PasswordSetting.qml \
+    qml/SysArchitePlanSetting.qml \
+    qml/SysArchitePlanSetting.qml \
+    qml/SysArchitePlanSetting.qml
 
 RESOURCES += \
     qml.qrc \

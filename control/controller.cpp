@@ -64,6 +64,26 @@ CommObj *Controller::getCommObj()
     return m_commObj;
 }
 
+void Controller::setSysArchitePlanView(SysArchitePlanView *sysArchitePlanView)
+{
+    m_sysArthitePlanView = sysArchitePlanView;
+}
+
+SysArchitePlanView *Controller::getSysArchitePlanView()
+{
+    return m_sysArthitePlanView;
+}
+
+void Controller::setArchitePlanView(ArchitePlanView *architePlanView)
+{
+    m_architePlanView = architePlanView;
+}
+
+ArchitePlanView *Controller::getArchitePlanView()
+{
+    return m_architePlanView;
+}
+
 Controller::Controller()
 {
    m_dataStore = new DataStore;

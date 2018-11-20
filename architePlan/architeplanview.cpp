@@ -11,6 +11,7 @@
 #include "jsonEdit/jsonedit.h"
 #include "graphicsWidget/graphicsitem.h"
 #include <QDebug>
+#include "control/controller.h"
 ArchitePlanView::ArchitePlanView(QWidget *parent)
     : QWidget(parent)
 {
@@ -63,10 +64,28 @@ void ArchitePlanView::lastFireAlarm()
     findFireAlarm(-1);
 }
 
+void ArchitePlanView::currentGraphicsViewZoom(bool isZoomIn)
+{
+    GraphicsView*graphicsView=dynamic_cast<GraphicsView*> (m_stackedWidget->currentWidget()) ;
+    if(graphicsView!=nullptr)
+    {
+        if(isZoomIn)
+        {
+            graphicsView->zoomIn();
+        }
+        else
+        {
+            graphicsView->zoomOut();
+        }
+    }
+
+}
+
 
 
 void ArchitePlanView::initWidget()
 {
+
     m_treeView = new TreeView(this);
     m_stackedWidget = new QStackedWidget(this);
     m_tabWidget = new QTabWidget(this);
@@ -87,12 +106,12 @@ void ArchitePlanView::initWidget()
     m_tabWidget->addTab(splitter,tr("建筑平面图"));
     m_tabWidget->addTab(m_globalGraphicsView ,tr("总平面布局图"));
     m_tabWidget->addTab(m_sysArchitePlanView,tr("系统图"));
-   // m_sysGraphicsView->loadPixmap("D:/program/GraphicsDisplay/images/dialog.png");
+    // m_sysGraphicsView->loadPixmap("D:/program/GraphicsDisplay/images/dialog.png");
     //m_tabWidget->addTab(new QWidget(this),tr("平面图"));
     globalHLayout->addWidget(m_tabWidget);
     globalHLayout->setContentsMargins(QMargins(0,0,0,0));
     setLayout(globalHLayout);
-
+    Controller::instance()->setSysArchitePlanView(m_sysArchitePlanView);
     connect(m_treeView,&TreeView::treeIndex,this,[=](QStandardItem*item)
     {
         QMap<QStandardItem*,int>map= m_treeView->getTreeIndexMap();
@@ -326,5 +345,6 @@ int ArchitePlanView::numOfTypeAlarm(const QString &type)
 
 void ArchitePlanView::setGlobalArchitePixmap(const QString &pixmapName)
 {
-    m_globalGraphicsView->setStyleSheet(QString("QWidget{border-image:url(%1)}").arg(pixmapName));
+    QString filePath=  Controller::instance()->fileNameFromQml(pixmapName);
+    m_globalGraphicsView->setStyleSheet(QString("QWidget{margin:20;border-image:url(%1)}").arg(filePath));
 }

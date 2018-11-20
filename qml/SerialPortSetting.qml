@@ -1,7 +1,6 @@
 import QtQuick 2.0
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
-
 import serialPortInfo 1.0
 
 Rectangle {
@@ -43,9 +42,6 @@ Rectangle {
             Layout.column: 1
             model: ListModel {
                 id: baudListModel
-                //                ListElement {
-                //                    //value: SerialPortInfo.baudRatesValue(0)
-                //                }
             }
         }
 
