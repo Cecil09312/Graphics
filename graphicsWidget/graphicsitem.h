@@ -10,6 +10,29 @@
 
 class GraphicsScene;
 
+struct ItemInfo
+{
+    QString m_extNum;//分机号
+    QString m_loopNum;//回路号
+    QString m_addNum;//地址号
+    QString m_alarmType;//报警类型
+    QString m_deviceNum;//设备产品编码
+    QString m_equipmentModel;//设备设施型号
+    QString m_currentAlarmState;//报警当前状态
+    QString m_alarmTime;//报警时间
+    QString m_alarmReceiveTime;//报警收到时间
+    QString m_alarmReplyTime;//报警恢复正常时间
+    QString m_sysOfDevice;//设备所属系统
+    QString m_protectedAreaName;//总保护区域名称
+    QString m_buildingName;//建筑设施名称
+    QString m_floorOfDevice;//设施所在楼层
+    QString m_deviceLocation;//设施所在位置
+    QString m_operatorOnDuty;//值班人员
+
+
+    ItemInfo() {}
+};
+
 class GraphicsItem : public QObject,public QGraphicsItem
 {
     Q_OBJECT

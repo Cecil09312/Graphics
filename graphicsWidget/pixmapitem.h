@@ -3,6 +3,7 @@
 
 #include <QGraphicsPixmapItem>
 #include <QGraphicsSvgItem>
+
 class PixmapItem : public QGraphicsPixmapItem
 {
 public:

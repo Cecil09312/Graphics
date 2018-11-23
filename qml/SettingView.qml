@@ -33,22 +33,22 @@ PathView {
         }
 
         ListElement {
-            title: qsTr("文件输出")
-            // page: "GraphicsViewSetting.qml"
-            icon: "folderDocuments"
-            iconSource: "qrc:/images/folderDocuments.png"
+            title: qsTr("信息传输")
+            page: "qrc:/qml/InfoTransport.qml"
+            icon: "infoSend"
+            iconSource: "qrc:/images/send.png"
         }
 
         ListElement {
             title: qsTr("其它设置")
-            // page: "GraphicsViewSetting.qml"
+            page: "qrc:/qml/OtherSetting.qml"
             icon: "build"
             iconSource: "qrc:/images/build.png"
         }
 
         ListElement {
             title: qsTr("信息查询")
-            // page: "GraphicsViewSetting.qml"
+            page: "qrc:/qml/InfoQuery.qml"
             icon: "search"
             iconSource: "qrc:/images/search.png"
         }

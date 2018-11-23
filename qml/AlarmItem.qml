@@ -281,6 +281,14 @@ Rectangle {
                 ListElement {
                     name: qsTr("模拟火警")
                 }
+
+                ListElement {
+                    name: qsTr("上一页")
+                }
+
+                ListElement {
+                    name: qsTr("下一页")
+                }
             }
 
             Button {

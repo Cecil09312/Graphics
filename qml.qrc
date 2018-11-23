@@ -13,5 +13,8 @@
         <file>qml/SettingWindow.qml</file>
         <file>qml/PasswordSetting.qml</file>
         <file>qml/SysArchitePlanSetting.qml</file>
+        <file>qml/InfoQuery.qml</file>
+        <file>qml/InfoTransport.qml</file>
+        <file>qml/OtherSetting.qml</file>
     </qresource>
 </RCC>

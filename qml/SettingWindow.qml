@@ -4,8 +4,8 @@ import QtQuick.Controls 2.4
 ApplicationWindow {
     id: window
     visible: true
-    width: 480
-    height: 560
+    width: 840
+    height: 640
     // title: qsTr("Wearable")
 
     //    background: Image {

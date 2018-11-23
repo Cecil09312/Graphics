@@ -40,7 +40,8 @@ SOURCES += \
     commnication/commobj.cpp \
     database/sqlitemanager.cpp \
     database/sqlmanager.cpp \
-    architePlan/sysarchiteplanview.cpp
+    architePlan/sysarchiteplanview.cpp \
+    qmlTableModel/qmltablemodel.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -58,7 +59,8 @@ HEADERS += \
     commnication/commobj.h \
     database/sqlitemanager.h \
     database/sqlmanager.h \
-    architePlan/sysarchiteplanview.h
+    architePlan/sysarchiteplanview.h \
+    qmlTableModel/qmltablemodel.h
 
 FORMS +=
 
@@ -70,7 +72,10 @@ DISTFILES += \
     qml/PasswordSetting.qml \
     qml/SysArchitePlanSetting.qml \
     qml/SysArchitePlanSetting.qml \
-    qml/SysArchitePlanSetting.qml
+    qml/SysArchitePlanSetting.qml \
+    qml/InfoQuery.qml \
+    qml/InfoTransport.qml \
+    qml/OtherSetting.qml
 
 RESOURCES += \
     qml.qrc \

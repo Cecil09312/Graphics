@@ -55,7 +55,6 @@ Rectangle {
             Layout.column: 2
             text: qsTr("选择图片")
             onClicked: {
-
                 fileDialog.open()
             }
         }

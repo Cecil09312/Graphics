@@ -95,6 +95,7 @@ Item {
             id: globalArchitePlanGroupBox
             title: qsTr("建筑总平面布局图")
             RowLayout {
+
                 Text {
                     id: globalBackground
                     text: qsTr("背景图")

@@ -113,7 +113,7 @@ void GraphicsView::loadPixmap(const QString &fileName)
 
 void GraphicsView::zoomIn()
 {
-    qDebug() <<"m_scale" <<m_scale;
+    //qDebug() <<"m_scale" <<m_scale;
     scale(m_scale,m_scale);
 }
 
