@@ -1,36 +1,179 @@
-#include "qmltablemodel.h"
+﻿#include "qmltablemodel.h"
+#include <QDebug>
+#include <QSqlRecord>
+#include <QStringList>
+#include <QDebug>
 
 QmlTableModel::QmlTableModel(QObject *parent)
-    : QAbstractTableModel(parent)
+    : QSqlQueryModel(parent),
+      m_sqlManager(nullptr)
 {
+
 }
 
-QVariant QmlTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+QmlTableModel::~QmlTableModel()
 {
-    // FIXME: Implement me!
+    if(m_sqlManager!=nullptr)
+    {
+        m_sqlManager->close();
+        m_sqlManager->deleteLater();
+        m_sqlManager = nullptr;
+    }
+
 }
 
-int QmlTableModel::rowCount(const QModelIndex &parent) const
-{
-    if (parent.isValid())
-        return 0;
-
-    // FIXME: Implement me!
-}
-
-int QmlTableModel::columnCount(const QModelIndex &parent) const
-{
-    if (parent.isValid())
-        return 0;
-
-    // FIXME: Implement me!
-}
 
 QVariant QmlTableModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid())
-        return QVariant();
-
-    // FIXME: Implement me!
-    return QVariant();
+    if (role < Qt::UserRole)
+    {
+        return QSqlQueryModel::data(index, role);
+    }
+    const QSqlRecord sqlRecord = record(index.row());
+    return sqlRecord.value(role - Qt::UserRole);
 }
+
+QHash<int, QByteArray> QmlTableModel::roleNames() const
+{
+    return m_roleHash;
+}
+
+void QmlTableModel::sqlCommit(const QString &sqlStr)
+{
+    if(m_sqlManager!=nullptr)
+    {
+        setQuery(sqlStr,m_sqlManager->getDatabase());
+    }
+    submit();
+}
+
+
+QList<QString> QmlTableModel::roleNameList()
+{
+    return m_roleNameList;
+}
+
+void QmlTableModel::setRoleNameList(const QList<QString> &roleNamesList)
+{
+    m_roleNameList = roleNamesList;
+    for(int i=0;i<m_roleNameList.size();i++)
+    {
+        m_roleHash[Qt::UserRole+i] = m_roleNameList.at(i).toLocal8Bit();
+    }
+}
+
+
+QString &QmlTableModel::dbDriver()
+{
+    return m_dbDriver;
+}
+
+void QmlTableModel::setDbDriver(const QString &driver)
+{
+
+    m_dbDriver = driver;
+
+    if(m_sqlManager==nullptr)
+    {
+        if(m_dbDriver.contains("SQLITE",Qt::CaseInsensitive))
+        {
+           m_sqlManager = new SqliteManager;
+        }
+
+    }
+}
+
+QString &QmlTableModel::dbConnectionName()
+{
+    return m_dbConnectionName;
+}
+
+void QmlTableModel::setDbConnectionName(const QString &name)
+{
+
+    m_dbConnectionName= name;
+
+}
+
+QString &QmlTableModel::dbHost()
+{
+    return m_dbHost;
+}
+
+void QmlTableModel::setDbHost(const QString &host)
+{
+    m_dbHost = host;
+}
+
+QString& QmlTableModel::dbUser()
+{
+    return m_dbUser;
+}
+
+void QmlTableModel::setDbUser(const QString &user)
+{
+    m_dbUser = user;
+}
+
+QString &QmlTableModel::dbPassword()
+{
+    return m_dbPassword;
+}
+
+void QmlTableModel::setDbPassword(const QString &password)
+{
+    m_dbPassword = password;
+}
+
+QString &QmlTableModel::dbName()
+{
+    return m_dbName;
+}
+
+void QmlTableModel::setDbName(const QString &name)
+{
+    m_dbName = name;
+}
+
+int QmlTableModel::dbPort()
+{
+    return m_dbPort;
+}
+
+void QmlTableModel::setDbPort(int port)
+{
+    m_dbPort = port;
+}
+
+bool QmlTableModel::dbOpen()
+{
+    if(m_sqlManager!=nullptr)
+    {
+        return m_sqlManager->isOpen();
+    }
+
+    else
+    {
+        return false;
+    }
+}
+
+void QmlTableModel::setDbOpen(bool isOpen)
+{
+    if(m_sqlManager!=nullptr)
+    {
+        m_sqlManager->setDataBase(m_dbDriver,m_dbConnectionName,m_dbHost,m_dbUser,m_dbPassword,m_dbName,m_dbPort);
+        if(isOpen)
+        {
+            m_sqlManager->open();
+        }
+        else
+        {
+            m_sqlManager->close();
+        }
+    }
+}
+
+
+
+

@@ -1,4 +1,4 @@
-#ifndef ARCHITEPLANVIEW_H
+﻿#ifndef ARCHITEPLANVIEW_H
 #define ARCHITEPLANVIEW_H
 
 #include <QWidget>
@@ -38,6 +38,8 @@ private:
     void initFromJsonFile();
     void setViewFromJson(const QHash<QString, QVariant> &hash, QStandardItem *treeItem);
     void findFireAlarm(int pos);
+    void saveOtherArchiteInfo();
+    void setGlobalArchiteFromJson();
 
 private:
     TreeView *m_treeView;
@@ -48,6 +50,7 @@ private:
     QMap<int,GraphicsView *>m_widgetMap;
     const QString c_jsonFilePath=QCoreApplication::applicationDirPath()+"/treeView.json";
     QTextToSpeech *m_textToSpeech;
+    QString m_globalArchitePlanPixmapName;
 };
 
 #endif // ARCHITEPLANVIEW_H

@@ -1,4 +1,4 @@
-#include "graphicsscene.h"
+﻿#include "graphicsscene.h"
 #include <QPainter>
 #include <QGraphicsPixmapItem>
 #include <QStyleOptionGraphicsItem>
@@ -136,13 +136,6 @@ void GraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
     }
     else
     {
-        //        QList<QGraphicsItem*>graphicsItemList= items(event->scenePos(),Qt::IntersectsItemShape, Qt::DescendingOrder, QTransform());
-        //        for(int i=0;i<graphicsItemList.size();i++)
-        //        {
-        //            GraphicsItem *item = dynamic_cast<GraphicsItem *>(graphicsItemList.at(i));
-        //            if(item)
-        //            item->startAnimation();
-        //        }
 
     }
 

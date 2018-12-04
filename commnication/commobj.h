@@ -1,4 +1,4 @@
-#ifndef COMMOBJ_H
+﻿#ifndef COMMOBJ_H
 #define COMMOBJ_H
 
 #include <QObject>
@@ -13,7 +13,7 @@ public:
     ~CommObj();
     static QList<QSerialPortInfo> getSerialPortInfo();
     static QList<QString> portName();
-    static QList <qint32> baudRates();
+    static QList<qint32> baudRates();
     Q_INVOKABLE int portNameNum();
     Q_INVOKABLE int baudRatesNum();
     Q_INVOKABLE QString portNameValue(int pos);

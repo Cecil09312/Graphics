@@ -1,8 +1,11 @@
-#include "sqlmanager.h"
+﻿#include "sqlmanager.h"
 #include <QVariant>
 #include "sqlitemanager.h"
 #include <QDebug>
 #include <QSqlError>
+#include <QtConcurrent>
+#include <QFuture>
+
 class SqlManager::SqlManagerPrivate
 {
 public:
@@ -27,12 +30,35 @@ SqlManager::~SqlManager()
         delete d;
         d = nullptr;
     }
+
+}
+
+QStringList SqlManager::getDatabases()
+{
+    return QStringList();
+}
+
+QStringList SqlManager::getTables(QString /*dataBase*/)
+{
+    return QStringList();
 }
 
 void SqlManager::setDataBase(const QString &driver, const QString &conectionName, const QString &host,
                              const QString &user, const QString &password, const QString &dataBase, const int &port)
 {
-    d->m_database = QSqlDatabase::addDatabase(driver,conectionName);
+    QString defaultName = d->m_database.connectionName();
+
+    if(defaultName!=conectionName && !conectionName.isEmpty())
+    {
+        d->m_database.removeDatabase(conectionName);
+        d->m_database = QSqlDatabase::addDatabase(driver,conectionName);
+    }
+    else if(defaultName==conectionName && defaultName.isEmpty())
+    {
+        d->m_database.removeDatabase("defaultName");
+        d->m_database = QSqlDatabase::addDatabase(driver,"defaultName");
+    }
+
     d->m_database.setHostName(host);
     d->m_database.setUserName(user);
     d->m_database.setPassword(password);
@@ -40,59 +66,105 @@ void SqlManager::setDataBase(const QString &driver, const QString &conectionName
     d->m_database.setPort(port);
 }
 
-SqlManager *SqlManager::fromDriverName(const QString &driver)
-{
 
-    static SqlManager * result = nullptr;
-    const QString driv = driver.toUpper();
-    if(result==nullptr)
-    {
-        if(driv.contains("SQLITE"))
-            result = new SqliteManager();
-    }
-    return result;
-}
 
-bool SqlManager::insertBatch(const QString &sql, const QList<QVariant> &valueList)
+bool SqlManager::insertBatch(const QString &tableName, const QList<QVariant> &valueList)
 {
     bool success = false;
-    QSqlQuery query(d->m_database);
-    query.prepare(sql);
-    foreach (QVariant value, valueList)
+
+    QFuture<void> future = QtConcurrent::run([&]
     {
-        QList<QVariant> currentList= value.toList();
-        query.addBindValue(currentList);
-    }
-    success= query.execBatch();
-    query.finish();
+        QString sqlStr = QString("insert into %1 values(").arg(tableName);
+        for(int i=0;i<valueList.size();i++)
+        {
+            sqlStr+="?";
+            if(i<valueList.size()-1)
+            {
+                sqlStr+=",";
+            }
+        }
+        sqlStr+=")";
+        QSqlQuery query(d->m_database);
+        d->m_database.transaction();
+
+        query.prepare(sqlStr);
+        foreach (QVariant value, valueList)
+        {
+            QList<QVariant> currentList= value.toList();
+            query.addBindValue(currentList);
+        }
+        success= query.execBatch();
+        d->m_database.commit();
+        query.finish();
+
+    });
+    future.waitForFinished();
+
+
     return success;
 }
 
 QStringList SqlManager::executeQuery(const QString &sql)
 {
     QStringList valueList;
-    QSqlQuery query(d->m_database);
-    query.prepare(sql);
-    query.exec();
-    QSqlRecord record = query.record();
-    while (query.next())
+
+    QFuture<void> future = QtConcurrent::run([&]
     {
-        for(int i=0;i<record.count();i++)
+        QSqlQuery query(d->m_database);
+        d->m_database.transaction();
+        query.prepare(sql);
+        query.exec();
+        QSqlRecord record = query.record();
+        while (query.next())
         {
-            valueList.push_back(query.value(i).toString());
+            for(int i=0;i<record.count();i++)
+            {
+                valueList.push_back(query.value(i).toString());
+            }
+        }
+        d->m_database.commit();
+        query.finish();
+    });
+    future.waitForFinished();
+
+    return valueList;
+}
+
+SqlManager *SqlManager::fromDriver(const QString &driver)
+{
+    if(driver.contains("SQLITE",Qt::CaseInsensitive))
+    {
+        static SqlManager *sqliterManager = nullptr;
+        if(sqliterManager==nullptr)
+        {
+            sqliterManager = new SqliteManager;
         }
 
+        return sqliterManager;
     }
-    query.finish();
-    return valueList;
+    else
+    {
+        return nullptr;
+    }
 }
 
 bool SqlManager::open()
 {
     return d->m_database.open();
+
 }
 
 bool SqlManager::isOpen() const
 {
     return d->m_database.isOpen();
+}
+
+void SqlManager::close()
+{
+    d->m_database.close();
+}
+
+QSqlDatabase &SqlManager::getDatabase()
+{
+    return d->m_database;
 }

@@ -18,5 +18,7 @@
         <file>images/appOther.png</file>
         <file>images/build.png</file>
         <file>images/send.png</file>
+        <file>images/fire.png</file>
+        <file>images/alarm.png</file>
     </qresource>
 </RCC>

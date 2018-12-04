@@ -1,9 +1,10 @@
-import QtQuick 2.9
+﻿import QtQuick 2.9
 import QtQuick.Controls 2.4
 import QtQuick.Extras 1.4
 import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.0
 import sysArchitePlanView 1.0
+import qmlForJson 1.0
 
 Item {
     property var textFieldName: fireAlarmTxt
@@ -203,4 +204,53 @@ Item {
             SysArchitePlanView.setSysDrawing(txtName, textFieldName.text)
         }
     }
+
+    QmlForJson {
+        id: qmlForJson
+    }
+
+    Component.onCompleted: {
+
+        setSysArchitePlan()
+    }
+
+    function setSysArchitePlan()
+    {
+        var sysArchitePlanObj = JSON.parse(qmlForJson.readFileToString(
+                                               )).sysArchitePlan
+        var sysArchitePlanStr = JSON.stringify(sysArchitePlanObj.valueOf())
+        var gasFireStr = JSON.parse(sysArchitePlanStr.toLocaleString()).气体灭火系统
+        var waterSprayStr = JSON.parse(sysArchitePlanStr.toLocaleString(
+                                           )).水喷雾灭火系统
+        var foamAndDryStr = JSON.parse(sysArchitePlanStr.toLocaleString(
+                                           )).泡沫和干粉灭火系统
+        var fireCockStr = JSON.parse(sysArchitePlanStr.toLocaleString()).消火栓系统
+        var fireEmergencyStr = JSON.parse(sysArchitePlanStr.toLocaleString(
+                                              )).消防应急照明系统
+        var linkageStr = JSON.parse(sysArchitePlanStr.toLocaleString()).消防联动控制系统
+
+        var autoFireAlarm = JSON.parse(sysArchitePlanStr.toLocaleString(
+                                           )).火灾自动报警系统
+        var evacuationInsStr = JSON.parse(
+                    sysArchitePlanStr.toLocaleString()).疏散指示系统
+        var autoFireExitStr = JSON.parse(sysArchitePlanStr.toLocaleString(
+                                             )).自动喷水灭火系统
+        var smokeExhaustStr = JSON.parse(
+                    sysArchitePlanStr.toLocaleString()).防烟排烟系统
+        //JSON.stringify()
+        fireAlarmTextField.text = autoFireAlarm
+        linkageTextField.text = linkageStr
+        autoSprayWaterTextField.text = autoFireExitStr
+        fireCockTextField.text = fireCockStr
+        gasFireTextField.text = gasFireStr
+        waterSprayTextField.text = waterSprayStr
+        foamAndDryTextField.text = foamAndDryStr
+        smokeControlTextField.text = smokeExhaustStr
+        fireEmergencyLightingTextField.text = fireEmergencyStr
+        evacuationTextField.text = evacuationInsStr
+    }
+
+    //    Component.onDestroyed: {
+
+    //    }
 }

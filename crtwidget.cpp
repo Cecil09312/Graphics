@@ -1,4 +1,4 @@
-#include "crtwidget.h"
+﻿#include "crtwidget.h"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QQuickView>
@@ -7,6 +7,7 @@
 #include <QSplitter>
 #include <QQuickItem>
 #include "commnication/commobj.h"
+#include "control/usermanager.h"
 #include "control/controller.h"
 CrtWidget::CrtWidget(QWidget *parent) :
     QOpenGLWidget(parent)
@@ -60,8 +61,7 @@ CrtWidget::~CrtWidget()
     delete m_alarmContainer;
     delete m_toolBarContainer;
     delete m_loginQuickView;
-   // delete m_settingQuickView;
-    delete m_settingViewEngine;
+    m_settingViewEngine->deleteLater();
 }
 
 void CrtWidget::widgetExit()
@@ -78,6 +78,7 @@ void CrtWidget::settingWindowShow()
 {
     //m_settingQuickView->show();
     m_settingViewEngine->load(QUrl("qrc:/qml/SettingWindow.qml"));
+   // m_settingViewEngine->rootContext()->setContextProperty("Controller",Controller::instance());
 }
 
 //void CrtWidget::toFirstFireAlarm()
@@ -97,6 +98,17 @@ void CrtWidget::logWidgetClose()
 
 void CrtWidget::initWidget()
 {
+
+    qmlRegisterSingletonType<UserManager>("userManager", 1, 0, "UserManager",
+                                     [=](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+        Q_UNUSED(engine)
+        Q_UNUSED(scriptEngine)
+        UserManager *userManager= UserManager::instance();
+        return userManager;
+    });
+
+
+
     qmlRegisterSingletonType<Controller>("serialPortInfo", 1, 0, "SerialPortInfo",
                                      [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
         Q_UNUSED(engine)
@@ -110,6 +122,8 @@ void CrtWidget::initWidget()
         Q_UNUSED(scriptEngine)
         return Controller::instance()->getSysArchitePlanView();
     });
+    qmlRegisterType<QmlTableModel>("qmlTableModel",1,0,"QmlTableModel");
+    qmlRegisterType<QmlForJson>("qmlForJson",1,0,"QmlForJson");
 
     QVBoxLayout *globalVLayout = new QVBoxLayout;
     QQuickView *toolBarQuickView = new QQuickView;
@@ -146,16 +160,12 @@ void CrtWidget::initWidget()
     m_alarmContainer->setMaximumWidth(150);
     m_alarmContainer->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
 
-
     m_loginQuickView = new QQuickView;
     m_loginQuickView->setSource(QUrl("qrc:/qml/LoginWindow.qml"));
     m_loginQuickView->setGeometry(500,50,m_loginQuickView->width(),m_loginQuickView->height());
     m_loginQuickView->rootContext()->setContextProperty("CrtWidget",this);
 
-
-
-
-    m_settingViewEngine = new QQmlApplicationEngine;
+    m_settingViewEngine = new QQmlApplicationEngine();
 
     QHBoxLayout *globalHLayout = new QHBoxLayout;
     globalHLayout->addWidget(m_alarmContainer);

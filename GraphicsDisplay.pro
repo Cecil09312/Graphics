@@ -41,7 +41,9 @@ SOURCES += \
     database/sqlitemanager.cpp \
     database/sqlmanager.cpp \
     architePlan/sysarchiteplanview.cpp \
-    qmlTableModel/qmltablemodel.cpp
+    qmlTableModel/qmltablemodel.cpp \
+    jsonEdit/qmlforjson.cpp \
+    control/usermanager.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -60,7 +62,9 @@ HEADERS += \
     database/sqlitemanager.h \
     database/sqlmanager.h \
     architePlan/sysarchiteplanview.h \
-    qmlTableModel/qmltablemodel.h
+    qmlTableModel/qmltablemodel.h \
+    jsonEdit/qmlforjson.h \
+    control/usermanager.h
 
 FORMS +=
 
@@ -75,8 +79,12 @@ DISTFILES += \
     qml/SysArchitePlanSetting.qml \
     qml/InfoQuery.qml \
     qml/InfoTransport.qml \
-    qml/OtherSetting.qml
+    qml/OtherSetting.qml \
+    qml/qmlTable/AlarmInfoTableItem.qml \
+    qml/qmlTable/DeviceStateTableItem.qml \
+    qml/qmlTable/OperaEventTableItem.qml
 
 RESOURCES += \
     qml.qrc \
-    images.qrc
+    images.qrc \
+    qss.qrc

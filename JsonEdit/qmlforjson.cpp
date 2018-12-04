@@ -1,0 +1,68 @@
+﻿#include "qmlforjson.h"
+#include <QJsonDocument>
+#include <QVariant>
+
+QmlForJson::QmlForJson(QObject *parent)
+    : QObject(parent)
+{
+
+}
+
+void QmlForJson::writeFile(const QVariant &value,const QString &fileName)
+{
+    QFuture <void > future = QtConcurrent::run([=]()
+    {
+        QFile file(fileName);
+        if(file.open(QIODevice::WriteOnly))
+        {
+            QJsonDocument document = QJsonDocument::fromVariant(value);
+            file.write(document.toJson());
+            file.close();
+        }
+    });
+    future.waitForFinished();
+}
+
+QVariant QmlForJson::readFile(const QString &fileName)
+{
+    static QVariant value = QVariant();
+    QFuture <void > future = QtConcurrent::run([=]()
+    {
+        QFile file(fileName);
+        if(file.open(QIODevice::ReadOnly))
+        {
+            value = QJsonDocument::fromJson(file.readAll()).toVariant();
+            file.close();
+        }
+
+    });
+    future.waitForFinished();
+    return value;
+}
+
+QString QmlForJson::readFileToString(const QString &fileName)
+{
+    static QString value = QString();
+    QFuture <void > future = QtConcurrent::run([=]()
+    {
+        QFile file(fileName);
+        if(file.open(QIODevice::ReadOnly))
+        {
+            value =QString(file.readAll()) ;
+            file.close();
+        }
+
+    });
+    future.waitForFinished();
+    return  value;
+}
+
+void QmlForJson::setFileName(const QString &name)
+{
+    m_fileName = name;
+}
+
+QString QmlForJson::fileName() const
+{
+    return m_fileName;
+}

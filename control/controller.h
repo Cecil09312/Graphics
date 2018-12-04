@@ -1,4 +1,4 @@
-#ifndef CONTROLLER_H
+﻿#ifndef CONTROLLER_H
 #define CONTROLLER_H
 #include <QMutex>
 #include <QDebug>
@@ -12,16 +12,17 @@ class Controller:public QObject
 {
     Q_OBJECT
 public:
+
     static Controller *instance();
     ~Controller();
+
     DataStore * getDataStore();
     QString fileNameFromQml(const QString &name);
     CommObj *getCommObj();
     void setSysArchitePlanView(SysArchitePlanView*sysArchitePlanView);
-    SysArchitePlanView *getSysArchitePlanView();
+    SysArchitePlanView *getSysArchitePlanView() const;
     void setArchitePlanView(ArchitePlanView *architePlanView);
-    ArchitePlanView *getArchitePlanView();
-// Q_INVOKABLE QList<QString>portNameList();
+    ArchitePlanView *getArchitePlanView() const;
 public:
     class AutoDelete
     {
@@ -38,6 +39,7 @@ public:
 
 private:
     Controller();
+
 private:
     static Controller*m_controller;
     DataStore *m_dataStore;

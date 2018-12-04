@@ -1,4 +1,4 @@
-#include "jsonedit.h"
+﻿#include "jsonedit.h"
 #include <QDebug>
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -121,39 +121,12 @@ QList<QVariant>JsonEdit::getRoot() const
 
 void JsonEdit::writeFile(const QString &fileName)
 {
-    QFuture <void > future = QtConcurrent::run([=]()
-    {
-        QFile file(fileName);
-        if(file.open(QIODevice::WriteOnly))
-        {
-            QJsonDocument jsonDoc;
-            if(!getRoot().isEmpty())
-            {
-                jsonDoc= QJsonDocument::fromVariant(getRoot());
-            }
-            file.write(jsonDoc.toJson());
-        }
-        file.close();
-    });
-    future.waitForFinished();
+    QmlForJson::writeFile(getRoot(),fileName);
 }
 
 QVariant JsonEdit::readFile(const QString &fileName)
 {
-    static QJsonDocument jsonDoc = QJsonDocument();
-    QFuture <void > future = QtConcurrent::run([=]()
-    {
-        QFile file(fileName);
-        if(file.open(QIODevice::ReadOnly))
-        {
-            QByteArray byteArray = file.readAll();
-            jsonDoc= QJsonDocument::fromJson(byteArray);
-        }
-        file.close();
-    });
-    future.waitForFinished();
-
-    return jsonDoc.toVariant();
+    return QmlForJson::readFile(fileName);
 }
 
 void JsonEdit::fileClear()

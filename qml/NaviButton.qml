@@ -1,10 +1,7 @@
-import QtQuick 2.7
-//import QtQuick.Controls 2.0 as QQC2
+﻿import QtQuick 2.7
 import QtQuick.Controls 2.4
 
-
-//import "Style"
-/*QQC2.*/ Button {
+Button {
     id: button
 
     property int edge: Qt.TopEdge
@@ -23,7 +20,6 @@ import QtQuick.Controls 2.4
         height: button.height * 4
         width: height
         radius: width / 2
-
         anchors.horizontalCenter: button.horizontalCenter
         anchors.top: edge === Qt.BottomEdge ? button.top : undefined
         anchors.bottom: edge === Qt.TopEdge ? button.bottom : undefined

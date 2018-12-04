@@ -16,5 +16,8 @@
         <file>qml/InfoQuery.qml</file>
         <file>qml/InfoTransport.qml</file>
         <file>qml/OtherSetting.qml</file>
+        <file>qml/qmlTable/AlarmInfoTableItem.qml</file>
+        <file>qml/qmlTable/OperaEventTableItem.qml</file>
+        <file>qml/qmlTable/DeviceStateTableItem.qml</file>
     </qresource>
 </RCC>

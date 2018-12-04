@@ -1,4 +1,4 @@
-#ifndef CRTWIDGET_H
+﻿#ifndef CRTWIDGET_H
 #define CRTWIDGET_H
 
 #include <QWidget>
@@ -9,6 +9,8 @@
 #include <QQuickView>
 #include <QOpenGLWidget>
 #include <QQmlApplicationEngine>
+#include "qmlTableModel/qmltablemodel.h"
+#include "jsonEdit/qmlforjson.h"
 
 class CrtWidget : public QOpenGLWidget
 {

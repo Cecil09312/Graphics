@@ -1,4 +1,4 @@
-#include "controller.h"
+﻿#include "controller.h"
 Controller*Controller::m_controller = nullptr;
 Controller::AutoDelete controlAutoDelete;
 Controller *Controller::instance()
@@ -24,9 +24,10 @@ Controller::~Controller()
     {
         delete m_dataStore;
         m_dataStore= nullptr;
-       // qDebug() << "Delete:" << "m_dataStore";
+        // qDebug() << "Delete:" << "m_dataStore";
     }
     m_commObj->deleteLater();
+
 
 }
 
@@ -69,7 +70,7 @@ void Controller::setSysArchitePlanView(SysArchitePlanView *sysArchitePlanView)
     m_sysArthitePlanView = sysArchitePlanView;
 }
 
-SysArchitePlanView *Controller::getSysArchitePlanView()
+SysArchitePlanView *Controller::getSysArchitePlanView() const
 {
     return m_sysArthitePlanView;
 }
@@ -79,13 +80,15 @@ void Controller::setArchitePlanView(ArchitePlanView *architePlanView)
     m_architePlanView = architePlanView;
 }
 
-ArchitePlanView *Controller::getArchitePlanView()
+ArchitePlanView *Controller::getArchitePlanView() const
 {
     return m_architePlanView;
 }
 
 Controller::Controller()
 {
-   m_dataStore = new DataStore;
-   m_commObj = new CommObj();
+    m_dataStore = new DataStore;
+    m_commObj = new CommObj();
 }
+
+

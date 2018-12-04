@@ -1,4 +1,4 @@
-#ifndef JSONEDIT_H
+﻿#ifndef JSONEDIT_H
 #define JSONEDIT_H
 
 #include <QObject>
@@ -6,7 +6,7 @@
 #include <QVariant>
 #include <QMutex>
 #include "control/controller.h"
-
+#include "qmlforjson.h"
 class JsonEdit : public QObject
 {
     Q_OBJECT

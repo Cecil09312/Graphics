@@ -1,4 +1,4 @@
-#include "architeplanview.h"
+﻿#include "architeplanview.h"
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QSplitter>
@@ -17,6 +17,7 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
 {
     initWidget();
     initFromJsonFile();
+    setGlobalArchiteFromJson();
     // qDebug() << m_stackedWidget->count();
 }
 
@@ -24,23 +25,29 @@ ArchitePlanView::~ArchitePlanView()
 {
     m_treeView->saveTreeItem();
     saveArchiteInfo();
+    saveOtherArchiteInfo();
 }
 
 
 void ArchitePlanView::creatAlarm()
 {
-    int page =qrand()% m_stackedWidget->count();
+    int page =qAbs(qrand()% m_stackedWidget->count());
 
-    if(m_widgetMap.size()>page)
+    if(m_widgetMap.size()>page && page>=0)
     {
         QString alarmTypeName =tr("火警");
         GraphicsView *view = m_widgetMap[page];
+        if(view==nullptr)
+            return;
         QList<QGraphicsItem *>itemList =   view->getItemList();
-        int pos = qrand()%itemList.size();
+        if(itemList.size()<=0)
+            return;
+
+        int pos = qAbs(qrand()%itemList.size()) ;
         if(itemList.size()>pos)
         {
             GraphicsItem *currentItem = dynamic_cast<GraphicsItem *>(itemList.at(pos));
-            if(currentItem)
+            if(currentItem!=nullptr)
             {
                 currentItem->setTypeName(alarmTypeName);
                 currentItem->startAnimation();
@@ -212,6 +219,7 @@ void ArchitePlanView::saveArchiteInfo()
     }
 
     JsonEdit::instance()->writeFile(c_jsonFilePath);
+
 }
 
 QHash<QString,QVariant> ArchitePlanView::saveViewInfo(QStandardItem *item)
@@ -337,6 +345,21 @@ void ArchitePlanView::findFireAlarm(int pos)
     }
 }
 
+void ArchitePlanView::saveOtherArchiteInfo()
+{
+    QHash<QString,QVariant> architePlanHash;
+    architePlanHash["sysArchitePlan"] = m_sysArchitePlanView->infoToJson();
+    architePlanHash["grobalArchitePlan"] = m_globalArchitePlanPixmapName;
+    QmlForJson::writeFile(architePlanHash);
+}
+
+void ArchitePlanView::setGlobalArchiteFromJson()
+{
+    QHash<QString,QVariant> valueHash = QmlForJson::readFile().toHash();
+   QString pixmapName= valueHash["grobalArchitePlan"].toString();
+   setGlobalArchitePixmap(pixmapName);
+}
+
 int ArchitePlanView::numOfTypeAlarm(const QString &type)
 {
     int num= Controller::instance()->getDataStore()->numOfTypeItem(type);
@@ -346,5 +369,6 @@ int ArchitePlanView::numOfTypeAlarm(const QString &type)
 void ArchitePlanView::setGlobalArchitePixmap(const QString &pixmapName)
 {
     QString filePath=  Controller::instance()->fileNameFromQml(pixmapName);
+    m_globalArchitePlanPixmapName = filePath;
     m_globalGraphicsView->setStyleSheet(QString("QWidget{margin:20;border-image:url(%1)}").arg(filePath));
 }

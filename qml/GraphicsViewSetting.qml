@@ -1,4 +1,4 @@
-import QtQuick 2.0
+﻿import QtQuick 2.0
 import QtQuick.Controls 2.4
 import QtQuick.Extras 1.4
 import QtQuick.Layouts 1.3
@@ -6,6 +6,7 @@ import architePlanView 1.0
 import Qt.labs.platform 1.0
 import sysArchitePlanView 1.0
 import architePlanView 1.0
+import qmlForJson 1.0
 
 Item {
 
@@ -124,5 +125,17 @@ Item {
             ArchitePlanView.setGlobalArchitePixmap(
                         globalArchitePlanTextFiled.text)
         }
+    }
+
+    QmlForJson {
+        id: qmlforJson
+    }
+
+    Component.onCompleted: {
+
+        var globalArchiteObj = JSON.parse(qmlforJson.readFileToString(
+                                              )).grobalArchitePlan
+        var globalArchitePlanStr = JSON.stringify(globalArchiteObj.valueOf())
+        globalArchitePlanTextFiled.text = globalArchitePlanStr
     }
 }

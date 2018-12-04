@@ -1,4 +1,4 @@
-#ifndef GRAPHICSITEM_H
+﻿#ifndef GRAPHICSITEM_H
 #define GRAPHICSITEM_H
 #include <QGraphicsItem>
 #include <QPainter>
@@ -28,8 +28,6 @@ struct ItemInfo
     QString m_floorOfDevice;//设施所在楼层
     QString m_deviceLocation;//设施所在位置
     QString m_operatorOnDuty;//值班人员
-
-
     ItemInfo() {}
 };
 

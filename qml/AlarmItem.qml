@@ -1,40 +1,68 @@
-import QtQuick 2.9
+﻿import QtQuick 2.9
 import QtQuick.Extras 1.4
 import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.2
+import QtQuick.Controls 2.4
+import QtQuick.Controls.Styles 1.4
 
 Rectangle {
     width: 150
-    Rectangle {
-        id: alarmBtnRec
-        height: 100
+
+    RowLayout {
+        id: alarmBtnLayout
+        height: 50
         width: parent.width
-        RowLayout {
-            anchors.fill: parent
-            Button {
-                Layout.alignment: Qt.AlignLeft
-                text: qsTr("首火警")
-                Layout.fillWidth: true
-                onClicked: {
-                    ArchitePlanView.firstFireAlarm()
-                }
+        Button {
+            id: firmAlarmBtn
+            Layout.alignment: Qt.AlignLeft
+            Layout.topMargin: 10
+            text: qsTr("首火警")
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+
+            //iconSource: "qrc:/images/fire.png"
+            font.pointSize: 14
+            font.family: "Times New Roman"
+            onClicked: {
+                ArchitePlanView.firstFireAlarm()
+            }
+            onPressed: {
+                firmAlarmBtn.highlighted = true
+            }
+            onReleased: {
+                firmAlarmBtn.highlighted = false
+            }
+        }
+
+        Button {
+            id: firstAlarmBtn
+            Layout.alignment: Qt.AlignRight
+            text: qsTr("首警")
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.topMargin: 10
+            font.pointSize: 14
+            font.family: qsTr("Times New Roman")
+            // iconSource: "qrc:/images/alarm.png"
+            onClicked: {
+
+
+                // ArchitePlanView.lastFireAlarm()
             }
 
-            Button {
-                Layout.alignment: Qt.AlignRight
-                text: qsTr("末火警")
-                Layout.fillWidth: true
-                onClicked: {
-                    ArchitePlanView.lastFireAlarm()
-                }
+            onPressed: {
+                firstAlarmBtn.highlighted = true
+            }
+            onReleased: {
+                firstAlarmBtn.highlighted = false
             }
         }
     }
     GridLayout {
         id: alarmIndicatorLayout
-        anchors.top: alarmBtnRec.bottom
+        anchors.top: alarmBtnLayout.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         Layout.fillWidth: true
+        anchors.topMargin: 10
         StatusIndicator {
             id: fireAlarmStatusIndicator
             Layout.column: 0
@@ -56,6 +84,8 @@ Rectangle {
             Layout.column: 1
             Layout.row: 0
             text: qsTr("火警 0")
+            font.pointSize: 12
+            font.family: qsTr("Times New Roman")
         }
 
         StatusIndicator {
@@ -78,6 +108,8 @@ Rectangle {
             Layout.column: 1
             Layout.row: 1
             text: qsTr("联动 0")
+            font.pointSize: 12
+            font.family: qsTr("Times New Roman")
         }
 
         StatusIndicator {
@@ -100,6 +132,8 @@ Rectangle {
             Layout.column: 1
             Layout.row: 2
             text: qsTr("监管 0")
+            font.pointSize: 12
+            font.family: qsTr("Times New Roman")
         }
 
         StatusIndicator {
@@ -122,6 +156,8 @@ Rectangle {
             Layout.column: 1
             Layout.row: 3
             text: qsTr("故障 0")
+            font.pointSize: 12
+            font.family: qsTr("Times New Roman")
         }
 
         StatusIndicator {
@@ -145,6 +181,8 @@ Rectangle {
             Layout.column: 1
             Layout.row: 4
             text: qsTr("反馈 0")
+            font.pointSize: 12
+            font.family: qsTr("Times New Roman")
         }
 
         StatusIndicator {
@@ -167,6 +205,8 @@ Rectangle {
             Layout.column: 1
             Layout.row: 5
             text: qsTr("屏蔽 0")
+            font.pointSize: 12
+            font.family: qsTr("Times New Roman")
         }
 
         StatusIndicator {
@@ -189,6 +229,8 @@ Rectangle {
             Layout.column: 1
             Layout.row: 6
             text: qsTr("主电")
+            font.pointSize: 12
+            font.family: qsTr("Times New Roman")
         }
 
         StatusIndicator {
@@ -211,6 +253,8 @@ Rectangle {
             Layout.column: 1
             Layout.row: 7
             text: qsTr("备电")
+            font.pointSize: 12
+            font.family: qsTr("Times New Roman")
         }
 
         StatusIndicator {
@@ -233,6 +277,8 @@ Rectangle {
             Layout.column: 1
             Layout.row: 8
             text: qsTr("设备通信")
+            font.pointSize: 12
+            font.family: qsTr("Times New Roman")
         }
 
         StatusIndicator {
@@ -255,6 +301,8 @@ Rectangle {
             Layout.column: 1
             Layout.row: 9
             text: qsTr("中心通信")
+            font.pointSize: 12
+            font.family: qsTr("Times New Roman")
         }
     }
 
@@ -265,6 +313,7 @@ Rectangle {
         anchors.left: parent.left
         anchors.leftMargin: 20
         anchors.rightMargin: 20
+        anchors.topMargin: 10
         anchors.verticalCenter: parent.verticalCenter
 
         Repeater {
@@ -292,15 +341,25 @@ Rectangle {
             }
 
             Button {
-
+                id: operaBtn
                 text: name
                 anchors.leftMargin: 20
                 width: parent.width
-
+                // Layout.fillHeight: true
+                font.pointSize: 14
+                font.family: qsTr("Times New Roman")
+                height: 40
                 onClicked: {
                     if (text === qsTr("模拟火警")) {
                         ArchitePlanView.creatAlarm()
                     }
+                }
+
+                onPressed: {
+                    operaBtn.highlighted = true
+                }
+                onReleased: {
+                    operaBtn.highlighted = false
                 }
             }
         }
