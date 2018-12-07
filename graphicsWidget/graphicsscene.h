@@ -1,4 +1,4 @@
-#ifndef GRAPHICSSCENE_H
+﻿#ifndef GRAPHICSSCENE_H
 #define GRAPHICSSCENE_H
 #include <QGraphicsScene>
 #include <QList>
@@ -33,7 +33,7 @@ private slots:
      void setItemGeoInfo(QString geoInfo);
      void setItemTypeName(QString name);
      void setItemIcon(QString iconName);
-     void setItemUseIcon(bool isUseIcon);
+
 private:
      void init();
 

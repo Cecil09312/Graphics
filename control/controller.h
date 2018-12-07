@@ -7,7 +7,7 @@
 #include "commnication/commobj.h"
 #include "architePlan/sysarchiteplanview.h"
 #include "architePlan/architeplanview.h"
-
+#include "usermanager.h"
 class Controller:public QObject
 {
     Q_OBJECT
@@ -17,12 +17,14 @@ public:
     ~Controller();
 
     DataStore * getDataStore();
-    QString fileNameFromQml(const QString &name);
+   Q_INVOKABLE QString fileNameFromQml(const QString &name);
     CommObj *getCommObj();
     void setSysArchitePlanView(SysArchitePlanView*sysArchitePlanView);
     SysArchitePlanView *getSysArchitePlanView() const;
     void setArchitePlanView(ArchitePlanView *architePlanView);
     ArchitePlanView *getArchitePlanView() const;
+    UserManager *getUserManager() const;
+    UserManager::UserRight getUserRight();
 public:
     class AutoDelete
     {
@@ -46,6 +48,7 @@ private:
     CommObj *m_commObj;
     SysArchitePlanView *m_sysArthitePlanView;
     ArchitePlanView *m_architePlanView;
+    UserManager *m_userManager;
 
 };
 

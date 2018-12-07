@@ -19,5 +19,6 @@
         <file>qml/qmlTable/AlarmInfoTableItem.qml</file>
         <file>qml/qmlTable/OperaEventTableItem.qml</file>
         <file>qml/qmlTable/DeviceStateTableItem.qml</file>
+        <file>qml/ItemIconSetting.qml</file>
     </qresource>
 </RCC>

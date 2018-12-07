@@ -99,14 +99,21 @@ void CrtWidget::logWidgetClose()
 void CrtWidget::initWidget()
 {
 
-    qmlRegisterSingletonType<UserManager>("userManager", 1, 0, "UserManager",
+    qmlRegisterSingletonType<Controller>("userManager", 1, 0, "UserManager",
                                      [=](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
         Q_UNUSED(engine)
         Q_UNUSED(scriptEngine)
-        UserManager *userManager= UserManager::instance();
-        return userManager;
+
+        return Controller::instance()->getUserManager();
     });
 
+    qmlRegisterSingletonType<Controller>("controller", 1, 0, "Controller",
+                                     [=](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+        Q_UNUSED(engine)
+        Q_UNUSED(scriptEngine)
+
+        return Controller::instance();
+    });
 
 
     qmlRegisterSingletonType<Controller>("serialPortInfo", 1, 0, "SerialPortInfo",
@@ -124,7 +131,7 @@ void CrtWidget::initWidget()
     });
     qmlRegisterType<QmlTableModel>("qmlTableModel",1,0,"QmlTableModel");
     qmlRegisterType<QmlForJson>("qmlForJson",1,0,"QmlForJson");
-
+    qmlRegisterType<ItemIconInfoToJson>("itemIconInfoToJson",1,0,"ItemIconInfoToJson");
     QVBoxLayout *globalVLayout = new QVBoxLayout;
     QQuickView *toolBarQuickView = new QQuickView;
     toolBarQuickView->setSource(QUrl("qrc:/qml/ToolBarWindow.qml"));

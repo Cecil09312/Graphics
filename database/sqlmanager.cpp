@@ -33,15 +33,6 @@ SqlManager::~SqlManager()
 
 }
 
-QStringList SqlManager::getDatabases()
-{
-    return QStringList();
-}
-
-QStringList SqlManager::getTables(QString /*dataBase*/)
-{
-    return QStringList();
-}
 
 void SqlManager::setDataBase(const QString &driver, const QString &conectionName, const QString &host,
                              const QString &user, const QString &password, const QString &dataBase, const int &port)
@@ -130,8 +121,9 @@ QStringList SqlManager::executeQuery(const QString &sql)
     return valueList;
 }
 
-SqlManager *SqlManager::fromDriver(const QString &driver)
+SqlManager*SqlManager::fromDriver(const QString &driver)
 {
+
     if(driver.contains("SQLITE",Qt::CaseInsensitive))
     {
         static SqlManager *sqliterManager = nullptr;
@@ -139,7 +131,6 @@ SqlManager *SqlManager::fromDriver(const QString &driver)
         {
             sqliterManager = new SqliteManager;
         }
-
         return sqliterManager;
     }
     else

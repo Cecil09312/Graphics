@@ -27,6 +27,11 @@ Controller::~Controller()
         // qDebug() << "Delete:" << "m_dataStore";
     }
     m_commObj->deleteLater();
+    if(m_userManager!=nullptr)
+    {
+        m_userManager->deleteLater();
+        m_userManager = nullptr;
+    }
 
 
 }
@@ -85,10 +90,29 @@ ArchitePlanView *Controller::getArchitePlanView() const
     return m_architePlanView;
 }
 
+UserManager *Controller::getUserManager() const
+{
+    return m_userManager;
+}
+
+UserManager::UserRight Controller::getUserRight()
+{
+    if(m_userManager!=nullptr)
+    {
+        return m_userManager->userRight();
+    }
+    else
+    {
+
+        return UserManager::Employee;
+    }
+}
+
 Controller::Controller()
 {
     m_dataStore = new DataStore;
     m_commObj = new CommObj();
+    m_userManager = new UserManager;
 }
 
 

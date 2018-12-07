@@ -14,7 +14,7 @@ struct ItemInfo
 {
     QString m_extNum;//分机号
     QString m_loopNum;//回路号
-    QString m_addNum;//地址号
+    QString m_addrNum;//地址号
     QString m_alarmType;//报警类型
     QString m_deviceNum;//设备产品编码
     QString m_equipmentModel;//设备设施型号
@@ -72,10 +72,9 @@ public:
 
     QString iconName() const;
     void setIconName(const QString &iconName);
-
-    bool isUseIcon() const;
-    void setIsUseIcon(bool isUseIcon);
     QHash<QString,QVariant> itemInfo();
+    void setItemInfo(const ItemInfo &itemInfo);
+    ItemInfo &getItemInfo();
 
 protected:
 
@@ -94,9 +93,9 @@ private:
     QColor m_itemTextColor;
     QString m_geoInfo;
     QString m_typeName;
-    bool m_isUseIcon;
     QString m_iconName;
     static int m_num;
+    ItemInfo m_itemInfo;
 
 //    QFont m_itemTextFont;
 //    QFont m_hoverTextFont;

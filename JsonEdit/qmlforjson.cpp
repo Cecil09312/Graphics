@@ -2,6 +2,7 @@
 #include <QJsonDocument>
 #include <QVariant>
 
+//QString QmlForJson::s_filePath = QApplication::applicationDirPath()+"/";
 QmlForJson::QmlForJson(QObject *parent)
     : QObject(parent)
 {
@@ -10,6 +11,7 @@ QmlForJson::QmlForJson(QObject *parent)
 
 void QmlForJson::writeFile(const QVariant &value,const QString &fileName)
 {
+
     QFuture <void > future = QtConcurrent::run([=]()
     {
         QFile file(fileName);
@@ -57,12 +59,12 @@ QString QmlForJson::readFileToString(const QString &fileName)
     return  value;
 }
 
-void QmlForJson::setFileName(const QString &name)
-{
-    m_fileName = name;
-}
+//void QmlForJson::setFileName(const QString &name)
+//{
+//    m_fileName = name;
+//}
 
-QString QmlForJson::fileName() const
-{
-    return m_fileName;
-}
+//QString QmlForJson::fileName() const
+//{
+//    return m_fileName;
+//}

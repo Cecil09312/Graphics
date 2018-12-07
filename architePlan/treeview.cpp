@@ -1,4 +1,4 @@
-#include "treeview.h"
+﻿#include "treeview.h"
 #include <QDebug>
 #include <QList>
 #include <QItemSelectionModel>
@@ -10,6 +10,7 @@
 #include <QQuickItem>
 #include <QQmlEngine>
 #include "jsonEdit/jsonedit.h"
+
 TreeView::TreeView(QWidget *parent):
     QTreeView(parent)
 {
@@ -48,6 +49,23 @@ TreeView::TreeView(QWidget *parent):
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this,&TreeView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)
     {
+
+        if(Controller::instance()->getUserRight()!=UserManager::Super)
+        {
+            m_editAction->setEnabled(false);
+            m_deleteAction->setEnabled(false);
+            m_clearAction->setEnabled(false);
+            m_addAction->setEnabled(false);
+            m_addChildAction->setEnabled(false);
+        }
+        else
+        {
+            m_editAction->setEnabled(true);
+            m_deleteAction->setEnabled(true);
+            m_clearAction->setEnabled(true);
+            m_addAction->setEnabled(true);
+            m_addChildAction->setEnabled(true);
+        }
         m_rootPoint=  QWidget::mapFromGlobal(QCursor::pos());
         m_menu->exec(QCursor::pos());
     });

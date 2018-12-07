@@ -1,7 +1,8 @@
-#include "graphicsitem.h"
+﻿#include "graphicsitem.h"
 #include <QDebug>
 #include "graphicsWidget/graphicsscene.h"
 #include <QStyleOptionGraphicsItem>
+#include "control/controller.h"
 int GraphicsItem::m_num =1;
 GraphicsItem::GraphicsItem(GraphicsScene *scene, QObject *parent):
     QObject(parent),
@@ -27,9 +28,10 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene, QObject *parent):
     m_parallelAnimGroup->addAnimation(m_colorAnimation);
     m_parallelAnimGroup->addAnimation(m_scaleAnimation);
     m_parallelAnimGroup->setLoopCount(-1);
-    m_isUseIcon = false;
+
     setAcceptHoverEvents(true);
     m_itemText = QString("%1").arg(m_num++);
+    m_iconName = ":/images/fireAlarm.png";
     // m_parallelAnimGroup->setDirection(1000);
     // m_parallelAnimGroup->start();
     connect(m_colorAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &/*value*/)
@@ -89,26 +91,18 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*optio
     if(m_radius>0)
     {
         //pen.setColor(Qt::red);
-        if(m_isUseIcon&&(!QPixmap(m_iconName).isNull()))
+        if(!QPixmap(m_iconName).isNull())
         {
             painter->drawPixmap(-m_radius,-m_radius,m_radius*2,m_radius*2,QPixmap(m_iconName));
-        }
-        else
-        {
-            painter->drawEllipse(QPointF(0,0),m_radius,m_radius);
         }
 
         painter->drawText(QPointF(-m_radius-5,-m_radius-5),m_itemText);
     }
     else
     {
-        if(m_isUseIcon&&(!QPixmap(m_iconName).isNull()))
+        if(!QPixmap(m_iconName).isNull())
         {
             painter->drawPixmap(-12,-12,12,12,QPixmap(m_iconName));
-        }
-        else
-        {
-            painter->drawEllipse(QPointF(0,0),12,12);
         }
 
         painter->drawText(QPointF(-17,-17),m_itemText);
@@ -254,36 +248,56 @@ void GraphicsItem::setIconName(const QString &iconName)
     m_iconName = iconName;
 }
 
-bool GraphicsItem::isUseIcon() const
-{
-    return m_isUseIcon;
-}
 
-void GraphicsItem::setIsUseIcon(bool isUseIcon)
-{
-    m_isUseIcon = isUseIcon;
-}
+
 
 QHash<QString, QVariant> GraphicsItem::itemInfo()
 {
     QHash<QString, QVariant> itemHash;
+    itemHash["extNum"] = m_itemInfo.m_extNum;
+    itemHash["loopNum"] = m_itemInfo.m_loopNum;
+    itemHash["addrNum"] = m_itemInfo.m_addrNum;
+    itemHash["alarmType"] = m_itemInfo.m_alarmType;
+    itemHash["deviceNum"] = m_itemInfo.m_deviceNum;
+    itemHash["equipmentModel"] = m_itemInfo.m_equipmentModel;
+    itemHash["currentAlarmState"] = m_itemInfo.m_currentAlarmState;
+    itemHash["alarmTime"] = m_itemInfo.m_alarmTime;
+    itemHash["alarmReceiveTime"] = m_itemInfo.m_alarmReceiveTime;
+    itemHash["alarmReplyTime"] = m_itemInfo.m_alarmReplyTime;
+    itemHash["sysOfDevice"] = m_itemInfo.m_sysOfDevice;
+    itemHash["protectedAreaName"] = m_itemInfo.m_protectedAreaName;
+    itemHash["buildingName"] = m_itemInfo.m_buildingName;
+    itemHash["floorOfDevice"] = m_itemInfo.m_floorOfDevice;
+    itemHash["operatorOnDuty"] = m_itemInfo.m_operatorOnDuty;
+
+    //itemHash["isUseIcon"] = m_isUseIcon;
     itemHash["text"] = m_itemText;
-    itemHash["isUseIcon"] = m_isUseIcon;
-    itemHash["typeName"] = m_typeName;
-    itemHash["color"] = m_color.name();
     itemHash["iconName"] = m_iconName;
     itemHash["size"] = m_radius;
-    itemHash["geoInfo"] = m_geoInfo;
     itemHash["hoverText"] = m_hoverText;
     itemHash["pos"] = QString("%1,%2").arg(scenePos().x()).arg(scenePos().y());
     return itemHash;
 }
 
+void GraphicsItem::setItemInfo(const ItemInfo &itemInfo)
+{
+    m_itemInfo = itemInfo;
+}
+
+ItemInfo &GraphicsItem::getItemInfo()
+{
+    return m_itemInfo;
+}
+
 
 void GraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    setPos(event->scenePos());
-    m_graphicsScene->update();
+    if(Controller::instance()->getUserRight()==UserManager::Super)
+    {
+        setPos(event->scenePos());
+        m_graphicsScene->update();
+    }
+
 }
 
 void GraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)

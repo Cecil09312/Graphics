@@ -41,6 +41,7 @@ private:
     void saveOtherArchiteInfo();
     void setGlobalArchiteFromJson();
 
+
 private:
     TreeView *m_treeView;
     QStackedWidget *m_stackedWidget;

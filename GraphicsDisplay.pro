@@ -43,7 +43,8 @@ SOURCES += \
     architePlan/sysarchiteplanview.cpp \
     qmlTableModel/qmltablemodel.cpp \
     jsonEdit/qmlforjson.cpp \
-    control/usermanager.cpp
+    control/usermanager.cpp \
+    jsonEdit/itemiconinfotojson.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -64,7 +65,8 @@ HEADERS += \
     architePlan/sysarchiteplanview.h \
     qmlTableModel/qmltablemodel.h \
     jsonEdit/qmlforjson.h \
-    control/usermanager.h
+    control/usermanager.h \
+    jsonEdit/itemiconinfotojson.h
 
 FORMS +=
 

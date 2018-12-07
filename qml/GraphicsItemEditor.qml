@@ -2,10 +2,11 @@
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.0
+import itemIconInfoToJson 1.0
 
 Rectangle {
-    width: 480
-    height: 320
+    width: 560
+    height: 360
     signal selectColor(color selectColor)
     signal setSize(real size)
     signal setText(string txt)
@@ -13,21 +14,37 @@ Rectangle {
     signal setIcon(string icon)
     signal setTypeName(string name)
     signal setIsUseIcon(bool isUseIcon)
-    GridLayout {
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.margins: 5
+
+    ListModel {
+        id: deviceTypeModel
+        ListElement {
+            deviceName: qsTr("火警设备")
+        }
+    }
+
+    Grid {
+
+        anchors {
+            fill: parent
+            topMargin: 10
+            leftMargin: 10
+            rightMargin: 10
+        }
+
+        columnSpacing: 5
+        rowSpacing: 5
+        columns: 4
         Text {
             id: typeLabel
-            text: qsTr("类型:")
-            Layout.row: 0
-            Layout.column: 0
+            text: qsTr("报警类型:")
+            height: 40
+            verticalAlignment: Text.AlignVCenter
         }
         ComboBox {
             id: typeComboBox
-            Layout.row: 0
-            Layout.column: 1
             Layout.fillWidth: true
+            width: 150
+            height: 40
             model: [qsTr("火警"), qsTr("联动"), qsTr("监管"), qsTr("故障"), qsTr(
                     "反馈"), qsTr("屏蔽")]
             onCurrentTextChanged: {
@@ -36,75 +53,153 @@ Rectangle {
         }
 
         Text {
+            text: qsTr("设备设施型号:")
+            height: 40
+            verticalAlignment: Text.AlignVCenter
+        }
+        ComboBox {
+            id: deviceTypeComboBox
+            width: 150
+            height: 40
+            model: deviceTypeModel
+        }
+        Text {
+            text: qsTr("分机号:")
+            height: 40
+            verticalAlignment: Text.AlignVCenter
+        }
+        TextField {
+            id: extNumTextField
+            width: 150
+            height: 40
+        }
+
+        Text {
+            text: qsTr("回路号:")
+            height: 40
+            verticalAlignment: Text.AlignVCenter
+        }
+        TextField {
+            id: loopNumTextField
+            width: 150
+            height: 40
+        }
+
+        Text {
+            text: qsTr("地址号:")
+            height: 40
+            verticalAlignment: Text.AlignVCenter
+        }
+        TextField {
+            id: addNumTextField
+            width: 150
+            height: 40
+        }
+
+        Text {
             id: num
-            text: qsTr("编号:")
-            Layout.row: 1
-            Layout.column: 0
+            text: qsTr("设备产品编码:")
+            height: 40
+            verticalAlignment: Text.AlignVCenter
         }
         TextField {
             id: numTextField
-            Layout.row: 1
-            Layout.column: 1
             Layout.fillWidth: true
+            width: 150
+            height: 40
             onTextEdited: {
                 emit: setText(text)
             }
         }
 
         Text {
+            text: qsTr("设备所属系统:")
+            height: 40
+            verticalAlignment: Text.AlignVCenter
+        }
+        TextField {
+            id: deviceSysTextField
+            Layout.fillWidth: true
+            width: 150
+            height: 40
+        }
+
+        Text {
+            text: qsTr("总保护区域名称:")
+            height: 40
+            verticalAlignment: Text.AlignVCenter
+        }
+        TextField {
+            id: protectedAreaTextField
+            Layout.fillWidth: true
+            width: 150
+            height: 40
+        }
+
+        Text {
             id: geoInfo
-            text: qsTr("地理信息:")
-            Layout.row: 2
-            Layout.column: 0
+            text: qsTr("建筑设施名称:")
+            height: 40
+            verticalAlignment: Text.AlignVCenter
         }
         TextField {
             id: geoInfoTextField
-            Layout.row: 2
-            Layout.column: 1
             Layout.fillWidth: true
+            width: 150
+            height: 40
             onTextEdited: {
                 emit: setGeoInfo(text)
             }
         }
 
         Text {
-            id: colorLabel
-            text: qsTr("颜色:")
-            Layout.row: 3
-            Layout.column: 0
+
+            text: qsTr("设施所在楼层:")
+            height: 40
+            verticalAlignment: Text.AlignVCenter
         }
-        Rectangle {
-            id: colorRec
+        TextField {
+            id: floorOfDeviceTextField
+            Layout.fillWidth: true
             width: 150
             height: 40
-            color: "red"
-            Layout.row: 3
-            Layout.column: 1
-            Layout.fillWidth: true
         }
+        Text {
 
-        Button {
-            id: colorSelectBtn
-            text: qsTr("选择颜色")
-            Layout.row: 3
-            Layout.column: 2
+            text: qsTr("设施所在位置:")
+            height: 40
+            verticalAlignment: Text.AlignVCenter
+        }
+        TextField {
+            id: deviceLocationTextField
+            Layout.fillWidth: true
+            width: 150
+            height: 40
+        }
+        Text {
 
-            onClicked: {
-                colorDialog.open()
-            }
+            text: qsTr("值班人员:")
+            height: 40
+            verticalAlignment: Text.AlignVCenter
+        }
+        TextField {
+            id: operatorOnDutyTextField
+            Layout.fillWidth: true
+            width: 150
+            height: 40
         }
 
         Text {
             id: sizeLabel
             text: qsTr("大小:")
-            Layout.row: 4
-            Layout.column: 0
+            height: 40
+            verticalAlignment: Text.AlignVCenter
         }
         SpinBox {
             id: sizeSpinBox
-            Layout.row: 4
-            Layout.column: 1
             Layout.fillWidth: true
+            width: 150
+            height: 40
             from: 5
             to: 100
             stepSize: 1
@@ -112,83 +207,10 @@ Rectangle {
                 emit: setSize(value)
             }
         }
-        CheckBox {
-            id: useIconCheckBox
-            text: qsTr("使用图标")
-            Layout.row: 5
-            Layout.column: 0
-            onCheckStateChanged: {
-                iconAddr.clear()
-                if (checkState == Qt.Checked) {
-                    iconAddr.enabled = true
-                    iconSelectBtn.enabled = true
-                } else {
-                    iconAddr.enabled = false
-                    iconSelectBtn.enabled = false
-                }
-
-                emit: setIsUseIcon(iconSelectBtn.enabled)
-            }
-        }
-        TextField {
-            id: iconAddr
-            Layout.row: 5
-            Layout.column: 1
-            Layout.fillWidth: true
-            enabled: false
-        }
-
-        Button {
-            id: iconSelectBtn
-            text: qsTr("选择图标")
-            Layout.row: 5
-            Layout.column: 2
-            enabled: false
-            onClicked: {
-                fileDialog.open()
-            }
-        }
-
-        //        RowLayout {
-        //            Layout.row: 6
-        //            Layout.column: 1
-        //            spacing: 5
-        //            Layout.topMargin: 10
-        //            Button {
-        //                id: saveBtn
-        //                text: qsTr("保存")
-        //            }
-
-        //            Button {
-        //                id: quitBtn
-        //                text: qsTr("退出")
-        //            }
-        //        }
-    }
-    ColorDialog {
-        id: colorDialog
-        onAccepted: {
-            colorRec.color = color
-            emit: selectColor(color)
-        }
     }
 
-    FileDialog {
-        id: fileDialog
-        title: "Please choose a file"
-        folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
-        onAccepted: {
-            console.log(currentFile.toString())
-            iconAddr.text = currentFile.toString()
-            emit: setIcon(iconAddr.text)
-        }
-    }
-    function setSelectColor(selectColor) {
-        colorRec.color = selectColor
-    }
-
-    function setIconName(iconName) {
-        iconAddr.text = iconName
+    ItemIconInfoToJson {
+        id: itemIconInfo
     }
 
     function setItemText(txt) {
@@ -206,18 +228,29 @@ Rectangle {
         //colorRec.color = selectColor;
     }
 
-    function setUseIcon(isUsIcon) {
-
-        if (isUsIcon) {
-            useIconCheckBox.checkState = Qt.Checked
-        } else {
-            useIconCheckBox.checkState = Qt.Unchecked
-        }
-
-        // iconAddr.text = iconName;
-    }
-
     function setItemGeoInfo(geoInfo) {
         geoInfoTextField.text = geoInfo
+    }
+
+    function readInfo() {
+        if (deviceTypeModel.count > 0) {
+            deviceTypeModel.clear()
+        }
+        var size = itemIconInfo.sizeOfHash()
+        var itemIconInfoStr = itemIconInfo.readFileFromJson()
+        for (var i = 0; i < size; i++) {
+            var index = String("%1").arg(i)
+            var obj = JSON.parse(itemIconInfoStr)[index]
+            console.log(obj["deviceName"])
+
+            //var currentObj = JSON.parse(obj["deviceName"].toString())
+            deviceTypeModel.append({
+                                       deviceName: obj["deviceName"]
+                                   })
+        }
+    }
+
+    Component.onCompleted: {
+        readInfo()
     }
 }

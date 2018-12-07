@@ -1,11 +1,12 @@
 ﻿#include "usermanager.h"
 #include <QCoreApplication>
+#include <QDebug>
 UserManager::UserManager(QObject *parent)
     : QObject(parent),
     m_userRight(UserManager::Employee),
     m_userName(tr("员工"))
 {
-    m_sqliteManager =  SqlManager::fromDriver("SQLITE");
+    m_sqliteManager = SqlManager::fromDriver("SQLITE");
 
     if(m_sqliteManager!=nullptr)
     {
@@ -122,12 +123,6 @@ UserManager::UserRight UserManager::userRight()
 void UserManager::setUserRight(const UserManager::UserRight &right)
 {
     m_userRight = right;
-}
-
-UserManager *UserManager::instance()
-{
-    static UserManager userManager;
-    return &userManager;
 }
 
 UserManager::~UserManager()

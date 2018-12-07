@@ -11,6 +11,7 @@
 #include <QQmlApplicationEngine>
 #include "qmlTableModel/qmltablemodel.h"
 #include "jsonEdit/qmlforjson.h"
+#include "jsonEdit/itemiconinfotojson.h"
 
 class CrtWidget : public QOpenGLWidget
 {

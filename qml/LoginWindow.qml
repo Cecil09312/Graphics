@@ -3,6 +3,8 @@ import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import QtQuick.Window 2.3
 import QtQuick.VirtualKeyboard 2.1
+import userManager 1.0
+import Qt.labs.platform 1.0
 
 Rectangle {
     id: loginWindow
@@ -20,6 +22,7 @@ Rectangle {
             Layout.column: 0
         }
         ComboBox {
+            id: userNameComboBox
             model: ["超级用户", "工程人员", "员工"]
             Layout.row: 0
             Layout.column: 1
@@ -50,6 +53,26 @@ Rectangle {
             Layout.topMargin: 10
             Button {
                 text: qsTr("登陆")
+                onClicked: {
+                    var passwordStr
+                    var userRight
+                    if (userNameComboBox.currentText === qsTr("超级用户")) {
+                        userRight = UserManager.Super
+                        passwordStr = UserManager.password(UserManager.Super)
+                    } else if (userNameComboBox.currentText === qsTr("工程人员")) {
+                        userRight = UserManager.Engineer
+                        passwordStr = UserManager.password(UserManager.Engineer)
+                    } else if (userNameComboBox.currentText === qsTr("员工")) {
+                        userRight = UserManager.Employee
+                        passwordStr = UserManager.password(UserManager.Employee)
+                    }
+                    if (passwordTextField.text === passwordStr) {
+                        UserManager.setUserRight(userRight)
+                        infoMessageDialog.open()
+                    } else {
+                        criticalMessageDialog.open()
+                    }
+                }
             }
 
             Button {
@@ -58,6 +81,23 @@ Rectangle {
                     CrtWidget.logWidgetClose()
                 }
             }
+        }
+    }
+
+    MessageDialog {
+        id: criticalMessageDialog
+        title: qsTr("错误提示")
+        text: qsTr("密码错误，请重新输入......")
+        buttons: MessageDialog.Cancel
+    }
+
+    MessageDialog {
+        id: infoMessageDialog
+        buttons: MessageDialog.Ok | MessageDialog.Cancel
+        title: qsTr("信息提示")
+        text: qsTr("密码输入正确!")
+        onOkClicked: {
+            CrtWidget.logWidgetClose()
         }
     }
 }

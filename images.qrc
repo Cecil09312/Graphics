@@ -20,5 +20,7 @@
         <file>images/send.png</file>
         <file>images/fire.png</file>
         <file>images/alarm.png</file>
+        <file>images/fireAlarm.png</file>
+        <file>images/delete.png</file>
     </qresource>
 </RCC>

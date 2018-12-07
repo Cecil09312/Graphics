@@ -20,20 +20,20 @@ GraphicsScene::GraphicsScene(QObject *parent):
 
     connect(m_editAction,&QAction::triggered,this,[=]()
     {
-       GraphicsItem *currentItem= dynamic_cast<GraphicsItem *> (itemAt(m_currentPointF,QTransform()));
-       Q_ASSERT(m_itemSettingObj);
-       if(currentItem!=nullptr)
-       {
+        GraphicsItem *currentItem= dynamic_cast<GraphicsItem *> (itemAt(m_currentPointF,QTransform()));
+        Q_ASSERT(m_itemSettingObj);
+        if(currentItem!=nullptr)
+        {
 
-        QMetaObject::invokeMethod(m_itemSettingObj,"setSelectColor",Q_ARG(QVariant,currentItem->color()));
-        QMetaObject::invokeMethod(m_itemSettingObj,"setIconName",Q_ARG(QVariant,currentItem->iconName()));
-        QMetaObject::invokeMethod(m_itemSettingObj,"setItemText",Q_ARG(QVariant,currentItem->itemText()));
-        QMetaObject::invokeMethod(m_itemSettingObj,"setItemType",Q_ARG(QVariant,currentItem->typeName()));
-        QMetaObject::invokeMethod(m_itemSettingObj,"setItemSize",Q_ARG(QVariant,currentItem->radius()));
-        QMetaObject::invokeMethod(m_itemSettingObj,"setUseIcon",Q_ARG(QVariant,currentItem->isUseIcon()));
-        QMetaObject::invokeMethod(m_itemSettingObj,"setItemGeoInfo",Q_ARG(QVariant,currentItem->geoInfo()));
+            //QMetaObject::invokeMethod(m_itemSettingObj,"setSelectColor",Q_ARG(QVariant,currentItem->color()));
+           // QMetaObject::invokeMethod(m_itemSettingObj,"setIconName",Q_ARG(QVariant,currentItem->iconName()));
+            QMetaObject::invokeMethod(m_itemSettingObj,"setItemText",Q_ARG(QVariant,currentItem->itemText()));
+            QMetaObject::invokeMethod(m_itemSettingObj,"setItemType",Q_ARG(QVariant,currentItem->typeName()));
+            QMetaObject::invokeMethod(m_itemSettingObj,"setItemSize",Q_ARG(QVariant,currentItem->radius()));
+            //QMetaObject::invokeMethod(m_itemSettingObj,"setUseIcon",Q_ARG(QVariant,currentItem->isUseIcon()));
+            QMetaObject::invokeMethod(m_itemSettingObj,"setItemGeoInfo",Q_ARG(QVariant,currentItem->geoInfo()));
 
-       }
+        }
         m_itemSettingView->show();
     });
     connect(m_clearAction,&QAction::triggered,this,[=]()
@@ -71,7 +71,7 @@ GraphicsScene::GraphicsScene(QObject *parent):
     connect(m_itemSettingObj,SIGNAL(setGeoInfo(QString)),this,SLOT(setItemGeoInfo(QString)));
     connect(m_itemSettingObj,SIGNAL(setTypeName(QString)),this,SLOT(setItemTypeName(QString)));
     connect(m_itemSettingObj,SIGNAL(setIcon(QString)),this,SLOT(setItemIcon(QString)));
-    connect(m_itemSettingObj,SIGNAL(setIsUseIcon(bool)),this,SLOT(setItemUseIcon(bool)));
+
 }
 
 GraphicsScene::~GraphicsScene()
@@ -111,6 +111,20 @@ void GraphicsScene::removeGraphicsItem(const QPointF &pointF)
 
 void GraphicsScene::showMenu(const QPoint &point)
 {
+    if(Controller::instance()->getUserRight()!=UserManager::Super)
+    {
+        m_deleteAction->setEnabled(false);
+        m_editAction->setEnabled(false);
+        m_clearAction->setEnabled(false);
+        m_deleteSelectedAction->setEnabled(false);
+    }
+    else
+    {
+        m_deleteAction->setEnabled(true);
+        m_editAction->setEnabled(true);
+        m_clearAction->setEnabled(true);
+        m_deleteSelectedAction->setEnabled(true);
+    }
     m_menu->exec(point);
 }
 
@@ -123,7 +137,10 @@ void GraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
     if(event->button()==Qt::LeftButton)
     {
-        addGraphicsItem(event->scenePos().x(),event->scenePos().y());
+        if(Controller::instance()->getUserRight()==UserManager::Super)
+        {
+            addGraphicsItem(event->scenePos().x(),event->scenePos().y());
+        }
     }
 }
 
@@ -203,15 +220,7 @@ void GraphicsScene::setItemIcon(QString iconName)
     update();
 }
 
-void GraphicsScene::setItemUseIcon(bool isUseIcon)
-{
-    GraphicsItem *currentItem=dynamic_cast<GraphicsItem *> (itemAt(m_currentPointF,QTransform()));
-    if(currentItem!=nullptr)
-    {
-        currentItem->setIsUseIcon(isUseIcon);
-    }
-    update();
-}
+
 
 void GraphicsScene::init()
 {
@@ -253,13 +262,26 @@ void GraphicsScene::setItemInfo(GraphicsItem *item, const QHash<QString, QVarian
     if(item!=nullptr)
     {
         QString pos= itemHash["pos"].toString();
+        ItemInfo itemInfo;
+        itemInfo.m_extNum= itemHash["extNum"].toString();
+        itemInfo.m_loopNum= itemHash["loopNum"].toString();
+        itemInfo.m_addrNum= itemHash["addrNum"].toString();
+        itemInfo.m_alarmType= itemHash["alarmType"].toString();
+        itemInfo.m_deviceNum= itemHash["deviceNum"].toString();
+        itemInfo.m_equipmentModel= itemHash["equipmentModel"].toString();
+        itemInfo.m_currentAlarmState= itemHash["currentAlarmState"].toString();
+        itemInfo.m_alarmTime= itemHash["alarmTime"].toString();
+        itemInfo.m_alarmReceiveTime= itemHash["alarmReceiveTime"].toString();
+        itemInfo.m_alarmReplyTime= itemHash["alarmReplyTime"].toString();
+        itemInfo.m_sysOfDevice= itemHash["sysOfDevice"].toString();
+        itemInfo.m_protectedAreaName= itemHash["protectedAreaName"].toString();
+        itemInfo.m_buildingName= itemHash["buildingName"].toString();
+        itemInfo.m_floorOfDevice= itemHash["floorOfDevice"].toString();
+        itemInfo.m_operatorOnDuty= itemHash["operatorOnDuty"].toString();
+        item->setItemInfo(itemInfo);
         item->setItemText(itemHash["text"].toString());
-        item->setIsUseIcon(itemHash["isUseIcon"].toBool());
-        item->setTypeName(itemHash["typeName"].toString());
-        item->setColor(QColor(itemHash["color"].toString()));
         item->setIconName(itemHash["iconName"].toString());
         item->setRadius(itemHash["size"].toDouble());
-        item->setGeoInfo(itemHash["geoInfo"].toString());
         item->setHoverText(itemHash["hoverText"].toString());
         item->setPos(pos.section(",",0,0).toDouble(),pos.section(",",1,1).toDouble());
         addItem(item);
