@@ -22,7 +22,7 @@ TreeView::TreeView(QWidget *parent):
     });
     connect(m_closeAction,&QAction::triggered,this,[=]()
     {
-        m_menu->close();
+        m_treeSettingMenu->close();
     });
     connect(m_addChildAction,&QAction::triggered,this,[=]()
     {
@@ -67,15 +67,15 @@ TreeView::TreeView(QWidget *parent):
             m_addChildAction->setEnabled(true);
         }
         m_rootPoint=  QWidget::mapFromGlobal(QCursor::pos());
-        m_menu->exec(QCursor::pos());
+        m_treeSettingMenu->exec(QCursor::pos());
     });
 
 }
 
 TreeView::~TreeView()
 {
-    m_menu->close();
-    delete m_menu;
+    m_treeSettingMenu->close();
+    delete m_treeSettingMenu;
     delete m_architeSettingView;
 }
 
@@ -250,19 +250,19 @@ void TreeView::initWidget()
 
 void TreeView::initMenu()
 {
-    m_menu = new QMenu;
-    m_addAction  = new QAction(tr("增加行"),m_menu);
-    m_addChildAction = new QAction(tr("增加子节点"),m_menu);
-    m_editAction = new QAction(tr("编辑"),m_menu);
-    m_deleteAction= new QAction(tr("删除"),m_menu);
-    m_clearAction= new QAction(tr("清空"),m_menu);
-    m_closeAction = new QAction(tr("关闭"),m_menu);
-    m_menu->addAction(m_addAction);
-    m_menu->addAction(m_addChildAction);
-    m_menu->addAction(m_editAction);
-    m_menu->addAction(m_deleteAction);
-    m_menu->addAction(m_clearAction);
-    m_menu->addAction(m_closeAction);
+    m_treeSettingMenu = new QMenu;
+    m_addAction  = new QAction(tr("增加行"),m_treeSettingMenu);
+    m_addChildAction = new QAction(tr("增加子节点"),m_treeSettingMenu);
+    m_editAction = new QAction(tr("编辑"),m_treeSettingMenu);
+    m_deleteAction= new QAction(tr("删除"),m_treeSettingMenu);
+    m_clearAction= new QAction(tr("清空"),m_treeSettingMenu);
+    m_closeAction = new QAction(tr("关闭"),m_treeSettingMenu);
+    m_treeSettingMenu->addAction(m_addAction);
+    m_treeSettingMenu->addAction(m_addChildAction);
+    m_treeSettingMenu->addAction(m_editAction);
+    m_treeSettingMenu->addAction(m_deleteAction);
+    m_treeSettingMenu->addAction(m_clearAction);
+    m_treeSettingMenu->addAction(m_closeAction);
 
 }
 

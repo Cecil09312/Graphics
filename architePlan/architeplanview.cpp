@@ -49,13 +49,18 @@ void ArchitePlanView::creatAlarm()
             GraphicsItem *currentItem = dynamic_cast<GraphicsItem *>(itemList.at(pos));
             if(currentItem!=nullptr)
             {
-                currentItem->setTypeName(alarmTypeName);
+                currentItem->getItemInfo().m_alarmType= alarmTypeName;
                 currentItem->startAnimation();
                 Controller::instance()->getDataStore()->insertTypeItem(alarmTypeName,currentItem);
                 emit alarmHappend(alarmTypeName);
+                // view->centerOn(currentItem);
             }
         }
+
+        autoFitView(view,alarmTypeName);
     }
+
+
 
     //   GraphicsScene::getItemList();
 
@@ -222,6 +227,43 @@ void ArchitePlanView::saveArchiteInfo()
 
 }
 
+void ArchitePlanView::autoFitView(QGraphicsView *view,const QString &alarmTypeName)
+{
+    QList<QGraphicsItem *> fireAlarmItemList= Controller::instance()->getDataStore()->getTypeItemList(alarmTypeName);
+
+    QHash<QGraphicsView*,QList<QGraphicsItem *> >itemToViewHash;
+
+    GraphicsView *currentView = dynamic_cast<GraphicsView *>(view);
+    if(currentView !=nullptr)
+    {
+        foreach (QGraphicsItem *fireAlarmItem, fireAlarmItemList) {
+            if(currentView->getItemList().contains(fireAlarmItem)){
+                itemToViewHash[currentView].push_back(fireAlarmItem);
+            }
+        }
+
+        qreal xMin=10000.0*1.0,xMax=0,yMin=10000.0*1.0,yMax=0,size =0;
+        QList<QGraphicsItem *>currentItemList = itemToViewHash[view];
+        foreach(QGraphicsItem *graphicsItem,currentItemList)
+        {
+            GraphicsItem *item = dynamic_cast<GraphicsItem *>(graphicsItem);
+            size=item->scale()*item->radius()*2*1.2;
+            if(item!=nullptr)
+            {
+                xMin= qMin(xMin,item->pos().x());
+                yMin= qMin(yMin,item->pos().y());
+                xMax= qMax(xMax,item->pos().x());
+                yMax= qMax(yMax,item->pos().y());
+            }
+        }
+
+        m_stackedWidget->setCurrentWidget(view);
+        QRectF currentRectF = QRectF(qAbs(xMin),qAbs(yMin),qAbs(xMax-xMin),qAbs(yMax-yMin));
+        view->fitInView(currentRectF.adjusted(-size,-size,size,size),Qt::KeepAspectRatio);
+    }
+
+}
+
 QHash<QString,QVariant> ArchitePlanView::saveViewInfo(QStandardItem *item)
 {
     QHash<QString,QVariant> imageHash;
@@ -299,7 +341,7 @@ void ArchitePlanView::setViewFromJson(const QHash<QString,QVariant> &hash,QStand
                 GraphicsScene *scene = dynamic_cast<GraphicsScene *> (widget->scene()) ;
                 if(scene!=nullptr)
                 {
-                    GraphicsItem *item = new GraphicsItem(scene,this);
+                    GraphicsItem *item = new GraphicsItem(scene);
                     scene->setItemInfo(item,itemValue.toHash());
                 }
             }
@@ -356,8 +398,8 @@ void ArchitePlanView::saveOtherArchiteInfo()
 void ArchitePlanView::setGlobalArchiteFromJson()
 {
     QHash<QString,QVariant> valueHash = QmlForJson::readFile().toHash();
-   QString pixmapName= valueHash["grobalArchitePlan"].toString();
-   setGlobalArchitePixmap(pixmapName);
+    QString pixmapName= valueHash["grobalArchitePlan"].toString();
+    setGlobalArchitePixmap(pixmapName);
 }
 
 int ArchitePlanView::numOfTypeAlarm(const QString &type)

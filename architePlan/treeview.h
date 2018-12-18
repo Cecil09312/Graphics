@@ -40,7 +40,7 @@ private:
     int getTotalCount();
 
 private:
-    QMenu *m_menu;
+    QMenu *m_treeSettingMenu;
     QAction* m_addAction;
     QAction *m_addChildAction;
     QAction *m_editAction;

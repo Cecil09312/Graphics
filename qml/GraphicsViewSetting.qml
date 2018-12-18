@@ -133,9 +133,9 @@ Item {
 
     Component.onCompleted: {
 
-        var globalArchiteObj = JSON.parse(qmlforJson.readFileToString(
-                                              )).grobalArchitePlan
-        var globalArchitePlanStr = JSON.stringify(globalArchiteObj.valueOf())
+        var globalArchiteObj  = new Object
+       globalArchiteObj = JSON.parse(qmlforJson.readFileToString( ))
+        var globalArchitePlanStr = JSON.stringify(globalArchiteObj["grobalArchitePlan"].valueOf())
         globalArchitePlanTextFiled.text = globalArchitePlanStr
     }
 }

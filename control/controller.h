@@ -15,9 +15,8 @@ public:
 
     static Controller *instance();
     ~Controller();
-
     DataStore * getDataStore();
-   Q_INVOKABLE QString fileNameFromQml(const QString &name);
+    Q_INVOKABLE QString fileNameFromQml(const QString &name);
     CommObj *getCommObj();
     void setSysArchitePlanView(SysArchitePlanView*sysArchitePlanView);
     SysArchitePlanView *getSysArchitePlanView() const;

@@ -6,6 +6,8 @@ import itemIconInfoToJson 1.0
 Rectangle {
     width: 640
     height: 240
+
+    signal saveItemInfoToJson()
     ListModel {
         id: listModel
         ListElement {
@@ -80,7 +82,11 @@ Rectangle {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
+                            //var indexStr = new String
                             listModel.remove(index)
+                            itemIconInfo.removeIconInfo(String("%1").arg(index))
+                            itemIconInfo.clearIconInfo()
+                            saveInfo()
                         }
                     }
                 }
@@ -113,16 +119,28 @@ Rectangle {
         id: buttons
         anchors.bottom: parent.bottom
         anchors.left: parent.left
+        anchors.bottomMargin: 40
         anchors.margins: 10
         spacing: 20
         Button {
             id: addItemBtn
             text: qsTr("增加项目")
             onClicked: {
-                listModel.append({
-                                     imagePath: "qrc:/images/fireAlarm.png",
-                                     deviceName: qsTr("报警装置")
-                                 })
+
+                var obj = new Object
+                obj["imagePath"] = Qt.resolvedUrl(
+                            decodeURI("qrc:/images/fireAlarm.png"))
+                obj["deviceName"] = String(qsTr("报警装置%1").arg(listModel.count))
+                listModel.append(obj)
+                saveInfo()
+            }
+        }
+
+        Button {
+            id: saveBtn
+            text: qsTr("保存")
+            onClicked: {
+                saveInfo()
             }
         }
 
@@ -131,6 +149,8 @@ Rectangle {
             text: qsTr("清空")
             onClicked: {
                 listModel.clear()
+                itemIconInfo.clearIconInfo()
+                saveInfo()
             }
         }
     }
@@ -141,7 +161,6 @@ Rectangle {
 
     function saveInfo() {
 
-        console.log(listModel.count)
         for (var i = 0; i < listModel.count; i++) {
             var obj = new Object
             obj = listModel.get(i)
@@ -152,17 +171,38 @@ Rectangle {
                                           obj["imagePath"].toString())
         }
         itemIconInfo.itemIconInfoToJson()
+        emit: saveItemInfoToJson()
     }
     function readInfo() {
-        if (listModel.count > 0) {
-            listModel.clear()
-        }
+
         var size = itemIconInfo.sizeOfHash()
-        var itemIconInfoStr = itemIconInfo.readFileFromJson()
-        for (var i = 0; i < size; i++) {
-            var index = String("%1").arg(i)
-            var obj = JSON.parse(itemIconInfoStr)[index]
-            listModel.append(obj)
+        var itemIconInfoStr = new String
+        itemIconInfoStr = itemIconInfo.readFileFromJson()
+        if (itemIconInfoStr.length > 0) {
+            if (listModel.count > 0) {
+                if (size >= listModel.count) {
+                    for (var currentIndex = 0; currentIndex < listModel.count; currentIndex++) {
+                        var currentObj = new Object
+                        currentObj = JSON.parse(itemIconInfoStr)[currentIndex]
+
+                        listModel.set(currentIndex, currentObj)
+                    }
+
+                    for (var i = listModel.count; i < size; i++) {
+                        var index = String("%1").arg(i)
+                        var obj = new Object
+                        obj = JSON.parse(itemIconInfoStr)[index]
+                        listModel.append(obj)
+                    }
+                }
+            } else {
+                for (var j = 0; j < size; j++) {
+                    var index2 = String("%1").arg(j)
+                    var obj2 = new Object
+                    obj = JSON.parse(itemIconInfoStr)[index2]
+                    listModel.append(obj2)
+                }
+            }
         }
     }
     Component.onDestruction: {

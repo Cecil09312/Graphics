@@ -1,4 +1,4 @@
-#include "graphicsview.h"
+﻿#include "graphicsview.h"
 #include <QDebug>
 #include <QTransform>
 #include <QScrollBar>
@@ -11,25 +11,28 @@ GraphicsView::GraphicsView(QWidget *parent, int type):
     m_viewType(type)
 {
 
-    m_pixmapItem = new QGraphicsPixmapItem;
-    zoom(1.5);
+    m_svgItem = new QGraphicsSvgItem;
+    zoom(1.2);
     setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
-    setViewport(new QOpenGLWidget(this));
+    // setViewport(new QOpenGLWidget(this));
+    setDragMode(QGraphicsView::ScrollHandDrag);
+
     if(m_viewType==ArthitePlan)
     {
         setContextMenuPolicy(Qt::CustomContextMenu);
         m_scene = new GraphicsScene(this);
         setScene(m_scene);
-        m_scene->addItem(m_pixmapItem);
+        m_scene->addItem(m_svgItem);
         m_sysViewScene  = nullptr;
     }
     else
     {
         m_scene = nullptr;
         m_sysViewScene = new QGraphicsScene(this);
-        m_sysViewScene->addItem(m_pixmapItem);
+        m_sysViewScene->addItem(m_svgItem);
         setScene(m_sysViewScene);
     }
+
 
     connect(this,&GraphicsView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)
     {
@@ -39,11 +42,13 @@ GraphicsView::GraphicsView(QWidget *parent, int type):
         }
     });
 
+
+
 }
 
 GraphicsView::~GraphicsView()
 {
-
+    delete m_svgItem;
 }
 
 void GraphicsView::zoom(qreal scaleValue)
@@ -76,7 +81,7 @@ void GraphicsView::wheelEvent(QWheelEvent *e)
 
 QPixmap GraphicsView::graphicsPixmap() const
 {
-    return m_pixmapItem->pixmap();
+    return QPixmap();
 }
 
 QString GraphicsView::pixmapName()
@@ -108,7 +113,13 @@ QGraphicsItem *GraphicsView::getItem(int pos)
 void GraphicsView::loadPixmap(const QString &fileName)
 {
     m_pixmapName = Controller::instance()->fileNameFromQml(fileName);
-    m_pixmapItem->setPixmap(QPixmap(m_pixmapName));
+    if(m_pixmapName.endsWith(".svg"))
+    {
+        QSvgRenderer *render = new QSvgRenderer(this);
+        render->load(m_pixmapName);
+        m_svgItem->setSharedRenderer(render);
+    }
+
 }
 
 void GraphicsView::zoomIn()

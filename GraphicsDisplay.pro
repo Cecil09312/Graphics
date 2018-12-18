@@ -44,7 +44,8 @@ SOURCES += \
     qmlTableModel/qmltablemodel.cpp \
     jsonEdit/qmlforjson.cpp \
     control/usermanager.cpp \
-    jsonEdit/itemiconinfotojson.cpp
+    jsonEdit/itemiconinfotojson.cpp \
+    graphicsWidget/svgrenderer.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -66,7 +67,8 @@ HEADERS += \
     qmlTableModel/qmltablemodel.h \
     jsonEdit/qmlforjson.h \
     control/usermanager.h \
-    jsonEdit/itemiconinfotojson.h
+    jsonEdit/itemiconinfotojson.h \
+    graphicsWidget/svgrenderer.h
 
 FORMS +=
 

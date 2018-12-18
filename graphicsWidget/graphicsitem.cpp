@@ -3,16 +3,20 @@
 #include "graphicsWidget/graphicsscene.h"
 #include <QStyleOptionGraphicsItem>
 #include "control/controller.h"
+#include "jsonEdit/itemiconinfotojson.h"
+#include "control/controller.h"
+#include <QSvgGenerator>
+#include <QGraphicsView>
 int GraphicsItem::m_num =1;
-GraphicsItem::GraphicsItem(GraphicsScene *scene, QObject *parent):
-    QObject(parent),
+GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_radius(12.0)
 
 {
     m_graphicsScene = scene;
-    m_typeName = tr("火警");
+    m_itemInfo.m_alarmType = tr("火警");
+    setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);
-    m_color = QColor(Qt::green);
+    m_color = QColor(Qt::red);
     setProperty("color",m_color);
     setProperty("scale",m_radius);
     m_colorAnimation = new QPropertyAnimation(this,"color");
@@ -29,9 +33,38 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene, QObject *parent):
     m_parallelAnimGroup->addAnimation(m_scaleAnimation);
     m_parallelAnimGroup->setLoopCount(-1);
 
+    m_itemTextFont.setPointSize(6);
+    m_itemTextFont.setFamily("Times New Roman");
     setAcceptHoverEvents(true);
-    m_itemText = QString("%1").arg(m_num++);
-    m_iconName = ":/images/fireAlarm.png";
+    m_itemInfo.m_deviceNum = QString("%1").arg(m_num++);
+    int itemIconIndex = ItemIconInfoToJson::currentIconIndex();
+
+    QHash<QString,QVariant>itemIconInfoHash = m_itemIconInfoToJson.getIconInfoHash();
+    if(itemIconInfoHash.size()>0)
+    {
+        QHash<QString,QVariant> deviceNameHash=  itemIconInfoHash["0"].toHash();
+        m_itemInfo.m_equipmentModel= deviceNameHash["deviceName"].toString();
+    }
+    if(itemIconIndex>=0)
+    {
+        QString currentIconName = ItemIconInfoToJson::getIconName(itemIconIndex);
+        if(!currentIconName.isEmpty())
+        {
+            m_iconName = Controller::instance()->fileNameFromQml(currentIconName);
+
+
+        }
+        else
+        {
+            m_iconName = ":/images/fireAlarm.png";
+        }
+
+    }
+    else
+    {
+        m_iconName = ":/images/fireAlarm.png";
+    }
+
     // m_parallelAnimGroup->setDirection(1000);
     // m_parallelAnimGroup->start();
     connect(m_colorAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &/*value*/)
@@ -83,29 +116,40 @@ QRectF GraphicsItem::boundingRect() const
 
 void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*option, QWidget */*widget*/)
 {
-    painter->setBrush(m_color);
-    //     QPen pen;
-    //     pen.setWidth(0);
-    //     pen.setColor(Qt::red);
-    //     painter->setPen(pen);
-    if(m_radius>0)
-    {
-        //pen.setColor(Qt::red);
-        if(!QPixmap(m_iconName).isNull())
-        {
-            painter->drawPixmap(-m_radius,-m_radius,m_radius*2,m_radius*2,QPixmap(m_iconName));
-        }
 
-        painter->drawText(QPointF(-m_radius-5,-m_radius-5),m_itemText);
+    painter->setFont(m_itemTextFont);
+    if(m_iconName.endsWith(".svg"))
+    {
+        QSvgRenderer renderer(m_iconName);
+        renderer.render(painter,QRectF(-m_radius,-m_radius,m_radius*2,m_radius*2));
+        // painter->drawRect(QRect(-m_radius*2,-m_radius*2,30,30));
+        painter->drawText(QRect(-m_radius,-m_radius,m_radius,m_radius),m_itemInfo.m_deviceNum);
     }
     else
     {
-        if(!QPixmap(m_iconName).isNull())
+        if(m_radius>0)
         {
-            painter->drawPixmap(-12,-12,12,12,QPixmap(m_iconName));
+            //            pen.setColor(Qt::red);
+            //            painter->setPen(pen);
+            if(!QPixmap(m_iconName).isNull())
+            {
+                painter->drawPixmap(-m_radius,-m_radius,m_radius*2,m_radius*2,QPixmap(m_iconName));
+
+            }
+
+            painter->drawText(QRect(-m_radius,-m_radius,m_radius,m_radius),m_itemInfo.m_deviceNum);
+        }
+        else
+        {
+            if(!QPixmap(m_iconName).isNull())
+            {
+                painter->drawPixmap(-12,-12,12,12,QPixmap(m_iconName));
+            }
+
+            painter->drawText(QRectF(-12,-12,12,12),m_itemInfo.m_deviceNum);
         }
 
-        painter->drawText(QPointF(-17,-17),m_itemText);
+
     }
 
     if (option->state & QStyle::State_Selected)
@@ -115,7 +159,7 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*optio
         painter->drawRect(boundingRect().adjusted(m_radius*2, m_radius*2, -m_radius*2, -m_radius*2));
     }
     //   qt_graphicsItem_highlightSelected(this, painter, option);
-   //m_graphicsScene->update();
+    //m_graphicsScene->update();
 
     // painter->drawRoundedRect(-10, -10, 20, 20, 5, 5);
 }
@@ -171,6 +215,18 @@ void GraphicsItem::setScaleEndValue(const QVariant &value)
     m_scaleAnimation->setEndValue(value);
 }
 
+void GraphicsItem::restoreSize()
+{
+    QTransform currentTransform = transform();
+    qreal xScale = currentTransform.m11();
+    qreal yScale = currentTransform.m22();
+    if(xScale*yScale>0)
+    {
+        setTransform(currentTransform.scale(1/xScale,1/yScale));
+        update();
+    }
+}
+
 
 
 QColor GraphicsItem::color() const
@@ -198,15 +254,9 @@ void GraphicsItem::setHoverText(const QString &hoverText)
     m_hoverText = hoverText;
 }
 
-QString GraphicsItem::itemText() const
-{
-    return m_itemText;
-}
 
-void GraphicsItem::setItemText(const QString &itemText)
-{
-    m_itemText = itemText;
-}
+
+
 
 QColor GraphicsItem::itemTextColor() const
 {
@@ -218,25 +268,7 @@ void GraphicsItem::setItemTextColor(const QColor &color)
     m_itemTextColor = color;
 }
 
-QString GraphicsItem::typeName() const
-{
-    return m_typeName;
-}
 
-void GraphicsItem::setTypeName(const QString &typeName)
-{
-    m_typeName = typeName;
-}
-
-QString GraphicsItem::geoInfo() const
-{
-    return m_geoInfo;
-}
-
-void GraphicsItem::setGeoInfo(const QString &geoInfo)
-{
-    m_geoInfo = geoInfo;
-}
 
 QString GraphicsItem::iconName() const
 {
@@ -247,9 +279,6 @@ void GraphicsItem::setIconName(const QString &iconName)
 {
     m_iconName = iconName;
 }
-
-
-
 
 QHash<QString, QVariant> GraphicsItem::itemInfo()
 {
@@ -269,9 +298,6 @@ QHash<QString, QVariant> GraphicsItem::itemInfo()
     itemHash["buildingName"] = m_itemInfo.m_buildingName;
     itemHash["floorOfDevice"] = m_itemInfo.m_floorOfDevice;
     itemHash["operatorOnDuty"] = m_itemInfo.m_operatorOnDuty;
-
-    //itemHash["isUseIcon"] = m_isUseIcon;
-    itemHash["text"] = m_itemText;
     itemHash["iconName"] = m_iconName;
     itemHash["size"] = m_radius;
     itemHash["hoverText"] = m_hoverText;
@@ -289,6 +315,66 @@ ItemInfo &GraphicsItem::getItemInfo()
     return m_itemInfo;
 }
 
+QString GraphicsItem::extNum()
+{
+    return m_itemInfo.m_extNum;
+}
+
+QString GraphicsItem::loopNum()
+{
+    return m_itemInfo.m_loopNum;
+}
+
+QString GraphicsItem::addrNum()
+{
+    return m_itemInfo.m_addrNum;
+}
+
+QString GraphicsItem::alarmType()
+{
+    return m_itemInfo.m_alarmType;
+}
+
+QString GraphicsItem::deviceNum()
+{
+    return m_itemInfo.m_deviceNum;
+}
+
+QString GraphicsItem::equipmentModel()
+{
+    qDebug() <<"m_itemInfo.m_equipmentModel"<< m_itemInfo.m_equipmentModel;
+    return m_itemInfo.m_equipmentModel;
+}
+
+QString GraphicsItem::sysOfDevice()
+{
+    return m_itemInfo.m_sysOfDevice;
+}
+
+QString GraphicsItem::protectedAreaName()
+{
+    return m_itemInfo.m_protectedAreaName;
+}
+
+QString GraphicsItem::buildingName()
+{
+    return m_itemInfo.m_buildingName;
+}
+
+QString GraphicsItem::floorOfDevice()
+{
+    return m_itemInfo.m_floorOfDevice;
+}
+
+QString GraphicsItem::deviceLocation()
+{
+    return m_itemInfo.m_deviceLocation;
+}
+
+QString GraphicsItem::operatorDuty()
+{
+    return m_itemInfo.m_operatorOnDuty;
+}
 
 void GraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {

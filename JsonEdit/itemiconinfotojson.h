@@ -10,6 +10,8 @@ public:
     ~ItemIconInfoToJson();
     Q_INVOKABLE  void saveItemIconInfo(const QString &index, const QString &key, const QVariant &value);
     Q_INVOKABLE  void itemIconInfoToJson();
+    Q_INVOKABLE  void removeIconInfo(const QString &index);
+    Q_INVOKABLE  void clearIconInfo();
     Q_INVOKABLE  QString readFileFromJson();
     Q_INVOKABLE  int sizeOfHash();
     QHash<QString, QVariant> getIconInfoHash();
@@ -17,11 +19,15 @@ public:
     Q_INVOKABLE static QString getIconName(int index);
     Q_INVOKABLE static void removeIconIndex(int index);
     Q_INVOKABLE static void clearIconIndex();
+    Q_INVOKABLE static int currentIconIndex();
+    Q_INVOKABLE static void setCurrentIconIndex(int index);
+
 private:
     QHash<QString,QVariant>m_iconInfoHash;
 
     const QString c_filePath = QCoreApplication::applicationDirPath()+"/iconInfo.json";
     static QHash<int,QString> s_iconIndexHash;
+    static int s_currentIconIndex;
 
 };
 

@@ -1,8 +1,7 @@
 ﻿import QtQuick 2.0
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
-import QtQuick.Dialogs 1.3
-
+import QtQuick.Dialogs 1.2
 import userManager 1.0
 
 Item {
@@ -69,7 +68,7 @@ Item {
     function setUserInfo() {
 
         var userName = userComboBox.currentText
-        var oldPasswordStr
+        var oldPasswordStr = new String
         var currentUserRight
         if (userName === qsTr("超级用户")) {
             currentUserRight = UserManager.Super
@@ -86,6 +85,7 @@ Item {
             if (newPasswordTextFiled.text.length > 0) {
                 UserManager.setPassword(currentUserRight,
                                         newPasswordTextFiled.text)
+                infoMessageDialog.open()
             } else {
                 warningMessageDialog.open()
             }
@@ -98,7 +98,7 @@ Item {
         id: criticalMessageDialog
         icon: StandardIcon.Critical
         title: qsTr("错误提示")
-        text: qsTr("原密码错误，请重新输入......")
+        text: qsTr("初始密码错误，请重新输入......")
     }
 
     MessageDialog {
@@ -106,5 +106,12 @@ Item {
         icon: StandardIcon.Warning
         title: qsTr("警告信息")
         text: qsTr("新密码为空，请重新设置......")
+    }
+
+    MessageDialog {
+        id: infoMessageDialog
+        icon: StandardIcon.Information
+        title: qsTr("信息提示")
+        text: qsTr("密码修改成功")
     }
 }

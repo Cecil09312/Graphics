@@ -7,7 +7,8 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QObject>
 #include <QParallelAnimationGroup>
-
+#include <QGraphicsSvgItem>
+#include "jsonEdit/itemiconinfotojson.h"
 class GraphicsScene;
 
 struct ItemInfo
@@ -35,13 +36,13 @@ class GraphicsItem : public QObject,public QGraphicsItem
 {
     Q_OBJECT
     Q_INTERFACES(QGraphicsItem)
-//    Q_PROPERTY(QColor color READ color WRITE setColor/* NOTIFY colorChanged*/)
-//    Q_PROPERTY(qreal radius READ radius WRITE setRadius/* NOTIFY radiusChanged*/)
-//    Q_PROPERTY(QString hoverText READ hoverText WRITE setHoverText/* NOTIFY hoverTextChanged*/)
-//    Q_PROPERTY(QString itemText READ itemText WRITE setItemText/* NOTIFY itemTextChanged*/)
-//    Q_PROPERTY(QColor itemTextColor READ itemTextColor WRITE setItemTextColor/* NOTIFY itemTextColorChanged*/)
+    //    Q_PROPERTY(QColor color READ color WRITE setColor/* NOTIFY colorChanged*/)
+    //    Q_PROPERTY(qreal radius READ radius WRITE setRadius/* NOTIFY radiusChanged*/)
+    //    Q_PROPERTY(QString hoverText READ hoverText WRITE setHoverText/* NOTIFY hoverTextChanged*/)
+    //    Q_PROPERTY(QString itemText READ itemText WRITE setItemText/* NOTIFY itemTextChanged*/)
+    //    Q_PROPERTY(QColor itemTextColor READ itemTextColor WRITE setItemTextColor/* NOTIFY itemTextColorChanged*/)
 public:
-    GraphicsItem(GraphicsScene *scene,QObject *parent=nullptr);
+    GraphicsItem(GraphicsScene *scene);
     ~GraphicsItem();
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *);
@@ -55,26 +56,34 @@ public:
     void setScaleStartValue(const QVariant &value);
     void setScaleEndValue(const QVariant &value);
 
+    void restoreSize();
+
     void setColor(const QColor &color);
     QColor color() const;
     qreal radius() const;
     void setRadius(qreal radius);
     QString hoverText() const;
     void setHoverText(const QString &hoverText);
-    QString itemText() const;
-    void setItemText(const QString &itemText);
+
     QColor itemTextColor() const;
     void setItemTextColor(const QColor &color);
-    QString typeName()const;
-    void setTypeName(const QString &typeName);
-    QString geoInfo() const;
-    void setGeoInfo(const QString &geoInfo);
-
     QString iconName() const;
     void setIconName(const QString &iconName);
     QHash<QString,QVariant> itemInfo();
     void setItemInfo(const ItemInfo &itemInfo);
     ItemInfo &getItemInfo();
+    Q_INVOKABLE QString extNum();
+    Q_INVOKABLE QString loopNum();
+    Q_INVOKABLE QString addrNum();
+    Q_INVOKABLE QString alarmType();
+    Q_INVOKABLE QString deviceNum();
+    Q_INVOKABLE QString equipmentModel();
+    Q_INVOKABLE QString sysOfDevice();
+    Q_INVOKABLE QString protectedAreaName();
+    Q_INVOKABLE QString buildingName();
+    Q_INVOKABLE QString floorOfDevice();
+    Q_INVOKABLE QString deviceLocation();
+    Q_INVOKABLE QString operatorDuty();
 
 protected:
 
@@ -88,17 +97,15 @@ private:
     QColor m_color;
     GraphicsScene *m_graphicsScene;
     qreal m_radius;
-    QString m_itemText;
     QString m_hoverText;
     QColor m_itemTextColor;
-    QString m_geoInfo;
-    QString m_typeName;
     QString m_iconName;
     static int m_num;
     ItemInfo m_itemInfo;
+    QFont m_itemTextFont;
+    ItemIconInfoToJson m_itemIconInfoToJson;
+    //    QFont m_hoverTextFont;
 
-//    QFont m_itemTextFont;
-//    QFont m_hoverTextFont;
 };
 
 #endif // GRAPHICSITEM_H

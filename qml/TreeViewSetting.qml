@@ -85,7 +85,6 @@ Rectangle {
         folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
 
         onAccepted: {
-            console.log(currentFile.toString())
             primArchImageTextField.text = currentFile.toString()
             TreeView.insertPixmap(primArchImageTextField.text)
         }

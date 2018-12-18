@@ -21,7 +21,6 @@ public:
    // void setFileName(const QString&name);
     //QString fileName() const;
 signals:
-
 public slots:
 private:
     //QString m_fileName;

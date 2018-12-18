@@ -34,6 +34,7 @@ public slots:
 private:
     void initWidget();
     void saveArchiteInfo();
+    void autoFitView(QGraphicsView *view,const QString &alarmTypeName);
     QHash<QString, QVariant> saveViewInfo(QStandardItem *item);
     void initFromJsonFile();
     void setViewFromJson(const QHash<QString, QVariant> &hash, QStandardItem *treeItem);

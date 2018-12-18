@@ -1,4 +1,4 @@
-#ifndef GRAPHICSVIEW_H
+﻿#ifndef GRAPHICSVIEW_H
 #define GRAPHICSVIEW_H
 
 #include<QGraphicsView>
@@ -9,6 +9,8 @@
 #include <QGLWidget>
 #include <QGraphicsPixmapItem>
 #include <QtOpenGL>
+#include <QGraphicsSvgItem>
+#include <QSvgRenderer>
 class GraphicsView : public QGraphicsView
 {
 public:
@@ -38,11 +40,9 @@ private:
     static qreal m_scale;
     GraphicsScene *m_scene;
     QGraphicsScene*m_sysViewScene;
-    //QGraphicsSvgItem *m_svgItem;
-    QGraphicsPixmapItem *m_pixmapItem;
+    QGraphicsSvgItem *m_svgItem;
     QString m_pixmapName;
     int m_viewType;
-
 };
 
 #endif // GRAPHICSVIEW_H

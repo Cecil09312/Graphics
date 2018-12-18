@@ -41,7 +41,7 @@ PathView {
 
         ListElement {
             title: qsTr("其它设置")
-            page: "qrc:/qml/ItemIconSetting.qml"
+            page: "qrc:/qml/OtherSetting.qml"
             icon: "build"
             iconSource: "qrc:/images/build.png"
         }

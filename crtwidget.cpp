@@ -100,7 +100,7 @@ void CrtWidget::initWidget()
 {
 
     qmlRegisterSingletonType<Controller>("userManager", 1, 0, "UserManager",
-                                     [=](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+                                     [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
         Q_UNUSED(engine)
         Q_UNUSED(scriptEngine)
 
@@ -108,7 +108,7 @@ void CrtWidget::initWidget()
     });
 
     qmlRegisterSingletonType<Controller>("controller", 1, 0, "Controller",
-                                     [=](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+                                     [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
         Q_UNUSED(engine)
         Q_UNUSED(scriptEngine)
 

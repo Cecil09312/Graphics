@@ -4,7 +4,7 @@ import QtQuick.Layouts 1.3
 import QtQuick.Window 2.3
 import QtQuick.VirtualKeyboard 2.1
 import userManager 1.0
-import Qt.labs.platform 1.0
+import QtQuick.Dialogs 1.2
 
 Rectangle {
     id: loginWindow
@@ -88,15 +88,17 @@ Rectangle {
         id: criticalMessageDialog
         title: qsTr("错误提示")
         text: qsTr("密码错误，请重新输入......")
-        buttons: MessageDialog.Cancel
+        icon: StandardIcon.Critical
+        standardButtons: StandardButton.Yes
     }
 
     MessageDialog {
         id: infoMessageDialog
-        buttons: MessageDialog.Ok | MessageDialog.Cancel
+        standardButtons: StandardButton.Yes | StandardButton.No
         title: qsTr("信息提示")
         text: qsTr("密码输入正确!")
-        onOkClicked: {
+        icon: StandardIcon.Information
+        onYes: {
             CrtWidget.logWidgetClose()
         }
     }
