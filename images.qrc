@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>images/background.png</file>
-        <file>images/background.svg</file>
         <file>images/close.png</file>
         <file>images/help.png</file>
         <file>images/userLogin.png</file>
@@ -19,7 +17,6 @@
         <file>images/build.png</file>
         <file>images/send.png</file>
         <file>images/fire.png</file>
-        <file>images/alarm.png</file>
         <file>images/fireAlarm.png</file>
         <file>images/delete.png</file>
     </qresource>

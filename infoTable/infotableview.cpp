@@ -21,13 +21,13 @@ void InfoTableView::initWidget()
 
     this->setModel(m_tableModel);
     this->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    m_tableModel->setDbDriver("QSQLITE");
-    m_tableModel->setDbHost("sss");
-    m_tableModel->setDbName("C:/Users/1/Desktop/mySqlite.db");
-    m_tableModel->setDbConnectionName("defaultName3");
-    m_tableModel->setDbPassword("rrr");
-    m_tableModel->setDbPort(222);
-    m_tableModel->setDbUser("song");
-    m_tableModel->setDbOpen(true);
-    m_tableModel->sqlCommit("select *from COMPANY");
+//    m_tableModel->setDbDriver("QSQLITE");
+//    m_tableModel->setDbHost("sss");
+//    m_tableModel->setDbName("C:/Users/1/Desktop/mySqlite.db");
+//    m_tableModel->setDbConnectionName("defaultName3");
+//    m_tableModel->setDbPassword("rrr");
+//    m_tableModel->setDbPort(222);
+//    m_tableModel->setDbUser("song");
+//    m_tableModel->setDbOpen(true);
+//    m_tableModel->sqlCommit("select *from COMPANY");
 }
