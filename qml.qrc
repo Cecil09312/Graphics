@@ -1,24 +1,23 @@
 <RCC>
     <qresource prefix="/">
-        <file>qml/AlarmItem.qml</file>
-        <file>qml/ToolBarWindow.qml</file>
-        <file>qml/LoginWindow.qml</file>
-        <file>qml/CustomTreeView.qml</file>
-        <file>qml/TreeViewSetting.qml</file>
-        <file>qml/GraphicsItemEditor.qml</file>
-        <file>qml/SerialPortSetting.qml</file>
-        <file>qml/GraphicsViewSetting.qml</file>
-        <file>qml/SettingView.qml</file>
-        <file>qml/NaviButton.qml</file>
-        <file>qml/SettingWindow.qml</file>
-        <file>qml/PasswordSetting.qml</file>
-        <file>qml/SysArchitePlanSetting.qml</file>
-        <file>qml/InfoQuery.qml</file>
-        <file>qml/InfoTransport.qml</file>
-        <file>qml/OtherSetting.qml</file>
+        <file>qml/alarmItem/AlarmItem.qml</file>
+        <file>qml/treeViewSetting/TreeViewSetting.qml</file>
+        <file>qml/infoSetting/InfoTransport.qml</file>
+        <file>qml/infoSetting/NaviButton.qml</file>
+        <file>qml/infoSetting/OtherSetting.qml</file>
+        <file>qml/infoSetting/PasswordSetting.qml</file>
+        <file>qml/infoSetting/SerialPortSetting.qml</file>
+        <file>qml/infoSetting/SettingView.qml</file>
+        <file>qml/infoSetting/SettingWindow.qml</file>
+        <file>qml/infoSetting/SysArchitePlanSetting.qml</file>
+        <file>qml/itemSetting/GraphicsItemEditor.qml</file>
+        <file>qml/itemSetting/ItemIconSetting.qml</file>
+        <file>qml/logInWindow/LoginWindow.qml</file>
         <file>qml/qmlTable/AlarmInfoTableItem.qml</file>
-        <file>qml/qmlTable/OperaEventTableItem.qml</file>
         <file>qml/qmlTable/DeviceStateTableItem.qml</file>
-        <file>qml/ItemIconSetting.qml</file>
+        <file>qml/qmlTable/OperaEventTableItem.qml</file>
+        <file>qml/toolBar/ToolBarWindow.qml</file>
+        <file>qml/infoSetting/GraphicsViewSetting.qml</file>
+        <file>qml/infoSetting/InfoQuery.qml</file>
     </qresource>
 </RCC>

@@ -77,7 +77,7 @@ void CrtWidget::loginWidgetShow()
 void CrtWidget::settingWindowShow()
 {
     //m_settingQuickView->show();
-    m_settingViewEngine->load(QUrl("qrc:/qml/SettingWindow.qml"));
+    m_settingViewEngine->load(QUrl("qrc:/qml/infoSetting/SettingWindow.qml"));
    // m_settingViewEngine->rootContext()->setContextProperty("Controller",Controller::instance());
 }
 
@@ -134,7 +134,7 @@ void CrtWidget::initWidget()
     qmlRegisterType<ItemIconInfoToJson>("itemIconInfoToJson",1,0,"ItemIconInfoToJson");
     QVBoxLayout *globalVLayout = new QVBoxLayout;
     QQuickView *toolBarQuickView = new QQuickView;
-    toolBarQuickView->setSource(QUrl("qrc:/qml/ToolBarWindow.qml"));
+    toolBarQuickView->setSource(QUrl("qrc:/qml/toolBar/ToolBarWindow.qml"));
     toolBarQuickView->rootContext()->setContextProperty("CrtWidget",this);
     m_toolBarContainer = QWidget::createWindowContainer(toolBarQuickView, this);
     m_toolBarContainer->setMinimumHeight(60);
@@ -157,7 +157,7 @@ void CrtWidget::initWidget()
     m_infoTableView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 
     m_alarmQuickView = new QQuickView;
-    m_alarmQuickView->setSource(QUrl("qrc:/qml/AlarmItem.qml"));
+    m_alarmQuickView->setSource(QUrl("qrc:/qml/alarmItem/AlarmItem.qml"));
     m_alarmQuickView->rootContext()->setContextProperty("CrtWidget",this);
     m_alarmQuickView->rootContext()->setContextProperty("ArchitePlanView",m_architePlanView);
 
@@ -168,7 +168,7 @@ void CrtWidget::initWidget()
     m_alarmContainer->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
 
     m_loginQuickView = new QQuickView;
-    m_loginQuickView->setSource(QUrl("qrc:/qml/LoginWindow.qml"));
+    m_loginQuickView->setSource(QUrl("qrc:/qml/logInWindow/LoginWindow.qml"));
     m_loginQuickView->setGeometry(500,50,m_loginQuickView->width(),m_loginQuickView->height());
     m_loginQuickView->rootContext()->setContextProperty("CrtWidget",this);
 

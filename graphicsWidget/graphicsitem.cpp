@@ -242,6 +242,7 @@ qreal GraphicsItem::radius() const
 void GraphicsItem::setRadius(qreal radius)
 {
     m_radius = radius;
+    update();
 }
 
 QString GraphicsItem::hoverText() const
@@ -252,6 +253,7 @@ QString GraphicsItem::hoverText() const
 void GraphicsItem::setHoverText(const QString &hoverText)
 {
     m_hoverText = hoverText;
+    update();
 }
 
 
@@ -266,6 +268,7 @@ QColor GraphicsItem::itemTextColor() const
 void GraphicsItem::setItemTextColor(const QColor &color)
 {
     m_itemTextColor = color;
+    update();
 }
 
 
@@ -278,6 +281,7 @@ QString GraphicsItem::iconName() const
 void GraphicsItem::setIconName(const QString &iconName)
 {
     m_iconName = iconName;
+    update();
 }
 
 QHash<QString, QVariant> GraphicsItem::itemInfo()
@@ -295,6 +299,7 @@ QHash<QString, QVariant> GraphicsItem::itemInfo()
     itemHash["alarmReplyTime"] = m_itemInfo.m_alarmReplyTime;
     itemHash["sysOfDevice"] = m_itemInfo.m_sysOfDevice;
     itemHash["protectedAreaName"] = m_itemInfo.m_protectedAreaName;
+    itemHash["deviceLocation"] = m_itemInfo.m_deviceLocation;
     itemHash["buildingName"] = m_itemInfo.m_buildingName;
     itemHash["floorOfDevice"] = m_itemInfo.m_floorOfDevice;
     itemHash["operatorOnDuty"] = m_itemInfo.m_operatorOnDuty;
@@ -342,7 +347,6 @@ QString GraphicsItem::deviceNum()
 
 QString GraphicsItem::equipmentModel()
 {
-    qDebug() <<"m_itemInfo.m_equipmentModel"<< m_itemInfo.m_equipmentModel;
     return m_itemInfo.m_equipmentModel;
 }
 

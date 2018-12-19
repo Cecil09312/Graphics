@@ -13,49 +13,49 @@ PathView {
     model: ListModel {
         ListElement {
             title: qsTr("串口设置")
-            page: "qrc:/qml/SerialPortSetting.qml"
+            page: "qrc:/qml/infoSetting/SerialPortSetting.qml"
             icon: "communication"
             iconSource: "qrc:/images/communication.png"
         }
 
         ListElement {
             title: qsTr("建筑平面图设置")
-            page: "qrc:/qml/GraphicsViewSetting.qml"
+            page: "qrc:/qml/infoSetting/GraphicsViewSetting.qml"
             icon: "geoGraphics"
             iconSource: "qrc:/images/geoGraphics.png"
         }
 
         ListElement {
             title: qsTr("密码设置")
-            page: "qrc:/qml/PasswordSetting.qml"
+            page: "qrc:/qml/infoSetting/PasswordSetting.qml"
             icon: "passwordSetting"
             iconSource: "qrc:/images/passwordSetting.png"
         }
 
         ListElement {
             title: qsTr("信息传输")
-            page: "qrc:/qml/InfoTransport.qml"
+            page: "qrc:/qml/infoSetting/InfoTransport.qml"
             icon: "infoSend"
             iconSource: "qrc:/images/send.png"
         }
 
         ListElement {
             title: qsTr("其它设置")
-            page: "qrc:/qml/OtherSetting.qml"
+            page: "qrc:/qml/infoSetting/OtherSetting.qml"
             icon: "build"
             iconSource: "qrc:/images/build.png"
         }
 
         ListElement {
             title: qsTr("信息查询")
-            page: "qrc:/qml/InfoQuery.qml"
+            page: "qrc:/qml/infoSetting/InfoQuery.qml"
             icon: "search"
             iconSource: "qrc:/images/search.png"
         }
 
         ListElement {
             title: qsTr("系统图设置")
-            page: "qrc:/qml/SysArchitePlanSetting.qml"
+            page: "qrc:/qml/infoSetting/SysArchitePlanSetting.qml"
             icon: "appOther"
             iconSource: "qrc:/images/appOther.png"
         }

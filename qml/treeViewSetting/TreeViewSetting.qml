@@ -83,7 +83,7 @@ Rectangle {
         id: fileDialog
         title: "Please choose a file"
         folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
-
+        nameFilters: "SVG Files(*.svg)"
         onAccepted: {
             primArchImageTextField.text = currentFile.toString()
             TreeView.insertPixmap(primArchImageTextField.text)

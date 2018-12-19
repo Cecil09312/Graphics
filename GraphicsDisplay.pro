@@ -73,22 +73,9 @@ HEADERS += \
 FORMS +=
 
 DISTFILES += \
-    qml/SerialPortSetting.qml \
-    qml/GraphicsViewSetting.qml \
-    qml/NaviButton.qml \
-    qml/SettingWindow.qml \
-    qml/PasswordSetting.qml \
-    qml/SysArchitePlanSetting.qml \
-    qml/SysArchitePlanSetting.qml \
-    qml/SysArchitePlanSetting.qml \
-    qml/InfoQuery.qml \
-    qml/InfoTransport.qml \
-    qml/OtherSetting.qml \
-    qml/qmlTable/AlarmInfoTableItem.qml \
-    qml/qmlTable/DeviceStateTableItem.qml \
-    qml/qmlTable/OperaEventTableItem.qml
+
 
 RESOURCES += \
-    qml.qrc \
     images.qrc \
-    qss.qrc
+    qss.qrc \
+    qml.qrc

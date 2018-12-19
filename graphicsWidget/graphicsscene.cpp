@@ -229,7 +229,6 @@ void GraphicsScene::setItemIcon(QString iconName)
     {
         currentItem->setIconName(Controller::instance()->fileNameFromQml(iconName));
     }
-    qDebug() << iconName;
     update();
 }
 
@@ -324,7 +323,7 @@ void GraphicsScene::init()
     m_handDragAction->setChecked(true);
     m_graphicsItemSettingMenu->addMenu(modeSelectMenu);
     m_itemSettingView = new QQuickView;
-    m_itemSettingView->setSource(QUrl("qrc:/qml/GraphicsItemEditor.qml"));
+    m_itemSettingView->setSource(QUrl("qrc:/qml/itemSetting/GraphicsItemEditor.qml"));
     m_itemSettingObj= m_itemSettingView->rootObject();
     m_graphicsItemSettingMenu->addAction(m_deleteAction);
     m_graphicsItemSettingMenu->addAction(m_editAction);
@@ -371,6 +370,7 @@ void GraphicsScene::setItemInfo(GraphicsItem *item, const QHash<QString, QVarian
         itemInfo.m_alarmReplyTime= itemHash["alarmReplyTime"].toString();
         itemInfo.m_sysOfDevice= itemHash["sysOfDevice"].toString();
         itemInfo.m_protectedAreaName= itemHash["protectedAreaName"].toString();
+        itemInfo.m_deviceLocation=itemHash["deviceLocation"].toString();
         itemInfo.m_buildingName= itemHash["buildingName"].toString();
         itemInfo.m_floorOfDevice= itemHash["floorOfDevice"].toString();
         itemInfo.m_operatorOnDuty= itemHash["operatorOnDuty"].toString();

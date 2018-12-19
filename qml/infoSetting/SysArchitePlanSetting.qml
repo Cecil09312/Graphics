@@ -199,6 +199,7 @@ Item {
     FileDialog {
         id: chooseFileDialog
         folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
+        nameFilters: "SVG Files(*.svg)"
         onAccepted: {
             textFieldName.text = currentFile.toString()
             SysArchitePlanView.setSysDrawing(txtName, textFieldName.text)
@@ -214,30 +215,33 @@ Item {
         setSysArchitePlan()
     }
 
-    function setSysArchitePlan()
-    {
+    function setSysArchitePlan() {
         var sysArchitePlanObj = new Object
-           sysArchitePlanObj      = JSON.parse(qmlForJson.readFileToString())
+        sysArchitePlanObj = JSON.parse(qmlForJson.readFileToString())
         var sysArchitePlanStr = new String
-       sysArchitePlanStr   = JSON.stringify(sysArchitePlanObj["sysArchitePlan"].valueOf())
-        var gasFireStr = JSON.parse(sysArchitePlanStr.toLocaleString())["气体灭火系统"]
+        sysArchitePlanStr = JSON.stringify(
+                    sysArchitePlanObj["sysArchitePlan"].valueOf())
+        var gasFireStr = JSON.parse(sysArchitePlanStr.toLocaleString(
+                                        ))["气体灭火系统"]
         var waterSprayStr = JSON.parse(sysArchitePlanStr.toLocaleString(
                                            ))["水喷雾灭火系统"]
         var foamAndDryStr = JSON.parse(sysArchitePlanStr.toLocaleString(
                                            ))["泡沫和干粉灭火系统"]
-        var fireCockStr = JSON.parse(sysArchitePlanStr.toLocaleString())["消火栓系统"]
+        var fireCockStr = JSON.parse(sysArchitePlanStr.toLocaleString(
+                                         ))["消火栓系统"]
         var fireEmergencyStr = JSON.parse(sysArchitePlanStr.toLocaleString(
                                               ))["消防应急照明系统"]
-        var linkageStr = JSON.parse(sysArchitePlanStr.toLocaleString())["消防联动控制系统"]
+        var linkageStr = JSON.parse(sysArchitePlanStr.toLocaleString(
+                                        ))["消防联动控制系统"]
 
         var autoFireAlarm = JSON.parse(sysArchitePlanStr.toLocaleString(
                                            ))["火灾自动报警系统"]
-        var evacuationInsStr = JSON.parse(
-                    sysArchitePlanStr.toLocaleString())["疏散指示系统"]
+        var evacuationInsStr = JSON.parse(sysArchitePlanStr.toLocaleString(
+                                              ))["疏散指示系统"]
         var autoFireExitStr = JSON.parse(sysArchitePlanStr.toLocaleString(
                                              ))["自动喷水灭火系统"]
-        var smokeExhaustStr = JSON.parse(
-                    sysArchitePlanStr.toLocaleString())["防烟排烟系统"]
+        var smokeExhaustStr = JSON.parse(sysArchitePlanStr.toLocaleString(
+                                             ))["防烟排烟系统"]
         //JSON.stringify()
         fireAlarmTextField.text = autoFireAlarm
         linkageTextField.text = linkageStr

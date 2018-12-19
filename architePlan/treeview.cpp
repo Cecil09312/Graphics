@@ -240,7 +240,7 @@ void TreeView::initWidget()
     m_itemDelegate = new ItemDelegate(this);
 
     m_architeSettingView = new QQuickView();
-    m_architeSettingView->setSource(QUrl("qrc:/qml/TreeViewSetting.qml"));
+    m_architeSettingView->setSource(QUrl("qrc:/qml/treeViewSetting/TreeViewSetting.qml"));
     m_architeSettingView->setGeometry(500,50,m_architeSettingView->width(),m_architeSettingView->height());
     m_architeSettingView->rootContext()->setContextProperty("TreeView",this);
 
