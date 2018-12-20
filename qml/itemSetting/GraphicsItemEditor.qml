@@ -321,11 +321,17 @@ Rectangle {
     }
 
     function readInfo() {
+
+        var size = itemIconInfo.sizeOfHash()
+        if (size === 0) {
+            itemIconInfo.setIconIndexHash(0, ":/images/fireAlarm.png")
+            return
+        }
+
         if (deviceTypeModel.count > 0) {
             deviceTypeModel.clear()
             itemIconInfo.clearIconIndex()
         }
-        var size = itemIconInfo.sizeOfHash()
         var itemIconInfoStr = new String
         itemIconInfoStr = itemIconInfo.readFileFromJson()
         if (size > 0) {

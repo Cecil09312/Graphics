@@ -155,15 +155,14 @@ void GraphicsScene::showMenu(const QPoint &point)
             }
             m_clearAction->setEnabled(true);
             m_deleteSelectedAction->setEnabled(true);
-            m_editAction->setEnabled(true);
         }
         else
         {
             m_deleteAction->setEnabled(false);
-            m_editAction->setEnabled(false);
             m_clearAction->setEnabled(false);
             m_deleteSelectedAction->setEnabled(false);
         }
+        m_editAction->setEnabled(true);
     }
     m_graphicsItemSettingMenu->exec(point);
 }

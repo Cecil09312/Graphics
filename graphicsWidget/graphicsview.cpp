@@ -2,7 +2,6 @@
 #include <QDebug>
 #include <QTransform>
 #include <QScrollBar>
-#include <QOpenGLWidget>
 #include "openglWidget/glwidget.h"
 #include "control/controller.h"
 qreal GraphicsView::m_scale =1;
@@ -13,9 +12,9 @@ GraphicsView::GraphicsView(QWidget *parent, int type):
 
     m_svgItem = new QGraphicsSvgItem;
     zoom(1.2);
-    setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
-    // setViewport(new QOpenGLWidget(this));
     setDragMode(QGraphicsView::ScrollHandDrag);
+
+    viewport()->update();
 
     if(m_viewType==ArthitePlan)
     {

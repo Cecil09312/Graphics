@@ -7,7 +7,7 @@ Rectangle {
     width: 640
     height: 240
 
-    signal saveItemInfoToJson()
+    signal saveItemInfoToJson
     ListModel {
         id: listModel
         ListElement {

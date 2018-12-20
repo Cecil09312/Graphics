@@ -57,12 +57,14 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
         else
         {
             m_iconName = ":/images/fireAlarm.png";
+
         }
 
     }
     else
     {
         m_iconName = ":/images/fireAlarm.png";
+        ItemIconInfoToJson::setIconIndexHash(0,m_iconName);
     }
 
     // m_parallelAnimGroup->setDirection(1000);
