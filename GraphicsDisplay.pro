@@ -33,7 +33,6 @@ SOURCES += \
     graphicsWidget/graphicsitem.cpp \
     architePlan/treeview.cpp \
     jsonEdit/jsonedit.cpp \
-    openglWidget/glwidget.cpp \
     control/controller.cpp \
     dataStore/datastore.cpp \
     speech/speechobj.cpp \

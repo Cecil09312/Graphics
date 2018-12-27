@@ -14,7 +14,7 @@ Rectangle {
     ListModel {
         id: deviceTypeModel
         ListElement {
-            deviceName: qsTr("火警设备")
+            deviceName: qsTr("报警装置")
         }
     }
 
@@ -324,34 +324,68 @@ Rectangle {
 
         var size = itemIconInfo.sizeOfHash()
         if (size === 0) {
-            itemIconInfo.setIconIndexHash(0, ":/images/fireAlarm.png")
+            deviceTypeModel.clear()
             return
         }
 
-        if (deviceTypeModel.count > 0) {
-            deviceTypeModel.clear()
-            itemIconInfo.clearIconIndex()
-        }
         var itemIconInfoStr = new String
         itemIconInfoStr = itemIconInfo.readFileFromJson()
+        if (itemIconInfoStr.length <= 0) {
+            if (deviceTypeModel.count > 0) {
+                deviceTypeModel.clear()
+            }
+            return
+        }
+
         if (size > 0) {
-            for (var i = 0; i < size; i++) {
-                var index = String("%1").arg(i)
-                var obj = new Object
-                obj = JSON.parse(itemIconInfoStr)[index]
-                //var currentObj = JSON.parse(obj["deviceName"].toString())
-                var deviceObj = new Object
-                deviceObj["deviceName"] = obj["deviceName"]
-                deviceTypeModel.append(deviceObj)
-                var imagePathStr = new String
-                imagePathStr = obj["imagePath"]
-                itemIconInfo.setIconIndexHash(i, imagePathStr)
+            var modelCount = deviceTypeModel.count
+            if (modelCount <= size) {
+                for (var j = 0; j < modelCount; j++) {
+                    var currentObj = new Object
+                    var currentIndex = String("%1").arg(j)
+                    currentObj = JSON.parse(itemIconInfoStr)[currentIndex]
+                    var currentDeviceObj = new Object
+                    currentDeviceObj["deviceName"] = currentObj["deviceName"]
+                    deviceTypeModel.set(j, currentDeviceObj)
+                    var currentImagePathStr = new String
+                    currentImagePathStr = currentObj["imagePath"]
+                    itemIconInfo.setIconIndexHash(j, currentImagePathStr)
+                }
+
+                for (var i = modelCount; i < size; i++) {
+                    var index = String("%1").arg(i)
+                    var obj = new Object
+                    obj = JSON.parse(itemIconInfoStr)[index]
+
+                    //var currentObj = JSON.parse(obj["deviceName"].toString())
+                    var deviceObj = new Object
+                    deviceObj["deviceName"] = obj["deviceName"]
+                    deviceTypeModel.append(deviceObj)
+                    var imagePathStr = new String
+                    imagePathStr = obj["imagePath"]
+                    itemIconInfo.setIconIndexHash(i, imagePathStr)
+                }
+            } else {
+
+                deviceTypeModel.remove(size, modelCount - size)
+                //              for (var m = size; m < modelCount; m++)
+                //              {
+                //                 deviceTypeModel.remove(m)
+
+                //              }
             }
         }
     }
 
     Component.onCompleted: {
+
         readInfo()
+        if (deviceTypeModel.count === 0) {
+            deviceTypeModel.append({
+                                       deviceName: qsTr("报警装置")
+                                   })
+            itemIconInfo.setIconIndexHash(0, "qrc:/images/fireAlarm.png")
+        }
         if (equipmentModelComboBox.count > 0) {
             equipmentModelComboBox.currentIndex = 0
         }

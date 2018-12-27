@@ -24,7 +24,6 @@ Controller::~Controller()
     {
         delete m_dataStore;
         m_dataStore= nullptr;
-        // qDebug() << "Delete:" << "m_dataStore";
     }
     m_commObj->deleteLater();
     if(m_userManager!=nullptr)

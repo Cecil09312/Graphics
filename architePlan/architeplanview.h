@@ -21,20 +21,30 @@ public:
     ~ArchitePlanView();
     int numOfTypeAlarm(const QString &type);
     Q_INVOKABLE void setGlobalArchitePixmap(const QString &pixmapName);
+    QMap<int,GraphicsView *> &getWidgetMap();
+    int totalPage();
+    int currentPage();
+    Q_INVOKABLE void clearAlarm();
 
 signals:
     void alarmHappend(const QString &alarmType);
+    void toLastPage();
+    void toFirstPage();
+    void noPage();
+    void normalPage();
 public slots:
     void creatAlarm();
     void firstFireAlarm();
     void lastFireAlarm();
     void currentGraphicsViewZoom(bool isZoomIn);
+    void toPreviousPage();
+    void toNextPage();
 
 
 private:
     void initWidget();
     void saveArchiteInfo();
-    void autoFitView(QGraphicsView *view,const QString &alarmTypeName);
+    void autoFitView(QGraphicsView *view);
     QHash<QString, QVariant> saveViewInfo(QStandardItem *item);
     void initFromJsonFile();
     void setViewFromJson(const QHash<QString, QVariant> &hash, QStandardItem *treeItem);
@@ -51,7 +61,6 @@ private:
     SysArchitePlanView *m_sysArchitePlanView;
     QMap<int,GraphicsView *>m_widgetMap;
     const QString c_jsonFilePath=QCoreApplication::applicationDirPath()+"/treeView.json";
-    QTextToSpeech *m_textToSpeech;
     QString m_globalArchitePlanPixmapName;
 };
 

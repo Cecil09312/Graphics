@@ -60,7 +60,6 @@ void ItemIconInfoToJson::setIconIndexHash(int index, const QString &iconName)
       iconStr=  iconStr.section("qrc",1,1);
 
     }
-   // qDebug() << iconStr << "iconStr";
     s_iconIndexHash[index] = iconStr;
 }
 

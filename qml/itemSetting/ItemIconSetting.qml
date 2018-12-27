@@ -176,6 +176,10 @@ Rectangle {
     function readInfo() {
 
         var size = itemIconInfo.sizeOfHash()
+        if (size === 0) {
+            listModel.clear()
+            return
+        }
         var itemIconInfoStr = new String
         itemIconInfoStr = itemIconInfo.readFileFromJson()
         if (itemIconInfoStr.length > 0) {
@@ -211,5 +215,11 @@ Rectangle {
 
     Component.onCompleted: {
         readInfo()
+        if (listModel.count === 0) {
+            listModel.append({
+                                 deviceName: qsTr("报警装置"),
+                                 imagePath: "qrc:/images/fireAlarm.png"
+                             })
+        }
     }
 }

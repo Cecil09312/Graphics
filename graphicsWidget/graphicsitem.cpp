@@ -16,17 +16,23 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_itemInfo.m_alarmType = tr("火警");
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);
-    m_color = QColor(Qt::red);
+    // m_color = QColor(Qt::red);
+    m_colorEffect = new QGraphicsColorizeEffect(this);
+    setGraphicsEffect(m_colorEffect);
+    m_colorEffect->setStrength(0.0);
     setProperty("color",m_color);
     setProperty("scale",m_radius);
     m_colorAnimation = new QPropertyAnimation(this,"color");
-    m_colorAnimation->setStartValue(QColor(Qt::black));
+    m_colorAnimation->setStartValue(QColor(Qt::transparent));
     m_colorAnimation->setEndValue(QColor(Qt::red));
     m_colorAnimation->setDuration(1000);
+    m_colorAnimation->setLoopCount(-1);
     m_scaleAnimation = new QPropertyAnimation(this,"scale");
-    m_scaleAnimation->setStartValue(0.5);
+    m_scaleAnimation->setStartValue(0.3);
     m_scaleAnimation->setEndValue(1.2);
     m_scaleAnimation->setDuration(1000);
+    m_scaleAnimation->setLoopCount(-1);
+
 
     m_parallelAnimGroup = new QParallelAnimationGroup(this);
     m_parallelAnimGroup->addAnimation(m_colorAnimation);
@@ -44,6 +50,10 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     {
         QHash<QString,QVariant> deviceNameHash=  itemIconInfoHash["0"].toHash();
         m_itemInfo.m_equipmentModel= deviceNameHash["deviceName"].toString();
+    }
+    else
+    {
+        m_itemInfo.m_equipmentModel = tr("报警装置");
     }
     if(itemIconIndex>=0)
     {
@@ -73,6 +83,8 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     {
         QColor color =qvariant_cast<QColor> (m_colorAnimation->currentValue());
         m_color = color;
+        m_colorEffect->setColor(m_color);
+
         if(m_graphicsScene)
         {
             m_graphicsScene->update();
@@ -89,14 +101,14 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
         }
     });
 
+
 }
 
 GraphicsItem::~GraphicsItem()
 {
-    if(m_parallelAnimGroup)
-    {
-        m_parallelAnimGroup->stop();
-    }
+    stopAnimations();
+    stopColorAnimation();
+    stopScaleAnimation();
 }
 
 QRectF GraphicsItem::boundingRect() const
@@ -171,14 +183,41 @@ void GraphicsItem::setColor(const QColor &color)
     m_color = color;
 }
 
-void GraphicsItem::startAnimation()
+void GraphicsItem::startAnimations()
 {
+    m_colorEffect->setStrength(1.0);
     m_parallelAnimGroup->start();
 }
 
-void GraphicsItem::stopAnimation()
+void GraphicsItem::stopAnimations()
 {
     m_parallelAnimGroup->stop();
+}
+
+void GraphicsItem::startColorAnimation()
+{
+    setColorEffectStrength(1.0);
+    m_colorAnimation->start();
+}
+
+void GraphicsItem::stopColorAnimation()
+{
+    m_colorAnimation->stop();
+}
+
+void GraphicsItem::startScaleAnimation()
+{
+    m_scaleAnimation->start();
+}
+
+void GraphicsItem::stopScaleAnimation()
+{
+    m_scaleAnimation->stop();
+}
+
+void GraphicsItem::setColorEffectStrength(qreal strength)
+{
+    m_colorEffect->setStrength(strength);
 }
 
 void GraphicsItem::setAnimationDuration(int duration)
@@ -394,20 +433,39 @@ void GraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void GraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
-    m_hoverText = QString("x:%1,y:%2").arg(event->scenePos().rx()).arg(event->scenePos().ry());
+    //Q_UNUSED(event)
+    updateHoverText();
     setToolTip(m_hoverText);
     event->accept();
-    // qDebug() << toolTip;
 }
 
-
-void GraphicsItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+void GraphicsItem::updateHoverText()
 {
-    QString toolTip = QString("x:%1,y:%2").arg(event->scenePos().rx()).arg(event->scenePos().ry());
-    setToolTip(toolTip);
-    event->accept();
-
+    QString hoverText = QString("分机号:%1\n"
+                                "回路号:%2\n"
+                                "地址号:%3\n"
+                                "报警类型:%4\n"
+                                "设备产品编码:%5\n"
+                                "设备设施型号:%6\n"
+                                "报警当前状态:%7\n"
+                                "报警时间:%8\n"
+                                "报警收到时间:%9\n"
+                                "报警恢复正常时间:%10\n"
+                                "设备所属系统:%11\n"
+                                "总保护区域名称:%12\n"
+                                "建筑设施名称:%13\n"
+                                "设施所在楼层:%14\n"
+                                "设施所在位置:%15\n"
+                                "值班人员:%16").arg(m_itemInfo.m_extNum).arg(m_itemInfo.m_loopNum).arg(m_itemInfo.m_addrNum)
+            .arg(m_itemInfo.m_alarmType).arg(m_itemInfo.m_deviceNum).arg(m_itemInfo.m_equipmentModel)
+            .arg(m_itemInfo.m_currentAlarmState).arg(m_itemInfo.m_alarmTime).arg(m_itemInfo.m_alarmReceiveTime)
+            .arg(m_itemInfo.m_alarmReplyTime).arg(m_itemInfo.m_sysOfDevice).arg(m_itemInfo.m_protectedAreaName).arg(m_itemInfo.m_buildingName)
+            .arg(m_itemInfo.m_floorOfDevice).arg(m_itemInfo.m_deviceLocation).arg(m_itemInfo.m_operatorOnDuty);
+    setHoverText(hoverText);
 }
+
+
+
 
 //void GraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 //{

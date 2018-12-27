@@ -5,7 +5,6 @@
 
 #include <QGLWidget>
 #include <QOpenGLWidget>
-#include "openglWidget/glwidget.h"
 //#include "control/controller.h"
 #include "dataStore/datastore.h"
 #include "jsonEdit/jsonedit.h"
@@ -18,7 +17,6 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
     initWidget();
     initFromJsonFile();
     setGlobalArchiteFromJson();
-    // qDebug() << m_stackedWidget->count();
 }
 
 ArchitePlanView::~ArchitePlanView()
@@ -50,14 +48,24 @@ void ArchitePlanView::creatAlarm()
             if(currentItem!=nullptr)
             {
                 currentItem->getItemInfo().m_alarmType= alarmTypeName;
-                currentItem->startAnimation();
+
+                // currentItem->startColorAnimation();
                 Controller::instance()->getDataStore()->insertTypeItem(alarmTypeName,currentItem);
+                if(Controller::instance()->getDataStore()->getTypeItemList(alarmTypeName).at(0)==currentItem)
+                {
+
+                    currentItem->startAnimations();
+                }
+                else
+                {
+                    currentItem->startColorAnimation();
+                }
                 emit alarmHappend(alarmTypeName);
                 // view->centerOn(currentItem);
             }
         }
 
-        autoFitView(view,alarmTypeName);
+        autoFitView(view);
     }
 
 
@@ -101,7 +109,6 @@ void ArchitePlanView::initWidget()
     m_treeView = new TreeView(this);
     m_stackedWidget = new QStackedWidget(this);
     m_tabWidget = new QTabWidget(this);
-    m_textToSpeech = new QTextToSpeech(this);
     m_globalGraphicsView = new QWidget(this);
     m_sysArchitePlanView = new SysArchitePlanView(this);
     m_treeView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
@@ -134,6 +141,22 @@ void ArchitePlanView::initWidget()
             m_widgetMap[page]=widget;
             m_stackedWidget->addWidget(widget);
         }
+        if(m_stackedWidget->count()>1)
+        {
+            if(m_stackedWidget->currentIndex()>0 && m_stackedWidget->currentIndex()<m_stackedWidget->count()-1)
+            {
+                emit normalPage();
+            }
+            else if(m_stackedWidget->currentIndex()==0)
+            {
+                emit toFirstPage();
+            }
+
+        }
+        else if(m_stackedWidget->count()==1)
+        {
+            emit noPage();
+        }
 
     });
     connect(m_treeView,&TreeView::clicked,this,[=](const QModelIndex&index)
@@ -156,6 +179,7 @@ void ArchitePlanView::initWidget()
             m_stackedWidget->removeWidget(widget);
         }
         m_widgetMap.clear();
+        emit noPage();
 
     });
 
@@ -182,6 +206,12 @@ void ArchitePlanView::initWidget()
         m_stackedWidget->removeWidget(widget);
         m_widgetMap.remove(page);
         m_treeView->getTreeIndexMap().remove(item);
+        if(m_stackedWidget->count()<=1)
+        {
+            emit noPage();
+        }
+
+
     });
 
     connect(m_treeView,&TreeView::insertAnchPixmap,this,[=](QStandardItem*item,const QString &fileName)
@@ -192,6 +222,24 @@ void ArchitePlanView::initWidget()
         GraphicsView*widget = m_widgetMap[page];
         if(widget!=nullptr)
             widget->loadPixmap(fileName);
+    });
+
+    connect(m_stackedWidget,&QStackedWidget::currentChanged,this,[=](int index)
+    {
+        int count = m_stackedWidget->count();
+        if(index==0)
+        {
+            emit toFirstPage();
+
+        }
+        else if(index>0 && index <count-1)
+        {
+            emit normalPage();
+        }
+        else
+        {
+            emit toLastPage();
+        }
     });
 
 }
@@ -227,18 +275,25 @@ void ArchitePlanView::saveArchiteInfo()
 
 }
 
-void ArchitePlanView::autoFitView(QGraphicsView *view,const QString &alarmTypeName)
+void ArchitePlanView::autoFitView(QGraphicsView *view)
 {
-    QList<QGraphicsItem *> fireAlarmItemList= Controller::instance()->getDataStore()->getTypeItemList(alarmTypeName);
+    QList< QList<QGraphicsItem *> >list= Controller::instance()->getDataStore()->getTypeItemHash().values();
+    QList<QGraphicsItem *> alarmItemList;
+    foreach (QList<QGraphicsItem *> itemList, list) {
+        foreach (QGraphicsItem * item, itemList) {
+            alarmItemList.push_back(item);
+        }
+
+    }
 
     QHash<QGraphicsView*,QList<QGraphicsItem *> >itemToViewHash;
 
     GraphicsView *currentView = dynamic_cast<GraphicsView *>(view);
     if(currentView !=nullptr)
     {
-        foreach (QGraphicsItem *fireAlarmItem, fireAlarmItemList) {
-            if(currentView->getItemList().contains(fireAlarmItem)){
-                itemToViewHash[currentView].push_back(fireAlarmItem);
+        foreach (QGraphicsItem *alarmItem, alarmItemList) {
+            if(currentView->getItemList().contains(alarmItem)){
+                itemToViewHash[currentView].push_back(alarmItem);
             }
         }
 
@@ -413,4 +468,81 @@ void ArchitePlanView::setGlobalArchitePixmap(const QString &pixmapName)
     QString filePath=  Controller::instance()->fileNameFromQml(pixmapName);
     m_globalArchitePlanPixmapName = filePath;
     m_globalGraphicsView->setStyleSheet(QString("QWidget{margin:20;border-image:url(%1)}").arg(filePath));
+}
+
+QMap<int, GraphicsView *> &ArchitePlanView::getWidgetMap()
+{
+    return m_widgetMap;
+}
+
+int ArchitePlanView::totalPage()
+{
+    return m_stackedWidget->count();
+}
+
+int ArchitePlanView::currentPage()
+{
+    return m_stackedWidget->currentIndex()+1;
+}
+
+void ArchitePlanView::clearAlarm()
+{
+    QList< QList<QGraphicsItem *> >list= Controller::instance()->getDataStore()->getTypeItemHash().values();
+    foreach (QList<QGraphicsItem *>itemList, list) {
+        foreach (QGraphicsItem *currentItem, itemList) {
+            GraphicsItem *item = dynamic_cast<GraphicsItem *>(currentItem);
+            item->stopAnimations();
+            item->stopColorAnimation();
+            item->setGraphicsEffect(nullptr);
+            Controller::instance()->getDataStore()->clearTypeItem();
+
+        }
+    }
+}
+
+void ArchitePlanView::toPreviousPage()
+{
+    int count =m_stackedWidget->count();
+    if(count>0)
+    {
+        int currentIndex = m_stackedWidget->currentIndex();
+        if(currentIndex<count && currentIndex>0)
+        {
+            m_stackedWidget->setCurrentIndex(currentIndex-1);
+        }
+        if(m_stackedWidget->currentIndex()==0)
+        {
+            emit toFirstPage();
+        }
+        else
+        {
+
+            emit normalPage();
+        }
+    }
+
+}
+
+void ArchitePlanView::toNextPage()
+{
+    int count =m_stackedWidget->count();
+    if(count>0)
+    {
+        int currentIndex = m_stackedWidget->currentIndex();
+        if(currentIndex<count-1)
+        {
+            m_stackedWidget->setCurrentIndex(currentIndex+1);
+        }
+
+        if(m_stackedWidget->currentIndex()==(count-1))
+        {
+            emit toLastPage();
+        }
+        else
+        {
+
+            emit normalPage();
+        }
+
+    }
 }

@@ -9,6 +9,7 @@
 #include <QParallelAnimationGroup>
 #include <QGraphicsSvgItem>
 #include "jsonEdit/itemiconinfotojson.h"
+#include <QGraphicsColorizeEffect>
 class GraphicsScene;
 
 struct ItemInfo
@@ -29,7 +30,6 @@ struct ItemInfo
     QString m_floorOfDevice;//设施所在楼层
     QString m_deviceLocation;//设施所在位置
     QString m_operatorOnDuty;//值班人员
-    ItemInfo() {}
 };
 
 class GraphicsItem : public QObject,public QGraphicsItem
@@ -46,8 +46,13 @@ public:
     ~GraphicsItem();
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *);
-    void startAnimation();
-    void stopAnimation();
+    void startAnimations();
+    void stopAnimations();
+    void startColorAnimation();
+    void stopColorAnimation();
+    void startScaleAnimation();
+    void stopScaleAnimation();
+    void setColorEffectStrength(qreal strength);
     void setAnimationDuration(int duration);
     void setAnimationLoopCount(int count);
     QPointF graphicsItemPos() const;
@@ -89,7 +94,9 @@ protected:
 
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-    void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
+private:
+    void updateHoverText();
+
 private:
     QPropertyAnimation *m_colorAnimation;
     QPropertyAnimation *m_scaleAnimation;
@@ -104,7 +111,7 @@ private:
     ItemInfo m_itemInfo;
     QFont m_itemTextFont;
     ItemIconInfoToJson m_itemIconInfoToJson;
-    //    QFont m_hoverTextFont;
+    QGraphicsColorizeEffect *m_colorEffect;
 
 };
 

@@ -36,7 +36,6 @@ public:
             {
                 delete m_jsonEdit;
                 m_jsonEdit = nullptr;
-               //qDebug() << "Delete:" << "m_jsonEdit";
             }
         }
     };

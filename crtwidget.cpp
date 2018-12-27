@@ -22,32 +22,38 @@ CrtWidget::CrtWidget(QWidget *parent) :
     {
         if(type==tr("火警"))
         {
-            QMetaObject::invokeMethod(alarmObj,"startFireAnimation",Q_ARG(QVariant,true));
+            QMetaObject::invokeMethod(alarmObj,"setFireAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+            //QMetaObject::invokeMethod(alarmObj,"startFireAnimation",Q_ARG(QVariant,true));
             QMetaObject::invokeMethod(alarmObj,"setFireAlarmText",Q_ARG(QVariant,m_architePlanView->numOfTypeAlarm(type)));
         }
         else if(type==tr("联动"))
         {
-            QMetaObject::invokeMethod(alarmObj,"startLinkageAnimation",Q_ARG(QVariant,true));
+            QMetaObject::invokeMethod(alarmObj,"setLinkageAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+            //QMetaObject::invokeMethod(alarmObj,"startLinkageAnimation",Q_ARG(QVariant,true));
             QMetaObject::invokeMethod(alarmObj,"setLinkageText",Q_ARG(QVariant,m_architePlanView->numOfTypeAlarm(type)));
         }
         else if(type==tr("监管"))
         {
-            QMetaObject::invokeMethod(alarmObj,"startSuperviseAnimation",Q_ARG(QVariant,true));
+            QMetaObject::invokeMethod(alarmObj,"setSuperviseAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+           // QMetaObject::invokeMethod(alarmObj,"startSuperviseAnimation",Q_ARG(QVariant,true));
             QMetaObject::invokeMethod(alarmObj,"setSuperviseText",Q_ARG(QVariant,m_architePlanView->numOfTypeAlarm(type)));
         }
         else if(type==tr("故障"))
         {
-            QMetaObject::invokeMethod(alarmObj,"startFaultAnimation",Q_ARG(QVariant,true));
+            QMetaObject::invokeMethod(alarmObj,"setfaultAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+           // QMetaObject::invokeMethod(alarmObj,"startFaultAnimation",Q_ARG(QVariant,true));
             QMetaObject::invokeMethod(alarmObj,"setFaultText",Q_ARG(QVariant,m_architePlanView->numOfTypeAlarm(type)));
         }
         else if(type==tr("反馈"))
         {
-            QMetaObject::invokeMethod(alarmObj,"startFeedbackAnimation",Q_ARG(QVariant,true));
+            QMetaObject::invokeMethod(alarmObj,"setFeedbackColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+           // QMetaObject::invokeMethod(alarmObj,"startFeedbackAnimation",Q_ARG(QVariant,true));
             QMetaObject::invokeMethod(alarmObj,"setFeedbackText",Q_ARG(QVariant,m_architePlanView->numOfTypeAlarm(type)));
         }
         else if(type==tr("屏蔽"))
         {
-            QMetaObject::invokeMethod(alarmObj,"startShieldAnimation",Q_ARG(QVariant,true));
+            QMetaObject::invokeMethod(alarmObj,"setShieldAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+           // QMetaObject::invokeMethod(alarmObj,"startShieldAnimation",Q_ARG(QVariant,true));
             QMetaObject::invokeMethod(alarmObj,"setShieldText",Q_ARG(QVariant,m_architePlanView->numOfTypeAlarm(type)));
         }
 
@@ -78,7 +84,7 @@ void CrtWidget::settingWindowShow()
 {
     //m_settingQuickView->show();
     m_settingViewEngine->load(QUrl("qrc:/qml/infoSetting/SettingWindow.qml"));
-   // m_settingViewEngine->rootContext()->setContextProperty("Controller",Controller::instance());
+    // m_settingViewEngine->rootContext()->setContextProperty("Controller",Controller::instance());
 }
 
 //void CrtWidget::toFirstFireAlarm()
@@ -100,7 +106,7 @@ void CrtWidget::initWidget()
 {
 
     qmlRegisterSingletonType<Controller>("userManager", 1, 0, "UserManager",
-                                     [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
         Q_UNUSED(engine)
         Q_UNUSED(scriptEngine)
 
@@ -108,7 +114,7 @@ void CrtWidget::initWidget()
     });
 
     qmlRegisterSingletonType<Controller>("controller", 1, 0, "Controller",
-                                     [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
         Q_UNUSED(engine)
         Q_UNUSED(scriptEngine)
 
@@ -117,14 +123,14 @@ void CrtWidget::initWidget()
 
 
     qmlRegisterSingletonType<Controller>("serialPortInfo", 1, 0, "SerialPortInfo",
-                                     [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
         Q_UNUSED(engine)
         Q_UNUSED(scriptEngine)
         return Controller::instance()->getCommObj();
     });
 
     qmlRegisterSingletonType<Controller>("sysArchitePlanView", 1, 0, "SysArchitePlanView",
-                                     [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
         Q_UNUSED(engine)
         Q_UNUSED(scriptEngine)
         return Controller::instance()->getSysArchitePlanView();
@@ -147,7 +153,7 @@ void CrtWidget::initWidget()
     m_architePlanView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     Controller::instance()->setArchitePlanView(m_architePlanView);
     qmlRegisterSingletonType<Controller>("architePlanView", 1, 0, "ArchitePlanView",
-                                     [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
         Q_UNUSED(engine)
         Q_UNUSED(scriptEngine)
         return Controller::instance()->getArchitePlanView();
@@ -188,5 +194,46 @@ void CrtWidget::initWidget()
     globalVLayout->setContentsMargins(QMargins(0,0,0,0));
     setLayout(globalVLayout);
 
+    Q_ASSERT(m_alarmQuickView);
+    QObject *alarmObj = m_alarmQuickView->rootObject();
+    Q_ASSERT(alarmObj);
+    if(m_architePlanView->getWidgetMap().size()>0)
+    {
+        QMetaObject::invokeMethod(alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,true));
+        QMetaObject::invokeMethod(alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,false));
+    }
+    else
+    {
+        QMetaObject::invokeMethod(alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,false));
+        QMetaObject::invokeMethod(alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,false));
+    }
+    QMetaObject::invokeMethod(alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()));
+    connect(m_architePlanView,&ArchitePlanView::toFirstPage,this,[=](){
 
+        QMetaObject::invokeMethod(alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,true));
+        QMetaObject::invokeMethod(alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,false));
+        QMetaObject::invokeMethod(alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()));
+
+    });
+
+    connect(m_architePlanView,&ArchitePlanView::toLastPage,this,[=](){
+        QMetaObject::invokeMethod(alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,false));
+        QMetaObject::invokeMethod(alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,true));
+        QMetaObject::invokeMethod(alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()));
+
+    });
+
+    connect(m_architePlanView,&ArchitePlanView::normalPage,this,[=](){
+
+        QMetaObject::invokeMethod(alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,true));
+        QMetaObject::invokeMethod(alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,true));
+        QMetaObject::invokeMethod(alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()));
+    });
+
+    connect(m_architePlanView,&ArchitePlanView::noPage,this,[=](){
+
+        QMetaObject::invokeMethod(alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,false));
+        QMetaObject::invokeMethod(alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,false));
+        QMetaObject::invokeMethod(alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()));
+    });
 }

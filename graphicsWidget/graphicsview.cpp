@@ -2,7 +2,6 @@
 #include <QDebug>
 #include <QTransform>
 #include <QScrollBar>
-#include "openglWidget/glwidget.h"
 #include "control/controller.h"
 qreal GraphicsView::m_scale =1;
 GraphicsView::GraphicsView(QWidget *parent, int type):
@@ -13,8 +12,8 @@ GraphicsView::GraphicsView(QWidget *parent, int type):
     m_svgItem = new QGraphicsSvgItem;
     zoom(1.2);
     setDragMode(QGraphicsView::ScrollHandDrag);
-
-    viewport()->update();
+    setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers),this));
+    setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
     if(m_viewType==ArthitePlan)
     {
@@ -123,7 +122,6 @@ void GraphicsView::loadPixmap(const QString &fileName)
 
 void GraphicsView::zoomIn()
 {
-    //qDebug() <<"m_scale" <<m_scale;
     scale(m_scale,m_scale);
 }
 

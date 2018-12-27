@@ -6,7 +6,6 @@ import QtQuick.Controls.Styles 1.4
 
 Rectangle {
     width: 150
-
     RowLayout {
         id: alarmBtnLayout
         height: 50
@@ -316,53 +315,140 @@ Rectangle {
         anchors.topMargin: 10
         anchors.verticalCenter: parent.verticalCenter
 
-        Repeater {
-            id: repeater
-            Layout.fillHeight: true
+        Button {
+            anchors.leftMargin: 20
+            width: parent.width
+            // Layout.fillHeight: true
+            font.pointSize: 14
+            font.family: qsTr("Times New Roman")
+            text: qsTr("消音")
+            onClicked: {
 
-            model: ListModel {
-                ListElement {
-                    name: qsTr("消音")
-                }
-                ListElement {
-                    name: qsTr("复位")
-                }
-                ListElement {
-                    name: qsTr("模拟火警")
-                }
-
-                ListElement {
-                    name: qsTr("上一页")
-                }
-
-                ListElement {
-                    name: qsTr("下一页")
-                }
-            }
-
-            Button {
-                id: operaBtn
-                text: name
-                anchors.leftMargin: 20
-                width: parent.width
-                // Layout.fillHeight: true
-                font.pointSize: 14
-                font.family: qsTr("Times New Roman")
-                height: 40
-                onClicked: {
-                    if (text === qsTr("模拟火警")) {
-                        ArchitePlanView.creatAlarm()
-                    }
-                }
-
-                onPressed: {
-                    operaBtn.highlighted = true
-                }
-                onReleased: {
-                    operaBtn.highlighted = false
-                }
             }
         }
+
+        Button {
+            anchors.leftMargin: 20
+            width: parent.width
+            // Layout.fillHeight: true
+            font.pointSize: 14
+            font.family: qsTr("Times New Roman")
+            text: qsTr("复位")
+            onClicked: {
+                ArchitePlanView.clearAlarm()
+                allAlarmClear()
+            }
+        }
+
+        Button {
+            anchors.leftMargin: 20
+            width: parent.width
+            // Layout.fillHeight: true
+            font.pointSize: 14
+            font.family: qsTr("Times New Roman")
+            text: qsTr("模拟火警")
+            onClicked: {
+                ArchitePlanView.creatAlarm()
+            }
+        }
+
+        Button {
+            id: previousBtn
+            anchors.leftMargin: 20
+            width: parent.width
+            // Layout.fillHeight: true
+            font.pointSize: 14
+            font.family: qsTr("Times New Roman")
+            text: qsTr("上一页")
+            onClicked: {
+
+                ArchitePlanView.toPreviousPage()
+            }
+        }
+
+        Button {
+            id: nextBtn
+            anchors.leftMargin: 20
+            width: parent.width
+            font.pointSize: 14
+            font.family: qsTr("Times New Roman")
+            text: qsTr("下一页")
+            onClicked: {
+                ArchitePlanView.toNextPage()
+            }
+        }
+
+        Text {
+            id: pageTxt
+            anchors.leftMargin: 20
+            width: parent.width
+            font.pointSize: 12
+            font.family: qsTr("Times New Roman")
+            text: qsTr("总0页/第0页")
+        }
+    }
+
+    function setPage(totalPage, currentPage) {
+
+        pageTxt.text = String("总%1页/第%2页").arg(totalPage).arg(currentPage)
+    }
+
+    function enableToPreviousPageBtn(isEnable) {
+        previousBtn.enabled = isEnable
+    }
+
+    function enableToNextPageBtn(isEnable) {
+        nextBtn.enabled = isEnable
+    }
+
+    function setFireAlarmColor(isActived, currentColor) {
+        fireAlarmStatusIndicator.color = currentColor
+        fireAlarmStatusIndicator.active = isActived
+    }
+
+    function setLinkageAlarmColor(isActived, currentColor) {
+        linkageStatusIndicator.color = currentColor
+        linkageStatusIndicator.active = isActived
+    }
+
+    function setSuperviseAlarmColor(isActived, currentColor) {
+        superviseStatusIndicator.color = currentColor
+        superviseStatusIndicator.active = isActived
+    }
+
+    function setfaultAlarmColor(isActived, currentColor) {
+        faultStatusIndicator.color = currentColor
+        faultStatusIndicator.active = isActived
+    }
+
+    function setFeedbackColor(isActived, currentColor) {
+        feedbackStatusIndicator.color = currentColor
+        feedbackStatusIndicator.active = isActived
+    }
+
+    function setShieldAlarmColor(isActived, currentColor) {
+        shieldStatusIndicator.color = currentColor
+        shieldStatusIndicator.active = isActived
+    }
+
+    function setMainConnunicationColor(isActived, currentColor) {
+        mainPowerIndicator.color = currentColor
+        mainPowerIndicator.active = isActived
+    }
+
+    function setStandbyPowerColor(isActived, currentColor) {
+        standbyPowerIndicator.color = currentColor
+        standbyPowerIndicator.active = isActived
+    }
+
+    function setEquiComColor(isActived, currentColor) {
+        equiComIndicator.color = currentColor
+        equiComIndicator.active = isActived
+    }
+
+    function setCenterComColor(isActived, currentColor) {
+        centerComIndictor.color = currentColor
+        centerComIndictor.active = isActived
     }
 
     function startFireAnimation(isRunning) {
@@ -421,10 +507,10 @@ Rectangle {
 
     function startMainConnunicationAnimation(isRunning) {
         if (isRunning) {
-            if (!mainConnunicationAnimation.running)
-                mainConnunicationAnimation.start()
+            if (!mainPowerAnimation.running)
+                mainPowerAnimation.start()
         } else {
-            mainConnunicationAnimation.stop()
+            mainPowerAnimation.stop()
         }
     }
 
@@ -456,5 +542,31 @@ Rectangle {
     function setShieldText(value) {
         var txt = qsTr("屏蔽 ") + value
         shieldNum.text = txt
+    }
+    function allAlarmClear() {
+        startFireAnimation(false)
+        startLinkageAnimation(false)
+        startSuperviseAnimation(false)
+        startFaultAnimation(false)
+        startFeedbackAnimation(false)
+        startShieldAnimation(false)
+        startMainConnunicationAnimation(false)
+
+        setFireAlarmColor(true, "green")
+        setLinkageAlarmColor(true, "green")
+        setSuperviseAlarmColor(true, "green")
+        setfaultAlarmColor(true, "green")
+        setFeedbackColor(true, "green")
+        setShieldAlarmColor(true, "green")
+        setMainConnunicationColor(true, "green")
+        setStandbyPowerColor(true, "green")
+        setEquiComColor(true, "green")
+        setCenterComColor(true, "green")
+        setFireAlarmText("0")
+        setLinkageText("0")
+        setSuperviseText("0")
+        setFaultText("0")
+        setFeedbackText("0")
+        setShieldText("0")
     }
 }
