@@ -1,8 +1,8 @@
-#ifndef SPEECHOBJ_H
+﻿#ifndef SPEECHOBJ_H
 #define SPEECHOBJ_H
 #include <QTextToSpeech>
 #include <QString>
-
+#include <QThread>
 class SpeechObj : public QTextToSpeech
 {
     Q_OBJECT
@@ -18,6 +18,7 @@ public slots:
 private:
     QList<QString>m_alarmTextList;
     int m_alarmPos;
+    QThread *m_thread;
 };
 
 #endif // SPEECHOBJ_H

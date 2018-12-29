@@ -1,9 +1,12 @@
-#include "speechobj.h"
+﻿#include "speechobj.h"
 
 SpeechObj::SpeechObj(QObject *parent):
     QTextToSpeech(parent)
 {
     m_alarmPos =0;
+    m_thread = new QThread;
+    this->moveToThread(m_thread);
+    m_thread->start();
     connect(this,&SpeechObj::stateChanged,this,[=](QTextToSpeech::State state)
     {
         if(state==QTextToSpeech::Ready)
@@ -24,7 +27,9 @@ SpeechObj::SpeechObj(QObject *parent):
 
 SpeechObj::~SpeechObj()
 {
-
+    m_thread->quit();
+    m_thread->wait();
+    m_thread->deleteLater();
 }
 
 void SpeechObj::stopSpeech()

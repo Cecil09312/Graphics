@@ -345,6 +345,7 @@ Rectangle {
                     var currentIndex = String("%1").arg(j)
                     currentObj = JSON.parse(itemIconInfoStr)[currentIndex]
                     var currentDeviceObj = new Object
+
                     currentDeviceObj["deviceName"] = currentObj["deviceName"]
                     deviceTypeModel.set(j, currentDeviceObj)
                     var currentImagePathStr = new String
@@ -381,9 +382,9 @@ Rectangle {
 
         readInfo()
         if (deviceTypeModel.count === 0) {
-            deviceTypeModel.append({
-                                       deviceName: qsTr("报警装置")
-                                   })
+            var obj = new Object
+            obj["deviceName"] =qsTr("报警装置")
+            deviceTypeModel.append(obj)
             itemIconInfo.setIconIndexHash(0, "qrc:/images/fireAlarm.png")
         }
         if (equipmentModelComboBox.count > 0) {

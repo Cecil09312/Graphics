@@ -1,5 +1,5 @@
 ﻿import QtQuick 2.9
-import QtQuick.Controls 2.4
+import QtQuick.Controls 2.2
 import Qt.labs.platform 1.0
 import itemIconInfoToJson 1.0
 
@@ -7,7 +7,7 @@ Rectangle {
     width: 640
     height: 240
 
-    signal saveItemInfoToJson
+    signal saveItemInfoToJson()
     ListModel {
         id: listModel
         ListElement {

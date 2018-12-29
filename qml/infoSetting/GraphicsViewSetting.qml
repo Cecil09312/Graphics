@@ -1,5 +1,5 @@
 ﻿import QtQuick 2.0
-import QtQuick.Controls 2.4
+import QtQuick.Controls 2.2
 import QtQuick.Extras 1.4
 import QtQuick.Layouts 1.3
 import architePlanView 1.0
@@ -133,9 +133,14 @@ Item {
 
     Component.onCompleted: {
 
-        var globalArchiteObj  = new Object
-       globalArchiteObj = JSON.parse(qmlforJson.readFileToString( ))
-        var globalArchitePlanStr = JSON.stringify(globalArchiteObj["grobalArchitePlan"].valueOf())
-        globalArchitePlanTextFiled.text = globalArchitePlanStr
+        var globalArchiteObj = new Object
+        var jsonStr = new String
+        jsonStr = qmlforJson.readFileToString()
+        if (jsonStr.length > 0) {
+            globalArchiteObj = JSON.parse(jsonStr)
+            var globalArchitePlanStr = JSON.stringify(
+                        globalArchiteObj["grobalArchitePlan"].valueOf())
+            globalArchitePlanTextFiled.text = globalArchitePlanStr
+        }
     }
 }

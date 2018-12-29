@@ -1,5 +1,5 @@
 ﻿import QtQuick 2.9
-import QtQuick.Controls 2.4
+import QtQuick.Controls 2.2
 import QtQuick.Extras 1.4
 import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.0
@@ -217,7 +217,11 @@ Item {
 
     function setSysArchitePlan() {
         var sysArchitePlanObj = new Object
-        sysArchitePlanObj = JSON.parse(qmlForJson.readFileToString())
+        var jsonStr = new String
+        jsonStr = qmlForJson.readFileToString()
+        if (jsonStr.length <= 0)
+            return
+        sysArchitePlanObj = JSON.parse(jsonStr)
         var sysArchitePlanStr = new String
         sysArchitePlanStr = JSON.stringify(
                     sysArchitePlanObj["sysArchitePlan"].valueOf())
