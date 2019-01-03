@@ -44,30 +44,28 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     setAcceptHoverEvents(true);
     m_itemInfo.m_deviceNum = QString("%1").arg(m_num++);
     int itemIconIndex = ItemIconInfoToJson::currentIconIndex();
-
     QHash<QString,QVariant>itemIconInfoHash = m_itemIconInfoToJson.getIconInfoHash();
     if(itemIconInfoHash.size()>0)
     {
-        QHash<QString,QVariant> deviceNameHash=  itemIconInfoHash["0"].toHash();
+        QHash<QString,QVariant> deviceNameHash=  itemIconInfoHash[QString("%1").arg(itemIconIndex)].toHash();
         m_itemInfo.m_equipmentModel= deviceNameHash["deviceName"].toString();
     }
     else
     {
         m_itemInfo.m_equipmentModel = tr("报警装置");
+        ItemIconInfoToJson::setIconIndexHash(0,":/images/fireAlarm.png");
     }
     if(itemIconIndex>=0)
     {
         QString currentIconName = ItemIconInfoToJson::getIconName(itemIconIndex);
+      // qDebug() <<"currentIconName"<< currentIconName;
         if(!currentIconName.isEmpty())
         {
             m_iconName = Controller::instance()->fileNameFromQml(currentIconName);
-
-
         }
         else
         {
             m_iconName = ":/images/fireAlarm.png";
-
         }
 
     }
@@ -346,7 +344,6 @@ QHash<QString, QVariant> GraphicsItem::itemInfo()
     itemHash["operatorOnDuty"] = m_itemInfo.m_operatorOnDuty;
     itemHash["iconName"] = m_iconName;
     itemHash["size"] = m_radius;
-    itemHash["hoverText"] = m_hoverText;
     itemHash["pos"] = QString("%1,%2").arg(scenePos().x()).arg(scenePos().y());
     return itemHash;
 }
@@ -388,6 +385,7 @@ QString GraphicsItem::deviceNum()
 
 QString GraphicsItem::equipmentModel()
 {
+    qDebug() << m_itemInfo.m_equipmentModel;
     return m_itemInfo.m_equipmentModel;
 }
 

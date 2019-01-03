@@ -65,6 +65,7 @@ Rectangle {
                     onCurrentTextChanged: {
                         if (currentIndex >= 0) {
                             itemIconInfo.setCurrentIconIndex(currentIndex)
+
                             emit: setIcon(itemIconInfo.getIconName(
                                               currentIndex))
                             emit: setItemInfo("equipmentModel", currentText)
@@ -319,6 +320,23 @@ Rectangle {
     function setItemSize(size) {
         sizeSpinBox.value = size
     }
+    function clearItemInfo() {
+        extNumTextField.clear()
+        loopNumTextField.clear()
+        addrNumTextField.clear()
+        deviceNumTextField.clear()
+        deviceSysTextField.clear()
+        protectedAreaTextField.clear()
+        buildingNameTextField.clear()
+        floorOfDeviceTextField.clear()
+        deviceLocationTextField.clear()
+        operatorOnDutyTextField.clear()
+    }
+
+    function currentIconIndex() {
+        itemIconInfo.setCurrentIconIndex(equipmentModelComboBox.currentIndex)
+        return equipmentModelComboBox.currentIndex
+    }
 
     function readInfo() {
 
@@ -333,6 +351,7 @@ Rectangle {
         if (itemIconInfoStr.length <= 0) {
             if (deviceTypeModel.count > 0) {
                 deviceTypeModel.clear()
+                itemIconInfo.clearIconIndex()
             }
             return
         }
@@ -369,11 +388,6 @@ Rectangle {
             } else {
 
                 deviceTypeModel.remove(size, modelCount - size)
-                //              for (var m = size; m < modelCount; m++)
-                //              {
-                //                 deviceTypeModel.remove(m)
-
-                //              }
             }
         }
     }
@@ -381,15 +395,17 @@ Rectangle {
     Component.onCompleted: {
 
         readInfo()
+
         if (deviceTypeModel.count === 0) {
             var obj = new Object
-            obj["deviceName"] =qsTr("报警装置")
+            obj["deviceName"] = qsTr("报警装置")
             deviceTypeModel.append(obj)
             itemIconInfo.setIconIndexHash(0, "qrc:/images/fireAlarm.png")
         }
         if (equipmentModelComboBox.count > 0) {
             equipmentModelComboBox.currentIndex = 0
         }
+        itemIconInfo.setCurrentIconIndex(equipmentModelComboBox.currentIndex)
     }
 
     Connections {

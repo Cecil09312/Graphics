@@ -22,8 +22,12 @@ GraphicsScene::GraphicsScene(QObject *parent):
     {
         GraphicsItem *currentItem= dynamic_cast<GraphicsItem *> (itemAt(m_currentPointF,QTransform()));
         Q_ASSERT(m_itemSettingObj);
+        QVariant currentIndex;
+        QMetaObject::invokeMethod(m_itemSettingObj,"currentIconIndex",Q_RETURN_ARG(QVariant,currentIndex));
         if(currentItem!=nullptr)
         {
+
+
             QMetaObject::invokeMethod(m_itemSettingObj,"setDeviceNum",Q_ARG(QVariant,currentItem->deviceNum()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setAlarmType",Q_ARG(QVariant,currentItem->alarmType()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setItemSize",Q_ARG(QVariant,currentItem->radius()));
@@ -38,6 +42,11 @@ GraphicsScene::GraphicsScene(QObject *parent):
             QMetaObject::invokeMethod(m_itemSettingObj,"setDeviceLocation",Q_ARG(QVariant,currentItem->deviceLocation()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setOperatorOnDuty",Q_ARG(QVariant,currentItem->operatorDuty()));
 
+        }
+        else
+        {
+
+            QMetaObject::invokeMethod(m_itemSettingObj,"clearItemInfo");
         }
         m_itemSettingView->show();
     });
@@ -242,7 +251,7 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
         }
         else if(type=="equipmentModel")
         {
-             currentItem->getItemInfo().m_equipmentModel = info;
+            currentItem->getItemInfo().m_equipmentModel = info;
 
         }
         else if(type=="extNum")
@@ -376,7 +385,6 @@ void GraphicsScene::setItemInfo(GraphicsItem *item, const QHash<QString, QVarian
         item->setItemInfo(itemInfo);
         item->setIconName(itemHash["iconName"].toString());
         item->setRadius(itemHash["size"].toDouble());
-        item->setHoverText(itemHash["hoverText"].toString());
         item->setPos(pos.section(",",0,0).toDouble(),pos.section(",",1,1).toDouble());
         addItem(item);
         m_itemList.push_back(item);
