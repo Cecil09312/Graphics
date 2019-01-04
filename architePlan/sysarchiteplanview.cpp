@@ -7,7 +7,7 @@ SysArchitePlanView::SysArchitePlanView(QWidget *parent)
     init();
     setSysArchitePlanInfo();
     connect(m_listView,&QListView::clicked,this,[=](const QModelIndex &index){
-        QString value =m_strListModel->data(index).toString();
+        QString value =m_itemModel->data(index,Qt::UserRole+1).toString();
         m_stackedWidget->setCurrentWidget(m_graphicsViewHash[value]);
     });
 }
@@ -87,13 +87,17 @@ void SysArchitePlanView::init()
     QHBoxLayout *hLayout = new QHBoxLayout;
     m_stackedWidget = new QStackedWidget(this);
     m_listView = new QListView(this);
-    m_listView->setMaximumWidth(150);
+    m_delegate = new StyledItemDelegate(this);
+    m_itemModel = new QStandardItemModel(this);
+    m_listView->setModel(m_itemModel);
+    m_listView->setEditTriggers(QListView::NoEditTriggers);
+    m_listView->setItemDelegate(m_delegate);
+    m_listView->setMaximumWidth(180);
     m_listView->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
     hLayout->addWidget(m_listView);
     hLayout->addWidget(m_stackedWidget);
     setLayout(hLayout);
 
-    m_strListModel = new QStringListModel(this);
 
     QStringList sysViewNameList;
     sysViewNameList<< tr("火灾自动报警系统")<< tr("消防联动控制系统")
@@ -101,14 +105,16 @@ void SysArchitePlanView::init()
                      << tr("气体灭火系统")<< tr("水喷雾灭火系统")
                      << tr("泡沫和干粉灭火系统")<< tr("防烟排烟系统")
                      << tr("消防应急照明系统") << tr("疏散指示系统");
-    m_strListModel->setStringList(sysViewNameList);
-    m_listView->setModel(m_strListModel);
-    m_listView->setEditTriggers(QListView::NoEditTriggers);
-    for(int i=0;i<sysViewNameList.size();i++)
+   // m_strListModel->setStringList(sysViewNameList);
+
+    foreach(const QString &sysViewName,sysViewNameList)
     {
         GraphicsView *graphicsView =new GraphicsView(this,GraphicsView::SysArthitePlan);
         m_stackedWidget->addWidget(graphicsView);
-        m_graphicsViewHash[sysViewNameList.at(i)] = graphicsView;
+        m_graphicsViewHash[sysViewName] = graphicsView;
+        QStandardItem *item = new QStandardItem;
+        item->setData(sysViewName);
+        m_itemModel->appendRow(item);
     }
 
     // m_stackedWidget->currentWidget()

@@ -187,6 +187,7 @@ void GraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
     {
         if(Controller::instance()->getUserRight()==UserManager::Super)
         {
+            if(ItemIconInfoToJson::currentIconIndex()>=0)
             addGraphicsItem(event->scenePos().x(),event->scenePos().y());
         }
     }

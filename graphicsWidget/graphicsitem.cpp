@@ -52,8 +52,8 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     }
     else
     {
-        m_itemInfo.m_equipmentModel = tr("报警装置");
-        ItemIconInfoToJson::setIconIndexHash(0,":/images/fireAlarm.png");
+        m_itemInfo.m_equipmentModel ="";
+        m_itemIconInfoToJson.setCurrentIconIndex(-1);
     }
     if(itemIconIndex>=0)
     {
@@ -65,14 +65,14 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
         }
         else
         {
-            m_iconName = ":/images/fireAlarm.png";
+            m_itemIconInfoToJson.setCurrentIconIndex(-1);
         }
 
     }
     else
     {
-        m_iconName = ":/images/fireAlarm.png";
-        ItemIconInfoToJson::setIconIndexHash(0,m_iconName);
+
+        m_itemIconInfoToJson.setCurrentIconIndex(-1);
     }
 
     // m_parallelAnimGroup->setDirection(1000);

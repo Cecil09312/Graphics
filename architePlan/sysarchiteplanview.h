@@ -7,6 +7,8 @@
 #include <QStackedWidget>
 #include <QStringListModel>
 #include "jsonEdit/qmlforjson.h"
+#include "styleditemdelegate.h"
+#include <QStandardItemModel>
 
 class SysArchitePlanView : public QWidget
 {
@@ -28,8 +30,9 @@ private:
 private:
     QStackedWidget *m_stackedWidget;
     QListView *m_listView;
-    QStringListModel *m_strListModel;
+    QStandardItemModel *m_itemModel;
     QHash<QString,GraphicsView*>m_graphicsViewHash;
+    StyledItemDelegate *m_delegate;
 
 };
 

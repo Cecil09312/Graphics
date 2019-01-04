@@ -343,18 +343,13 @@ Rectangle {
         var size = itemIconInfo.sizeOfHash()
         if (size === 0) {
             deviceTypeModel.clear()
+            itemIconInfo.setCurrentIconIndex(-1)
             return
         }
-
         var itemIconInfoStr = new String
         itemIconInfoStr = itemIconInfo.readFileFromJson()
-        if (itemIconInfoStr.length <= 0) {
-            if (deviceTypeModel.count > 0) {
-                deviceTypeModel.clear()
-                itemIconInfo.clearIconIndex()
-            }
+        if (itemIconInfoStr.length === 0)
             return
-        }
 
         if (size > 0) {
             var modelCount = deviceTypeModel.count
@@ -396,12 +391,6 @@ Rectangle {
 
         readInfo()
 
-        if (deviceTypeModel.count === 0) {
-            var obj = new Object
-            obj["deviceName"] = qsTr("报警装置")
-            deviceTypeModel.append(obj)
-            itemIconInfo.setIconIndexHash(0, "qrc:/images/fireAlarm.png")
-        }
         if (equipmentModelComboBox.count > 0) {
             equipmentModelComboBox.currentIndex = 0
         }

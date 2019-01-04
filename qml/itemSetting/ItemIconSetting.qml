@@ -7,7 +7,7 @@ Rectangle {
     width: 640
     height: 240
 
-    signal saveItemInfoToJson()
+    signal saveItemInfoToJson
     ListModel {
         id: listModel
         ListElement {
@@ -82,7 +82,6 @@ Rectangle {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            //var indexStr = new String
                             listModel.remove(index)
                             itemIconInfo.removeIconInfo(String("%1").arg(index))
                             itemIconInfo.clearIconInfo()
@@ -150,6 +149,7 @@ Rectangle {
             onClicked: {
                 listModel.clear()
                 itemIconInfo.clearIconInfo()
+                itemIconInfo.setCurrentIconIndex(-1)
                 saveInfo()
             }
         }
@@ -215,11 +215,5 @@ Rectangle {
 
     Component.onCompleted: {
         readInfo()
-        if (listModel.count === 0) {
-            listModel.append({
-                                 deviceName: qsTr("报警装置"),
-                                 imagePath: "qrc:/images/fireAlarm.png"
-                             })
-        }
     }
 }

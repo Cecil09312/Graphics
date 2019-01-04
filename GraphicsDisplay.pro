@@ -20,7 +20,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+release
+{
+   OBJECTS_DIR =./obj/release
+   MOC_DIR =./moc/release
+   RCC_DIR = ./rcc/release
+   DESTDIR = ./bin/release
+}
 
+debug
+{
+   OBJECTS_DIR =./obj/debug
+   MOC_DIR =./moc/debug
+   RCC_DIR = ./rcc/debug
+   DESTDIR = ./bin/debug
+}
 
 SOURCES += \
         main.cpp \
@@ -44,7 +58,8 @@ SOURCES += \
     jsonEdit/qmlforjson.cpp \
     control/usermanager.cpp \
     jsonEdit/itemiconinfotojson.cpp \
-    graphicsWidget/svgrenderer.cpp
+    graphicsWidget/svgrenderer.cpp \
+    architePlan/styleditemdelegate.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -67,7 +82,8 @@ HEADERS += \
     jsonEdit/qmlforjson.h \
     control/usermanager.h \
     jsonEdit/itemiconinfotojson.h \
-    graphicsWidget/svgrenderer.h
+    graphicsWidget/svgrenderer.h \
+    architePlan/styleditemdelegate.h
 
 FORMS +=
 
