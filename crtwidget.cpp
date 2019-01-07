@@ -9,6 +9,7 @@
 #include "commnication/commobj.h"
 #include "control/usermanager.h"
 #include "control/controller.h"
+#include <QHostAddress>
 CrtWidget::CrtWidget(QWidget *parent) :
     QOpenGLWidget(parent)
 {
@@ -59,7 +60,6 @@ CrtWidget::CrtWidget(QWidget *parent) :
 
     });
     //qDebug() << CommObj::baudRates();
-
 }
 
 CrtWidget::~CrtWidget()

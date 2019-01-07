@@ -27,13 +27,13 @@ ArchitePlanView::~ArchitePlanView()
 }
 
 
-void ArchitePlanView::creatAlarm()
+void ArchitePlanView::createAlarm(const QString &alarmTypeName)
 {
     int page =qAbs(qrand()% m_stackedWidget->count());
 
     if(m_widgetMap.size()>page && page>=0)
     {
-        QString alarmTypeName =tr("火警");
+        // QString alarmTypeName =tr("火警");
         GraphicsView *view = m_widgetMap[page];
         if(view==nullptr)
             return;
@@ -45,33 +45,44 @@ void ArchitePlanView::creatAlarm()
         if(itemList.size()>pos)
         {
             GraphicsItem *currentItem = dynamic_cast<GraphicsItem *>(itemList.at(pos));
-            if(currentItem!=nullptr)
-            {
-                currentItem->getItemInfo().m_alarmType= alarmTypeName;
-
-                // currentItem->startColorAnimation();
-                Controller::instance()->getDataStore()->insertTypeItem(alarmTypeName,currentItem);
-                if(Controller::instance()->getDataStore()->getTypeItemList(alarmTypeName).at(0)==currentItem)
-                {
-
-                    currentItem->startAnimations();
-                }
-                else
-                {
-                    currentItem->startColorAnimation();
-                }
-                emit alarmHappend(alarmTypeName);
-                // view->centerOn(currentItem);
-            }
+            generateAlarm(alarmTypeName,currentItem);
         }
 
-        autoFitView(view);
+
     }
 
 
 
     //   GraphicsScene::getItemList();
 
+}
+
+void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *item)
+{
+    if(item!=nullptr)
+    {
+        item->getItemInfo().m_alarmType= alarmTypeName;
+        Controller::instance()->getDataStore()->insertTypeItem(alarmTypeName,item);
+        if(Controller::instance()->getDataStore()->getTypeItemList(alarmTypeName).at(0)==item)
+        {
+            item->startAnimations();
+        }
+        else
+        {
+            item->startColorAnimation();
+        }
+        QList<QGraphicsView*>viewList =   item->scene()->views();
+        foreach (QGraphicsView*view, viewList)
+        {
+            if(view!=nullptr)
+            {
+                autoFitView(view);
+            }
+        }
+
+        emit alarmHappend(alarmTypeName);
+        // view->centerOn(currentItem);
+    }
 }
 
 void ArchitePlanView::firstFireAlarm()

@@ -348,7 +348,7 @@ Rectangle {
             font.family: qsTr("Times New Roman")
             text: qsTr("模拟火警")
             onClicked: {
-                ArchitePlanView.creatAlarm()
+                ArchitePlanView.createAlarm(qsTr("火警"))
             }
         }
 

@@ -1,9 +1,9 @@
-#include "commobj.h"
+﻿#include "commobj.h"
 #include <QtAlgorithms>
 #include <QDebug>
 CommObj::CommObj(QObject *parent) : QObject(parent)
 {
-    m_thread = new QThread(this);
+    m_thread = new QThread();
     m_serialPort = new QSerialPort();
     m_serialPort->moveToThread(m_thread);
     moveToThread(m_thread);
@@ -46,9 +46,10 @@ CommObj::CommObj(QObject *parent) : QObject(parent)
 CommObj::~CommObj()
 {
     close();
-    m_thread->quit();
-    m_thread->wait();
     m_serialPort->deleteLater();
+    m_thread->quit();
+    m_thread->deleteLater();
+
 }
 
 QList<QSerialPortInfo> CommObj::getSerialPortInfo()

@@ -17,68 +17,65 @@ Item {
         Row {
             id: alarmInfoQuery
             spacing: 5
-            Text {
-                id: alarmInfoNum
-                text: qsTr("编号")
-                height: 40
-                horizontalAlignment: TextEdit.AlignHCenter
-                verticalAlignment: TextEdit.AlignVCenter
-            }
-            TextField {
-                id: alarmInfoNumTextField
-                width: 100
-            }
 
             Text {
                 id: alarmInfoExtNum
                 text: qsTr("分机号")
-                height: 40
+                height: 30
                 horizontalAlignment: TextEdit.AlignHCenter
                 verticalAlignment: TextEdit.AlignVCenter
             }
             TextField {
                 id: alarmInfoExtNumTextField
                 width: 100
+                height: 30
             }
 
             Text {
                 id: alarmInfoLoopNum
                 text: qsTr("回路号")
-                height: 40
+                height: 30
                 horizontalAlignment: TextEdit.AlignHCenter
                 verticalAlignment: TextEdit.AlignVCenter
             }
             TextField {
                 id: alarmInfoLoopNumTextField
                 width: 100
+                height: 30
             }
 
             Text {
                 id: alarmInfoAddNum
                 text: qsTr("地址号")
-                height: 40
+                height: 30
                 horizontalAlignment: TextEdit.AlignHCenter
                 verticalAlignment: TextEdit.AlignVCenter
             }
             TextField {
                 id: alarmInfoAddNumTextField
                 width: 100
+                height: 30
             }
 
             Text {
-                id: alarmInfoAlarmEvent
-                text: qsTr("报警事件")
-                height: 40
+                id: alarmInfoAlarmType
+                text: qsTr("报警类型")
+                height: 30
                 horizontalAlignment: TextEdit.AlignHCenter
                 verticalAlignment: TextEdit.AlignVCenter
             }
             TextField {
-                id: alarmInfoAlarmEventTextField
+                id: alarmInfoAlarmTypeTextField
+                height: 30
                 width: 100
             }
             Button {
                 id: alarmInfoQueryBtn
                 text: qsTr("查询")
+                height: 30
+                onClicked: {
+                   // console.log(selectInfo())
+                }
             }
         }
 
@@ -94,105 +91,105 @@ Item {
                 title: qsTr("编号")
                 width: 60
             }
-            Controls1_4.TableViewColumn {
-                role: "deviceSys"
-                title: qsTr("设备(设施)所属系统")
-                width: 60
-            }
 
             Controls1_4.TableViewColumn {
                 role: "extNum"
                 title: qsTr("分机号")
-                width: 120
+                width: 60
             }
 
             Controls1_4.TableViewColumn {
                 role: "loopNum"
                 title: qsTr("回路号")
-                width: 120
+                width: 60
             }
 
             Controls1_4.TableViewColumn {
                 role: "addrNum"
                 title: qsTr("地址号")
-                width: 120
+                width: 60
+            }
+            Controls1_4.TableViewColumn {
+                role: "deviceSys"
+                title: qsTr("设备所属系统")
+                width: 100
             }
 
             Controls1_4.TableViewColumn {
-                role: "alarmEvent"
-                title: qsTr("报警事件")
-                width: 120
+                role: "alarmType"
+                title: qsTr("报警类型")
+                width: 100
             }
 
             Controls1_4.TableViewColumn {
                 role: "productNum"
-                title: qsTr("设备(设施)产品编号")
-                width: 120
+                title: qsTr("设备产品编号")
+                width: 100
             }
 
             Controls1_4.TableViewColumn {
                 role: "deviceType"
-                title: qsTr("设备(设施)型号")
-                width: 60
+                title: qsTr("设备设施型号")
+                width: 100
             }
 
             Controls1_4.TableViewColumn {
                 role: "currentAlarmState"
                 title: qsTr("报警当前状态")
-                width: 60
+                width: 100
             }
 
             Controls1_4.TableViewColumn {
                 role: "alarmTime"
                 title: qsTr("报警时间")
-                width: 60
+                width: 100
             }
 
             Controls1_4.TableViewColumn {
                 role: "receiveAlarmTime"
                 title: qsTr("报警收到时间")
-                width: 60
+                width: 100
             }
 
             Controls1_4.TableViewColumn {
                 role: "rebackAlarmTime"
                 title: qsTr("恢复正常状态时间")
-                width: 60
+                width: 120
             }
             Controls1_4.TableViewColumn {
                 role: "protectedSectionName"
-                title: qsTr("总保护区域(总图)名称")
-                width: 60
+                title: qsTr("总保护区域名称")
+                width: 100
             }
 
             Controls1_4.TableViewColumn {
                 role: "buildName"
                 title: qsTr("建筑设施名称")
-                width: 60
+                width: 100
             }
 
             Controls1_4.TableViewColumn {
                 role: "floor"
-                title: qsTr("设备(设施)所在楼层")
-                width: 60
+                title: qsTr("设备所在楼层")
+                width: 100
             }
 
             Controls1_4.TableViewColumn {
                 role: "deviceLocation"
-                title: qsTr("设备(设施)所处部位")
-                width: 60
+                title: qsTr("设备所处部位")
+                width: 100
             }
 
             Controls1_4.TableViewColumn {
                 role: "watcher"
                 title: qsTr("值班员")
-                width: 60
+                width: 100
             }
 
             Controls1_4.TableViewColumn {
                 role: "remark"
                 title: qsTr("备注")
-                width: 60
+                width: 100
             }
             model: alarmInfoListModel
         }
@@ -206,7 +203,34 @@ Item {
         //        dbPassword: "www"
         //        dbConnectionName: "defaultName"
         //        dbPort: 1111
-        roleNameList: ["num", "deviceSys", "extNum", "loopNum", "addrNum", "alarmEvent", "productNum", "deviceType", "currentAlarmState", "alarmTime", "receiveAlarmTime", "rebackAlarmTime", "protectedSectionName", "buildName", "floor", "deviceLocation", "watcher", "remark"]
+        roleNameList: ["num", "extNum", "loopNum", "addrNum", "deviceSys", "alarmType", "productNum", "deviceType", "currentAlarmState", "alarmTime", "receiveAlarmTime", "rebackAlarmTime", "protectedSectionName", "buildName", "floor", "deviceLocation", "watcher", "remark"]
+    }
+    function selectInfo() {
+        var info = new String
+        if (alarmInfoExtNumTextField.text.length > 0) {
+            info += (qsTr("分机号=") + alarmInfoExtNumTextField.text)
+        }
+
+        if (alarmInfoLoopNumTextField.text.length > 0) {
+            if (info.length > 0) {
+                info += ","
+            }
+            info += (qsTr("回路号=") + alarmInfoLoopNumTextField.text)
+        }
+        if (alarmInfoAddNumTextField.text.length > 0) {
+            if (info.length > 0) {
+                info += ","
+            }
+            info += (qsTr("地址号=") + alarmInfoAddNumTextField.text)
+        }
+
+        if (alarmInfoAlarmTypeTextField.text.length > 0) {
+            if (info.length > 0) {
+                info += ","
+            }
+            info += (qsTr("报警类型=") + alarmInfoAlarmTypeTextField.text)
+        }
+        return info
     }
 
     Component.onCompleted: {

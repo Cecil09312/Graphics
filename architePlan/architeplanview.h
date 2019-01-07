@@ -25,6 +25,8 @@ public:
     int totalPage();
     int currentPage();
     Q_INVOKABLE void clearAlarm();
+    Q_INVOKABLE void createAlarm(const QString &alarmTypeName);
+    void generateAlarm(const QString &alarmTypeName,GraphicsItem*item);
 
 signals:
     void alarmHappend(const QString &alarmType);
@@ -33,7 +35,7 @@ signals:
     void noPage();
     void normalPage();
 public slots:
-    void creatAlarm();
+
     void firstFireAlarm();
     void lastFireAlarm();
     void currentGraphicsViewZoom(bool isZoomIn);

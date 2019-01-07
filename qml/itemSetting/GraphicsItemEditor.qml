@@ -45,7 +45,7 @@ Rectangle {
                     Layout.fillWidth: true
                     width: 150
                     height: 40
-                    model: [qsTr("火警"), qsTr("联动"), qsTr("监管"), qsTr(
+                    model: [qsTr("无"), qsTr("火警"), qsTr("联动"), qsTr("监管"), qsTr(
                             "故障"), qsTr("反馈"), qsTr("屏蔽")]
                     onCurrentTextChanged: {
                         emit: setItemInfo("alarmType", currentText)

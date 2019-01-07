@@ -20,7 +20,7 @@ Item {
             Text {
                 id: loopNum
                 text: qsTr("回路号")
-                height: 40
+                height: 30
                 horizontalAlignment: TextEdit.AlignHCenter
                 verticalAlignment: TextEdit.AlignVCenter
             }
@@ -28,12 +28,13 @@ Item {
             TextField {
                 id: loopNumTextField
                 width: 100
+                height: 30
             }
 
             Text {
                 id: addressNum
                 text: qsTr("地址号")
-                height: 40
+                height: 30
                 horizontalAlignment: TextEdit.AlignHCenter
                 verticalAlignment: TextEdit.AlignVCenter
             }
@@ -41,12 +42,13 @@ Item {
             TextField {
                 id: addressNumTextField
                 width: 100
+                height: 30
             }
 
             Text {
                 id: extNum
                 text: qsTr("分机号")
-                height: 40
+                height: 30
                 horizontalAlignment: TextEdit.AlignHCenter
                 verticalAlignment: TextEdit.AlignVCenter
             }
@@ -54,11 +56,19 @@ Item {
             TextField {
                 id: extNumTextField
                 width: 100
+                height: 30
             }
 
             Button {
                 id: stateQueryBtn
                 text: qsTr("查询")
+                height: 30
+
+                onClicked: {
+
+
+                    // console.log(selectInfo())
+                }
             }
         }
 
@@ -67,7 +77,7 @@ Item {
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.topMargin: 5
+            anchors.topMargin: 2
             Controls1_4.TableViewColumn {
                 role: qsTr("extNum")
                 title: qsTr("分机号")
@@ -157,17 +167,41 @@ Item {
 
     QmlTableModel {
         id: deviceStateModel
-//        dbDriver: qsTr("QSQLITE")
-//        dbName: "C:/Users/1/Desktop/mySqlite.db"
-//        dbUser: "sss"
-//        dbPassword: "www"
-//        dbConnectionName: "defaultName2"
-//        dbPort: 1111
+        //        dbDriver: qsTr("QSQLITE")
+        //        dbName: "C:/Users/1/Desktop/mySqlite.db"
+        //        dbUser: "sss"
+        //        dbPassword: "www"
+        //        dbConnectionName: "defaultName2"
+        //        dbPort: 1111
         roleNameList: ["extNum", "loopNum", "addrNum", "autoStartIsOk", "manualStartIsOk", "isStart", "isFireAlarm", "isSupervise", "isShield", "isFeedback", "isFault", "remark"]
     }
 
     Component.onCompleted: {
-       // deviceStateModel.setDbOpen(true)
-       // deviceStateModel.sqlCommit("select *from COMPANY")
+
+
+        // deviceStateModel.setDbOpen(true)
+        // deviceStateModel.sqlCommit("select *from COMPANY")
+    }
+
+    function selectInfo() {
+        var info = new String
+        if (loopNumTextField.text.length > 0) {
+            info += (qsTr("回路号=") + loopNumTextField.text)
+        }
+
+        if (addressNumTextField.text.length > 0) {
+            if (info.length > 0) {
+                info += ","
+            }
+            info += (qsTr("地址号=") + addressNumTextField.text)
+        }
+
+        if (extNumTextField.text.length > 0) {
+            if (info.length > 0) {
+                info += ","
+            }
+            info += (qsTr("分机号=") + extNumTextField.text)
+        }
+        return info
     }
 }

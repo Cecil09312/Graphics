@@ -12,6 +12,7 @@
 #include "qmlTableModel/qmltablemodel.h"
 #include "jsonEdit/qmlforjson.h"
 #include "jsonEdit/itemiconinfotojson.h"
+#include "commnication/tcpobj.h"
 
 class CrtWidget : public QOpenGLWidget
 {
@@ -37,11 +38,8 @@ private:
     InfoTableView*m_infoTableView;
     QQuickView *m_loginQuickView;
     QQuickView *m_alarmQuickView;
-   // QQuickView *m_settingQuickView;
-   // QQuickView *m_architeSettingView;
-
     QQmlApplicationEngine *m_settingViewEngine;
-   // engine.load(QUrl(QStringLiteral("qrc:/wearable.qml")));
+
 };
 
 #endif // CRTWIDGET_H

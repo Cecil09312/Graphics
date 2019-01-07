@@ -17,46 +17,42 @@ Item {
         Row {
             id: operaEventQuery
             spacing: 5
-            //                    Text {
-            //                        id: num
-            //                        text: qsTr("编号")
-            //                        height: 40
-            //                        horizontalAlignment: TextEdit.AlignHCenter
-            //                        verticalAlignment: TextEdit.AlignVCenter
-            //                    }
-            //                    TextField {
-            //                        id: numTextField
-            //                        width: 100
-            //                    }
 
-            //                    Text {
-            //                        id: productNum
-            //                        text: qsTr("产品编号")
-            //                        height: 40
-            //                        horizontalAlignment: TextEdit.AlignHCenter
-            //                        verticalAlignment: TextEdit.AlignVCenter
-            //                    }
-            //                    TextField {
-            //                        id: productNumTextField
-            //                        width: 100
-            //                    }
+            Text {
+                id: productNum
+                text: qsTr("产品编号")
+                height: 30
+                horizontalAlignment: TextEdit.AlignHCenter
+                verticalAlignment: TextEdit.AlignVCenter
+            }
+            TextField {
+                id: productNumTextField
+                width: 100
+                height: 30
+            }
 
-            //                    Text {
-            //                        id: date
-            //                        text: qsTr("维保日期")
-            //                        height: 40
-            //                        horizontalAlignment: TextEdit.AlignHCenter
-            //                        verticalAlignment: TextEdit.AlignVCenter
-            //                    }
-            //                    TextField {
-            //                        id: dateTextField
-            //                        width: 100
-            //                    }
+            Text {
+                id: date
+                text: qsTr("维保日期")
+                height: 30
+                horizontalAlignment: TextEdit.AlignHCenter
+                verticalAlignment: TextEdit.AlignVCenter
+            }
+            TextField {
+                id: dateTextField
+                width: 100
+                height: 30
+            }
 
-            //                    Button {
-            //                        id: operaEventQueryBtn
-            //                        text: qsTr("查询")
-            //                    }
+            Button {
+                id: operaEventQueryBtn
+                text: qsTr("查询")
+                height: 30
+                onClicked: {
+
+                 //   console.log(selectInfo())
+                }
+            }
         }
 
         Controls1_4.TableView {
@@ -138,5 +134,20 @@ Item {
             //                asynchronous: false
             //            }
         }
+    }
+
+    function selectInfo() {
+        var info = new String
+        if (productNumTextField.text.length > 0) {
+            info += (qsTr("产品编号=") + productNumTextField.text)
+        }
+
+        if (dateTextField.text.length > 0) {
+            if (info.length > 0) {
+                info += ","
+            }
+            info += (qsTr("维保日期=") + dateTextField.text)
+        }
+        return info
     }
 }

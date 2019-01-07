@@ -13,7 +13,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
 
 {
     m_graphicsScene = scene;
-    m_itemInfo.m_alarmType = tr("火警");
+    m_itemInfo.m_alarmType = tr("无");
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);
     // m_color = QColor(Qt::red);

@@ -59,7 +59,8 @@ SOURCES += \
     control/usermanager.cpp \
     jsonEdit/itemiconinfotojson.cpp \
     graphicsWidget/svgrenderer.cpp \
-    architePlan/styleditemdelegate.cpp
+    architePlan/styleditemdelegate.cpp \
+    commnication/tcpobj.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -83,7 +84,8 @@ HEADERS += \
     control/usermanager.h \
     jsonEdit/itemiconinfotojson.h \
     graphicsWidget/svgrenderer.h \
-    architePlan/styleditemdelegate.h
+    architePlan/styleditemdelegate.h \
+    commnication/tcpobj.h
 
 FORMS +=
 

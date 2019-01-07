@@ -54,12 +54,15 @@ ApplicationWindow {
                 PropertyAnimation {
                     target: enterItem
                     property: "opacity"
+                    duration: 100
                     from: 0
                     to: 1
                 }
                 PropertyAnimation {
                     target: exitItem
                     property: "opacity"
+                    easing.type: Easing.InQuart
+                    duration: 100
                     from: 1
                     to: 0
                 }
