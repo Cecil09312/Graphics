@@ -6,7 +6,7 @@
 #include <QQmlContext>
 #include <QSplitter>
 #include <QQuickItem>
-#include "commnication/commobj.h"
+#include "commnication/SerialLink.h"
 #include "control/usermanager.h"
 #include "control/controller.h"
 #include <QHostAddress>
@@ -59,7 +59,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
         }
 
     });
-    //qDebug() << CommObj::baudRates();
+    //qDebug() << SerialLink::baudRates();
 }
 
 CrtWidget::~CrtWidget()
@@ -134,6 +134,13 @@ void CrtWidget::initWidget()
         Q_UNUSED(engine)
         Q_UNUSED(scriptEngine)
         return Controller::instance()->getSysArchitePlanView();
+    });
+
+    qmlRegisterSingletonType<Controller>("speechObj", 1, 0, "SpeechObj",
+                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+        Q_UNUSED(engine)
+        Q_UNUSED(scriptEngine)
+        return Controller::instance()->getSpeechObj();
     });
     qmlRegisterType<QmlTableModel>("qmlTableModel",1,0,"QmlTableModel");
     qmlRegisterType<QmlForJson>("qmlForJson",1,0,"QmlForJson");

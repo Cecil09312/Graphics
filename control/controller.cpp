@@ -32,6 +32,18 @@ Controller::~Controller()
         m_userManager = nullptr;
     }
 
+    if(m_speechObj!=nullptr)
+    {
+        m_speechObj->stopSpeech();
+        m_speechObj->deleteLater();
+        m_speechObj = nullptr;
+    }
+
+    if(m_udpObj!=nullptr)
+    {
+        m_udpObj->deleteLater();
+        m_udpObj = nullptr;
+    }
 
 }
 
@@ -61,10 +73,10 @@ QString Controller::fileNameFromQml(const QString &name)
 
 //QList<QString> Controller::portNameList()
 //{
-//    return CommObj::portName();
+//    return SerialLink::portName();
 //}
 
-CommObj *Controller::getCommObj()
+SerialLink *Controller::getCommObj()
 {
     return m_commObj;
 }
@@ -107,11 +119,25 @@ UserManager::UserRight Controller::getUserRight()
     }
 }
 
+SpeechObj *Controller::getSpeechObj()
+{
+    return m_speechObj;
+}
+
+UdpObj *Controller::getUdpObj()
+{
+    return m_udpObj;
+}
+
 Controller::Controller()
 {
     m_dataStore = new DataStore;
-    m_commObj = new CommObj();
+    m_commObj = new SerialLink();
     m_userManager = new UserManager;
+    m_speechObj = new SpeechObj;
+    m_udpObj = new UdpObj;
+  //  m_udpObj->bindToHost("127.0.0.1",8080);
+
 }
 
 

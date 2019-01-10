@@ -1,0 +1,31 @@
+﻿#ifndef ABSTRACTLINK_H
+#define ABSTRACTLINK_H
+
+#include <QObject>
+#include <QByteArray>
+#include <QSharedPointer>
+#include "abstractconfiguration.h"
+class AbstractLink : public QObject
+{
+    Q_OBJECT
+public:
+    explicit AbstractLink(QObject *parent = nullptr);
+    virtual ~AbstractLink();
+
+signals:
+    void writeData(const QByteArray&array);
+    void getData(const QByteArray&array);
+    void errorInfo(const QString &error);
+    void isConnected(bool success);
+    void startConnect();
+    void stopConnect();
+public slots:
+    virtual void sendData(const QByteArray&array)=0;
+    virtual void readData()=0;
+    virtual void setConfiguration()=0;
+    virtual void connectLink()=0;
+    virtual void disconnectLink()=0;
+
+};
+
+#endif // ABSTRACTLINK_H

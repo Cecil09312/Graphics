@@ -12,7 +12,7 @@
 #include "qmlTableModel/qmltablemodel.h"
 #include "jsonEdit/qmlforjson.h"
 #include "jsonEdit/itemiconinfotojson.h"
-#include "commnication/tcpobj.h"
+#include "commnication/TcpLink.h"
 
 class CrtWidget : public QOpenGLWidget
 {

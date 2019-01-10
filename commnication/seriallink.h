@@ -1,16 +1,20 @@
-﻿#ifndef COMMOBJ_H
-#define COMMOBJ_H
+﻿#ifndef SERIALLINK_H
+#define SERIALLINK_H
 
 #include <QObject>
 #include <QSerialPort>
 #include <QThread>
 #include <QSerialPortInfo>
-class CommObj : public QObject
+#include "abstractconfiguration.h"
+#include "abstractlink.h"
+#include "serialconfiguration.h"
+
+class SerialLink : public AbstractLink
 {
     Q_OBJECT
 public:
-    explicit CommObj(QObject *parent = nullptr);
-    ~CommObj();
+    explicit SerialLink(QObject *parent = nullptr);
+    ~SerialLink();
     static QList<QSerialPortInfo> getSerialPortInfo();
     static QList<QString> portName();
     static QList<qint32> baudRates();
@@ -18,26 +22,13 @@ public:
     Q_INVOKABLE int baudRatesNum();
     Q_INVOKABLE QString portNameValue(int pos);
     Q_INVOKABLE quint32 baudRatesValue(int pos);
-    Q_INVOKABLE void setBaudRade(qint32 baud);
-    Q_INVOKABLE void setDataBits(QSerialPort::DataBits dataBits);
-    Q_INVOKABLE void setStopBits(QSerialPort::StopBits stopBits);
-    Q_INVOKABLE void setPortName(const QString &portName);
-    Q_INVOKABLE void setFlowContral(QSerialPort::FlowControl flowControl);
-    Q_INVOKABLE void setParity(QSerialPort::Parity parity);
 
-    void open();
-    void close();
-    bool isOpen();
-
-signals:
-    void send(const QByteArray &arry);
-    void errorInfo(const QString &error);
-    void serialSetting();
-    void openSerialPort();
-    void closeSerialPort();
 public slots:
     void readData();
     void sendData(const QByteArray &array);
+    void setConfiguration();
+    void connectLink();
+    void disconnectLink();
 
 private :
     QSerialPort *m_serialPort;
@@ -49,6 +40,7 @@ private :
     QSerialPort::FlowControl m_flowControl;
     QSerialPort::Parity m_parity;
     bool m_isOpen;
+    QSharedPointer<AbstractConfiguration>m_configuration;
 };
 
 #endif // COMMOBJ_H

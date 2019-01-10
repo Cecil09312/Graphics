@@ -1,5 +1,5 @@
 ﻿#include "speechobj.h"
-
+#include <QDebug>
 SpeechObj::SpeechObj(QObject *parent):
     QTextToSpeech(parent)
 {
@@ -7,6 +7,7 @@ SpeechObj::SpeechObj(QObject *parent):
     m_thread = new QThread;
     this->moveToThread(m_thread);
     m_thread->start();
+   // m_voiceVec = availableVoices();
     connect(this,&SpeechObj::stateChanged,this,[=](QTextToSpeech::State state)
     {
         if(state==QTextToSpeech::Ready)
@@ -23,6 +24,8 @@ SpeechObj::SpeechObj(QObject *parent):
             }
         }
     });
+
+
 }
 
 SpeechObj::~SpeechObj()
@@ -31,6 +34,42 @@ SpeechObj::~SpeechObj()
     m_thread->wait();
     m_thread->deleteLater();
 }
+
+//void SpeechObj::setSelectVoice(int index)
+//{
+//    if(m_voiceVec.size()>index)
+//    {
+//        setVoice(m_voiceVec.at(index));
+//    }
+
+//}
+
+//QList<QString> SpeechObj::voiceNameList()
+//{
+//    return m_voiceNameList;
+//}
+
+//int SpeechObj::numOfVoice()
+//{
+//    return availableVoices().size();
+//}
+
+//QString SpeechObj::voiceName(int index)
+//{
+//    if(m_voiceNameList.size()>index)
+//    {
+//        return m_voiceNameList.at(index);
+//    }
+//    else
+//    {
+//        return QString();
+//    }
+//}
+
+//QString SpeechObj::currentVoiceName()
+//{
+//   return (voice().name()+"-年龄:"+QVoice::ageName(voice().age())+"-性别:"+QVoice::genderName(voice().gender()));
+//}
 
 void SpeechObj::stopSpeech()
 {

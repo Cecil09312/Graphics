@@ -4,10 +4,12 @@
 #include <QDebug>
 #include "dataStore/datastore.h"
 #include <QTextToSpeech>
-#include "commnication/commobj.h"
+#include "commnication/SerialLink.h"
 #include "architePlan/sysarchiteplanview.h"
 #include "architePlan/architeplanview.h"
 #include "usermanager.h"
+#include "speech/speechobj.h"
+#include "commnication/udpobj.h"
 class Controller:public QObject
 {
     Q_OBJECT
@@ -17,13 +19,15 @@ public:
     ~Controller();
     DataStore * getDataStore();
     Q_INVOKABLE QString fileNameFromQml(const QString &name);
-    CommObj *getCommObj();
+    SerialLink *getCommObj();
     void setSysArchitePlanView(SysArchitePlanView*sysArchitePlanView);
     SysArchitePlanView *getSysArchitePlanView() const;
     void setArchitePlanView(ArchitePlanView *architePlanView);
     ArchitePlanView *getArchitePlanView() const;
     UserManager *getUserManager() const;
     UserManager::UserRight getUserRight();
+    SpeechObj *getSpeechObj();
+    UdpObj *getUdpObj();
 public:
     class AutoDelete
     {
@@ -44,10 +48,12 @@ private:
 private:
     static Controller*m_controller;
     DataStore *m_dataStore;
-    CommObj *m_commObj;
+    SerialLink *m_commObj;
     SysArchitePlanView *m_sysArthitePlanView;
     ArchitePlanView *m_architePlanView;
     UserManager *m_userManager;
+    SpeechObj *m_speechObj;
+    UdpObj *m_udpObj;
 
 };
 

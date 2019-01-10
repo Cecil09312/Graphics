@@ -50,7 +50,6 @@ SOURCES += \
     control/controller.cpp \
     dataStore/datastore.cpp \
     speech/speechobj.cpp \
-    commnication/commobj.cpp \
     database/sqlitemanager.cpp \
     database/sqlmanager.cpp \
     architePlan/sysarchiteplanview.cpp \
@@ -60,7 +59,15 @@ SOURCES += \
     jsonEdit/itemiconinfotojson.cpp \
     graphicsWidget/svgrenderer.cpp \
     architePlan/styleditemdelegate.cpp \
-    commnication/tcpobj.cpp
+    commnication/udpobj.cpp \
+    commnication/modbusobj.cpp \
+    commnication/canbasobj.cpp \
+    commnication/abstractconfiguration.cpp \
+    commnication/abstractlink.cpp \
+    commnication/seriallink.cpp \
+    commnication/tcplink.cpp \
+    commnication/serialconfiguration.cpp \
+    commnication/tcpconfiguration.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -75,7 +82,6 @@ HEADERS += \
     control/controller.h \
     dataStore/datastore.h \
     speech/speechobj.h \
-    commnication/commobj.h \
     database/sqlitemanager.h \
     database/sqlmanager.h \
     architePlan/sysarchiteplanview.h \
@@ -85,7 +91,15 @@ HEADERS += \
     jsonEdit/itemiconinfotojson.h \
     graphicsWidget/svgrenderer.h \
     architePlan/styleditemdelegate.h \
-    commnication/tcpobj.h
+    commnication/udpobj.h \
+    commnication/modbusobj.h \
+    commnication/canbasobj.h \
+    commnication/abstractconfiguration.h \
+    commnication/abstractlink.h \
+    commnication/seriallink.h \
+    commnication/tcplink.h \
+    commnication/serialconfiguration.h \
+    commnication/tcpconfiguration.h
 
 FORMS +=
 

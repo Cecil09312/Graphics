@@ -4,7 +4,6 @@
         <file>qml/treeViewSetting/TreeViewSetting.qml</file>
         <file>qml/infoSetting/InfoTransport.qml</file>
         <file>qml/infoSetting/NaviButton.qml</file>
-        <file>qml/infoSetting/OtherSetting.qml</file>
         <file>qml/infoSetting/PasswordSetting.qml</file>
         <file>qml/infoSetting/SerialPortSetting.qml</file>
         <file>qml/infoSetting/SettingView.qml</file>
@@ -19,5 +18,6 @@
         <file>qml/toolBar/ToolBarWindow.qml</file>
         <file>qml/infoSetting/GraphicsViewSetting.qml</file>
         <file>qml/infoSetting/InfoQuery.qml</file>
+        <file>qml/infoSetting/SpeechSetting.qml</file>
     </qresource>
 </RCC>
