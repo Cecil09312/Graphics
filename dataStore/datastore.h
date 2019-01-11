@@ -1,4 +1,4 @@
-#ifndef DATASTORE_H
+﻿#ifndef DATASTORE_H
 #define DATASTORE_H
 #include <QHash>
 #include <QGraphicsItem>
@@ -10,6 +10,7 @@ class DataStore
 {
 public:
      DataStore();
+     ~DataStore();
      QHash<QString, QList<QGraphicsItem *> > &getTypeItemHash();
      QList<QGraphicsItem*> &getTypeItemList(const QString &type);
      QGraphicsItem* getTypeItem(const QString &type,int pos);

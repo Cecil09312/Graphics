@@ -20,12 +20,11 @@ signals:
     void startConnect();
     void stopConnect();
 public slots:
-    virtual void sendData(const QByteArray&array)=0;
+    void sendData(const QByteArray&array);
     virtual void readData()=0;
     virtual void setConfiguration()=0;
-    virtual void connectLink()=0;
-    virtual void disconnectLink()=0;
-
+    void connectLink();
+    void disconnectLink();
 };
 
 #endif // ABSTRACTLINK_H

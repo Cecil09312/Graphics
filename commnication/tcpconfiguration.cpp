@@ -10,14 +10,14 @@ TcpConfiguration::~TcpConfiguration()
 
 }
 
-QList<QVariant> TcpConfiguration::getConfiguration()
+QVariant TcpConfiguration::getConfiguration()
 {
     QVariant data=  QmlForJson::readFile(getConfigurationPath());
-    QHash<QString,QVariant>serialConfigurationHash = data.toHash();
-    return serialConfigurationHash["tcp"].toList();
+    QHash<QString,QVariant>tcpConfigurationHash = data.toHash();
+    return tcpConfigurationHash["tcp"];
 }
 
-void TcpConfiguration::setConfiguration(const QList<QVariant> &configurationList)
+void TcpConfiguration::setConfiguration(const QVariant &configurationValue)
 {
-    m_configurationHash["tcp"] = configurationList;
+    m_configurationHash["tcp"] = configurationValue;
 }

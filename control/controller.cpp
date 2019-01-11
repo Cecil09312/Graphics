@@ -20,24 +20,7 @@ Controller *Controller::instance()
 
 Controller::~Controller()
 {
-    if(m_dataStore!=nullptr)
-    {
-        delete m_dataStore;
-        m_dataStore= nullptr;
-    }
     m_commObj->deleteLater();
-    if(m_userManager!=nullptr)
-    {
-        m_userManager->deleteLater();
-        m_userManager = nullptr;
-    }
-
-    if(m_speechObj!=nullptr)
-    {
-        m_speechObj->stopSpeech();
-        m_speechObj->deleteLater();
-        m_speechObj = nullptr;
-    }
 
     if(m_udpObj!=nullptr)
     {
@@ -45,11 +28,12 @@ Controller::~Controller()
         m_udpObj = nullptr;
     }
 
+    m_speechObj.clear();
 }
 
 DataStore *Controller::getDataStore()
 {
-    return  m_dataStore;
+    return  m_dataStore.data();
 }
 
 QString Controller::fileNameFromQml(const QString &name)
@@ -103,14 +87,14 @@ ArchitePlanView *Controller::getArchitePlanView() const
 
 UserManager *Controller::getUserManager() const
 {
-    return m_userManager;
+    return m_userManager.data();
 }
 
 UserManager::UserRight Controller::getUserRight()
 {
-    if(m_userManager!=nullptr)
+    if(getUserManager()!=nullptr)
     {
-        return m_userManager->userRight();
+        return getUserManager()->userRight();
     }
     else
     {
@@ -121,22 +105,30 @@ UserManager::UserRight Controller::getUserRight()
 
 SpeechObj *Controller::getSpeechObj()
 {
-    return m_speechObj;
+    return m_speechObj.data();
 }
 
-UdpObj *Controller::getUdpObj()
+UdpLink *Controller::getUdpObj()
 {
     return m_udpObj;
 }
 
+ConfigurationManager *Controller::getSerialConfigurationManager()
+{
+    return m_serialConfigurationManager.data();
+}
+
 Controller::Controller()
 {
-    m_dataStore = new DataStore;
+    m_dataStore =QSharedPointer<DataStore>(new DataStore);
     m_commObj = new SerialLink();
-    m_userManager = new UserManager;
-    m_speechObj = new SpeechObj;
-    m_udpObj = new UdpObj;
-  //  m_udpObj->bindToHost("127.0.0.1",8080);
+    m_userManager =QSharedPointer<UserManager>(new UserManager(this)) ;
+    m_speechObj = QSharedPointer<SpeechObj>(new SpeechObj,&QObject::deleteLater);
+
+    m_udpObj = new UdpLink;
+    m_serialConfigurationManager =QSharedPointer<ConfigurationManager>(new ConfigurationManager(QSharedPointer<AbstractConfiguration>(new SerialConfiguration),this)) ;
+  // m_udpObj->bindToHost("127.0.0.1",8080);
+    m_udpObj->connectLink();
 
 }
 

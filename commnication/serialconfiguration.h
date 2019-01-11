@@ -8,8 +8,8 @@ public:
 
     SerialConfiguration();
     ~SerialConfiguration();
-    QList<QVariant> getConfiguration();
-    void setConfiguration(const QList<QVariant>&configurationList);
+    QVariant getConfiguration();
+    void setConfiguration(const QVariant &configurationValue);
 };
 
 #endif // SERIALCONFIGURATION_H

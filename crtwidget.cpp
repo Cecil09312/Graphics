@@ -10,6 +10,7 @@
 #include "control/usermanager.h"
 #include "control/controller.h"
 #include <QHostAddress>
+#include "commnication/configurationmanager.h"
 CrtWidget::CrtWidget(QWidget *parent) :
     QOpenGLWidget(parent)
 {
@@ -122,12 +123,14 @@ void CrtWidget::initWidget()
     });
 
 
-    qmlRegisterSingletonType<Controller>("serialPortInfo", 1, 0, "SerialPortInfo",
+    qmlRegisterSingletonType<Controller>("serialConfigurationManager", 1, 0, "SerialPortInfo",
                                          [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
         Q_UNUSED(engine)
         Q_UNUSED(scriptEngine)
-        return Controller::instance()->getCommObj();
+        return Controller::instance()->getSerialConfigurationManager();
     });
+
+
 
     qmlRegisterSingletonType<Controller>("sysArchitePlanView", 1, 0, "SysArchitePlanView",
                                          [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
@@ -142,6 +145,8 @@ void CrtWidget::initWidget()
         Q_UNUSED(scriptEngine)
         return Controller::instance()->getSpeechObj();
     });
+
+
     qmlRegisterType<QmlTableModel>("qmlTableModel",1,0,"QmlTableModel");
     qmlRegisterType<QmlForJson>("qmlForJson",1,0,"QmlForJson");
     qmlRegisterType<ItemIconInfoToJson>("itemIconInfoToJson",1,0,"ItemIconInfoToJson");

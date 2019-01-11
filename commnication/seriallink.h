@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QSerialPort>
 #include <QThread>
-#include <QSerialPortInfo>
+
 #include "abstractconfiguration.h"
 #include "abstractlink.h"
 #include "serialconfiguration.h"
@@ -15,21 +15,10 @@ class SerialLink : public AbstractLink
 public:
     explicit SerialLink(QObject *parent = nullptr);
     ~SerialLink();
-    static QList<QSerialPortInfo> getSerialPortInfo();
-    static QList<QString> portName();
-    static QList<qint32> baudRates();
-    Q_INVOKABLE int portNameNum();
-    Q_INVOKABLE int baudRatesNum();
-    Q_INVOKABLE QString portNameValue(int pos);
-    Q_INVOKABLE quint32 baudRatesValue(int pos);
 
 public slots:
     void readData();
-    void sendData(const QByteArray &array);
     void setConfiguration();
-    void connectLink();
-    void disconnectLink();
-
 private :
     QSerialPort *m_serialPort;
     QThread *m_thread;
@@ -40,7 +29,7 @@ private :
     QSerialPort::FlowControl m_flowControl;
     QSerialPort::Parity m_parity;
     bool m_isOpen;
-    QSharedPointer<AbstractConfiguration>m_configuration;
+    Configuration m_serialConfiguration;
 };
 
 #endif // COMMOBJ_H

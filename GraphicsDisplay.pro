@@ -59,7 +59,6 @@ SOURCES += \
     jsonEdit/itemiconinfotojson.cpp \
     graphicsWidget/svgrenderer.cpp \
     architePlan/styleditemdelegate.cpp \
-    commnication/udpobj.cpp \
     commnication/modbusobj.cpp \
     commnication/canbasobj.cpp \
     commnication/abstractconfiguration.cpp \
@@ -67,7 +66,10 @@ SOURCES += \
     commnication/seriallink.cpp \
     commnication/tcplink.cpp \
     commnication/serialconfiguration.cpp \
-    commnication/tcpconfiguration.cpp
+    commnication/tcpconfiguration.cpp \
+    commnication/configurationmanager.cpp \
+    commnication/udplink.cpp \
+    commnication/udpconfiguration.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -91,7 +93,6 @@ HEADERS += \
     jsonEdit/itemiconinfotojson.h \
     graphicsWidget/svgrenderer.h \
     architePlan/styleditemdelegate.h \
-    commnication/udpobj.h \
     commnication/modbusobj.h \
     commnication/canbasobj.h \
     commnication/abstractconfiguration.h \
@@ -99,7 +100,10 @@ HEADERS += \
     commnication/seriallink.h \
     commnication/tcplink.h \
     commnication/serialconfiguration.h \
-    commnication/tcpconfiguration.h
+    commnication/tcpconfiguration.h \
+    commnication/configurationmanager.h \
+    commnication/udplink.h \
+    commnication/udpconfiguration.h
 
 FORMS +=
 

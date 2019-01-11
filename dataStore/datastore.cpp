@@ -1,6 +1,11 @@
-#include "datastore.h"
-
+﻿#include "datastore.h"
+#include <QDebug>
 DataStore::DataStore()
+{
+
+}
+
+DataStore::~DataStore()
 {
 
 }

@@ -6,6 +6,7 @@ TcpLink::TcpLink(QObject *parent)
 {
     m_tcpSocket = new QTcpSocket;
     m_thread = new QThread();
+    m_tcpConfiguration = Configuration(new TcpConfiguration);
     m_tcpSocket->moveToThread(m_thread);
     moveToThread(m_thread);
     m_thread->start();
@@ -17,6 +18,7 @@ TcpLink::TcpLink(QObject *parent)
     {
         m_tcpSocket->connectToHost(m_address,m_port);
         m_tcpSocket->waitForConnected(1000);
+        qDebug() << m_tcpSocket->state();
     });
     connect(this,&TcpLink::stopConnect,this,[=](){
         m_tcpSocket->close();
@@ -66,33 +68,21 @@ TcpLink::~TcpLink()
 
 //}
 
-void TcpLink::sendData(const QByteArray &array)
-{
-    emit writeData(array);
-}
 
 void TcpLink::readData()
 {
     QMutexLocker locker(&m_mutex);
     QByteArray dataArray=  m_tcpSocket->readAll();
-    qDebug() << dataArray;
     emit getData(dataArray);
-    //    qDebug() << QThread::currentThread();
 }
 
 void TcpLink::setConfiguration()
-{
-
+{  
+    QHash<QString,QVariant>valueHash = m_tcpConfiguration.data()->getConfiguration().toHash();
+    m_address = valueHash["hostAddr"].toString();
+    m_port = quint16(valueHash["port"].toUInt());
 }
 
-void TcpLink::connectLink()
-{
-    emit startConnect();
-}
 
-void TcpLink::disconnectLink()
-{
-    emit stopConnect();
-}
 
 

@@ -9,7 +9,8 @@
 #include "architePlan/architeplanview.h"
 #include "usermanager.h"
 #include "speech/speechobj.h"
-#include "commnication/udpobj.h"
+#include "commnication/udplink.h"
+#include "commnication/configurationmanager.h"
 class Controller:public QObject
 {
     Q_OBJECT
@@ -27,7 +28,8 @@ public:
     UserManager *getUserManager() const;
     UserManager::UserRight getUserRight();
     SpeechObj *getSpeechObj();
-    UdpObj *getUdpObj();
+    UdpLink *getUdpObj();
+    ConfigurationManager *getSerialConfigurationManager();
 public:
     class AutoDelete
     {
@@ -44,16 +46,16 @@ public:
 
 private:
     Controller();
-
 private:
     static Controller*m_controller;
-    DataStore *m_dataStore;
+   QSharedPointer<DataStore>m_dataStore;
     SerialLink *m_commObj;
     SysArchitePlanView *m_sysArthitePlanView;
     ArchitePlanView *m_architePlanView;
-    UserManager *m_userManager;
-    SpeechObj *m_speechObj;
-    UdpObj *m_udpObj;
+    QSharedPointer<UserManager> m_userManager;
+    QSharedPointer<SpeechObj>m_speechObj;
+    UdpLink *m_udpObj;
+    QSharedPointer<ConfigurationManager> m_serialConfigurationManager;
 
 };
 

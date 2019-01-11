@@ -1,7 +1,7 @@
 ﻿import QtQuick 2.0
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
-import serialPortInfo 1.0
+import serialConfigurationManager 1.0
 
 Rectangle {
     //    width: 420
@@ -85,25 +85,52 @@ Rectangle {
         }
 
         Text {
-            id: flowContral
+            id: flowControl
             text: qsTr("流控制")
             Layout.row: 5
             Layout.column: 0
         }
         ComboBox {
-            id: flowContralComboBox
+            id: flowControlComboBox
             Layout.row: 5
             Layout.column: 1
             model: ["无"]
         }
+
+        Button {
+            text: qsTr("保存")
+            Layout.row: 6
+            Layout.column: 1
+
+            Layout.fillWidth: true
+            onClicked: {
+                SerialPortInfo.setConfigurationValue("portName",
+                                                     portComboBox.currentText)
+                SerialPortInfo.setConfigurationValue("baudRate",
+                                                     baudComboBox.currentText)
+
+                SerialPortInfo.setConfigurationValue(
+                            "dataBits", dataBitsComboBox.currentText)
+
+                SerialPortInfo.setConfigurationValue(
+                            "stopBits", stopBitsComboBox.currentText)
+                SerialPortInfo.setConfigurationValue("parity",
+                                                     parityComboBox.currentText)
+                SerialPortInfo.setConfigurationValue(
+                            "flowControl", flowControlComboBox.currentText)
+                SerialPortInfo.setConfiguration()
+                SerialPortInfo.saveConfiguration()
+            }
+        }
     }
+
     Component.onCompleted: {
         setBaudRatesValue()
         setPortName()
         setDataBits()
         setStopBits()
         setParity()
-        setFlowContral()
+        setFlowControl()
     }
     function setBaudRatesValue() {
         for (var i = 0; i < SerialPortInfo.baudRatesNum(); i++) {
@@ -147,9 +174,9 @@ Rectangle {
         }
     }
 
-    function setFlowContral() {
-        if (flowContralComboBox.count > flowContralIndex) {
-            flowContralComboBox.currentIndex = flowContralIndex
+    function setFlowControl() {
+        if (flowControlComboBox.count > flowContralIndex) {
+            flowControlComboBox.currentIndex = flowContralIndex
         }
     }
 }
