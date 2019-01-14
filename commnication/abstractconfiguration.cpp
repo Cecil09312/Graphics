@@ -9,7 +9,7 @@ AbstractConfiguration::AbstractConfiguration()
 
 AbstractConfiguration::~AbstractConfiguration()
 {
-
+  qDebug() << "&&&&&&&&&&&&&&";
 }
 
 const QString &AbstractConfiguration::getConfigurationPath()

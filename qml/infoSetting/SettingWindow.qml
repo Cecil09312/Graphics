@@ -61,7 +61,7 @@ ApplicationWindow {
                 PropertyAnimation {
                     target: exitItem
                     property: "opacity"
-                    easing.type: Easing.InQuart
+                    // easing.type: Easing.InQuart
                     duration: 100
                     from: 1
                     to: 0

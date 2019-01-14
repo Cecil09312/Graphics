@@ -54,8 +54,8 @@ Rectangle {
             Button {
                 text: qsTr("登陆")
                 onClicked: {
-                    var passwordStr
-                    var userRight
+                    var passwordStr = new String
+                    var userRight = new Number
                     if (userNameComboBox.currentText === qsTr("超级用户")) {
                         userRight = UserManager.Super
                         passwordStr = UserManager.password(UserManager.Super)

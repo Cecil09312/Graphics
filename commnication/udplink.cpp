@@ -38,6 +38,7 @@ UdpLink::UdpLink(QObject *parent) :
 
 UdpLink::~UdpLink()
 {
+    disconnectLink();
     m_udpSocket->close();
     m_udpSocket->deleteLater();
     m_thread->quit();

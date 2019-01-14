@@ -20,15 +20,10 @@ Controller *Controller::instance()
 
 Controller::~Controller()
 {
-    m_commObj->deleteLater();
-
-    if(m_udpObj!=nullptr)
-    {
-        m_udpObj->deleteLater();
-        m_udpObj = nullptr;
-    }
-
+    m_commObj.clear();
+    m_udpObj.clear();
     m_speechObj.clear();
+    //m_userManager.clear();
 }
 
 DataStore *Controller::getDataStore()
@@ -60,9 +55,9 @@ QString Controller::fileNameFromQml(const QString &name)
 //    return SerialLink::portName();
 //}
 
-SerialLink *Controller::getCommObj()
+AbstractLink*Controller::getCommObj()
 {
-    return m_commObj;
+    return m_commObj.data();
 }
 
 void Controller::setSysArchitePlanView(SysArchitePlanView *sysArchitePlanView)
@@ -87,7 +82,7 @@ ArchitePlanView *Controller::getArchitePlanView() const
 
 UserManager *Controller::getUserManager() const
 {
-    return m_userManager.data();
+    return m_userManager;
 }
 
 UserManager::UserRight Controller::getUserRight()
@@ -108,9 +103,9 @@ SpeechObj *Controller::getSpeechObj()
     return m_speechObj.data();
 }
 
-UdpLink *Controller::getUdpObj()
+AbstractLink *Controller::getUdpObj()
 {
-    return m_udpObj;
+    return m_udpObj.data();
 }
 
 ConfigurationManager *Controller::getSerialConfigurationManager()
@@ -121,14 +116,13 @@ ConfigurationManager *Controller::getSerialConfigurationManager()
 Controller::Controller()
 {
     m_dataStore =QSharedPointer<DataStore>(new DataStore);
-    m_commObj = new SerialLink();
-    m_userManager =QSharedPointer<UserManager>(new UserManager(this)) ;
-    m_speechObj = QSharedPointer<SpeechObj>(new SpeechObj,&QObject::deleteLater);
+    m_commObj = QSharedPointer<AbstractLink>(new SerialLink());
+    m_userManager =new UserManager(this) ;
+    m_speechObj = QSharedPointer<SpeechObj>(new SpeechObj/*,&QObject::deleteLater*/);
 
-    m_udpObj = new UdpLink;
-    m_serialConfigurationManager =QSharedPointer<ConfigurationManager>(new ConfigurationManager(QSharedPointer<AbstractConfiguration>(new SerialConfiguration),this)) ;
-  // m_udpObj->bindToHost("127.0.0.1",8080);
-    m_udpObj->connectLink();
+    m_udpObj =QSharedPointer<AbstractLink> (new UdpLink);
+    m_serialConfigurationManager =QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new SerialConfiguration),this)) ;
+   // m_udpObj->connectLink();
 
 }
 

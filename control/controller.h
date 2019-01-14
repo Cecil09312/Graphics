@@ -20,7 +20,7 @@ public:
     ~Controller();
     DataStore * getDataStore();
     Q_INVOKABLE QString fileNameFromQml(const QString &name);
-    SerialLink *getCommObj();
+    AbstractLink *getCommObj();
     void setSysArchitePlanView(SysArchitePlanView*sysArchitePlanView);
     SysArchitePlanView *getSysArchitePlanView() const;
     void setArchitePlanView(ArchitePlanView *architePlanView);
@@ -28,7 +28,7 @@ public:
     UserManager *getUserManager() const;
     UserManager::UserRight getUserRight();
     SpeechObj *getSpeechObj();
-    UdpLink *getUdpObj();
+    AbstractLink *getUdpObj();
     ConfigurationManager *getSerialConfigurationManager();
 public:
     class AutoDelete
@@ -49,12 +49,12 @@ private:
 private:
     static Controller*m_controller;
    QSharedPointer<DataStore>m_dataStore;
-    SerialLink *m_commObj;
+    QSharedPointer<AbstractLink>m_commObj;
     SysArchitePlanView *m_sysArthitePlanView;
     ArchitePlanView *m_architePlanView;
-    QSharedPointer<UserManager> m_userManager;
+    UserManager* m_userManager;
     QSharedPointer<SpeechObj>m_speechObj;
-    UdpLink *m_udpObj;
+    QSharedPointer<AbstractLink>m_udpObj;
     QSharedPointer<ConfigurationManager> m_serialConfigurationManager;
 
 };
