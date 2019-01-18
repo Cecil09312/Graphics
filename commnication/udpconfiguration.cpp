@@ -2,7 +2,7 @@
 #include "jsonEdit/qmlforjson.h"
 UdpConfiguration::UdpConfiguration()
 {
-
+  m_configurationType = Udp;
 }
 
 UdpConfiguration::~UdpConfiguration()

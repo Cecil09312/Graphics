@@ -1,8 +1,8 @@
 ﻿import QtQuick 2.9
 import QtQuick.Controls 2.2
 import QtQuick.Controls 1.4 as Controls1_4
-import speechObj 1.0
 
+//import speechObj 1.0
 Item {
 
     ListModel {
@@ -33,9 +33,9 @@ Item {
                 text: volumeSlider.value.toFixed(1)
             }
 
-            onMoved: {
-                SpeechObj.volume = value
-            }
+            //            onMoved: {
+            //                SpeechObj.volume = value
+            //            }
         }
 
         //        Text {
@@ -62,7 +62,8 @@ Item {
             }
 
             onMoved: {
-                SpeechObj.rate = value
+
+                //SpeechObj.rate = value
             }
         }
 
@@ -102,8 +103,9 @@ Item {
     }
 
     Component.onCompleted: {
-        volumeSlider.value = SpeechObj.volume
-        rateSlider.value = SpeechObj.rate
-        pitchSlider.value = SpeechObj.pitch
+
+        //        volumeSlider.value = SpeechObj.volume
+        //        rateSlider.value = SpeechObj.rate
+        //        pitchSlider.value = SpeechObj.pitch
     }
 }

@@ -11,6 +11,9 @@
 #include "speech/speechobj.h"
 #include "commnication/udplink.h"
 #include "commnication/configurationmanager.h"
+#include "commnication/tcpconfiguration.h"
+#include "commnication/modbusmanager.h"
+#include "commnication/udpconfiguration.h"
 class Controller:public QObject
 {
     Q_OBJECT
@@ -27,7 +30,7 @@ public:
     ArchitePlanView *getArchitePlanView() const;
     UserManager *getUserManager() const;
     UserManager::UserRight getUserRight();
-    SpeechObj *getSpeechObj();
+    //SpeechObj *getSpeechObj();
     AbstractLink *getUdpObj();
     ConfigurationManager *getSerialConfigurationManager();
 public:
@@ -53,10 +56,13 @@ private:
     SysArchitePlanView *m_sysArthitePlanView;
     ArchitePlanView *m_architePlanView;
     UserManager* m_userManager;
-    QSharedPointer<SpeechObj>m_speechObj;
+
+   // QSharedPointer<SpeechObj>m_speechObj;
     QSharedPointer<AbstractLink>m_udpObj;
     QSharedPointer<ConfigurationManager> m_serialConfigurationManager;
-
+    QSharedPointer<ConfigurationManager> m_tcpConfigurationManager;
+    QSharedPointer<ConfigurationManager> m_udpConfigurationManager;
+    QSharedPointer<ModbusManager>m_modbusManager;
 };
 
 #endif // CONTROLLER_H

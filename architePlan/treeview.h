@@ -1,4 +1,4 @@
-#ifndef TREEVIEW_H
+﻿#ifndef TREEVIEW_H
 #define TREEVIEW_H
 #include <QTreeView>
 #include <QMouseEvent>
@@ -42,7 +42,7 @@ private:
 private:
     QMenu *m_treeSettingMenu;
     QAction* m_addAction;
-    QAction *m_addChildAction;
+  //  QAction *m_addChildAction;
     QAction *m_editAction;
     QAction *m_closeAction;
     QAction *m_deleteAction;

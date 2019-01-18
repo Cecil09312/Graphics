@@ -24,11 +24,11 @@ TreeView::TreeView(QWidget *parent):
     {
         m_treeSettingMenu->close();
     });
-    connect(m_addChildAction,&QAction::triggered,this,[=]()
-    {
-        QModelIndex index = indexAt(m_rootPoint);
-        addChildItem(index);
-    });
+//    connect(m_addChildAction,&QAction::triggered,this,[=]()
+//    {
+//        QModelIndex index = indexAt(m_rootPoint);
+//        addChildItem(index);
+//    });
 
     connect(m_editAction,&QAction::triggered,this,[=]()
     {
@@ -56,7 +56,7 @@ TreeView::TreeView(QWidget *parent):
             m_deleteAction->setEnabled(false);
             m_clearAction->setEnabled(false);
             m_addAction->setEnabled(false);
-            m_addChildAction->setEnabled(false);
+            //m_addChildAction->setEnabled(false);
         }
         else
         {
@@ -64,7 +64,7 @@ TreeView::TreeView(QWidget *parent):
             m_deleteAction->setEnabled(true);
             m_clearAction->setEnabled(true);
             m_addAction->setEnabled(true);
-            m_addChildAction->setEnabled(true);
+            //m_addChildAction->setEnabled(true);
         }
         m_rootPoint=  QWidget::mapFromGlobal(QCursor::pos());
         m_treeSettingMenu->exec(QCursor::pos());
@@ -251,14 +251,14 @@ void TreeView::initWidget()
 void TreeView::initMenu()
 {
     m_treeSettingMenu = new QMenu;
-    m_addAction  = new QAction(tr("增加行"),m_treeSettingMenu);
-    m_addChildAction = new QAction(tr("增加子节点"),m_treeSettingMenu);
+    m_addAction  = new QAction(tr("添加楼层"),m_treeSettingMenu);
+    //m_addChildAction = new QAction(tr("增加子节点"),m_treeSettingMenu);
     m_editAction = new QAction(tr("编辑"),m_treeSettingMenu);
     m_deleteAction= new QAction(tr("删除"),m_treeSettingMenu);
     m_clearAction= new QAction(tr("清空"),m_treeSettingMenu);
     m_closeAction = new QAction(tr("关闭"),m_treeSettingMenu);
     m_treeSettingMenu->addAction(m_addAction);
-    m_treeSettingMenu->addAction(m_addChildAction);
+   // m_treeSettingMenu->addAction(m_addChildAction);
     m_treeSettingMenu->addAction(m_editAction);
     m_treeSettingMenu->addAction(m_deleteAction);
     m_treeSettingMenu->addAction(m_clearAction);

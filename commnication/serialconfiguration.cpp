@@ -3,7 +3,7 @@
 #include <QDebug>
 SerialConfiguration::SerialConfiguration()
 {
-
+    m_configurationType = Serial;
 }
 
 SerialConfiguration::~SerialConfiguration()

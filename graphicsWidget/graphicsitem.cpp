@@ -16,16 +16,15 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_itemInfo.m_alarmType = tr("无");
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);
-    // m_color = QColor(Qt::red);
     m_colorEffect = new QGraphicsColorizeEffect(this);
     setGraphicsEffect(m_colorEffect);
     m_colorEffect->setStrength(0.0);
     setProperty("color",m_color);
     setProperty("scale",m_radius);
     m_colorAnimation = new QPropertyAnimation(this,"color");
-    m_colorAnimation->setStartValue(QColor(Qt::transparent));
+    m_colorAnimation->setStartValue(QColor(Qt::black));
     m_colorAnimation->setEndValue(QColor(Qt::red));
-    m_colorAnimation->setDuration(1000);
+    m_colorAnimation->setDuration(500);
     m_colorAnimation->setLoopCount(-1);
     m_scaleAnimation = new QPropertyAnimation(this,"scale");
     m_scaleAnimation->setStartValue(0.3);
@@ -58,7 +57,6 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     if(itemIconIndex>=0)
     {
         QString currentIconName = ItemIconInfoToJson::getIconName(itemIconIndex);
-      // qDebug() <<"currentIconName"<< currentIconName;
         if(!currentIconName.isEmpty())
         {
             m_iconName = Controller::instance()->fileNameFromQml(currentIconName);
@@ -71,12 +69,9 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     }
     else
     {
-
         m_itemIconInfoToJson.setCurrentIconIndex(-1);
     }
 
-    // m_parallelAnimGroup->setDirection(1000);
-    // m_parallelAnimGroup->start();
     connect(m_colorAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &/*value*/)
     {
         QColor color =qvariant_cast<QColor> (m_colorAnimation->currentValue());
@@ -134,21 +129,16 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*optio
     {
         QSvgRenderer renderer(m_iconName);
         renderer.render(painter,QRectF(-m_radius,-m_radius,m_radius*2,m_radius*2));
-        // painter->drawRect(QRect(-m_radius*2,-m_radius*2,30,30));
         painter->drawText(QRect(-m_radius,-m_radius,m_radius,m_radius),m_itemInfo.m_deviceNum);
     }
     else
     {
         if(m_radius>0)
         {
-            //            pen.setColor(Qt::red);
-            //            painter->setPen(pen);
             if(!QPixmap(m_iconName).isNull())
             {
                 painter->drawPixmap(-m_radius,-m_radius,m_radius*2,m_radius*2,QPixmap(m_iconName));
-
             }
-
             painter->drawText(QRect(-m_radius,-m_radius,m_radius,m_radius),m_itemInfo.m_deviceNum);
         }
         else
@@ -157,7 +147,6 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*optio
             {
                 painter->drawPixmap(-12,-12,12,12,QPixmap(m_iconName));
             }
-
             painter->drawText(QRectF(-12,-12,12,12),m_itemInfo.m_deviceNum);
         }
 
@@ -170,10 +159,6 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*optio
         painter->setBrush(Qt::NoBrush);
         painter->drawRect(boundingRect().adjusted(m_radius*2, m_radius*2, -m_radius*2, -m_radius*2));
     }
-    //   qt_graphicsItem_highlightSelected(this, painter, option);
-    //m_graphicsScene->update();
-
-    // painter->drawRoundedRect(-10, -10, 20, 20, 5, 5);
 }
 
 void GraphicsItem::setColor(const QColor &color)
@@ -220,7 +205,7 @@ void GraphicsItem::setColorEffectStrength(qreal strength)
 
 void GraphicsItem::setAnimationDuration(int duration)
 {
-    m_colorAnimation->setDuration(duration);
+    m_colorAnimation->setDuration(duration/2);
     m_scaleAnimation->setDuration(duration);
 }
 
@@ -261,7 +246,15 @@ void GraphicsItem::restoreSize()
     qreal yScale = currentTransform.m22();
     if(xScale*yScale>0)
     {
-        setTransform(currentTransform.scale(1/xScale,1/yScale));
+        if(qAbs(xScale-yScale)<=0.0001)
+        {
+            setScale(1.0/xScale);
+        }
+        else
+        {
+            currentTransform.scale(1.0/xScale,1.0/yScale);
+            setTransform(currentTransform);
+        }
         update();
     }
 }
@@ -385,7 +378,6 @@ QString GraphicsItem::deviceNum()
 
 QString GraphicsItem::equipmentModel()
 {
-    qDebug() << m_itemInfo.m_equipmentModel;
     return m_itemInfo.m_equipmentModel;
 }
 
@@ -462,10 +454,3 @@ void GraphicsItem::updateHoverText()
     setHoverText(hoverText);
 }
 
-
-
-
-//void GraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
-//{
-
-//}

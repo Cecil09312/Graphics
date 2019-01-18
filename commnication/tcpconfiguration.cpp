@@ -2,7 +2,7 @@
 #include "jsonEdit/qmlforjson.h"
 TcpConfiguration::TcpConfiguration()
 {
-
+  m_configurationType = Tcp;
 }
 
 TcpConfiguration::~TcpConfiguration()

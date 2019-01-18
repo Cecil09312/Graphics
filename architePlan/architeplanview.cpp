@@ -505,6 +505,7 @@ void ArchitePlanView::clearAlarm()
             item->stopAnimations();
             item->stopColorAnimation();
             item->setGraphicsEffect(nullptr);
+            item->restoreSize();
             Controller::instance()->getDataStore()->clearTypeItem();
 
         }

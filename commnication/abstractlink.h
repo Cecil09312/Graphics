@@ -26,5 +26,5 @@ public slots:
     void connectLink();
     void disconnectLink();
 };
-
+typedef QSharedPointer<AbstractLink> Link;
 #endif // ABSTRACTLINK_H

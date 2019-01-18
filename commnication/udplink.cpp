@@ -8,14 +8,14 @@ UdpLink::UdpLink(QObject *parent) :
     m_thread = new QThread;
     m_udpConfiguration = Configuration(new UdpConfiguration);
     m_udpSocket->moveToThread(m_thread);
+    setConfiguration();
     this->moveToThread(m_thread);
     qRegisterMetaType<QByteArray>("QByteArray");
     qRegisterMetaType<QByteArray>("const QByteArray&");
     qRegisterMetaType<QHostAddress>("QHostAddress");
     qRegisterMetaType<QHostAddress>("const QHostAddress&");
     m_thread->start();
-    //m_readAddress="127.0.0.1";
-    // m_readPort= 8080;
+
     connect(this,&UdpLink::writeData,this,[=](const QByteArray &array)
     {
         QHostAddress sendAddress = QHostAddress(m_sendAddress);
@@ -58,10 +58,11 @@ void UdpLink::setConfiguration()
 {
     QVariant data=  m_udpConfiguration.data()->getConfiguration();
     QHash<QString,QVariant> valueHash = data.toHash();
-    m_readAddress= valueHash["readAddress"].toString();
+    m_readAddress= valueHash["readAddr"].toString();
     m_readPort = valueHash["readPort"].toInt();
-    m_sendAddress= valueHash["sendAddress"].toString();
+    m_sendAddress= valueHash["sendAddr"].toString();
     m_sendPort = valueHash["sendPort"].toInt();
+   // qDebug() << m_readAddress << m_readPort << m_sendAddress << m_sendPort;
 }
 
 

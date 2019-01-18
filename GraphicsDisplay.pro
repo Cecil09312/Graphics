@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui quick svg opengl concurrent sql texttospeech serialport
+QT       += core gui quick svg opengl concurrent sql texttospeech serialport serialbus
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -59,8 +59,6 @@ SOURCES += \
     jsonEdit/itemiconinfotojson.cpp \
     graphicsWidget/svgrenderer.cpp \
     architePlan/styleditemdelegate.cpp \
-    commnication/modbusobj.cpp \
-    commnication/canbasobj.cpp \
     commnication/abstractconfiguration.cpp \
     commnication/abstractlink.cpp \
     commnication/seriallink.cpp \
@@ -69,7 +67,10 @@ SOURCES += \
     commnication/tcpconfiguration.cpp \
     commnication/configurationmanager.cpp \
     commnication/udplink.cpp \
-    commnication/udpconfiguration.cpp
+    commnication/udpconfiguration.cpp \
+    commnication/modbusmanager.cpp \
+    commnication/canbasmanager.cpp \
+    commnication/canconfiguration.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -93,8 +94,6 @@ HEADERS += \
     jsonEdit/itemiconinfotojson.h \
     graphicsWidget/svgrenderer.h \
     architePlan/styleditemdelegate.h \
-    commnication/modbusobj.h \
-    commnication/canbasobj.h \
     commnication/abstractconfiguration.h \
     commnication/abstractlink.h \
     commnication/seriallink.h \
@@ -103,7 +102,10 @@ HEADERS += \
     commnication/tcpconfiguration.h \
     commnication/configurationmanager.h \
     commnication/udplink.h \
-    commnication/udpconfiguration.h
+    commnication/udpconfiguration.h \
+    commnication/modbusmanager.h \
+    commnication/canbasmanager.h \
+    commnication/canconfiguration.h
 
 FORMS +=
 

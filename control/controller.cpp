@@ -1,4 +1,5 @@
 ﻿#include "controller.h"
+
 Controller*Controller::m_controller = nullptr;
 Controller::AutoDelete controlAutoDelete;
 Controller *Controller::instance()
@@ -20,9 +21,13 @@ Controller *Controller::instance()
 
 Controller::~Controller()
 {
+
     m_commObj.clear();
     m_udpObj.clear();
-    m_speechObj.clear();
+    m_serialConfigurationManager.data()->saveConfiguration();
+    m_tcpConfigurationManager.data()->saveConfiguration();
+    m_udpConfigurationManager.data()->saveConfiguration();
+    //m_speechObj.clear();
     //m_userManager.clear();
 }
 
@@ -98,10 +103,10 @@ UserManager::UserRight Controller::getUserRight()
     }
 }
 
-SpeechObj *Controller::getSpeechObj()
-{
-    return m_speechObj.data();
-}
+//SpeechObj *Controller::getSpeechObj()
+//{
+//    return m_speechObj.data();
+//}
 
 AbstractLink *Controller::getUdpObj()
 {
@@ -116,13 +121,20 @@ ConfigurationManager *Controller::getSerialConfigurationManager()
 Controller::Controller()
 {
     m_dataStore =QSharedPointer<DataStore>(new DataStore);
-    m_commObj = QSharedPointer<AbstractLink>(new SerialLink());
+    m_commObj = QSharedPointer<AbstractLink>(new SerialLink(),&QObject::deleteLater);
     m_userManager =new UserManager(this) ;
-    m_speechObj = QSharedPointer<SpeechObj>(new SpeechObj/*,&QObject::deleteLater*/);
+   // m_speechObj = QSharedPointer<SpeechObj>(new SpeechObj/*,&QObject::deleteLater*/);
 
     m_udpObj =QSharedPointer<AbstractLink> (new UdpLink);
     m_serialConfigurationManager =QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new SerialConfiguration),this)) ;
+    m_tcpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new TcpConfiguration),this)) ;
+    m_udpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new UdpConfiguration),this)) ;
+    m_modbusManager = QSharedPointer<ModbusManager>(new ModbusManager(Configuration(new TcpConfiguration)),&QObject::deleteLater);
    // m_udpObj->connectLink();
+
+
+   m_modbusManager.data()->connectDevice(ModbusManager::Connected);
+
 
 }
 

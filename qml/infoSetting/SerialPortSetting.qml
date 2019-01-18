@@ -107,13 +107,17 @@ Rectangle {
                 SerialPortInfo.setConfigurationValue("portName",
                                                      portComboBox.currentText)
                 SerialPortInfo.setConfigurationValue("baudRate",
-                                                     baudComboBox.currentText)
+                                                     parseInt(
+                                                         baudComboBox.currentText,
+                                                         10))
 
                 SerialPortInfo.setConfigurationValue(
-                            "dataBits", dataBitsComboBox.currentText)
+                            "dataBits",
+                            parseInt(dataBitsComboBox.currentText, 10))
 
                 SerialPortInfo.setConfigurationValue(
-                            "stopBits", stopBitsComboBox.currentText)
+                            "stopBits",
+                            parseInt(stopBitsComboBox.currentText, 10))
                 SerialPortInfo.setConfigurationValue("parity",
                                                      parityComboBox.currentText)
                 SerialPortInfo.setConfigurationValue(

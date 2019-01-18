@@ -11,13 +11,15 @@
 #include "control/controller.h"
 #include <QHostAddress>
 #include "commnication/configurationmanager.h"
+
+
+
 CrtWidget::CrtWidget(QWidget *parent) :
     QOpenGLWidget(parent)
 {
 
     initWidget();
-    setWindowFlags(Qt::FramelessWindowHint);
-
+    setWindowFlags(Qt::FramelessWindowHint|Qt::Window);
     QObject *alarmObj = m_alarmQuickView->rootObject();
     Q_ASSERT(alarmObj);
     connect(m_architePlanView,&ArchitePlanView::alarmHappend,this,[=](const QString &type)
@@ -139,12 +141,12 @@ void CrtWidget::initWidget()
         return Controller::instance()->getSysArchitePlanView();
     });
 
-    qmlRegisterSingletonType<Controller>("speechObj", 1, 0, "SpeechObj",
-                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
-        Q_UNUSED(engine)
-        Q_UNUSED(scriptEngine)
-        return Controller::instance()->getSpeechObj();
-    });
+//    qmlRegisterSingletonType<Controller>("speechObj", 1, 0, "SpeechObj",
+//                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+//        Q_UNUSED(engine)
+//        Q_UNUSED(scriptEngine)
+//        return Controller::instance()->getSpeechObj();
+//    });
 
 
     qmlRegisterType<QmlTableModel>("qmlTableModel",1,0,"QmlTableModel");

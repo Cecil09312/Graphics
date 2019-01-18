@@ -4,10 +4,58 @@
 ConfigurationManager::ConfigurationManager(Configuration configuration,QObject *parent) : QObject(parent)
 {
     m_configuration = configuration;
-    QVariant serialInfo = QmlForJson::readFile(m_configuration.data()->c_configurationPath);
-    QHash<QString,QVariant>serialValueHash = serialInfo.toHash();
-    m_serialConfigurationHash = serialValueHash["serial"].toHash();
+    QVariant configurationInfo = QmlForJson::readFile(m_configuration.data()->c_configurationPath);
+    QHash<QString,QVariant>configurationValueHash = configurationInfo.toHash();
+    m_serialConfigurationHash = configurationValueHash["serial"].toHash();
+    m_tcpConfigurationHash = configurationValueHash["tcp"].toHash();
+    m_canConfigurationHash = configurationValueHash["can"].toHash();
+    m_udpConfigurationHash = configurationValueHash["udp"].toHash();
+    if(m_serialConfigurationHash.isEmpty())
+    {
+        m_serialConfigurationHash["portName"]="";
+        m_serialConfigurationHash["baudRate"] = 9600;
+        m_serialConfigurationHash["dataBits"] = 8;
+        m_serialConfigurationHash["stopBits"] = 1;
+        m_serialConfigurationHash["parity"]  = "无校验";
+        m_serialConfigurationHash["flowControl"] = "无";
+       // m_configuration.data()->setConfiguration(m_serialConfigurationHash);
 
+    }
+    if(m_tcpConfigurationHash.isEmpty())
+    {
+        m_tcpConfigurationHash["hostAddr"] = "127.0.0.1";
+        m_tcpConfigurationHash["port"] = 8080;
+
+        // m_configuration.data()->setConfiguration(m_tcpConfigurationHash);
+    }
+    if(m_canConfigurationHash.isEmpty())
+    {
+        m_canConfigurationHash["plugin"] ="socketcan";
+        m_canConfigurationHash["interfaceName"] = "vcan0";
+    }
+    if(m_udpConfigurationHash.isEmpty())
+    {
+        m_udpConfigurationHash["readAddr"] = "127.0.0.1";
+        m_udpConfigurationHash["readPort"] = 8080;
+        m_udpConfigurationHash["sendAddr"] = "127.0.0.1";
+        m_udpConfigurationHash["sendPort"] = 8080;
+    }
+    if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Serial)
+    {
+       m_configuration.data()->setConfiguration(m_serialConfigurationHash);
+    }
+    else if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Tcp)
+    {
+       m_configuration.data()->setConfiguration(m_tcpConfigurationHash);
+    }
+    else if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Can)
+    {
+        m_configuration.data()->setConfiguration(m_canConfigurationHash);
+    }
+    else if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Udp)
+    {
+        m_configuration.data()->setConfiguration(m_udpConfigurationHash);
+    }
 }
 
 ConfigurationManager::~ConfigurationManager()
