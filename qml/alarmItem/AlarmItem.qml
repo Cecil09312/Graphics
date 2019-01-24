@@ -6,6 +6,7 @@ import QtQuick.Controls.Styles 1.4
 
 Rectangle {
     width: 150
+    signal currentAlarmType(string type)
     RowLayout {
         id: alarmBtnLayout
         height: 50
@@ -352,6 +353,19 @@ Rectangle {
             }
         }
 
+        ComboBox {
+            id: alarmTypeComboBox
+            anchors.leftMargin: 20
+            font.pointSize: 14
+            font.family: qsTr("Times New Roman")
+            width: parent.width
+            model: ["全部", "火警", "联动", "监管", "故障", "反馈", "屏蔽"]
+            onCurrentTextChanged: {
+
+                emit: currentAlarmType(currentText)
+
+            }
+        }
         Button {
             id: previousBtn
             anchors.leftMargin: 20
@@ -386,6 +400,10 @@ Rectangle {
             font.family: qsTr("Times New Roman")
             text: qsTr("总0页/第0页")
         }
+    }
+
+    function currentAlarm() {
+        return alarmTypeComboBox.currentText
     }
 
     function setPage(totalPage, currentPage) {

@@ -43,7 +43,6 @@ SOURCES += \
     infoTable/infotableview.cpp \
     graphicsWidget/graphicsscene.cpp \
     graphicsWidget/graphicsview.cpp \
-    graphicsWidget/pixmapitem.cpp \
     graphicsWidget/graphicsitem.cpp \
     architePlan/treeview.cpp \
     jsonEdit/jsonedit.cpp \
@@ -57,7 +56,6 @@ SOURCES += \
     jsonEdit/qmlforjson.cpp \
     control/usermanager.cpp \
     jsonEdit/itemiconinfotojson.cpp \
-    graphicsWidget/svgrenderer.cpp \
     architePlan/styleditemdelegate.cpp \
     commnication/abstractconfiguration.cpp \
     commnication/abstractlink.cpp \
@@ -70,7 +68,8 @@ SOURCES += \
     commnication/udpconfiguration.cpp \
     commnication/modbusmanager.cpp \
     commnication/canbasmanager.cpp \
-    commnication/canconfiguration.cpp
+    commnication/canconfiguration.cpp \
+    database/mysqlmanager.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -78,7 +77,6 @@ HEADERS += \
     infoTable/infotableview.h \
     graphicsWidget/graphicsscene.h \
     graphicsWidget/graphicsview.h \
-    graphicsWidget/pixmapitem.h \
     graphicsWidget/graphicsitem.h \
     architePlan/treeview.h \
     jsonEdit/jsonedit.h \
@@ -92,7 +90,6 @@ HEADERS += \
     jsonEdit/qmlforjson.h \
     control/usermanager.h \
     jsonEdit/itemiconinfotojson.h \
-    graphicsWidget/svgrenderer.h \
     architePlan/styleditemdelegate.h \
     commnication/abstractconfiguration.h \
     commnication/abstractlink.h \
@@ -105,7 +102,8 @@ HEADERS += \
     commnication/udpconfiguration.h \
     commnication/modbusmanager.h \
     commnication/canbasmanager.h \
-    commnication/canconfiguration.h
+    commnication/canconfiguration.h \
+    database/mysqlmanager.h
 
 FORMS +=
 

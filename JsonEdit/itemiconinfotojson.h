@@ -24,11 +24,9 @@ public:
 
 private:
     QHash<QString,QVariant>m_iconInfoHash;
-
     const QString c_filePath = QCoreApplication::applicationDirPath()+"/iconInfo.json";
     static QHash<int,QString> s_iconIndexHash;
     static int s_currentIconIndex;
-
 };
 
 #endif // ItemIconInfoToJson_H

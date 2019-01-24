@@ -1,27 +1,17 @@
 ﻿#include "controller.h"
 
-Controller*Controller::m_controller = nullptr;
-Controller::AutoDelete controlAutoDelete;
+QSharedPointer<Controller>Controller::m_controller = QSharedPointer<Controller>(nullptr);
 Controller *Controller::instance()
 {
-    if(m_controller==nullptr)
+    if(m_controller.isNull())
     {
-        QMutex mutex;
-        mutex.lock();
-        if(m_controller==nullptr)
-        {
-            Controller *controller = new Controller;
-            m_controller = controller;
-        }
-
-        mutex.unlock();
+        m_controller = QSharedPointer<Controller>(new Controller);
     }
-    return m_controller;
+    return m_controller.data();
 }
 
 Controller::~Controller()
 {
-
     m_commObj.clear();
     m_udpObj.clear();
     m_serialConfigurationManager.data()->saveConfiguration();
@@ -29,11 +19,6 @@ Controller::~Controller()
     m_udpConfigurationManager.data()->saveConfiguration();
     //m_speechObj.clear();
     //m_userManager.clear();
-}
-
-DataStore *Controller::getDataStore()
-{
-    return  m_dataStore.data();
 }
 
 QString Controller::fileNameFromQml(const QString &name)
@@ -98,7 +83,6 @@ UserManager::UserRight Controller::getUserRight()
     }
     else
     {
-
         return UserManager::Employee;
     }
 }
@@ -120,22 +104,16 @@ ConfigurationManager *Controller::getSerialConfigurationManager()
 
 Controller::Controller()
 {
-    m_dataStore =QSharedPointer<DataStore>(new DataStore);
     m_commObj = QSharedPointer<AbstractLink>(new SerialLink(),&QObject::deleteLater);
-    m_userManager =new UserManager(this) ;
-   // m_speechObj = QSharedPointer<SpeechObj>(new SpeechObj/*,&QObject::deleteLater*/);
-
+    m_userManager =new UserManager(this);
+    // m_speechObj = QSharedPointer<SpeechObj>(new SpeechObj/*,&QObject::deleteLater*/);
     m_udpObj =QSharedPointer<AbstractLink> (new UdpLink);
     m_serialConfigurationManager =QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new SerialConfiguration),this)) ;
     m_tcpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new TcpConfiguration),this)) ;
     m_udpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new UdpConfiguration),this)) ;
     m_modbusManager = QSharedPointer<ModbusManager>(new ModbusManager(Configuration(new TcpConfiguration)),&QObject::deleteLater);
-   // m_udpObj->connectLink();
-
-
-   m_modbusManager.data()->connectDevice(ModbusManager::Connected);
-
-
+    // m_udpObj->connectLink();
+    m_modbusManager.data()->connectDevice(ModbusManager::Connected);
 }
 
 

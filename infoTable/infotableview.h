@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QTableView>
 #include "qmlTableModel/qmltablemodel.h"
+#include "database/sqlmanager.h"
 
 class InfoTableView : public QTableView
 {
@@ -11,6 +12,7 @@ class InfoTableView : public QTableView
 public:
     explicit InfoTableView(QWidget *parent = nullptr);
     ~InfoTableView();
+    QmlTableModel  *tableModel();
 
 signals:
 
@@ -20,6 +22,7 @@ private:
 private:
    // QTableView *m_tableView;
     QmlTableModel  *m_tableModel;
+    //QItemSelectionModel *m_selectionModel;
 };
 
 #endif // INFOTABLEVIEW_H

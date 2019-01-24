@@ -5,14 +5,14 @@
 
 #include <QGLWidget>
 #include <QOpenGLWidget>
-//#include "control/controller.h"
 #include "dataStore/datastore.h"
 #include "jsonEdit/jsonedit.h"
 #include "graphicsWidget/graphicsitem.h"
 #include <QDebug>
 #include "control/controller.h"
 ArchitePlanView::ArchitePlanView(QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent),
+      m_currentAlarmType("全部")
 {
     initWidget();
     initFromJsonFile();
@@ -46,15 +46,27 @@ void ArchitePlanView::createAlarm(const QString &alarmTypeName)
         {
             GraphicsItem *currentItem = dynamic_cast<GraphicsItem *>(itemList.at(pos));
             generateAlarm(alarmTypeName,currentItem);
+            insertAlarmWidget(alarmTypeName,view);
+            insertAlarmWidget("全部",view);
+            updateAlarmWidget(view);
+            emit alarmItem(currentItem);
         }
-
-
     }
+}
 
-
-
-    //   GraphicsScene::getItemList();
-
+void ArchitePlanView::eliminateAlarm(GraphicsItem *item)
+{
+    if(item==nullptr)
+    {
+        return;
+    }
+    item->alarmType() = "无";
+    item->stopAnimations();
+    item->stopColorAnimation();
+    item->setGraphicsEffect(nullptr);
+    item->restoreSize();
+    DataStore::deleteTypeItem(item);
+    emit  eliminateAlarmFromTable(item);
 }
 
 void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *item)
@@ -62,8 +74,8 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
     if(item!=nullptr)
     {
         item->getItemInfo().m_alarmType= alarmTypeName;
-        Controller::instance()->getDataStore()->insertTypeItem(alarmTypeName,item);
-        if(Controller::instance()->getDataStore()->getTypeItemList(alarmTypeName).at(0)==item)
+        DataStore::insertTypeItem(alarmTypeName,item);
+        if(DataStore::getTypeItemList(alarmTypeName).at(0)==item)
         {
             item->startAnimations();
         }
@@ -79,10 +91,32 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
                 autoFitView(view);
             }
         }
-
         emit alarmHappend(alarmTypeName);
         // view->centerOn(currentItem);
     }
+}
+
+void ArchitePlanView::insertAlarmWidget(const QString &type, GraphicsView *view)
+{
+    if(!m_alarmWidgetHash[type].contains(view))
+    {
+        m_alarmWidgetHash[type].push_back(view);
+    }
+}
+
+void ArchitePlanView::deleteAlarmWidget(const QString &type,GraphicsView *view)
+{
+    m_alarmWidgetHash[type].removeOne(view);
+}
+
+void ArchitePlanView::clearAlarmWidget()
+{
+    m_alarmWidgetHash.clear();
+}
+
+void ArchitePlanView::clearAlarmWidget(const QString &type)
+{
+    m_alarmWidgetHash[type].clear();
 }
 
 void ArchitePlanView::firstFireAlarm()
@@ -152,22 +186,6 @@ void ArchitePlanView::initWidget()
             m_widgetMap[page]=widget;
             m_stackedWidget->addWidget(widget);
         }
-        if(m_stackedWidget->count()>1)
-        {
-            if(m_stackedWidget->currentIndex()>0 && m_stackedWidget->currentIndex()<m_stackedWidget->count()-1)
-            {
-                emit normalPage();
-            }
-            else if(m_stackedWidget->currentIndex()==0)
-            {
-                emit toFirstPage();
-            }
-
-        }
-        else if(m_stackedWidget->count()==1)
-        {
-            emit noPage();
-        }
 
     });
     connect(m_treeView,&TreeView::clicked,this,[=](const QModelIndex&index)
@@ -179,6 +197,9 @@ void ArchitePlanView::initWidget()
         itemMap = m_treeView->getTreeIndexMap();
         page =itemMap[item];
         m_stackedWidget->setCurrentWidget(m_widgetMap[page]);
+        GraphicsView *currentView = dynamic_cast<GraphicsView *>(m_widgetMap[page]);
+        updateAlarmWidget(currentView);
+
     });
 
     connect(m_treeView,&TreeView::clearIndex,this,[=]()
@@ -191,39 +212,9 @@ void ArchitePlanView::initWidget()
         }
         m_widgetMap.clear();
         emit noPage();
-
     });
 
-    connect(m_treeView,&TreeView::deleteIndex,this,[=](QStandardItem* item)
-    {
-        QMap<QStandardItem*,int>itemMap;
-        itemMap = m_treeView->getTreeIndexMap();
-        if(item->hasChildren())
-        {
-            for(int i=0;i<item->rowCount();i++)
-            {
-                QStandardItem*childItem =  item->child(i);
-                int chileItemPage = itemMap[childItem];
-                GraphicsView*childWidget = m_widgetMap[chileItemPage];
-                m_stackedWidget->removeWidget(childWidget);
-                m_widgetMap.remove(chileItemPage);
-                m_treeView->getTreeIndexMap().remove(childItem);
-            }
-
-        }
-
-        int page =itemMap[item];
-        GraphicsView*widget = m_widgetMap[page];
-        m_stackedWidget->removeWidget(widget);
-        m_widgetMap.remove(page);
-        m_treeView->getTreeIndexMap().remove(item);
-        if(m_stackedWidget->count()<=1)
-        {
-            emit noPage();
-        }
-
-
-    });
+    connect(m_treeView,&TreeView::deleteIndex,this,&ArchitePlanView::deleteViewFromItem);
 
     connect(m_treeView,&TreeView::insertAnchPixmap,this,[=](QStandardItem*item,const QString &fileName)
     {
@@ -232,25 +223,33 @@ void ArchitePlanView::initWidget()
         int page =itemMap[item];
         GraphicsView*widget = m_widgetMap[page];
         if(widget!=nullptr)
+        {
             widget->loadPixmap(fileName);
+        }
     });
 
     connect(m_stackedWidget,&QStackedWidget::currentChanged,this,[=](int index)
     {
-        int count = m_stackedWidget->count();
-        if(index==0)
+        QList<GraphicsView*>viewList = m_alarmWidgetHash[m_currentAlarmType];
+        int count = viewList.size();
+        if(index<m_widgetMap.size())
         {
-            emit toFirstPage();
+            GraphicsView *view = m_widgetMap[index];
+            int currentIndex= viewList.indexOf(view);
+            if(currentIndex==0)
+            {
+                emit toFirstPage();
+            }
+            else if(currentIndex>0 && currentIndex <count-1)
+            {
+                emit normalPage();
+            }
+            else
+            {
+                emit toLastPage();
+            }
+        }
 
-        }
-        else if(index>0 && index <count-1)
-        {
-            emit normalPage();
-        }
-        else
-        {
-            emit toLastPage();
-        }
     });
 
 }
@@ -288,7 +287,7 @@ void ArchitePlanView::saveArchiteInfo()
 
 void ArchitePlanView::autoFitView(QGraphicsView *view)
 {
-    QList< QList<QGraphicsItem *> >list= Controller::instance()->getDataStore()->getTypeItemHash().values();
+    QList< QList<QGraphicsItem *> >list= DataStore::getTypeItemHash().values();
     QList<QGraphicsItem *> alarmItemList;
     foreach (QList<QGraphicsItem *> itemList, list) {
         foreach (QGraphicsItem * item, itemList) {
@@ -419,7 +418,7 @@ void ArchitePlanView::setViewFromJson(const QHash<QString,QVariant> &hash,QStand
 
 void ArchitePlanView::findFireAlarm(int pos)
 {
-    QList<QGraphicsItem*>itemList= Controller::instance()->getDataStore()->getTypeItemList(tr("火警"));
+    QList<QGraphicsItem*>itemList= DataStore::getTypeItemList(tr("火警"));
     int listSize = itemList.size();
     QList<GraphicsView *>viewList = m_widgetMap.values();
 
@@ -468,9 +467,51 @@ void ArchitePlanView::setGlobalArchiteFromJson()
     setGlobalArchitePixmap(pixmapName);
 }
 
+void ArchitePlanView::updateAlarmWidget(GraphicsView *currentView)
+{
+    int currentIndex = m_alarmWidgetHash[m_currentAlarmType].indexOf(currentView);
+    if(totalPage()>1)
+    {
+        if(currentIndex>0&&currentIndex<totalPage()-1)
+        {
+            emit normalPage();
+        }
+        else if(currentIndex==0)
+        {
+            emit toFirstPage();
+
+        }
+        else if(currentIndex==totalPage()-1)
+        {
+            emit toLastPage();
+        }
+    }
+    else if(totalPage()<=1)
+    {
+        emit noPage();
+    }
+}
+
+void ArchitePlanView::deleteAlarmWidget(GraphicsView *currentView)
+{
+    if(m_currentAlarmType!="全部")
+    {
+        if(m_alarmWidgetHash["全部"].contains(currentView))
+        {
+            m_alarmWidgetHash["全部"].removeOne(currentView);
+        }
+    }
+    if(m_alarmWidgetHash[m_currentAlarmType].contains(currentView))
+    {
+        m_alarmWidgetHash[m_currentAlarmType].removeOne(currentView);
+    }
+    GraphicsView*view =dynamic_cast<GraphicsView*>(m_stackedWidget->currentWidget());
+    updateAlarmWidget(view);
+}
+
 int ArchitePlanView::numOfTypeAlarm(const QString &type)
 {
-    int num= Controller::instance()->getDataStore()->numOfTypeItem(type);
+    int num= DataStore::numOfTypeItem(type);
     return num;
 }
 
@@ -488,47 +529,58 @@ QMap<int, GraphicsView *> &ArchitePlanView::getWidgetMap()
 
 int ArchitePlanView::totalPage()
 {
-    return m_stackedWidget->count();
+    return m_alarmWidgetHash[m_currentAlarmType].size();
 }
 
 int ArchitePlanView::currentPage()
 {
-    return m_stackedWidget->currentIndex()+1;
+    GraphicsView*view = dynamic_cast<GraphicsView*>(m_stackedWidget->currentWidget());
+    QList<GraphicsView*>viewList= m_alarmWidgetHash[m_currentAlarmType];
+    return viewList.indexOf(view);
 }
 
 void ArchitePlanView::clearAlarm()
 {
-    QList< QList<QGraphicsItem *> >list= Controller::instance()->getDataStore()->getTypeItemHash().values();
-    foreach (QList<QGraphicsItem *>itemList, list) {
-        foreach (QGraphicsItem *currentItem, itemList) {
+    QList< QList<QGraphicsItem *> >list= DataStore::getTypeItemHash().values();
+    foreach (QList<QGraphicsItem *>itemList, list)
+    {
+        foreach (QGraphicsItem *currentItem, itemList)
+        {
             GraphicsItem *item = dynamic_cast<GraphicsItem *>(currentItem);
             item->stopAnimations();
             item->stopColorAnimation();
             item->setGraphicsEffect(nullptr);
             item->restoreSize();
-            Controller::instance()->getDataStore()->clearTypeItem();
-
+            item->alarmType() = "无";
+            DataStore::clearTypeItem();
+            clearAlarmWidget();
+            emit noPage();
         }
     }
+
+    emit clearAlarmFromTable();
 }
 
 void ArchitePlanView::toPreviousPage()
 {
-    int count =m_stackedWidget->count();
+    int count =totalPage();
     if(count>0)
     {
-        int currentIndex = m_stackedWidget->currentIndex();
+        QList<GraphicsView*>viewList=  m_alarmWidgetHash[m_currentAlarmType];
+        int currentIndex = currentPage();
         if(currentIndex<count && currentIndex>0)
         {
-            m_stackedWidget->setCurrentIndex(currentIndex-1);
+            if(viewList.size()>currentIndex-1)
+            {
+                m_stackedWidget->setCurrentWidget(viewList.at(currentIndex-1));
+            }
         }
-        if(m_stackedWidget->currentIndex()==0)
+        if(currentPage()==0)
         {
             emit toFirstPage();
         }
         else
         {
-
             emit normalPage();
         }
     }
@@ -537,24 +589,89 @@ void ArchitePlanView::toPreviousPage()
 
 void ArchitePlanView::toNextPage()
 {
-    int count =m_stackedWidget->count();
+    int count =totalPage();
     if(count>0)
     {
-        int currentIndex = m_stackedWidget->currentIndex();
+        int currentIndex = currentPage();
+        QList<GraphicsView*>viewList=  m_alarmWidgetHash[m_currentAlarmType];
         if(currentIndex<count-1)
         {
-            m_stackedWidget->setCurrentIndex(currentIndex+1);
+            if(viewList.size()>currentIndex+1)
+            {
+                m_stackedWidget->setCurrentWidget(viewList.at(currentIndex+1));
+            }
         }
-
-        if(m_stackedWidget->currentIndex()==(count-1))
+        if(currentPage()==(count-1))
         {
             emit toLastPage();
         }
         else
         {
-
             emit normalPage();
         }
-
     }
+}
+
+
+void ArchitePlanView::setCurrentAlarmType(const QString &type)
+{
+    m_currentAlarmType = type;
+}
+
+QString ArchitePlanView::currentAlarmType()
+{
+    return m_currentAlarmType;
+}
+
+void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
+{
+    QMap<QStandardItem*,int>itemMap;
+    itemMap = m_treeView->getTreeIndexMap();
+    if(item->hasChildren())
+    {
+        for(int i=0;i<item->rowCount();i++)
+        {
+            QStandardItem*childItem =  item->child(i);
+            int chileItemPage = itemMap[childItem];
+            GraphicsView*childWidget = m_widgetMap[chileItemPage];
+            m_stackedWidget->removeWidget(childWidget);
+            m_widgetMap.remove(chileItemPage);
+            m_treeView->getTreeIndexMap().remove(childItem);
+            deleteAlarmWidget(childWidget);
+        }
+    }
+
+    int page =itemMap[item];
+    GraphicsView*widget = m_widgetMap[page];
+    m_stackedWidget->removeWidget(widget);
+    m_widgetMap.remove(page);
+    m_treeView->getTreeIndexMap().remove(item);
+    deleteAlarmWidget(widget);
+}
+
+GraphicsView *ArchitePlanView::viewToParentItem(QStandardItem *item)
+{
+    QMap<QStandardItem*,int>itemMap;
+    itemMap = m_treeView->getTreeIndexMap();
+    int page =itemMap[item];
+    GraphicsView*widget = m_widgetMap[page];
+    return widget;
+}
+
+QList<GraphicsView *> ArchitePlanView::viewsToChildItem(QStandardItem *item)
+{
+    QMap<QStandardItem*,int>itemMap;
+    itemMap = m_treeView->getTreeIndexMap();
+    QList<GraphicsView*>viewList;
+    if(item->hasChildren())
+    {
+        for(int i=0;i<item->rowCount();i++)
+        {
+            QStandardItem*childItem =  item->child(i);
+            int chileItemPage = itemMap[childItem];
+            GraphicsView*childWidget = m_widgetMap[chileItemPage];
+            viewList.push_back(childWidget);
+        }
+    }
+    return viewList;
 }

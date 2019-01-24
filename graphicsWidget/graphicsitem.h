@@ -11,7 +11,6 @@
 #include "jsonEdit/itemiconinfotojson.h"
 #include <QGraphicsColorizeEffect>
 class GraphicsScene;
-
 struct ItemInfo
 {
     QString m_extNum;//分机号
@@ -77,18 +76,18 @@ public:
     QHash<QString,QVariant> itemInfo();
     void setItemInfo(const ItemInfo &itemInfo);
     ItemInfo &getItemInfo();
-    Q_INVOKABLE QString extNum();
-    Q_INVOKABLE QString loopNum();
-    Q_INVOKABLE QString addrNum();
-    Q_INVOKABLE QString alarmType();
-    Q_INVOKABLE QString deviceNum();
-    Q_INVOKABLE QString equipmentModel();
-    Q_INVOKABLE QString sysOfDevice();
-    Q_INVOKABLE QString protectedAreaName();
-    Q_INVOKABLE QString buildingName();
-    Q_INVOKABLE QString floorOfDevice();
-    Q_INVOKABLE QString deviceLocation();
-    Q_INVOKABLE QString operatorDuty();
+    Q_INVOKABLE QString &extNum();
+    Q_INVOKABLE QString &loopNum();
+    Q_INVOKABLE QString &addrNum();
+    Q_INVOKABLE QString &alarmType();
+    Q_INVOKABLE QString &deviceNum();
+    Q_INVOKABLE QString &equipmentModel();
+    Q_INVOKABLE QString &sysOfDevice();
+    Q_INVOKABLE QString &protectedAreaName();
+    Q_INVOKABLE QString &buildingName();
+    Q_INVOKABLE QString &floorOfDevice();
+    Q_INVOKABLE QString &deviceLocation();
+    Q_INVOKABLE QString &operatorDuty();
 
 protected:
 

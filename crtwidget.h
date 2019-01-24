@@ -13,6 +13,8 @@
 #include "jsonEdit/qmlforjson.h"
 #include "jsonEdit/itemiconinfotojson.h"
 #include "commnication/TcpLink.h"
+#include "database/sqlitemanager.h"
+#include "database/sqlmanager.h"
 
 class CrtWidget : public QOpenGLWidget
 {
@@ -29,8 +31,11 @@ public slots:
 //    void toFirstFireAlarm();
 //    void toLastFireAlarm();
     void logWidgetClose();
+    void alarmChanged(QString alarm);
+    void alarmStatistics(const QString &type);
 private:
     void initWidget();
+    void alarmDataOnTable();
 private:
     QWidget *m_alarmContainer;
     QWidget *m_toolBarContainer;
@@ -39,6 +44,8 @@ private:
     QQuickView *m_loginQuickView;
     QQuickView *m_alarmQuickView;
     QQmlApplicationEngine *m_settingViewEngine;
+    SqlManager *m_sqliteManager;
+    QObject *m_alarmObj;
 
 };
 

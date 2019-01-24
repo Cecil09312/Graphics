@@ -11,7 +11,8 @@
 #include "control/controller.h"
 #include <QHostAddress>
 #include "commnication/configurationmanager.h"
-
+#include "database/sqlitemanager.h"
+#include "database/sqlmanager.h"
 
 
 CrtWidget::CrtWidget(QWidget *parent) :
@@ -20,53 +21,102 @@ CrtWidget::CrtWidget(QWidget *parent) :
 
     initWidget();
     setWindowFlags(Qt::FramelessWindowHint|Qt::Window);
-    QObject *alarmObj = m_alarmQuickView->rootObject();
-    Q_ASSERT(alarmObj);
-    connect(m_architePlanView,&ArchitePlanView::alarmHappend,this,[=](const QString &type)
+    QString dbName = QCoreApplication::applicationDirPath()+"/alarmInfo.db";
+    m_sqliteManager->setDataBase("QSQLITE","alarmInfo","","","",dbName,888);
+    m_sqliteManager->open();
+    if(m_sqliteManager->isOpen())
     {
-        if(type==tr("火警"))
+        QStringList tableNameList = m_sqliteManager->getTables(dbName);
+        if(!tableNameList.contains("AlarmInfo"))
         {
-            QMetaObject::invokeMethod(alarmObj,"setFireAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
-            //QMetaObject::invokeMethod(alarmObj,"startFireAnimation",Q_ARG(QVariant,true));
-            QMetaObject::invokeMethod(alarmObj,"setFireAlarmText",Q_ARG(QVariant,m_architePlanView->numOfTypeAlarm(type)));
+            m_sqliteManager->executeQuery("create table AlarmInfo(分机号 text , 回路号 text,地址号 text,报警类型 text,设备产品编号 text primary key,设备设施型号 text,报警收到时间 text,设备所属系统 text,总保护区域名称 text,建筑设施名称 text,设施所在楼层 text,设施所在位置 text,值班人员 text)");
         }
-        else if(type==tr("联动"))
-        {
-            QMetaObject::invokeMethod(alarmObj,"setLinkageAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
-            //QMetaObject::invokeMethod(alarmObj,"startLinkageAnimation",Q_ARG(QVariant,true));
-            QMetaObject::invokeMethod(alarmObj,"setLinkageText",Q_ARG(QVariant,m_architePlanView->numOfTypeAlarm(type)));
-        }
-        else if(type==tr("监管"))
-        {
-            QMetaObject::invokeMethod(alarmObj,"setSuperviseAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
-           // QMetaObject::invokeMethod(alarmObj,"startSuperviseAnimation",Q_ARG(QVariant,true));
-            QMetaObject::invokeMethod(alarmObj,"setSuperviseText",Q_ARG(QVariant,m_architePlanView->numOfTypeAlarm(type)));
-        }
-        else if(type==tr("故障"))
-        {
-            QMetaObject::invokeMethod(alarmObj,"setfaultAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
-           // QMetaObject::invokeMethod(alarmObj,"startFaultAnimation",Q_ARG(QVariant,true));
-            QMetaObject::invokeMethod(alarmObj,"setFaultText",Q_ARG(QVariant,m_architePlanView->numOfTypeAlarm(type)));
-        }
-        else if(type==tr("反馈"))
-        {
-            QMetaObject::invokeMethod(alarmObj,"setFeedbackColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
-           // QMetaObject::invokeMethod(alarmObj,"startFeedbackAnimation",Q_ARG(QVariant,true));
-            QMetaObject::invokeMethod(alarmObj,"setFeedbackText",Q_ARG(QVariant,m_architePlanView->numOfTypeAlarm(type)));
-        }
-        else if(type==tr("屏蔽"))
-        {
-            QMetaObject::invokeMethod(alarmObj,"setShieldAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
-           // QMetaObject::invokeMethod(alarmObj,"startShieldAnimation",Q_ARG(QVariant,true));
-            QMetaObject::invokeMethod(alarmObj,"setShieldText",Q_ARG(QVariant,m_architePlanView->numOfTypeAlarm(type)));
-        }
+    }
+
+    m_infoTableView->tableModel()->setDbDriver("QSQLITE");
+    m_infoTableView->tableModel()->setDbName(dbName);
+    m_infoTableView->tableModel()->setDbConnectionName("defaultName");
+    m_infoTableView->tableModel()->setDbPort(888);
+    m_infoTableView->tableModel()->setDbOpen(true);
+    m_infoTableView->tableModel()->sqlCommit("select *from AlarmInfo");
+    QStringList alarmInfoList,valueList;
+    alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"报警类型"<<"设备产品编号"
+                  << "设备设施型号"<<"报警收到时间"<<"设备所属系统"<<"总保护区域名称"
+                  << "建筑设施名称"<<"设施所在楼层"<<"设施所在位置"<<"值班人员";
+    for(int i=0;i<alarmInfoList.size();i++)
+    {
+        QString str = QString("'%%1'").arg(i+1);
+        valueList.push_back(str);
+    }
+    QString sqlInfo = QString("insert into AlarmInfo (%1) values (%2)").arg(alarmInfoList.join(",")).arg(valueList.join(","));
+    connect(m_architePlanView,&ArchitePlanView::alarmHappend,this,&CrtWidget::alarmStatistics);
+    connect(m_architePlanView,&ArchitePlanView::alarmItem,this,[=](GraphicsItem *item)
+    {
+        m_sqliteManager->executeQuery(sqlInfo.arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->alarmType()).arg(item->deviceNum())
+                                      .arg(item->equipmentModel()).arg(item->getItemInfo().m_alarmReceiveTime).arg(item->sysOfDevice()).arg(item->protectedAreaName()).arg(item->buildingName())
+                                      .arg(item->floorOfDevice()).arg(item->deviceLocation()).arg(item->operatorDuty()));
+        alarmDataOnTable();
+    });
+
+    Q_ASSERT(m_alarmObj);
+
+    if(m_architePlanView->totalPage()>0)
+    {
+        QMetaObject::invokeMethod(m_alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,true));
+        QMetaObject::invokeMethod(m_alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,false));
+    }
+    else
+    {
+        QMetaObject::invokeMethod(m_alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,false));
+        QMetaObject::invokeMethod(m_alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,false));
+    }
+
+    QMetaObject::invokeMethod(m_alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()+1));
+    connect(m_alarmObj,SIGNAL(currentAlarmType(QString)),this,SLOT(alarmChanged(QString)));
+    connect(m_architePlanView,&ArchitePlanView::toFirstPage,this,[=](){
+        QMetaObject::invokeMethod(m_alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,true));
+        QMetaObject::invokeMethod(m_alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,false));
+        QMetaObject::invokeMethod(m_alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()+1));
 
     });
-    //qDebug() << SerialLink::baudRates();
+
+    connect(m_architePlanView,&ArchitePlanView::toLastPage,this,[=](){
+        QMetaObject::invokeMethod(m_alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,false));
+        QMetaObject::invokeMethod(m_alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,true));
+        QMetaObject::invokeMethod(m_alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()+1));
+
+    });
+
+    connect(m_architePlanView,&ArchitePlanView::normalPage,this,[=](){
+        QMetaObject::invokeMethod(m_alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,true));
+        QMetaObject::invokeMethod(m_alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,true));
+        QMetaObject::invokeMethod(m_alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()+1));
+    });
+
+    connect(m_architePlanView,&ArchitePlanView::noPage,this,[=](){
+        QMetaObject::invokeMethod(m_alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,false));
+        QMetaObject::invokeMethod(m_alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,false));
+        QMetaObject::invokeMethod(m_alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()+1));
+
+    });
+
+    connect(m_architePlanView,&ArchitePlanView::clearAlarmFromTable,this,[=]()
+    {
+        m_sqliteManager->executeQuery("delete from AlarmInfo");
+        alarmDataOnTable();
+    });
+
+    connect(m_architePlanView,&ArchitePlanView::eliminateAlarmFromTable,this,[=](GraphicsItem *item)
+    {
+        m_sqliteManager->executeQuery(QString("delete from AlarmInfo where 设备产品编号 = '%1'").arg(item->deviceNum()));
+        alarmDataOnTable();
+    });
 }
 
 CrtWidget::~CrtWidget()
 {
+    m_sqliteManager->executeQuery("delete from AlarmInfo");
+    m_sqliteManager->close();
     delete m_alarmContainer;
     delete m_toolBarContainer;
     delete m_loginQuickView;
@@ -105,6 +155,81 @@ void CrtWidget::logWidgetClose()
     m_loginQuickView->close();
 }
 
+void CrtWidget::alarmChanged(QString alarm)
+{
+    m_architePlanView->setCurrentAlarmType(alarm);
+    int currentPage = m_architePlanView->currentPage();
+    int totalPage = m_architePlanView->totalPage();
+
+    alarmDataOnTable();
+    Q_ASSERT(m_alarmObj);
+    if(totalPage>0)
+    {
+        if(currentPage>0&&currentPage<totalPage-1)
+        {
+            QMetaObject::invokeMethod(m_alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,true));
+            QMetaObject::invokeMethod(m_alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,true));
+        }
+        else if(currentPage<=0)
+        {
+            QMetaObject::invokeMethod(m_alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,true));
+            QMetaObject::invokeMethod(m_alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,false));
+        }
+        else if(currentPage==totalPage-1)
+        {
+            QMetaObject::invokeMethod(m_alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,false));
+            QMetaObject::invokeMethod(m_alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,true));
+        }
+    }
+    else
+    {
+        QMetaObject::invokeMethod(m_alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,false));
+        QMetaObject::invokeMethod(m_alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,false));
+    }
+    QMetaObject::invokeMethod(m_alarmObj,"setPage",Q_ARG(QVariant,totalPage),Q_ARG(QVariant,currentPage+1));
+}
+
+void CrtWidget::alarmStatistics(const QString &type)
+{
+    Q_ASSERT(m_alarmObj);
+    if(type==tr("火警"))
+    {
+        QMetaObject::invokeMethod(m_alarmObj,"setFireAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+        //QMetaObject::invokeMethod(m_alarmObj,"startFireAnimation",Q_ARG(QVariant,true));
+        QMetaObject::invokeMethod(m_alarmObj,"setFireAlarmText",Q_ARG(QVariant,m_architePlanView->numOfTypeAlarm(type)));
+    }
+    else if(type==tr("联动"))
+    {
+        QMetaObject::invokeMethod(m_alarmObj,"setLinkageAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+        //QMetaObject::invokeMethod(m_alarmObj,"startLinkageAnimation",Q_ARG(QVariant,true));
+        QMetaObject::invokeMethod(m_alarmObj,"setLinkageText",Q_ARG(QVariant,m_architePlanView->numOfTypeAlarm(type)));
+    }
+    else if(type==tr("监管"))
+    {
+        QMetaObject::invokeMethod(m_alarmObj,"setSuperviseAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+        // QMetaObject::invokeMethod(m_alarmObj,"startSuperviseAnimation",Q_ARG(QVariant,true));
+        QMetaObject::invokeMethod(m_alarmObj,"setSuperviseText",Q_ARG(QVariant,m_architePlanView->numOfTypeAlarm(type)));
+    }
+    else if(type==tr("故障"))
+    {
+        QMetaObject::invokeMethod(m_alarmObj,"setfaultAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+        // QMetaObject::invokeMethod(m_alarmObj,"startFaultAnimation",Q_ARG(QVariant,true));
+        QMetaObject::invokeMethod(m_alarmObj,"setFaultText",Q_ARG(QVariant,m_architePlanView->numOfTypeAlarm(type)));
+    }
+    else if(type==tr("反馈"))
+    {
+        QMetaObject::invokeMethod(m_alarmObj,"setFeedbackColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+        // QMetaObject::invokeMethod(m_alarmObj,"startFeedbackAnimation",Q_ARG(QVariant,true));
+        QMetaObject::invokeMethod(m_alarmObj,"setFeedbackText",Q_ARG(QVariant,m_architePlanView->numOfTypeAlarm(type)));
+    }
+    else if(type==tr("屏蔽"))
+    {
+        QMetaObject::invokeMethod(m_alarmObj,"setShieldAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+        // QMetaObject::invokeMethod(m_alarmObj,"startShieldAnimation",Q_ARG(QVariant,true));
+        QMetaObject::invokeMethod(m_alarmObj,"setShieldText",Q_ARG(QVariant,m_architePlanView->numOfTypeAlarm(type)));
+    }
+}
+
 void CrtWidget::initWidget()
 {
 
@@ -141,12 +266,12 @@ void CrtWidget::initWidget()
         return Controller::instance()->getSysArchitePlanView();
     });
 
-//    qmlRegisterSingletonType<Controller>("speechObj", 1, 0, "SpeechObj",
-//                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
-//        Q_UNUSED(engine)
-//        Q_UNUSED(scriptEngine)
-//        return Controller::instance()->getSpeechObj();
-//    });
+    //    qmlRegisterSingletonType<Controller>("speechObj", 1, 0, "SpeechObj",
+    //                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+    //        Q_UNUSED(engine)
+    //        Q_UNUSED(scriptEngine)
+    //        return Controller::instance()->getSpeechObj();
+    //    });
 
 
     qmlRegisterType<QmlTableModel>("qmlTableModel",1,0,"QmlTableModel");
@@ -175,11 +300,12 @@ void CrtWidget::initWidget()
 
     m_infoTableView = new InfoTableView(this);
     m_infoTableView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-
+    m_sqliteManager = SqlManager::fromDriver("QSQLITER");
     m_alarmQuickView = new QQuickView;
     m_alarmQuickView->setSource(QUrl("qrc:/qml/alarmItem/AlarmItem.qml"));
     m_alarmQuickView->rootContext()->setContextProperty("CrtWidget",this);
     m_alarmQuickView->rootContext()->setContextProperty("ArchitePlanView",m_architePlanView);
+    m_alarmObj = m_alarmQuickView->rootObject();
 
     m_alarmContainer = QWidget::createWindowContainer(m_alarmQuickView, this);
     m_alarmContainer->setMinimumHeight(100);
@@ -208,46 +334,17 @@ void CrtWidget::initWidget()
     globalVLayout->setContentsMargins(QMargins(0,0,0,0));
     setLayout(globalVLayout);
 
-    Q_ASSERT(m_alarmQuickView);
-    QObject *alarmObj = m_alarmQuickView->rootObject();
-    Q_ASSERT(alarmObj);
-    if(m_architePlanView->getWidgetMap().size()>0)
+}
+
+void CrtWidget::alarmDataOnTable()
+{
+    if(m_architePlanView->currentAlarmType()=="全部")
     {
-        QMetaObject::invokeMethod(alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,true));
-        QMetaObject::invokeMethod(alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,false));
+        m_infoTableView->tableModel()->sqlCommit("select *from AlarmInfo");
     }
     else
     {
-        QMetaObject::invokeMethod(alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,false));
-        QMetaObject::invokeMethod(alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,false));
+        m_infoTableView->tableModel()->sqlCommit(QString("select *from AlarmInfo where 报警类型 ='%1'").arg(m_architePlanView->currentAlarmType()));
     }
-    QMetaObject::invokeMethod(alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()));
-    connect(m_architePlanView,&ArchitePlanView::toFirstPage,this,[=](){
-
-        QMetaObject::invokeMethod(alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,true));
-        QMetaObject::invokeMethod(alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,false));
-        QMetaObject::invokeMethod(alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()));
-
-    });
-
-    connect(m_architePlanView,&ArchitePlanView::toLastPage,this,[=](){
-        QMetaObject::invokeMethod(alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,false));
-        QMetaObject::invokeMethod(alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,true));
-        QMetaObject::invokeMethod(alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()));
-
-    });
-
-    connect(m_architePlanView,&ArchitePlanView::normalPage,this,[=](){
-
-        QMetaObject::invokeMethod(alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,true));
-        QMetaObject::invokeMethod(alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,true));
-        QMetaObject::invokeMethod(alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()));
-    });
-
-    connect(m_architePlanView,&ArchitePlanView::noPage,this,[=](){
-
-        QMetaObject::invokeMethod(alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,false));
-        QMetaObject::invokeMethod(alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,false));
-        QMetaObject::invokeMethod(alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()));
-    });
 }
+

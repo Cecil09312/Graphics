@@ -288,10 +288,6 @@ void GraphicsItem::setHoverText(const QString &hoverText)
     update();
 }
 
-
-
-
-
 QColor GraphicsItem::itemTextColor() const
 {
     return m_itemTextColor;
@@ -302,8 +298,6 @@ void GraphicsItem::setItemTextColor(const QColor &color)
     m_itemTextColor = color;
     update();
 }
-
-
 
 QString GraphicsItem::iconName() const
 {
@@ -351,62 +345,62 @@ ItemInfo &GraphicsItem::getItemInfo()
     return m_itemInfo;
 }
 
-QString GraphicsItem::extNum()
+QString &GraphicsItem::extNum()
 {
     return m_itemInfo.m_extNum;
 }
 
-QString GraphicsItem::loopNum()
+QString &GraphicsItem::loopNum()
 {
     return m_itemInfo.m_loopNum;
 }
 
-QString GraphicsItem::addrNum()
+QString &GraphicsItem::addrNum()
 {
     return m_itemInfo.m_addrNum;
 }
 
-QString GraphicsItem::alarmType()
+QString &GraphicsItem::alarmType()
 {
     return m_itemInfo.m_alarmType;
 }
 
-QString GraphicsItem::deviceNum()
+QString &GraphicsItem::deviceNum()
 {
     return m_itemInfo.m_deviceNum;
 }
 
-QString GraphicsItem::equipmentModel()
+QString &GraphicsItem::equipmentModel()
 {
     return m_itemInfo.m_equipmentModel;
 }
 
-QString GraphicsItem::sysOfDevice()
+QString &GraphicsItem::sysOfDevice()
 {
     return m_itemInfo.m_sysOfDevice;
 }
 
-QString GraphicsItem::protectedAreaName()
+QString &GraphicsItem::protectedAreaName()
 {
     return m_itemInfo.m_protectedAreaName;
 }
 
-QString GraphicsItem::buildingName()
+QString &GraphicsItem::buildingName()
 {
     return m_itemInfo.m_buildingName;
 }
 
-QString GraphicsItem::floorOfDevice()
+QString &GraphicsItem::floorOfDevice()
 {
     return m_itemInfo.m_floorOfDevice;
 }
 
-QString GraphicsItem::deviceLocation()
+QString &GraphicsItem::deviceLocation()
 {
     return m_itemInfo.m_deviceLocation;
 }
 
-QString GraphicsItem::operatorDuty()
+QString &GraphicsItem::operatorDuty()
 {
     return m_itemInfo.m_operatorOnDuty;
 }

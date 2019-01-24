@@ -1,5 +1,9 @@
 ﻿#include "datastore.h"
 #include <QDebug>
+#include <QGraphicsItem>
+#include <QGraphicsScene>
+
+QHash<QString,QList<QGraphicsItem*> >DataStore::m_typeItemHash=QHash<QString,QList<QGraphicsItem*> >();
 DataStore::DataStore()
 {
 
@@ -79,4 +83,25 @@ void DataStore::clearTypeItem()
 int DataStore::numOfTypeItem(const QString &type)
 {
     return m_typeItemHash[type].size();
+}
+
+GraphicsView *DataStore::itemDisplayView(GraphicsItem *item)
+{
+    GraphicsView *currentView = nullptr;
+    QGraphicsScene *scene = item->scene();
+    QList<QGraphicsView *>viewList= scene->views();
+    foreach (QGraphicsView *view, viewList)
+    {
+        GraphicsView *graphicsView = dynamic_cast<GraphicsView *>(view);
+        if(graphicsView!=nullptr)
+        {
+          QList<QGraphicsItem *>itemList=  graphicsView->getItemList();
+          if(itemList.contains(item))
+          {
+              currentView=graphicsView;
+              break;
+          }
+        }
+    }
+    return currentView;
 }

@@ -26,7 +26,17 @@ public:
     int currentPage();
     Q_INVOKABLE void clearAlarm();
     Q_INVOKABLE void createAlarm(const QString &alarmTypeName);
+    void eliminateAlarm(GraphicsItem *item);//消除报警
     void generateAlarm(const QString &alarmTypeName,GraphicsItem*item);
+    void insertAlarmWidget(const QString &type,GraphicsView*view);
+    void deleteAlarmWidget(const QString &type, GraphicsView *view);
+    void clearAlarmWidget();
+    void clearAlarmWidget(const QString &type);
+    Q_INVOKABLE void setCurrentAlarmType(const QString &type);
+    QString currentAlarmType();
+
+    GraphicsView * viewToParentItem(QStandardItem* item);
+    QList<GraphicsView *>viewsToChildItem(QStandardItem* item);
 
 signals:
     void alarmHappend(const QString &alarmType);
@@ -34,13 +44,17 @@ signals:
     void toFirstPage();
     void noPage();
     void normalPage();
+    void alarmItem(GraphicsItem *item);
+    void eliminateAlarmFromTable(GraphicsItem *item);
+    void clearAlarmFromTable();
 public slots:
-
     void firstFireAlarm();
     void lastFireAlarm();
     void currentGraphicsViewZoom(bool isZoomIn);
     void toPreviousPage();
     void toNextPage();
+    void deleteViewFromItem(QStandardItem *item);
+
 
 
 private:
@@ -53,6 +67,8 @@ private:
     void findFireAlarm(int pos);
     void saveOtherArchiteInfo();
     void setGlobalArchiteFromJson();
+    void updateAlarmWidget(GraphicsView *currentView);
+    void deleteAlarmWidget(GraphicsView *currentView);
 
 
 private:
@@ -62,6 +78,8 @@ private:
     QWidget *m_globalGraphicsView;
     SysArchitePlanView *m_sysArchitePlanView;
     QMap<int,GraphicsView *>m_widgetMap;
+    QHash<QString,QList<GraphicsView *> >m_alarmWidgetHash;
+    QString m_currentAlarmType;
     const QString c_jsonFilePath=QCoreApplication::applicationDirPath()+"/treeView.json";
     QString m_globalArchitePlanPixmapName;
 };

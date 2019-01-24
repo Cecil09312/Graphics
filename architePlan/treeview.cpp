@@ -24,11 +24,11 @@ TreeView::TreeView(QWidget *parent):
     {
         m_treeSettingMenu->close();
     });
-//    connect(m_addChildAction,&QAction::triggered,this,[=]()
-//    {
-//        QModelIndex index = indexAt(m_rootPoint);
-//        addChildItem(index);
-//    });
+    //    connect(m_addChildAction,&QAction::triggered,this,[=]()
+    //    {
+    //        QModelIndex index = indexAt(m_rootPoint);
+    //        addChildItem(index);
+    //    });
 
     connect(m_editAction,&QAction::triggered,this,[=]()
     {
@@ -44,6 +44,22 @@ TreeView::TreeView(QWidget *parent):
     });
     connect(m_clearAction,&QAction::triggered,this,[=]()
     {
+       QList<GraphicsView*>viewList= Controller::instance()->getArchitePlanView()->getWidgetMap().values();
+       bool isCanClear = false;
+       foreach (GraphicsView*view, viewList)
+       {
+           if(view->haveAnyAlarm())
+           {
+                isCanClear = true;
+                break;
+           }
+       }
+
+       if(isCanClear)
+       {
+          QMessageBox::critical(this,"警告","存在报警信息，消除报警才能清除");
+          return;
+       }
         clearItem();
     });
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -171,11 +187,24 @@ QStandardItem* TreeView::addChildItem(QModelIndex index)
     }
 }
 
+
+
 void TreeView::deleteTreeItem(QModelIndex index)
 {
     if(index.isValid())
     {
         QStandardItem *standardItem = m_stdModel->itemFromIndex(index);
+        GraphicsView*view=  Controller::instance()->getArchitePlanView()->viewToParentItem(standardItem);
+        if(view==nullptr)
+        {
+            return;
+        }
+        if(view->haveAnyAlarm())
+        {
+            QMessageBox::critical(this,"警告","存在报警，消除报警后才能删除");
+            return;
+        }
+
         emit deleteIndex(standardItem);
         if(standardItem->parent()==nullptr)
         {
@@ -258,7 +287,7 @@ void TreeView::initMenu()
     m_clearAction= new QAction(tr("清空"),m_treeSettingMenu);
     m_closeAction = new QAction(tr("关闭"),m_treeSettingMenu);
     m_treeSettingMenu->addAction(m_addAction);
-   // m_treeSettingMenu->addAction(m_addChildAction);
+    // m_treeSettingMenu->addAction(m_addChildAction);
     m_treeSettingMenu->addAction(m_editAction);
     m_treeSettingMenu->addAction(m_deleteAction);
     m_treeSettingMenu->addAction(m_clearAction);

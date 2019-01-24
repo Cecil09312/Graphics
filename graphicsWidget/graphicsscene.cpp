@@ -57,7 +57,7 @@ GraphicsScene::GraphicsScene(QObject *parent):
             removeItem(item);
         }
         m_itemList.clear();
-        Controller::instance()->getDataStore()->clearTypeItem();
+        DataStore::clearTypeItem();
     });
     connect(m_deleteSelectedAction,&QAction::triggered,this,[=]()
     {
@@ -68,7 +68,7 @@ GraphicsScene::GraphicsScene(QObject *parent):
             {
                 removeItem(item);
                 m_itemList.removeOne(item);
-                Controller::instance()->getDataStore()->deleteTypeItem(item);
+                DataStore::deleteTypeItem(item);
             }
         }
     });
@@ -118,7 +118,7 @@ void GraphicsScene::addGraphicsItem(const QPointF &pointF)
     item->setPos(pointF);
     this->addItem(item);
     m_itemList.push_back(item);
-    //Controller::instance()->getDataStore()->insertTypeItem(tr("火警"),item);
+    //DataStore::insertTypeItem(tr("火警"),item);
 }
 
 void GraphicsScene::removeGraphicsItem(qreal ax, qreal ay)
@@ -135,7 +135,7 @@ void GraphicsScene::removeGraphicsItem(const QPointF &pointF)
         {
             m_itemList.removeOne(currentItem);
             removeItem(currentItem);
-            Controller::instance()->getDataStore()->deleteTypeItem(currentItem);
+            DataStore::deleteTypeItem(currentItem);
         }
 
     }

@@ -1,7 +1,8 @@
 ﻿#ifndef DATASTORE_H
 #define DATASTORE_H
 #include <QHash>
-#include <QGraphicsItem>
+#include "graphicsWidget/graphicsview.h"
+#include "graphicsWidget/graphicsitem.h"
 /**
  * @brief The DataStore class
  * 用来保存不同类型的报警数据
@@ -11,18 +12,19 @@ class DataStore
 public:
      DataStore();
      ~DataStore();
-     QHash<QString, QList<QGraphicsItem *> > &getTypeItemHash();
-     QList<QGraphicsItem*> &getTypeItemList(const QString &type);
-     QGraphicsItem* getTypeItem(const QString &type,int pos);
-     void deleteTypeItems(const QString &type);
-     void deleteTypeItem(QGraphicsItem*item);
-     void deleteTypeItem(const QString &type,QGraphicsItem*item);
-     void deleteTypeItem(const QString &type,int pos);
-     void insertTypeItem(const QString &type,QGraphicsItem*item);
-     void clearTypeItem();
-     int numOfTypeItem(const QString &type);
+     static QHash<QString, QList<QGraphicsItem *> > &getTypeItemHash();
+     static QList<QGraphicsItem*> &getTypeItemList(const QString &type);
+     static QGraphicsItem* getTypeItem(const QString &type,int pos);
+     static void deleteTypeItems(const QString &type);
+     static void deleteTypeItem(QGraphicsItem*item);
+     static void deleteTypeItem(const QString &type,QGraphicsItem*item);
+     static void deleteTypeItem(const QString &type,int pos);
+     static void insertTypeItem(const QString &type,QGraphicsItem*item);
+     static void clearTypeItem();
+     static int numOfTypeItem(const QString &type);
+     static GraphicsView *itemDisplayView(GraphicsItem *item);
 private:
-     QHash<QString,QList<QGraphicsItem*> >m_typeItemHash;
+     static QHash<QString,QList<QGraphicsItem*> >m_typeItemHash;
 };
 
 #endif // DATASTORE_H

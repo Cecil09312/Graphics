@@ -3,6 +3,7 @@
 #include <QTransform>
 #include <QScrollBar>
 #include "control/controller.h"
+#include "graphicsitem.h"
 qreal GraphicsView::m_scale =1;
 GraphicsView::GraphicsView(QWidget *parent, int type):
     QGraphicsView(parent),
@@ -14,7 +15,7 @@ GraphicsView::GraphicsView(QWidget *parent, int type):
     setDragMode(QGraphicsView::ScrollHandDrag);
     setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers),this));
     setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-
+    m_alarmStringList << "火警"<<"联动" << "监管" << "故障"<<"反馈" <<"屏蔽";
     if(m_viewType==ArthitePlan)
     {
         setContextMenuPolicy(Qt::CustomContextMenu);
@@ -106,6 +107,37 @@ QGraphicsItem *GraphicsView::getItem(int pos)
     }
 
     return item;
+}
+
+bool GraphicsView::haveAlarmType(const QString &type)
+{
+    QList<QGraphicsItem*> itemList= getItemList();
+    bool haveAlarm = false;
+    foreach (QGraphicsItem*item, itemList) {
+        GraphicsItem*currentItem=  dynamic_cast<GraphicsItem*>(item);
+        if(currentItem!=nullptr)
+        {
+            if(currentItem->alarmType()==type)
+            {
+                haveAlarm = true;
+                break;
+            }
+        }
+    }
+    return haveAlarm;
+}
+
+bool GraphicsView::haveAnyAlarm()
+{
+    bool isHave = false;
+    foreach (QString alarm, m_alarmStringList) {
+        isHave =haveAlarmType(alarm);
+        if(isHave)
+        {
+            break;
+        }
+    }
+    return isHave;
 }
 
 void GraphicsView::loadPixmap(const QString &fileName)

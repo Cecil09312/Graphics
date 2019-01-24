@@ -20,6 +20,8 @@ public:
     QString pixmapName();
     QList<QGraphicsItem *> getItemList();
     QGraphicsItem * getItem(int pos);
+    bool haveAlarmType(const QString &type);
+    bool haveAnyAlarm();
 
 public slots:
     static void zoom(qreal scaleValue);
@@ -43,6 +45,7 @@ private:
     QGraphicsSvgItem *m_svgItem;
     QString m_pixmapName;
     int m_viewType;
+    QStringList m_alarmStringList;
 };
 
 #endif // GRAPHICSVIEW_H
