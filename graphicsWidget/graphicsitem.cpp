@@ -14,6 +14,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
 {
     m_graphicsScene = scene;
     m_itemInfo.m_alarmType = tr("无");
+    m_itemInfo.m_currentAlarmState = "未报警";
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);
     m_colorEffect = new QGraphicsColorizeEffect(this);
@@ -21,6 +22,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_colorEffect->setStrength(0.0);
     setProperty("color",m_color);
     setProperty("scale",m_radius);
+
     m_colorAnimation = new QPropertyAnimation(this,"color");
     m_colorAnimation->setStartValue(QColor(Qt::black));
     m_colorAnimation->setEndValue(QColor(Qt::red));

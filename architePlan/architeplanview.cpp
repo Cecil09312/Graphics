@@ -49,6 +49,9 @@ void ArchitePlanView::createAlarm(const QString &alarmTypeName)
             insertAlarmWidget(alarmTypeName,view);
             insertAlarmWidget("全部",view);
             updateAlarmWidget(view);
+            currentItem->getItemInfo().m_currentAlarmState= "正在报警";
+            QString alarmHappendTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+            currentItem->getItemInfo().m_alarmReceiveTime = alarmHappendTime;
             emit alarmItem(currentItem);
         }
     }
@@ -65,6 +68,7 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item)
     item->stopColorAnimation();
     item->setGraphicsEffect(nullptr);
     item->restoreSize();
+    item->getItemInfo().m_currentAlarmState = "报警消除";
     DataStore::deleteTypeItem(item);
     emit  eliminateAlarmFromTable(item);
 }
@@ -552,6 +556,7 @@ void ArchitePlanView::clearAlarm()
             item->setGraphicsEffect(nullptr);
             item->restoreSize();
             item->alarmType() = "无";
+            item->getItemInfo().m_currentAlarmState = "报警消除";
             DataStore::clearTypeItem();
             clearAlarmWidget();
             emit noPage();
