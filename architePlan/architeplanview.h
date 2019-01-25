@@ -37,7 +37,7 @@ public:
 
     GraphicsView * viewToParentItem(QStandardItem* item);
     QList<GraphicsView *>viewsToChildItem(QStandardItem* item);
-
+    void autoFitView(QGraphicsView *view);
 signals:
     void alarmHappend(const QString &alarmType);
     void toLastPage();
@@ -60,7 +60,7 @@ public slots:
 private:
     void initWidget();
     void saveArchiteInfo();
-    void autoFitView(QGraphicsView *view);
+
     QHash<QString, QVariant> saveViewInfo(QStandardItem *item);
     void initFromJsonFile();
     void setViewFromJson(const QHash<QString, QVariant> &hash, QStandardItem *treeItem);

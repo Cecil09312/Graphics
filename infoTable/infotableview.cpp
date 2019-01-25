@@ -2,13 +2,17 @@
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QDebug>
+
+
+
 InfoTableView::InfoTableView(QWidget *parent)
     : QTableView(parent)
 {
     initWidget();
-    connect(this->verticalHeader(),&QHeaderView::sectionDoubleClicked,this,[=](int logicalIndex){
-        qDebug() << logicalIndex;
-
+    connect(this->verticalHeader(),&QHeaderView::sectionDoubleClicked,this,[=](int logicalIndex)
+    {
+        QSqlRecord record = m_tableModel->record(logicalIndex);
+        emit tableValue(record);
     }) ;
 }
 

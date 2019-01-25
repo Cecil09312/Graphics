@@ -29,16 +29,16 @@ CrtWidget::CrtWidget(QWidget *parent) :
         QStringList tableNameList = m_sqliteManager->getTables(dbName);
         if(!tableNameList.contains("AlarmInfo"))
         {
-            m_sqliteManager->executeQuery("create table AlarmInfo(分机号 text, 回路号 text,地址号 text,报警类型 text,设备产品编号 text primary key,设备设施型号 text,报警当前状态 text,报警时间 text,报警收到时间 text,报警恢复正常时间 text,设备所属系统 text,总保护区域名称 text,建筑设施名称 text,设施所在楼层 text,设施所在位置 text,值班人员 text)");
+            m_sqliteManager->executeQuery("create table AlarmInfo(分机号 text, 回路号 text,地址号 text,报警类型 text,设备产品编号 text ,设备设施型号 text,报警当前状态 text,报警时间 text,报警收到时间 text,报警恢复正常时间 text,设备所属系统 text,总保护区域名称 text,建筑设施名称 text,设施所在楼层 text,设施所在位置 text,值班人员 text)");
         }
     }
 
     m_infoTableView->tableModel()->setDbDriver("QSQLITE");
     m_infoTableView->tableModel()->setDbName(dbName);
-    m_infoTableView->tableModel()->setDbConnectionName("defaultName");
+    // m_infoTableView->tableModel()->setDbConnectionName("alarmInfo");
     m_infoTableView->tableModel()->setDbPort(888);
     m_infoTableView->tableModel()->setDbOpen(true);
-   // m_infoTableView->tableModel()->sqlCommit("select *from AlarmInfo");
+    // m_infoTableView->tableModel()->sqlCommit("select *from AlarmInfo");
     QStringList alarmInfoList,valueList;
     alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"报警类型"<<"设备产品编号"
                   << "设备设施型号"<<"报警当前状态"<<"报警时间"<<"报警收到时间"
@@ -62,6 +62,30 @@ CrtWidget::CrtWidget(QWidget *parent) :
                                       .arg(item->getItemInfo().m_alarmReceiveTime).arg(item->getItemInfo().m_alarmReplyTime).arg(item->sysOfDevice()).arg(item->protectedAreaName()).arg(item->buildingName())
                                       .arg(item->floorOfDevice()).arg(item->deviceLocation()).arg(item->operatorDuty()));
         alarmDataOnTable();
+    });
+
+    connect(m_infoTableView,&InfoTableView::tableValue,this,[=](QSqlRecord record)
+    {
+        QString deviceNum=  record.value("设备产品编号").toString();
+        QList<QList<QGraphicsItem *> > globalValueList= DataStore::getTypeItemHash().values();
+        GraphicsView *view = nullptr;
+        foreach (QList<QGraphicsItem *>valueList, globalValueList)
+        {
+            foreach (QGraphicsItem *item, valueList)
+            {
+                GraphicsItem *currentItem = dynamic_cast<GraphicsItem *>(item);
+                if(currentItem->deviceNum()==deviceNum)
+                {
+                    view = DataStore::itemDisplayView(currentItem);
+                    break;
+                }
+            }
+        }
+
+        if(view!=nullptr)
+        {
+            m_architePlanView->autoFitView(view);
+        }
     });
 
     Q_ASSERT(m_alarmObj);
@@ -123,7 +147,6 @@ CrtWidget::CrtWidget(QWidget *parent) :
 
 CrtWidget::~CrtWidget()
 {
-   // m_sqliteManager->executeQuery("delete from AlarmInfo");
     m_sqliteManager->close();
     delete m_alarmContainer;
     delete m_toolBarContainer;

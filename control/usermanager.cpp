@@ -61,7 +61,6 @@ UserManager::UserManager(QObject *parent)
         {
             m_password = valueList.at(0);
         }
-
     }
     return m_password;
 }

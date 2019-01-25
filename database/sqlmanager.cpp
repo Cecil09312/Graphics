@@ -5,6 +5,7 @@
 #include <QSqlError>
 #include <QtConcurrent>
 #include <QFuture>
+#include "mysqlmanager.h"
 
 class SqlManager::SqlManagerPrivate
 {
@@ -117,7 +118,6 @@ QStringList SqlManager::executeQuery(const QString &sql)
         query.finish();
     });
     future.waitForFinished();
-
     return valueList;
 }
 
@@ -126,12 +126,11 @@ SqlManager*SqlManager::fromDriver(const QString &driver)
 
     if(driver.contains("SQLITE",Qt::CaseInsensitive))
     {
-        static SqlManager *sqliterManager = nullptr;
-        if(sqliterManager==nullptr)
-        {
-            sqliterManager = new SqliteManager;
-        }
-        return sqliterManager;
+        return new SqliteManager;
+    }
+    else if(driver.contains("MYSQL",Qt::CaseInsensitive))
+    {
+        return new MySqlManager;
     }
     else
     {

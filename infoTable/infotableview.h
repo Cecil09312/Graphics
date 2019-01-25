@@ -5,7 +5,7 @@
 #include <QTableView>
 #include "qmlTableModel/qmltablemodel.h"
 #include "database/sqlmanager.h"
-
+#include <QSqlRecord>
 class InfoTableView : public QTableView
 {
     Q_OBJECT
@@ -15,7 +15,7 @@ public:
     QmlTableModel  *tableModel();
 
 signals:
-
+    void tableValue(QSqlRecord record);
 public slots:
 private:
     void initWidget();

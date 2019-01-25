@@ -66,7 +66,9 @@ Rectangle {
                         userRight = UserManager.Employee
                         passwordStr = UserManager.password(UserManager.Employee)
                     }
+
                     if (passwordTextField.text === passwordStr) {
+
                         UserManager.setUserRight(userRight)
                         infoMessageDialog.open()
                     } else {
