@@ -2,7 +2,7 @@
 #include <QDebug>
 #include <QGraphicsItem>
 #include <QGraphicsScene>
-
+#include "architePlan/architeplanview.h"
 QHash<QString,QList<QGraphicsItem*> >DataStore::m_typeItemHash=QHash<QString,QList<QGraphicsItem*> >();
 DataStore::DataStore()
 {
@@ -88,19 +88,17 @@ int DataStore::numOfTypeItem(const QString &type)
 GraphicsView *DataStore::itemDisplayView(GraphicsItem *item)
 {
     GraphicsView *currentView = nullptr;
-    QGraphicsScene *scene = item->scene();
-    QList<QGraphicsView *>viewList= scene->views();
-    foreach (QGraphicsView *view, viewList)
+    QList<GraphicsView*> viewList= ArchitePlanView::getWidgetMap().values();
+    foreach (GraphicsView*view, viewList)
     {
-        GraphicsView *graphicsView = dynamic_cast<GraphicsView *>(view);
-        if(graphicsView!=nullptr)
+        if(view!=nullptr)
         {
-          QList<QGraphicsItem *>itemList=  graphicsView->getItemList();
-          if(itemList.contains(item))
-          {
-              currentView=graphicsView;
-              break;
-          }
+            QList<QGraphicsItem *>itemList=  view->getItemList();
+            if(itemList.contains(item))
+            {
+                currentView = view;
+                break;
+            }
         }
     }
     return currentView;

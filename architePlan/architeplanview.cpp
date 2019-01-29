@@ -10,6 +10,8 @@
 #include "graphicsWidget/graphicsitem.h"
 #include <QDebug>
 #include "control/controller.h"
+
+QMap<int,GraphicsView *>ArchitePlanView::m_widgetMap =QMap<int,GraphicsView *>();
 ArchitePlanView::ArchitePlanView(QWidget *parent)
     : QWidget(parent),
       m_currentAlarmType("全部")
@@ -45,14 +47,7 @@ void ArchitePlanView::createAlarm(const QString &alarmTypeName)
         if(itemList.size()>pos)
         {
             GraphicsItem *currentItem = dynamic_cast<GraphicsItem *>(itemList.at(pos));
-            generateAlarm(alarmTypeName,currentItem);
-            insertAlarmWidget(alarmTypeName,view);
-            insertAlarmWidget("全部",view);
-            updateAlarmWidget(view);
-            currentItem->getItemInfo().m_currentAlarmState= "正在报警";
-            QString alarmHappendTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
-            currentItem->getItemInfo().m_alarmReceiveTime = alarmHappendTime;
-            emit alarmItem(currentItem);
+            generateAlarm(alarmTypeName,currentItem,view);
         }
     }
 }
@@ -73,7 +68,7 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item)
     emit  eliminateAlarmFromTable(item);
 }
 
-void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *item)
+void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *item,GraphicsView *view)
 {
     if(item!=nullptr)
     {
@@ -87,16 +82,18 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
         {
             item->startColorAnimation();
         }
-        QList<QGraphicsView*>viewList =   item->scene()->views();
-        foreach (QGraphicsView*view, viewList)
+        if(view->getItemList().contains(item))
         {
-            if(view!=nullptr)
-            {
-                autoFitView(view);
-            }
+            autoFitView(view);
         }
         emit alarmHappend(alarmTypeName);
-        // view->centerOn(currentItem);
+        insertAlarmWidget(alarmTypeName,view);
+        insertAlarmWidget("全部",view);
+        updateAlarmWidget(view);
+        item->getItemInfo().m_currentAlarmState= "正在报警";
+        QString alarmHappendTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+        item->getItemInfo().m_alarmReceiveTime = alarmHappendTime;
+        emit alarmItem(item);
     }
 }
 

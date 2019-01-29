@@ -25,6 +25,7 @@ public:
      static GraphicsView *itemDisplayView(GraphicsItem *item);
 private:
      static QHash<QString,QList<QGraphicsItem*> >m_typeItemHash;
+
 };
 
 #endif // DATASTORE_H

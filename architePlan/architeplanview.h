@@ -21,13 +21,13 @@ public:
     ~ArchitePlanView();
     int numOfTypeAlarm(const QString &type);
     Q_INVOKABLE void setGlobalArchitePixmap(const QString &pixmapName);
-    QMap<int,GraphicsView *> &getWidgetMap();
+    static QMap<int,GraphicsView *> &getWidgetMap();
     int totalPage();
     int currentPage();
     Q_INVOKABLE void clearAlarm();
     Q_INVOKABLE void createAlarm(const QString &alarmTypeName);
     void eliminateAlarm(GraphicsItem *item);//消除报警
-    void generateAlarm(const QString &alarmTypeName,GraphicsItem*item);
+    void generateAlarm(const QString &alarmTypeName, GraphicsItem*item, GraphicsView *view);
     void insertAlarmWidget(const QString &type,GraphicsView*view);
     void deleteAlarmWidget(const QString &type, GraphicsView *view);
     void clearAlarmWidget();
@@ -77,7 +77,7 @@ private:
     QTabWidget *m_tabWidget;
     QWidget *m_globalGraphicsView;
     SysArchitePlanView *m_sysArchitePlanView;
-    QMap<int,GraphicsView *>m_widgetMap;
+    static QMap<int,GraphicsView *>m_widgetMap;
     QHash<QString,QList<GraphicsView *> >m_alarmWidgetHash;
     QString m_currentAlarmType;
     const QString c_jsonFilePath=QCoreApplication::applicationDirPath()+"/treeView.json";
