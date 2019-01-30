@@ -57,18 +57,18 @@ SOURCES += \
     control/usermanager.cpp \
     jsonEdit/itemiconinfotojson.cpp \
     architePlan/styleditemdelegate.cpp \
-    commnication/abstractconfiguration.cpp \
-    commnication/abstractlink.cpp \
-    commnication/seriallink.cpp \
-    commnication/tcplink.cpp \
-    commnication/serialconfiguration.cpp \
-    commnication/tcpconfiguration.cpp \
-    commnication/configurationmanager.cpp \
-    commnication/udplink.cpp \
-    commnication/udpconfiguration.cpp \
-    commnication/modbusmanager.cpp \
-    commnication/canbasmanager.cpp \
-    commnication/canconfiguration.cpp \
+    communication/abstractconfiguration.cpp \
+    communication/abstractlink.cpp \
+    communication/seriallink.cpp \
+    communication/tcplink.cpp \
+    communication/serialconfiguration.cpp \
+    communication/tcpconfiguration.cpp \
+    communication/configurationmanager.cpp \
+    communication/udplink.cpp \
+    communication/udpconfiguration.cpp \
+    communication/modbusmanager.cpp \
+    communication/canbasmanager.cpp \
+    communication/canconfiguration.cpp \
     database/mysqlmanager.cpp
 
 HEADERS += \
@@ -91,18 +91,18 @@ HEADERS += \
     control/usermanager.h \
     jsonEdit/itemiconinfotojson.h \
     architePlan/styleditemdelegate.h \
-    commnication/abstractconfiguration.h \
-    commnication/abstractlink.h \
-    commnication/seriallink.h \
-    commnication/tcplink.h \
-    commnication/serialconfiguration.h \
-    commnication/tcpconfiguration.h \
-    commnication/configurationmanager.h \
-    commnication/udplink.h \
-    commnication/udpconfiguration.h \
-    commnication/modbusmanager.h \
-    commnication/canbasmanager.h \
-    commnication/canconfiguration.h \
+    communication/abstractconfiguration.h \
+    communication/abstractlink.h \
+    communication/seriallink.h \
+    communication/tcplink.h \
+    communication/serialconfiguration.h \
+    communication/tcpconfiguration.h \
+    communication/configurationmanager.h \
+    communication/udplink.h \
+    communication/udpconfiguration.h \
+    communication/modbusmanager.h \
+    communication/canbasmanager.h \
+    communication/canconfiguration.h \
     database/mysqlmanager.h
 
 FORMS +=

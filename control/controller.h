@@ -4,16 +4,16 @@
 #include <QDebug>
 #include "dataStore/datastore.h"
 #include <QTextToSpeech>
-#include "commnication/SerialLink.h"
+#include "communication/SerialLink.h"
 #include "architePlan/sysarchiteplanview.h"
 #include "architePlan/architeplanview.h"
 #include "usermanager.h"
 #include "speech/speechobj.h"
-#include "commnication/udplink.h"
-#include "commnication/configurationmanager.h"
-#include "commnication/tcpconfiguration.h"
-#include "commnication/modbusmanager.h"
-#include "commnication/udpconfiguration.h"
+#include "communication/udplink.h"
+#include "communication/configurationmanager.h"
+#include "communication/tcpconfiguration.h"
+#include "communication/modbusmanager.h"
+#include "communication/udpconfiguration.h"
 #include "graphicsWidget/graphicsitem.h"
 #include "graphicsWidget/graphicsitem.h"
 class Controller:public QObject

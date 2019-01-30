@@ -6,11 +6,11 @@
 #include <QQmlContext>
 #include <QSplitter>
 #include <QQuickItem>
-#include "commnication/SerialLink.h"
+#include "communication/SerialLink.h"
 #include "control/usermanager.h"
 #include "control/controller.h"
 #include <QHostAddress>
-#include "commnication/configurationmanager.h"
+#include "communication/configurationmanager.h"
 #include "database/sqlitemanager.h"
 #include "database/sqlmanager.h"
 

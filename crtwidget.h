@@ -12,7 +12,7 @@
 #include "qmlTableModel/qmltablemodel.h"
 #include "jsonEdit/qmlforjson.h"
 #include "jsonEdit/itemiconinfotojson.h"
-#include "commnication/TcpLink.h"
+#include "communication/TcpLink.h"
 #include "database/sqlitemanager.h"
 #include "database/sqlmanager.h"
 
