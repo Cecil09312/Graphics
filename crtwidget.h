@@ -15,7 +15,8 @@
 #include "communication/TcpLink.h"
 #include "database/sqlitemanager.h"
 #include "database/sqlmanager.h"
-
+#include "dataStore/abstractdataprotocol.h"
+#include "dataStore/serialdataprotocol.h"
 class CrtWidget : public QOpenGLWidget
 {
     Q_OBJECT

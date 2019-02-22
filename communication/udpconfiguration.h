@@ -2,7 +2,7 @@
 #define UDPCONFIGURATION_H
 #include "abstractconfiguration.h"
 
-class UdpConfiguration : public AbstractConfiguration
+class UdpConfiguration : public AbstractConfiguration//UDP配置类
 {
 public:
     UdpConfiguration();

@@ -2,7 +2,7 @@
 #define TCPCONFIGURATION_H
 #include "abstractconfiguration.h"
 
-class TcpConfiguration : public AbstractConfiguration
+class TcpConfiguration : public AbstractConfiguration//TCP配置类
 {
 public:
     TcpConfiguration();

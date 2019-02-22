@@ -20,6 +20,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
 {
 
     initWidget();
+
     setWindowFlags(Qt::FramelessWindowHint|Qt::Window);
     QString dbName = QCoreApplication::applicationDirPath()+"/alarmInfo.db";
     m_sqliteManager->setDataBase("QSQLITE","alarmInfo","","","",dbName,888);

@@ -2,7 +2,7 @@
 #define CANCONFIGURATION_H
 #include "abstractconfiguration.h"
 
-class CanConfiguration : public AbstractConfiguration
+class CanConfiguration : public AbstractConfiguration//CAN总线配置类
 {
 public:
     CanConfiguration();

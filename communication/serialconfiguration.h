@@ -2,7 +2,7 @@
 #define SERIALCONFIGURATION_H
 #include "abstractconfiguration.h"
 
-class SerialConfiguration:public AbstractConfiguration
+class SerialConfiguration:public AbstractConfiguration//串口配置类
 {
 public:
 

@@ -8,7 +8,7 @@
 #include <QThread>
 #include <QSharedPointer>
 #include "abstractconfiguration.h"
-class CanbasManager : public QObject
+class CanbasManager : public QObject//CAN总线管理
 {
     Q_OBJECT
 public:

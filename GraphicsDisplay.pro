@@ -69,7 +69,10 @@ SOURCES += \
     communication/modbusmanager.cpp \
     communication/canbasmanager.cpp \
     communication/canconfiguration.cpp \
-    database/mysqlmanager.cpp
+    database/mysqlmanager.cpp \
+    dataStore/abstractdataprotocol.cpp \
+    dataStore/serialdataprotocol.cpp \
+    dataStore/indicatordataprotocol.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -103,7 +106,10 @@ HEADERS += \
     communication/modbusmanager.h \
     communication/canbasmanager.h \
     communication/canconfiguration.h \
-    database/mysqlmanager.h
+    database/mysqlmanager.h \
+    dataStore/abstractdataprotocol.h \
+    dataStore/serialdataprotocol.h \
+    dataStore/indicatordataprotocol.h
 
 FORMS +=
 
