@@ -14,7 +14,6 @@ quint8 AbstractDataProtocol::dataByte(QByteArray frameArray, int pos)
 {
     if(frameArray.size()>pos)
     {
-
         return frameArray.mid(pos,1).toHex().toUShort(0,16)&0xff;
     }
     else

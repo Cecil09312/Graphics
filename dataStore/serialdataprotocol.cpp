@@ -13,12 +13,23 @@ SerialDataProtocol::~SerialDataProtocol()
 QByteArray SerialDataProtocol::dataPackage(const QList<QByteArray> &arrayList)
 {
     QByteArray array;
+    quint8 verifyData =0;
     array.push_back(0x40);
     array.push_back(0x40);
     foreach (QByteArray customArray, arrayList)
     {
-        array.push_back(customArray);
+        array.push_back(customArray);//包括包序号、包长、数据。
     }
+    if(arrayList.size()>2)
+    {
+        quint32 sum=0;
+        for(int i=2;i<arrayList.size();i++)
+        {
+           sum +=dataByte(arrayList.at(i),i);
+        }
+        verifyData = sum&0xff;
+    }
+    array.push_back(verifyData);//数据校验
     array.push_back(0x23);
     array.push_back(0x23);
     return array;
@@ -56,7 +67,6 @@ QList<QByteArray> SerialDataProtocol::frameData(QByteArray &array)
                         array.remove(0,frameArray.size());
                         QByteArray dataArray = dataBytes(frameArray,3,frameLen+2);
                         arrayList.push_back(dataArray);
-                       // qDebug() << dataArray.toHex();
                     }
                 }
                 else

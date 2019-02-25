@@ -16,7 +16,7 @@ QByteArray IndicatorDataProtocol::dataPackage(const QList<QByteArray> &arrayList
     dataArray.push_back(0x0a);
     foreach (QByteArray array, arrayList)
     {
-        dataArray.push_back(array);
+        dataArray.push_back(array);//数据
     }
     dataArray.push_back(0x0b);
     return dataArray;

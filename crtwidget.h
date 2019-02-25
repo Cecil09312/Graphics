@@ -47,7 +47,6 @@ private:
     QQmlApplicationEngine *m_settingViewEngine;
     SqlManager *m_sqliteManager;
     QObject *m_alarmObj;
-
 };
 
 #endif // CRTWIDGET_H

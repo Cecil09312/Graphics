@@ -72,7 +72,8 @@ SOURCES += \
     database/mysqlmanager.cpp \
     dataStore/abstractdataprotocol.cpp \
     dataStore/serialdataprotocol.cpp \
-    dataStore/indicatordataprotocol.cpp
+    dataStore/indicatordataprotocol.cpp \
+    dataStore/monitoringprotocol.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -109,7 +110,8 @@ HEADERS += \
     database/mysqlmanager.h \
     dataStore/abstractdataprotocol.h \
     dataStore/serialdataprotocol.h \
-    dataStore/indicatordataprotocol.h
+    dataStore/indicatordataprotocol.h \
+    dataStore/monitoringprotocol.h
 
 FORMS +=
 
