@@ -139,7 +139,7 @@ Item {
         if (jsonStr.length > 0) {
             globalArchiteObj = JSON.parse(jsonStr)
             var globalArchitePlanStr = JSON.stringify(
-                        globalArchiteObj["grobalArchitePlan"].valueOf())
+                        globalArchiteObj["grobalPlanPicture"].valueOf())
             globalArchitePlanTextFiled.text = globalArchitePlanStr
         }
     }

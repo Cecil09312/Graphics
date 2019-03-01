@@ -39,16 +39,14 @@ void SysArchitePlanView::setSysArchitePlanInfo()
     QHash<QString,QVariant> infoHash= jsonValue.toHash();
     QHash<QString,QVariant> sysArchitePlanHash=infoHash["sysArchitePlan"].toHash();
     QList<QString> sysArchitePlanList = sysArchitePlanHash.keys();
-    foreach (QString value, sysArchitePlanList) {
-      GraphicsView *graphicsView=  m_graphicsViewHash[value];
-      if(graphicsView!=nullptr)
-      {
-          graphicsView->loadPixmap(sysArchitePlanHash[value].toString());
-
-      }
+    foreach (QString value, sysArchitePlanList)
+    {
+        GraphicsView *graphicsView=  m_graphicsViewHash[value];
+        if(graphicsView!=nullptr)
+        {
+            graphicsView->loadPixmap(sysArchitePlanHash[value].toString());
+        }
     }
-
-
 }
 
 
@@ -101,11 +99,11 @@ void SysArchitePlanView::init()
 
     QStringList sysViewNameList;
     sysViewNameList<< tr("火灾自动报警系统")<< tr("消防联动控制系统")
-                     << tr("自动喷水灭火系统")<< tr("消火栓系统")
-                     << tr("气体灭火系统")<< tr("水喷雾灭火系统")
-                     << tr("泡沫和干粉灭火系统")<< tr("防烟排烟系统")
-                     << tr("消防应急照明系统") << tr("疏散指示系统");
-   // m_strListModel->setStringList(sysViewNameList);
+                   << tr("自动喷水灭火系统")<< tr("消火栓系统")
+                   << tr("气体灭火系统")<< tr("水喷雾灭火系统")
+                   << tr("泡沫和干粉灭火系统")<< tr("防烟排烟系统")
+                   << tr("消防应急照明系统") << tr("疏散指示系统");
+    // m_strListModel->setStringList(sysViewNameList);
 
     foreach(const QString &sysViewName,sysViewNameList)
     {

@@ -73,7 +73,10 @@ SOURCES += \
     dataStore/abstractdataprotocol.cpp \
     dataStore/serialdataprotocol.cpp \
     dataStore/indicatordataprotocol.cpp \
-    dataStore/monitoringprotocol.cpp
+    dataStore/monitoringprotocol.cpp \
+    graphicsWidget/globalgraphicsview.cpp \
+    graphicsWidget/globalgraphicsscene.cpp \
+    graphicsWidget/globalgraphicsitem.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -111,7 +114,10 @@ HEADERS += \
     dataStore/abstractdataprotocol.h \
     dataStore/serialdataprotocol.h \
     dataStore/indicatordataprotocol.h \
-    dataStore/monitoringprotocol.h
+    dataStore/monitoringprotocol.h \
+    graphicsWidget/globalgraphicsview.h \
+    graphicsWidget/globalgraphicsscene.h \
+    graphicsWidget/globalgraphicsitem.h
 
 FORMS +=
 

@@ -24,6 +24,8 @@ Rectangle {
         anchors.fill: parent
         anchors.leftMargin: 20
         anchors.bottomMargin: 20
+        anchors.topMargin: 40
+        interactive: false
         Item {
 
             antialiasing: true
@@ -262,7 +264,35 @@ Rectangle {
         anchors.bottom: swipView.bottom
         anchors.horizontalCenter: parent.horizontalCenter
     }
+    Row {
+        anchors.bottom: swipView.top
+        anchors.top: parent.top
+        spacing: 10
+        Button {
+            id: iconSettingBtn
+            text: qsTr("图标信息设置")
 
+            onClicked: {
+                if (swipView.count > 0) {
+                    swipView.currentIndex = 0
+                    highlighted = true
+                    legendBtn.highlighted = false
+                }
+            }
+        }
+
+        Button {
+            id: legendBtn
+            text: qsTr("图例")
+            onClicked: {
+                if (swipView.count > 1) {
+                    swipView.currentIndex = 1
+                    highlighted = true
+                    iconSettingBtn.highlighted = false
+                }
+            }
+        }
+    }
     ItemIconInfoToJson {
         id: itemIconInfo
     }

@@ -26,8 +26,6 @@ GraphicsScene::GraphicsScene(QObject *parent):
         QMetaObject::invokeMethod(m_itemSettingObj,"currentIconIndex",Q_RETURN_ARG(QVariant,currentIndex));
         if(currentItem!=nullptr)
         {
-
-
             QMetaObject::invokeMethod(m_itemSettingObj,"setDeviceNum",Q_ARG(QVariant,currentItem->deviceNum()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setAlarmType",Q_ARG(QVariant,currentItem->alarmType()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setItemSize",Q_ARG(QVariant,currentItem->radius()));
@@ -36,7 +34,7 @@ GraphicsScene::GraphicsScene(QObject *parent):
             QMetaObject::invokeMethod(m_itemSettingObj,"setAddrNum",Q_ARG(QVariant,currentItem->addrNum()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setEquipmentModel",Q_ARG(QVariant,currentItem->equipmentModel()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setSysOfDevice",Q_ARG(QVariant,currentItem->sysOfDevice()));
-            QMetaObject::invokeMethod(m_itemSettingObj,"setProtectedArea",Q_ARG(QVariant,currentItem->protectedAreaName()));
+            //QMetaObject::invokeMethod(m_itemSettingObj,"setProtectedArea",Q_ARG(QVariant,currentItem->protectedAreaName()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setBuildingName",Q_ARG(QVariant,currentItem->buildingName()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setFloorOfDevice",Q_ARG(QVariant,currentItem->floorOfDevice()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setDeviceLocation",Q_ARG(QVariant,currentItem->deviceLocation()));
@@ -282,11 +280,11 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
 
         }
 
-        else if(type =="protectedArea")
-        {
-            currentItem->getItemInfo().m_protectedAreaName = info;
+//        else if(type =="protectedArea")
+//        {
+//            currentItem->getItemInfo().m_protectedAreaName = info;
 
-        }
+//        }
         else if(type =="buildingName")
         {
             currentItem->getItemInfo().m_buildingName = info;
@@ -375,10 +373,10 @@ void GraphicsScene::setItemInfo(GraphicsItem *item, const QHash<QString, QVarian
         itemInfo.m_equipmentModel= itemHash["equipmentModel"].toString();
         itemInfo.m_currentAlarmState= itemHash["currentAlarmState"].toString();
         itemInfo.m_alarmTime= itemHash["alarmTime"].toString();
-        itemInfo.m_alarmReceiveTime= itemHash["alarmReceiveTime"].toString();
+       // itemInfo.m_alarmReceiveTime= itemHash["alarmReceiveTime"].toString();
         itemInfo.m_alarmReplyTime= itemHash["alarmReplyTime"].toString();
         itemInfo.m_sysOfDevice= itemHash["sysOfDevice"].toString();
-        itemInfo.m_protectedAreaName= itemHash["protectedAreaName"].toString();
+        //itemInfo.m_protectedAreaName= itemHash["protectedAreaName"].toString();
         itemInfo.m_deviceLocation=itemHash["deviceLocation"].toString();
         itemInfo.m_buildingName= itemHash["buildingName"].toString();
         itemInfo.m_floorOfDevice= itemHash["floorOfDevice"].toString();

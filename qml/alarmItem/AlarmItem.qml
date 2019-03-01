@@ -34,28 +34,42 @@ Rectangle {
         }
 
         Button {
-            id: firstAlarmBtn
+            // anchors.leftMargin: 20
             Layout.alignment: Qt.AlignRight
-            text: qsTr("首警")
+            text: qsTr("复位")
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.topMargin: 10
             font.pointSize: 14
             font.family: qsTr("Times New Roman")
-            // iconSource: "qrc:/images/alarm.png"
             onClicked: {
-
-
-                // ArchitePlanView.lastFireAlarm()
-            }
-
-            onPressed: {
-                firstAlarmBtn.highlighted = true
-            }
-            onReleased: {
-                firstAlarmBtn.highlighted = false
+                ArchitePlanView.clearAlarm()
+                allAlarmClear()
             }
         }
+
+        //        Button {
+        //            id: firstAlarmBtn
+        //            Layout.alignment: Qt.AlignRight
+        //            text: qsTr("首警")
+        //            Layout.fillWidth: true
+        //            Layout.fillHeight: true
+        //            Layout.topMargin: 10
+        //            font.pointSize: 14
+        //            font.family: qsTr("Times New Roman")
+        //            // iconSource: "qrc:/images/alarm.png"
+        //            onClicked: {
+
+        //                // ArchitePlanView.lastFireAlarm()
+        //            }
+
+        //            onPressed: {
+        //                firstAlarmBtn.highlighted = true
+        //            }
+        //            onReleased: {
+        //                firstAlarmBtn.highlighted = false
+        //            }
+        //        }
     }
     GridLayout {
         id: alarmIndicatorLayout
@@ -328,31 +342,17 @@ Rectangle {
             }
         }
 
-        Button {
-            anchors.leftMargin: 20
-            width: parent.width
-            // Layout.fillHeight: true
-            font.pointSize: 14
-            font.family: qsTr("Times New Roman")
-            text: qsTr("复位")
-            onClicked: {
-                ArchitePlanView.clearAlarm()
-                allAlarmClear()
-            }
-        }
-
-        Button {
-            anchors.leftMargin: 20
-            width: parent.width
-            // Layout.fillHeight: true
-            font.pointSize: 14
-            font.family: qsTr("Times New Roman")
-            text: qsTr("模拟火警")
-            onClicked: {
-                ArchitePlanView.createAlarm(qsTr("火警"))
-            }
-        }
-
+        //        Button {
+        //            anchors.leftMargin: 20
+        //            width: parent.width
+        //            // Layout.fillHeight: true
+        //            font.pointSize: 14
+        //            font.family: qsTr("Times New Roman")
+        //            text: qsTr("模拟火警")
+        //            onClicked: {
+        //                ArchitePlanView.createAlarm(qsTr("火警"))
+        //            }
+        //        }
         ComboBox {
             id: alarmTypeComboBox
             anchors.leftMargin: 20
@@ -363,7 +363,6 @@ Rectangle {
             onCurrentTextChanged: {
 
                 emit: currentAlarmType(currentText)
-
             }
         }
         Button {

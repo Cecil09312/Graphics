@@ -42,9 +42,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
     // m_infoTableView->tableModel()->sqlCommit("select *from AlarmInfo");
     QStringList alarmInfoList,valueList;
     alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"报警类型"<<"设备产品编号"
-                  << "设备设施型号"<<"报警当前状态"<<"报警时间"<<"报警收到时间"
-                  << "报警恢复正常时间"<<"设备所属系统"<<"总保护区域名称"
-                  << "建筑设施名称"<<"设施所在楼层"<<"设施所在位置"<<"值班人员";
+                  << "设备设施型号"<<"报警当前状态"<<"报警时间"<<"设备所属系统"<< "建筑设施名称"<<"设施所在楼层"<<"设施所在位置"<<"值班人员";
 
     //    alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"报警类型"<<"设备产品编号"
     //                  << "设备设施型号"<<"报警收到时间"<<"设备所属系统"<<"总保护区域名称"
@@ -60,7 +58,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
     {
         m_sqliteManager->executeQuery(sqlInfo.arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->alarmType()).arg(item->deviceNum())
                                       .arg(item->equipmentModel()).arg(item->getItemInfo().m_currentAlarmState).arg(item->getItemInfo().m_alarmTime)
-                                      .arg(item->getItemInfo().m_alarmReceiveTime).arg(item->getItemInfo().m_alarmReplyTime).arg(item->sysOfDevice()).arg(item->protectedAreaName()).arg(item->buildingName())
+                                      .arg(item->sysOfDevice()).arg(item->buildingName())
                                       .arg(item->floorOfDevice()).arg(item->deviceLocation()).arg(item->operatorDuty()));
         alarmDataOnTable();
     });

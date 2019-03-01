@@ -323,10 +323,10 @@ QHash<QString, QVariant> GraphicsItem::itemInfo()
     itemHash["equipmentModel"] = m_itemInfo.m_equipmentModel;
     itemHash["currentAlarmState"] = m_itemInfo.m_currentAlarmState;
     itemHash["alarmTime"] = m_itemInfo.m_alarmTime;
-    itemHash["alarmReceiveTime"] = m_itemInfo.m_alarmReceiveTime;
+    //itemHash["alarmReceiveTime"] = m_itemInfo.m_alarmReceiveTime;
     itemHash["alarmReplyTime"] = m_itemInfo.m_alarmReplyTime;
     itemHash["sysOfDevice"] = m_itemInfo.m_sysOfDevice;
-    itemHash["protectedAreaName"] = m_itemInfo.m_protectedAreaName;
+    //itemHash["protectedAreaName"] = m_itemInfo.m_protectedAreaName;
     itemHash["deviceLocation"] = m_itemInfo.m_deviceLocation;
     itemHash["buildingName"] = m_itemInfo.m_buildingName;
     itemHash["floorOfDevice"] = m_itemInfo.m_floorOfDevice;
@@ -382,10 +382,10 @@ QString &GraphicsItem::sysOfDevice()
     return m_itemInfo.m_sysOfDevice;
 }
 
-QString &GraphicsItem::protectedAreaName()
-{
-    return m_itemInfo.m_protectedAreaName;
-}
+//QString &GraphicsItem::protectedAreaName()
+//{
+//    return m_itemInfo.m_protectedAreaName;
+//}
 
 QString &GraphicsItem::buildingName()
 {
@@ -435,17 +435,14 @@ void GraphicsItem::updateHoverText()
                                 "设备设施型号:%6\n"
                                 "报警当前状态:%7\n"
                                 "报警时间:%8\n"
-                                "报警收到时间:%9\n"
-                                "报警恢复正常时间:%10\n"
-                                "设备所属系统:%11\n"
-                                "总保护区域名称:%12\n"
-                                "建筑设施名称:%13\n"
-                                "设施所在楼层:%14\n"
-                                "设施所在位置:%15\n"
-                                "值班人员:%16").arg(m_itemInfo.m_extNum).arg(m_itemInfo.m_loopNum).arg(m_itemInfo.m_addrNum)
+                                "设备所属系统:%9\n"
+                                "建筑设施名称:%10\n"
+                                "设施所在楼层:%11\n"
+                                "设施所在位置:%12\n"
+                                "值班人员:%13").arg(m_itemInfo.m_extNum).arg(m_itemInfo.m_loopNum).arg(m_itemInfo.m_addrNum)
             .arg(m_itemInfo.m_alarmType).arg(m_itemInfo.m_deviceNum).arg(m_itemInfo.m_equipmentModel)
-            .arg(m_itemInfo.m_currentAlarmState).arg(m_itemInfo.m_alarmTime).arg(m_itemInfo.m_alarmReceiveTime)
-            .arg(m_itemInfo.m_alarmReplyTime).arg(m_itemInfo.m_sysOfDevice).arg(m_itemInfo.m_protectedAreaName).arg(m_itemInfo.m_buildingName)
+            .arg(m_itemInfo.m_currentAlarmState).arg(m_itemInfo.m_alarmTime)
+            .arg(m_itemInfo.m_alarmReplyTime).arg(m_itemInfo.m_sysOfDevice).arg(m_itemInfo.m_buildingName)
             .arg(m_itemInfo.m_floorOfDevice).arg(m_itemInfo.m_deviceLocation).arg(m_itemInfo.m_operatorOnDuty);
     setHoverText(hoverText);
 }

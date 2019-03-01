@@ -6,6 +6,7 @@
 #include <QAction>
 #include <QQuickView>
 #include <QActionGroup>
+
 class GraphicsItem;
 class GraphicsScene : public QGraphicsScene
 {

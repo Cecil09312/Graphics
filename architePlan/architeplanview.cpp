@@ -10,15 +10,34 @@
 #include "graphicsWidget/graphicsitem.h"
 #include <QDebug>
 #include "control/controller.h"
-
+#include <QModelIndex>
 QMap<int,GraphicsView *>ArchitePlanView::m_widgetMap =QMap<int,GraphicsView *>();
 ArchitePlanView::ArchitePlanView(QWidget *parent)
     : QWidget(parent),
       m_currentAlarmType("全部")
 {
     initWidget();
-    initFromJsonFile();
     setGlobalArchiteFromJson();
+    initFromJsonFile();
+
+    connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::addGlobalItem,this,[=](GlobalGraphicsItem*item)
+    {
+        if(item!=nullptr)
+        {
+            QStandardItem *standardItem =  m_treeView->addRootItem(item->buildName());
+            if(standardItem!=nullptr)
+            {
+                m_globalToArchitePlanHash[item] = standardItem;
+            }
+        }
+
+    });
+
+    connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::deleteGlobalItem,this,[=](GlobalGraphicsItem*item)
+    {
+        QModelIndex index= m_globalToArchitePlanHash[item]->index();
+        m_treeView->deleteTreeItem(index);
+    });
 }
 
 ArchitePlanView::~ArchitePlanView()
@@ -92,7 +111,7 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
         updateAlarmWidget(view);
         item->getItemInfo().m_currentAlarmState= "正在报警";
         QString alarmHappendTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
-        item->getItemInfo().m_alarmReceiveTime = alarmHappendTime;
+        item->getItemInfo().m_alarmTime = alarmHappendTime;
         emit alarmItem(item);
     }
 }
@@ -155,7 +174,7 @@ void ArchitePlanView::initWidget()
     m_treeView = new TreeView(this);
     m_stackedWidget = new QStackedWidget(this);
     m_tabWidget = new QTabWidget(this);
-    m_globalGraphicsView = new QWidget(this);
+    m_globalGraphicsView = new GlobalGraphicsView(this);
     m_sysArchitePlanView = new SysArchitePlanView(this);
     m_treeView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     m_treeView->setMaximumWidth(180);
@@ -197,9 +216,12 @@ void ArchitePlanView::initWidget()
         QMap<QStandardItem*,int>itemMap;
         itemMap = m_treeView->getTreeIndexMap();
         page =itemMap[item];
-        m_stackedWidget->setCurrentWidget(m_widgetMap[page]);
-        GraphicsView *currentView = dynamic_cast<GraphicsView *>(m_widgetMap[page]);
-        updateAlarmWidget(currentView);
+        if(m_widgetMap[page]!=nullptr)
+        {
+            m_stackedWidget->setCurrentWidget(m_widgetMap[page]);
+            GraphicsView *currentView = dynamic_cast<GraphicsView *>(m_widgetMap[page]);
+            updateAlarmWidget(currentView);
+        }
 
     });
 
@@ -209,7 +231,11 @@ void ArchitePlanView::initWidget()
         for(int i=0;i<count;i++)
         {
             QWidget *widget = m_widgetMap.values().at(i);
-            m_stackedWidget->removeWidget(widget);
+            if(widget!=nullptr)
+            {
+                m_stackedWidget->removeWidget(widget);
+            }
+
         }
         m_widgetMap.clear();
         emit noPage();
@@ -364,8 +390,23 @@ void ArchitePlanView::initFromJsonFile()
         QHash<QString,QVariant> parentHash=  valueList.at(i).toHash();
         if(!parentHash.isEmpty())
         {
-            QStandardItem *parentItem= m_treeView->addRootItem();
+            QStandardItem *parentItem= m_treeView->addRootItem("");
             parentItem->setText(parentHash["name"].toString());
+
+            QList<QGraphicsItem*>  globalItemList=     m_globalGraphicsView->currentScene()->items();
+            foreach (QGraphicsItem*curItem, globalItemList)
+            {
+                GlobalGraphicsItem *globalGraphicsItem = dynamic_cast<GlobalGraphicsItem *>(curItem);
+                if(globalGraphicsItem!=nullptr)
+                {
+                    if(globalGraphicsItem->buildName() ==parentItem->text())
+                    {
+                        m_globalToArchitePlanHash[globalGraphicsItem] = parentItem;
+                        break;
+                    }
+                }
+            }
+
             QList<QVariant> childList =  parentHash["child"].toList();
             QHash<QString,QVariant> parentPixmapHash = parentHash["image"].toHash();
             setViewFromJson(parentPixmapHash,parentItem);
@@ -456,16 +497,53 @@ void ArchitePlanView::findFireAlarm(int pos)
 void ArchitePlanView::saveOtherArchiteInfo()
 {
     QHash<QString,QVariant> architePlanHash;
+
     architePlanHash["sysArchitePlan"] = m_sysArchitePlanView->infoToJson();
-    architePlanHash["grobalArchitePlan"] = m_globalArchitePlanPixmapName;
+
+    QList<QGraphicsItem*> itemList=  m_globalGraphicsView->currentScene()->items();
+    QList<QVariant>itemInfoList;
+    foreach (QGraphicsItem*graphicsItem, itemList)
+    {
+
+        GlobalGraphicsItem *globalItem = dynamic_cast<GlobalGraphicsItem *>(graphicsItem);
+        if(globalItem!=nullptr)
+        {
+            QHash<QString,QVariant> globalGraphicsItemInfoHash;
+            globalGraphicsItemInfoHash["itemSize"] = globalItem->itemSize();
+            globalGraphicsItemInfoHash["itemPos"] = QString("%1,%2").arg( globalItem->scenePos().x()).arg(globalItem->scenePos().y());
+            globalGraphicsItemInfoHash["itemIcon"] = globalItem->iconName();
+            globalGraphicsItemInfoHash["buildName"] = globalItem->buildName();
+            itemInfoList.push_back(globalGraphicsItemInfoHash);
+        }
+    }
+
+    architePlanHash["grobalPlanPicture"] =m_globalArchitePlanPixmapName;
+    architePlanHash["grobalPlanItemInfo"] = itemInfoList;
+    //architePlanHash["grobalArchitePlan"] =globalGraphicsHash;
     QmlForJson::writeFile(architePlanHash);
 }
 
 void ArchitePlanView::setGlobalArchiteFromJson()
 {
     QHash<QString,QVariant> valueHash = QmlForJson::readFile().toHash();
-    QString pixmapName= valueHash["grobalArchitePlan"].toString();
+    QString pixmapName= valueHash["grobalPlanPicture"].toString();
     setGlobalArchitePixmap(pixmapName);
+    QList<QVariant>itemList = valueHash["grobalPlanItemInfo"].toList();
+    foreach (QVariant value, itemList)
+    {
+        QHash<QString,QVariant>infoHash= value.toHash();
+        QString itemPosStr = infoHash["itemPos"].toString();
+        qreal x = itemPosStr.section(",",0,0).toDouble();
+        qreal y = itemPosStr.section(",",1,1).toDouble();
+        QPointF point(x,y);
+        GlobalGraphicsItem *currentItem=   m_globalGraphicsView->currentScene()->addGlobalGraphicsItem(point);
+        if(currentItem!=nullptr)
+        {
+            currentItem->setBuildName(infoHash["buildName"].toString());
+            currentItem->setIconName(infoHash["itemIcon"].toString());
+            currentItem->setItemSize(infoHash["itemSize"].toDouble());
+        }
+    }
 }
 
 void ArchitePlanView::updateAlarmWidget(GraphicsView *currentView)
@@ -520,7 +598,7 @@ void ArchitePlanView::setGlobalArchitePixmap(const QString &pixmapName)
 {
     QString filePath=  Controller::instance()->fileNameFromQml(pixmapName);
     m_globalArchitePlanPixmapName = filePath;
-    m_globalGraphicsView->setStyleSheet(QString("QWidget{margin:20;border-image:url(%1)}").arg(filePath));
+    m_globalGraphicsView->setPicture(filePath);
 }
 
 QMap<int, GraphicsView *> &ArchitePlanView::getWidgetMap()
@@ -629,6 +707,16 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
 {
     QMap<QStandardItem*,int>itemMap;
     itemMap = m_treeView->getTreeIndexMap();
+
+    if(item->parent()!=nullptr)
+    {
+      GlobalGraphicsItem*globalGraphicsItem=  m_globalToArchitePlanHash.key(item);
+      if(globalGraphicsItem!=nullptr)
+      {
+          m_globalGraphicsView->currentScene()->removeItem(globalGraphicsItem);
+      }
+
+    }
     if(item->hasChildren())
     {
         for(int i=0;i<item->rowCount();i++)
@@ -643,12 +731,26 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
         }
     }
 
+
     int page =itemMap[item];
     GraphicsView*widget = m_widgetMap[page];
-    m_stackedWidget->removeWidget(widget);
-    m_widgetMap.remove(page);
+    if(widget!=nullptr)
+    {
+        m_stackedWidget->removeWidget(widget);
+        deleteAlarmWidget(widget);
+    }
+    if(m_widgetMap.keys().contains(page))
+    {
+        m_widgetMap.remove(page);
+    }
+
+    GlobalGraphicsItem*globalItem =  m_globalToArchitePlanHash.key(item);
+    if(globalItem!=nullptr)
+    {
+        m_globalGraphicsView->currentScene()->removeItem(globalItem);
+    }
     m_treeView->getTreeIndexMap().remove(item);
-    deleteAlarmWidget(widget);
+
 }
 
 GraphicsView *ArchitePlanView::viewToParentItem(QStandardItem *item)

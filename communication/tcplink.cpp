@@ -18,7 +18,7 @@ TcpLink::TcpLink(QObject *parent)
     {
         m_tcpSocket->connectToHost(m_address,m_port);
         m_tcpSocket->waitForConnected(1000);
-        qDebug() << m_tcpSocket->state();
+        //qDebug() << m_tcpSocket->state();
     });
     connect(this,&TcpLink::stopConnect,this,[=](){
         m_tcpSocket->close();

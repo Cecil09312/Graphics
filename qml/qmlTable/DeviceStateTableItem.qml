@@ -2,16 +2,10 @@
 import QtQuick.Controls 2.2
 import QtQuick.Controls 1.4 as Controls1_4
 import qmlTableModel 1.0
-
-Item {
-    id: deviceState
-    //    width: 860
-    //    height: 480
-    antialiasing: true
-    GroupBox {
-        id: deviceStateGroupBox
-        title: qsTr("设备及设施状态查询")
-        anchors.fill: parent
+   Item {
+        id: deviceStateItem
+       // title: qsTr("设备及设施状态查询")
+       // anchors.fill: parent
         anchors.bottomMargin: 40
         anchors.topMargin: 40
         Row {
@@ -163,8 +157,6 @@ Item {
 
             model: deviceStateModel
         }
-    }
-
     QmlTableModel {
         id: deviceStateModel
         //        dbDriver: qsTr("QSQLITE")

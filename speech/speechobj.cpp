@@ -30,7 +30,6 @@ SpeechObj::SpeechObj(QObject *parent):
 
 SpeechObj::~SpeechObj()
 {
-    qDebug() << "SpeechObj";
     stopSpeech();
     m_thread->quit();
     m_thread->deleteLater();

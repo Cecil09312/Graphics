@@ -17,7 +17,7 @@ public:
     ~TreeView();
     QMap<QStandardItem *, int> &getTreeIndexMap();
     void saveTreeItem();
-    QStandardItem *addRootItem();
+    QStandardItem *addRootItem(const QString &root);
     QStandardItem *addChildItem(QModelIndex index);
 signals:
     void treeIndex(QStandardItem*item);
@@ -41,8 +41,8 @@ private:
 
 private:
     QMenu *m_treeSettingMenu;
-    QAction* m_addAction;
-  //  QAction *m_addChildAction;
+    //QAction *m_addAction;
+    QAction *m_addChildAction;
     QAction *m_editAction;
     QAction *m_closeAction;
     QAction *m_deleteAction;

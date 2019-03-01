@@ -19,5 +19,6 @@
         <file>qml/infoSetting/GraphicsViewSetting.qml</file>
         <file>qml/infoSetting/InfoQuery.qml</file>
         <file>qml/infoSetting/SpeechSetting.qml</file>
+        <file>qml/infoSetting/MaintenanceInfo.qml</file>
     </qresource>
 </RCC>

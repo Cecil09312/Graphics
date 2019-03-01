@@ -16,19 +16,16 @@ TreeView::TreeView(QWidget *parent):
 {
     initWidget();
     initMenu();
-    connect(m_addAction,&QAction::triggered,this,[=]()
-    {
-        addRootItem();
-    });
+    setEditTriggers(QAbstractItemView::NoEditTriggers);
     connect(m_closeAction,&QAction::triggered,this,[=]()
     {
         m_treeSettingMenu->close();
     });
-    //    connect(m_addChildAction,&QAction::triggered,this,[=]()
-    //    {
-    //        QModelIndex index = indexAt(m_rootPoint);
-    //        addChildItem(index);
-    //    });
+    connect(m_addChildAction,&QAction::triggered,this,[=]()
+    {
+        QModelIndex index = indexAt(m_rootPoint);
+        addChildItem(index);
+    });
 
     connect(m_editAction,&QAction::triggered,this,[=]()
     {
@@ -44,45 +41,66 @@ TreeView::TreeView(QWidget *parent):
     });
     connect(m_clearAction,&QAction::triggered,this,[=]()
     {
-       QList<GraphicsView*>viewList= Controller::instance()->getArchitePlanView()->getWidgetMap().values();
-       bool isCanClear = false;
-       foreach (GraphicsView*view, viewList)
-       {
-           if(view->haveAnyAlarm())
-           {
-                isCanClear = true;
-                break;
-           }
-       }
+        QList<GraphicsView*>viewList= Controller::instance()->getArchitePlanView()->getWidgetMap().values();
+        bool isCanClear = false;
+        foreach (GraphicsView*view, viewList)
+        {
+            if(view!=nullptr)
+            {
+                if(view->haveAnyAlarm())
+                {
+                    isCanClear = true;
+                    break;
+                }
+            }
 
-       if(isCanClear)
-       {
-          QMessageBox::critical(this,"警告","存在报警信息，消除报警才能清除");
-          return;
-       }
+        }
+
+        if(isCanClear)
+        {
+            QMessageBox::critical(this,"警告","存在报警信息，消除报警才能清除");
+            return;
+        }
         clearItem();
     });
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this,&TreeView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)
     {
 
+        m_rootPoint=  QWidget::mapFromGlobal(QCursor::pos());
         if(Controller::instance()->getUserRight()!=UserManager::Super)
         {
             m_editAction->setEnabled(false);
             m_deleteAction->setEnabled(false);
             m_clearAction->setEnabled(false);
-            m_addAction->setEnabled(false);
-            //m_addChildAction->setEnabled(false);
+            //m_addAction->setEnabled(false);
+            m_addChildAction->setEnabled(false);
         }
         else
         {
-            m_editAction->setEnabled(true);
+            QModelIndex index = indexAt(m_rootPoint);
+            if(index.isValid())
+            {
+                QStandardItem *stdItem=  m_stdModel->itemFromIndex(index);
+                if(stdItem!=nullptr && stdItem->parent()!=nullptr)
+                {
+                    m_editAction->setEnabled(true);
+                }
+                else
+                {
+                    m_editAction->setEnabled(false);
+                }
+            }
+            else
+            {
+                m_editAction->setEnabled(false);
+            }
+
             m_deleteAction->setEnabled(true);
             m_clearAction->setEnabled(true);
-            m_addAction->setEnabled(true);
-            //m_addChildAction->setEnabled(true);
+            m_addChildAction->setEnabled(true);
         }
-        m_rootPoint=  QWidget::mapFromGlobal(QCursor::pos());
+
         m_treeSettingMenu->exec(QCursor::pos());
     });
 
@@ -132,16 +150,33 @@ void TreeView::saveTreeItem()
     }
 }
 
-QStandardItem * TreeView::addRootItem()
+QStandardItem * TreeView::addRootItem(const QString &root)
 {
     int rootCount= m_stdModel->rowCount();
     int totalRowCounts = getTotalCount();
-    QStandardItem *rootItem =new QStandardItem(QString("第%1层").arg(rootCount+1));
-    m_stdModel->insertRow(rootCount,rootItem);
-    m_treeIndexMap[rootItem]=totalRowCounts;
-    emit treeIndex(rootItem);
-    m_parentIndexList.push_back(totalRowCounts);
-    return rootItem;
+    QStandardItem* stdRootItem = nullptr;
+    QList<QStandardItem*>stdItemList=   m_stdModel->findItems(root);
+    if(stdItemList.size()==0)
+    {
+        QStandardItem *rootItem =new QStandardItem(root);
+        m_stdModel->insertRow(rootCount,rootItem);
+        m_treeIndexMap[rootItem]=totalRowCounts;
+        //emit treeIndex(rootItem);
+        m_parentIndexList.push_back(totalRowCounts);
+        return rootItem;
+    }
+    else
+    {
+        foreach (QStandardItem*stdItem, stdItemList)
+        {
+            if(stdItem->text()==root)
+            {
+                stdRootItem = stdItem;
+                break;
+            }
+        }
+        return stdRootItem;
+    }
 }
 
 QStandardItem* TreeView::addChildItem(QModelIndex index)
@@ -163,7 +198,7 @@ QStandardItem* TreeView::addChildItem(QModelIndex index)
                     auto it= std::minmax_element(childRowList.begin(),childRowList.end()).second;
                     rowCount = *it+1;
                 }
-                QStandardItem*childItem = new QStandardItem(QString("%1").arg(rowCount+1));
+                QStandardItem*childItem = new QStandardItem(QString("%1层").arg(rowCount+1));
                 standardItem->setChild(size,childItem);
                 m_treeIndexMap[childItem] = totalRowCounts;
                 emit treeIndex(childItem);
@@ -195,14 +230,13 @@ void TreeView::deleteTreeItem(QModelIndex index)
     {
         QStandardItem *standardItem = m_stdModel->itemFromIndex(index);
         GraphicsView*view=  Controller::instance()->getArchitePlanView()->viewToParentItem(standardItem);
-        if(view==nullptr)
+        if(view!=nullptr)
         {
-            return;
-        }
-        if(view->haveAnyAlarm())
-        {
-            QMessageBox::critical(this,"警告","存在报警，消除报警后才能删除");
-            return;
+            if(view->haveAnyAlarm())
+            {
+                QMessageBox::critical(this,"警告","存在报警，消除报警后才能删除");
+                return;
+            }
         }
 
         emit deleteIndex(standardItem);
@@ -280,14 +314,14 @@ void TreeView::initWidget()
 void TreeView::initMenu()
 {
     m_treeSettingMenu = new QMenu;
-    m_addAction  = new QAction(tr("添加楼层"),m_treeSettingMenu);
-    //m_addChildAction = new QAction(tr("增加子节点"),m_treeSettingMenu);
+    //m_addAction  = new QAction(tr("添加楼层"),m_treeSettingMenu);
+    m_addChildAction = new QAction(tr("增加子节点"),m_treeSettingMenu);
     m_editAction = new QAction(tr("编辑"),m_treeSettingMenu);
     m_deleteAction= new QAction(tr("删除"),m_treeSettingMenu);
     m_clearAction= new QAction(tr("清空"),m_treeSettingMenu);
     m_closeAction = new QAction(tr("关闭"),m_treeSettingMenu);
-    m_treeSettingMenu->addAction(m_addAction);
-    // m_treeSettingMenu->addAction(m_addChildAction);
+    //m_treeSettingMenu->addAction(m_addAction);
+    m_treeSettingMenu->addAction(m_addChildAction);
     m_treeSettingMenu->addAction(m_editAction);
     m_treeSettingMenu->addAction(m_deleteAction);
     m_treeSettingMenu->addAction(m_clearAction);

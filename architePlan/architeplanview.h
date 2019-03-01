@@ -13,6 +13,8 @@
 #include <QCloseEvent>
 #include <QTextToSpeech>
 #include "architePlan/sysarchiteplanview.h"
+#include "graphicsWidget/globalgraphicsview.h"
+#include "graphicsWidget/globalgraphicsitem.h"
 class ArchitePlanView : public QWidget
 {
     Q_OBJECT
@@ -54,13 +56,9 @@ public slots:
     void toPreviousPage();
     void toNextPage();
     void deleteViewFromItem(QStandardItem *item);
-
-
-
 private:
     void initWidget();
     void saveArchiteInfo();
-
     QHash<QString, QVariant> saveViewInfo(QStandardItem *item);
     void initFromJsonFile();
     void setViewFromJson(const QHash<QString, QVariant> &hash, QStandardItem *treeItem);
@@ -69,19 +67,18 @@ private:
     void setGlobalArchiteFromJson();
     void updateAlarmWidget(GraphicsView *currentView);
     void deleteAlarmWidget(GraphicsView *currentView);
-
-
 private:
     TreeView *m_treeView;
     QStackedWidget *m_stackedWidget;
     QTabWidget *m_tabWidget;
-    QWidget *m_globalGraphicsView;
+    GlobalGraphicsView *m_globalGraphicsView;
     SysArchitePlanView *m_sysArchitePlanView;
     static QMap<int,GraphicsView *>m_widgetMap;
     QHash<QString,QList<GraphicsView *> >m_alarmWidgetHash;
     QString m_currentAlarmType;
     const QString c_jsonFilePath=QCoreApplication::applicationDirPath()+"/treeView.json";
     QString m_globalArchitePlanPixmapName;
+    QHash<GlobalGraphicsItem*,QStandardItem*>m_globalToArchitePlanHash;
 };
 
 #endif // ARCHITEPLANVIEW_H

@@ -1,148 +1,84 @@
 ﻿import QtQuick 2.9
 import QtQuick.Controls 2.2
+import QtQuick.Controls 1.4 as Controls1_4
+import "qrc:/qml/infoSetting"
+import QtQuick.Controls.Styles 1.4
 
-PathView {
-    id: pathView
-    signal launched(string page)
-    readonly property int cX: width / 2
-    readonly property int cY: height / 2
-    readonly property int itemSize: size / 4
-    readonly property int size: Math.min(width - 80, height)
-    readonly property int radius: size / 2 - itemSize / 3
-    snapMode: PathView.SnapToItem
-    model: ListModel {
-        ListElement {
-            title: qsTr("串口设置")
-            page: "qrc:/qml/infoSetting/SerialPortSetting.qml"
-            icon: "communication"
-            iconSource: "qrc:/images/communication.png"
-        }
+Controls1_4.TabView {
 
-        ListElement {
-            title: qsTr("建筑平面图设置")
-            page: "qrc:/qml/infoSetting/GraphicsViewSetting.qml"
-            icon: "geoGraphics"
-            iconSource: "qrc:/images/geoGraphics.png"
-        }
-
-        ListElement {
-            title: qsTr("密码设置")
-            page: "qrc:/qml/infoSetting/PasswordSetting.qml"
-            icon: "passwordSetting"
-            iconSource: "qrc:/images/passwordSetting.png"
-        }
-
-        ListElement {
-            title: qsTr("信息传输")
-            page: "qrc:/qml/infoSetting/InfoTransport.qml"
-            icon: "infoSend"
-            iconSource: "qrc:/images/send.png"
-        }
-
-        ListElement {
-            title: qsTr("其它设置")
-            page: "qrc:/qml/infoSetting/SpeechSetting.qml"
-            icon: "build"
-            iconSource: "qrc:/images/build.png"
-        }
-
-        ListElement {
-            title: qsTr("信息查询")
-            page: "qrc:/qml/infoSetting/InfoQuery.qml"
-            icon: "search"
-            iconSource: "qrc:/images/search.png"
-        }
-
-        ListElement {
-            title: qsTr("系统图设置")
-            page: "qrc:/qml/infoSetting/SysArchitePlanSetting.qml"
-            icon: "appOther"
-            iconSource: "qrc:/images/appOther.png"
+    Controls1_4.Tab {
+        title: qsTr("串口设置")
+        SerialPortSetting {
+            id: serialPortSetting
         }
     }
 
-    delegate: RoundButton {
-        width: pathView.itemSize
-        height: pathView.itemSize
-
-        property string title: model.title
-        BorderImage {
-            anchors.fill: parent
-            anchors.margins: 15
-            source: model.iconSource
-        }
-        opacity: PathView.itemOpacity
-        padding: 12
-
-        background: Rectangle {
-            radius: width / 2
-            border.width: 3
-            border.color: parent.PathView.isCurrentItem ? "#41cd52" : "#53586b"
-        }
-
-        onClicked: {
-            if (PathView.isCurrentItem)
-                pathView.launched(Qt.resolvedUrl(page))
-            else
-                pathView.currentIndex = index
+    Controls1_4.Tab {
+        title: qsTr("建筑平面图设置")
+        GraphicsViewSetting {
+            id: graphicsViewSetting
         }
     }
 
-    path: Path {
-        startX: pathView.cX
-        startY: pathView.cY
-        PathAttribute {
-            name: "itemOpacity"
-            value: 1.0
-        }
-        PathLine {
-            x: pathView.cX + pathView.radius
-            y: pathView.cY
-        }
-        PathAttribute {
-            name: "itemOpacity"
-            value: 0.7
-        }
-        PathArc {
-            x: pathView.cX - pathView.radius
-            y: pathView.cY
-            radiusX: pathView.radius
-            radiusY: pathView.radius
-            useLargeArc: true
-            direction: PathArc.Clockwise
-        }
-        PathAttribute {
-            name: "itemOpacity"
-            value: 0.5
-        }
-        PathArc {
-            x: pathView.cX + pathView.radius
-            y: pathView.cY
-            radiusX: pathView.radius
-            radiusY: pathView.radius
-            useLargeArc: true
-            direction: PathArc.Clockwise
-        }
-        PathAttribute {
-            name: "itemOpacity"
-            value: 0.3
+    Controls1_4.Tab {
+        title: qsTr("密码设置")
+        PasswordSetting {
+            id: passwordSetting
         }
     }
 
-    Text {
-        id: appTitle
+    Controls1_4.Tab {
+        title: qsTr("信息传输")
+        InfoTransport {
+            id: infoTransPort
+        }
+    }
 
-        property Item currentItem: pathView.currentItem
+    Controls1_4.Tab {
+        title: qsTr("信息查询")
+        anchors.topMargin: 20
+        InfoQuery {
+            id: infoQuery
+        }
+    }
 
-        visible: currentItem ? currentItem.PathView.itemOpacity === 1.0 : 0
+    Controls1_4.Tab {
+        title: qsTr("系统图设置")
+        SysArchitePlanSetting {
+            id: sysArchitePlanSetting
+        }
+    }
 
-        text: currentItem ? currentItem.title : ""
-        anchors.centerIn: parent
-        anchors.verticalCenterOffset: (pathView.itemSize + height) / 2
+    Controls1_4.Tab {
+        title: qsTr("语音设置")
+        SpeechSetting {
+            id: speechSetting
+        }
+    }
 
-        font.bold: true
-        font.pixelSize: pathView.itemSize / 3
-        font.letterSpacing: 1
-        //   color: "#222840"
+    Controls1_4.Tab {
+        title: qsTr("维保信息")
+        MaintenanceInfo {
+            id: maintenanceInfo
+        }
+    }
+    style: TabViewStyle {
+        frameOverlap: 1
+        tab: Rectangle {
+            color: styleData.selected ? "steelblue" : "lightsteelblue"
+            border.color: "steelblue"
+            implicitWidth: Math.max(text.width + 4, 80)
+            implicitHeight: 40
+            radius: 2
+            Text {
+                id: text
+                anchors.centerIn: parent
+                text: styleData.title
+                color: styleData.selected ? "white" : "black"
+            }
+        }
+        frame: Rectangle {
+            color: "white"
+        }
     }
 }
