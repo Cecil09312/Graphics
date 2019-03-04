@@ -104,6 +104,18 @@ TreeView::TreeView(QWidget *parent):
         m_treeSettingMenu->exec(QCursor::pos());
     });
 
+    connect(this,&TreeView::doubleClicked,this,[=](const QModelIndex &index)
+    {
+        QStandardItem*item=   m_stdModel->itemFromIndex(index);
+        if(item!=nullptr)
+        {
+            if(item->parent()==nullptr)
+            {
+                emit toGlobalGraphicsView(item);
+            }
+        }
+
+    });
 }
 
 TreeView::~TreeView()
@@ -222,6 +234,16 @@ QStandardItem* TreeView::addChildItem(QModelIndex index)
     }
 }
 
+void TreeView::setItemExpanded(const QStandardItem *item)
+{
+    for(int i=0;i<m_stdModel->rowCount();i++)
+    {
+        setExpanded(m_stdModel->item(i)->index(),false);
+    }
+    QModelIndex index = m_stdModel->indexFromItem(item);
+    setExpanded(index,true);
+}
+
 
 
 void TreeView::deleteTreeItem(QModelIndex index)
@@ -315,7 +337,7 @@ void TreeView::initMenu()
 {
     m_treeSettingMenu = new QMenu;
     //m_addAction  = new QAction(tr("添加楼层"),m_treeSettingMenu);
-    m_addChildAction = new QAction(tr("增加子节点"),m_treeSettingMenu);
+    m_addChildAction = new QAction(tr("增加楼层"),m_treeSettingMenu);
     m_editAction = new QAction(tr("编辑"),m_treeSettingMenu);
     m_deleteAction= new QAction(tr("删除"),m_treeSettingMenu);
     m_clearAction= new QAction(tr("清空"),m_treeSettingMenu);

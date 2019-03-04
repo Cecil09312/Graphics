@@ -15,11 +15,13 @@ public:
     ~GlobalGraphicsScene();
     void showMenu(const QPoint &point);
     GlobalGraphicsItem *addGlobalGraphicsItem(QPointF point);
+    void clearGraphicsItem();
 signals:
     void editItem();
-    void goToArchitePlan();
+    void goToArchitePlan(GlobalGraphicsItem*item);
     void addGlobalItem(GlobalGraphicsItem*item);
     void deleteGlobalItem(GlobalGraphicsItem*item);
+    void clearItem();
 
 protected:
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent*event);
@@ -30,6 +32,7 @@ private:
     QAction *m_removeItemAction;
     QAction *m_removeSelectItemAction;
     QAction *m_editItemAction;
+    QAction *m_clearItemAction;
     QAction *m_goToAchitePlanAction;
     int m_num;
 

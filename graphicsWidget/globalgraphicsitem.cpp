@@ -3,17 +3,27 @@
 #include "control/controller.h"
 #include <QDebug>
 GlobalGraphicsItem::GlobalGraphicsItem(GlobalGraphicsScene *scene)
-    :m_radius(12.0)
+    :m_radius(20.0)
 {
     m_scene = scene;
     m_iconName = ":/images/fireAlarm.png";
+    //m_timeLine = new QTimeLine(1000,this);
+   // m_itemAnimation = new QGraphicsItemAnimation(this);
+
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);
+//    m_timeLine->setFrameRange(0,100);
+//    m_itemAnimation->setItem(this);
+//    m_itemAnimation->setTimeLine(m_timeLine);
+//    for(int i=0;i<100;i++)
+//    {
+//        m_itemAnimation->setPosAt(i/100.0,QPointF(i,i));
+//    }
 }
 
 GlobalGraphicsItem::~GlobalGraphicsItem()
 {
-
+    //m_timeLine->stop();
 }
 
 void GlobalGraphicsItem::setIconName(const QString &name)
@@ -50,6 +60,11 @@ QString GlobalGraphicsItem::buildName()
 void GlobalGraphicsItem::setBuildName(const QString &name)
 {
     m_buildName = name;
+}
+
+void GlobalGraphicsItem::startAnimal()
+{
+    //m_timeLine->start();
 }
 
 QRectF GlobalGraphicsItem::boundingRect() const
@@ -92,7 +107,7 @@ void GlobalGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
             {
                 painter->drawPixmap(-12,-12,12,12,QPixmap(m_iconName));
             }
-           // painter->drawText(QRectF(-12,-12,12,12),m_itemInfo.m_deviceNum);
+            // painter->drawText(QRectF(-12,-12,12,12),m_itemInfo.m_deviceNum);
         }
 
 

@@ -7,6 +7,7 @@ GlobalGraphicsView::GlobalGraphicsView(QWidget *parent):
     m_svgItem = new QGraphicsSvgItem;
     m_graphicsScene->addItem(m_svgItem);
     setScene(m_graphicsScene);
+    fitInView(0,0,width()*1.2,height()*1.2,Qt::KeepAspectRatio);
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this,&GlobalGraphicsView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)
     {

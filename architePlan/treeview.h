@@ -19,11 +19,13 @@ public:
     void saveTreeItem();
     QStandardItem *addRootItem(const QString &root);
     QStandardItem *addChildItem(QModelIndex index);
+    void setItemExpanded(const QStandardItem *item);
 signals:
     void treeIndex(QStandardItem*item);
     void deleteIndex(QStandardItem*item);
     void clearIndex();
     void insertAnchPixmap(QStandardItem*item,const QString &fileName);
+    void toGlobalGraphicsView(QStandardItem*item);
 
 public slots:
     void deleteTreeItem(QModelIndex index);

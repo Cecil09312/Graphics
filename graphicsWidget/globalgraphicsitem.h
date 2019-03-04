@@ -4,6 +4,9 @@
 #include "globalgraphicsscene.h"
 #include <QStyleOptionGraphicsItem>
 #include <QStyle>
+#include <QGraphicsItemAnimation>
+#include <QTimeLine>
+
 class GlobalGraphicsItem : public QObject,public QGraphicsItem
 {
     Q_OBJECT
@@ -23,6 +26,7 @@ public:
     void setHoverText(const QString &hoverText);
     QString buildName();
     void setBuildName(const QString &name);
+    void startAnimal();
 protected:
 
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
@@ -33,6 +37,8 @@ private:
     qreal m_radius;
     QString m_hoverText;
     QString m_buildName;
+    //QGraphicsItemAnimation *m_itemAnimation;
+    //QTimeLine *m_timeLine;
 };
 
 #endif // GLOBALGRAPHICSITEM_H

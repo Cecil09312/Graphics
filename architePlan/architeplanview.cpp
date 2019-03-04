@@ -38,6 +38,33 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
         QModelIndex index= m_globalToArchitePlanHash[item]->index();
         m_treeView->deleteTreeItem(index);
     });
+
+    connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::clearItem,this,[=]()
+    {
+        m_treeView->clearItem();
+    });
+
+    connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::goToArchitePlan,this,[=](GlobalGraphicsItem*item)
+    {
+        if(item==nullptr)
+        {
+            return;
+        }
+        else
+        {
+            QStandardItem *stdItem = m_globalToArchitePlanHash[item];
+            if(stdItem!=nullptr)
+            {
+                m_treeView->setItemExpanded(stdItem);
+                m_tabWidget->setCurrentIndex(1);
+                if(stdItem->hasChildren())
+                {
+                  m_treeView->clicked(stdItem->child(0)->index());
+                }
+
+            }
+        }
+    });
 }
 
 ArchitePlanView::~ArchitePlanView()
@@ -187,8 +214,8 @@ void ArchitePlanView::initWidget()
     splitter->addWidget(m_stackedWidget);
     splitter->addWidget(m_treeView);
 
-    m_tabWidget->addTab(splitter,tr("建筑平面图"));
     m_tabWidget->addTab(m_globalGraphicsView ,tr("总平面布局图"));
+    m_tabWidget->addTab(splitter,tr("建筑平面图"));
     m_tabWidget->addTab(m_sysArchitePlanView,tr("系统图"));
     // m_sysGraphicsView->loadPixmap("D:/program/GraphicsDisplay/images/dialog.png");
     //m_tabWidget->addTab(new QWidget(this),tr("平面图"));
@@ -238,6 +265,7 @@ void ArchitePlanView::initWidget()
 
         }
         m_widgetMap.clear();
+        m_globalGraphicsView->currentScene()->clearGraphicsItem();
         emit noPage();
     });
 
@@ -275,6 +303,15 @@ void ArchitePlanView::initWidget()
             {
                 emit toLastPage();
             }
+        }
+
+    });
+    connect(m_treeView,&TreeView::toGlobalGraphicsView,this,[=](QStandardItem*item)
+    {
+        GlobalGraphicsItem*globalGraphicsItem=  m_globalToArchitePlanHash.key(item);
+        if(globalGraphicsItem!=nullptr)
+        {
+            m_tabWidget->setCurrentIndex(0);
         }
 
     });
@@ -475,7 +512,7 @@ void ArchitePlanView::findFireAlarm(int pos)
                 {
                     if(currentItem==itemList.at(pos))
                     {
-                        m_tabWidget->setCurrentIndex(0);
+                        m_tabWidget->setCurrentIndex(1);
                         m_stackedWidget->setCurrentWidget(currentView);
                         return;
                     }
@@ -484,7 +521,7 @@ void ArchitePlanView::findFireAlarm(int pos)
                 {
                     if(currentItem==itemList.at(listSize-1))
                     {
-                        m_tabWidget->setCurrentIndex(0);
+                        m_tabWidget->setCurrentIndex(1);
                         m_stackedWidget->setCurrentWidget(currentView);
                         return;
                     }
@@ -710,11 +747,11 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
 
     if(item->parent()!=nullptr)
     {
-      GlobalGraphicsItem*globalGraphicsItem=  m_globalToArchitePlanHash.key(item);
-      if(globalGraphicsItem!=nullptr)
-      {
-          m_globalGraphicsView->currentScene()->removeItem(globalGraphicsItem);
-      }
+        GlobalGraphicsItem*globalGraphicsItem=  m_globalToArchitePlanHash.key(item);
+        if(globalGraphicsItem!=nullptr)
+        {
+            m_globalGraphicsView->currentScene()->removeItem(globalGraphicsItem);
+        }
 
     }
     if(item->hasChildren())

@@ -4,6 +4,7 @@
 #include "globalgraphicsitem.h"
 #include "globalgraphicsscene.h"
 #include <QSvgRenderer>
+
 class GlobalGraphicsView : public QGraphicsView
 {
     Q_OBJECT

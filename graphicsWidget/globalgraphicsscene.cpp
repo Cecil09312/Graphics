@@ -11,8 +11,10 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
     m_editItemAction = new QAction(tr("编辑"),m_menu);
     m_removeSelectItemAction = new QAction(tr("删除选中"),m_menu);
     m_goToAchitePlanAction = new QAction(tr("转到建筑平面"),m_menu);
+    m_clearItemAction = new QAction(tr("清空"),m_menu);
     m_menu->addAction(m_removeItemAction);
     m_menu->addAction(m_removeSelectItemAction);
+    m_menu->addAction(m_clearItemAction);
     m_menu->addAction(m_editItemAction);
     m_menu->addAction(m_goToAchitePlanAction);
 
@@ -43,7 +45,14 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
     });
 
     connect(m_editItemAction,&QAction::triggered,this,&GlobalGraphicsScene::editItem);
-    connect(m_goToAchitePlanAction,&QAction::triggered,this,&GlobalGraphicsScene::goToArchitePlan);
+    connect(m_goToAchitePlanAction,&QAction::triggered,this,[=]()
+    {
+        QGraphicsItem *graphicsItem =  itemAt(m_pointF,QTransform());
+        GlobalGraphicsItem *item = dynamic_cast<GlobalGraphicsItem *>(graphicsItem);
+        emit goToArchitePlan(item);
+    });
+    connect(m_clearItemAction,&QAction::triggered,this,&GlobalGraphicsScene::clearItem);
+
 }
 
 GlobalGraphicsScene::~GlobalGraphicsScene()
@@ -76,8 +85,20 @@ GlobalGraphicsItem * GlobalGraphicsScene::addGlobalGraphicsItem(QPointF point)
     item->setBuildName(QString(tr("%1号楼")).arg(m_num));
     item->setPos(point);
     addItem(item);
-
     return item;
+}
+
+void GlobalGraphicsScene::clearGraphicsItem()
+{
+  QList<QGraphicsItem*> graphicsItemList= items();
+  foreach (QGraphicsItem*item, graphicsItemList)
+  {
+      GlobalGraphicsItem *currentItem = dynamic_cast<GlobalGraphicsItem *>(item);
+      if(currentItem!=nullptr)
+      {
+          removeItem(currentItem);
+      }
+  }
 }
 
 
