@@ -25,6 +25,10 @@ GlobalGraphicsView::~GlobalGraphicsView()
 
 void GlobalGraphicsView::setPicture(const QString &pictureName)
 {
+    if(!pictureName.endsWith(".svg"))
+    {
+        return;
+    }
     QSvgRenderer *renderer = new QSvgRenderer(pictureName);
     m_svgItem->setSharedRenderer(renderer);
     m_pictureName = pictureName;

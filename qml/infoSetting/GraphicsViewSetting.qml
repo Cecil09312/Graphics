@@ -36,7 +36,7 @@ Item {
                     Layout.column: 1
                     Layout.fillWidth: true
                     from: 10
-                    to: 100
+                    to: 1000
                     value: 15
                     property int decimals: 1
                     property real realValue: value / 10

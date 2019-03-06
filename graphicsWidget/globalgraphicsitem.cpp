@@ -5,25 +5,36 @@
 GlobalGraphicsItem::GlobalGraphicsItem(GlobalGraphicsScene *scene)
     :m_radius(20.0)
 {
-    m_scene = scene;
-    m_iconName = ":/images/fireAlarm.png";
-    //m_timeLine = new QTimeLine(1000,this);
-   // m_itemAnimation = new QGraphicsItemAnimation(this);
-
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);
-//    m_timeLine->setFrameRange(0,100);
-//    m_itemAnimation->setItem(this);
-//    m_itemAnimation->setTimeLine(m_timeLine);
-//    for(int i=0;i<100;i++)
-//    {
-//        m_itemAnimation->setPosAt(i/100.0,QPointF(i,i));
-//    }
+    m_scene = scene;
+    m_iconName = ":/images/fireAlarm.png";
+    setProperty("size",m_radius);
+    m_propertyAnimation = new QPropertyAnimation(this,"size");
+    m_propertyAnimation->setDuration(1000);
+    m_propertyAnimation->setStartValue(m_radius*0.5);
+    m_propertyAnimation->setEndValue(1.5*m_radius);
+    m_propertyAnimation->setLoopCount(-1);
+    connect(m_propertyAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &value)
+    {
+        m_radius = value.toDouble();
+        m_scene->update();
+    });
+
+    connect(m_propertyAnimation,&QPropertyAnimation::stateChanged,this,[=](QAbstractAnimation::State newState, QAbstractAnimation::State oldState)
+    {
+        if(oldState==QAbstractAnimation::Running&&newState==QAbstractAnimation::Stopped)
+        {
+            m_radius = 20.0;
+            m_scene->update();
+        }
+    });
+
 }
 
 GlobalGraphicsItem::~GlobalGraphicsItem()
 {
-    //m_timeLine->stop();
+    startAnimal(false);
 }
 
 void GlobalGraphicsItem::setIconName(const QString &name)
@@ -62,9 +73,16 @@ void GlobalGraphicsItem::setBuildName(const QString &name)
     m_buildName = name;
 }
 
-void GlobalGraphicsItem::startAnimal()
+void GlobalGraphicsItem::startAnimal(bool isStart)
 {
-    //m_timeLine->start();
+    if(isStart)
+    {
+        m_propertyAnimation->start();
+    }
+    else
+    {
+        m_propertyAnimation->stop();
+    }
 }
 
 QRectF GlobalGraphicsItem::boundingRect() const

@@ -20,5 +20,6 @@
         <file>qml/infoSetting/InfoQuery.qml</file>
         <file>qml/infoSetting/SpeechSetting.qml</file>
         <file>qml/infoSetting/MaintenanceInfo.qml</file>
+        <file>qml/itemSetting/GlobalItemSetting.qml</file>
     </qresource>
 </RCC>

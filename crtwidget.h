@@ -29,8 +29,6 @@ public slots:
     void widgetExit();
     void loginWidgetShow();
     void settingWindowShow();
-//    void toFirstFireAlarm();
-//    void toLastFireAlarm();
     void logWidgetClose();
     void alarmChanged(QString alarm);
     void alarmStatistics(const QString &type);

@@ -13,8 +13,8 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
 
 {
     m_graphicsScene = scene;
-    m_itemInfo.m_alarmType = tr("无");
-    m_itemInfo.m_currentAlarmState = "未报警";
+
+    m_itemInfo.m_currentState = tr("正常");
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);
     m_colorEffect = new QGraphicsColorizeEffect(this);
@@ -318,19 +318,15 @@ QHash<QString, QVariant> GraphicsItem::itemInfo()
     itemHash["extNum"] = m_itemInfo.m_extNum;
     itemHash["loopNum"] = m_itemInfo.m_loopNum;
     itemHash["addrNum"] = m_itemInfo.m_addrNum;
-    itemHash["alarmType"] = m_itemInfo.m_alarmType;
     itemHash["deviceNum"] = m_itemInfo.m_deviceNum;
     itemHash["equipmentModel"] = m_itemInfo.m_equipmentModel;
-    itemHash["currentAlarmState"] = m_itemInfo.m_currentAlarmState;
-    itemHash["alarmTime"] = m_itemInfo.m_alarmTime;
-    //itemHash["alarmReceiveTime"] = m_itemInfo.m_alarmReceiveTime;
-    itemHash["alarmReplyTime"] = m_itemInfo.m_alarmReplyTime;
+    itemHash["currentState"] = m_itemInfo.m_currentState;
     itemHash["sysOfDevice"] = m_itemInfo.m_sysOfDevice;
-    //itemHash["protectedAreaName"] = m_itemInfo.m_protectedAreaName;
     itemHash["deviceLocation"] = m_itemInfo.m_deviceLocation;
     itemHash["buildingName"] = m_itemInfo.m_buildingName;
     itemHash["floorOfDevice"] = m_itemInfo.m_floorOfDevice;
-    itemHash["operatorOnDuty"] = m_itemInfo.m_operatorOnDuty;
+    itemHash["manufacturers"] = m_itemInfo.m_manufacturers;
+    itemHash["periodOfValidity"] = m_itemInfo.m_periodOfValidity;
     itemHash["iconName"] = m_iconName;
     itemHash["size"] = m_radius;
     itemHash["pos"] = QString("%1,%2").arg(scenePos().x()).arg(scenePos().y());
@@ -362,9 +358,9 @@ QString &GraphicsItem::addrNum()
     return m_itemInfo.m_addrNum;
 }
 
-QString &GraphicsItem::alarmType()
+QString &GraphicsItem::currentState()
 {
-    return m_itemInfo.m_alarmType;
+    return m_itemInfo.m_currentState;
 }
 
 QString &GraphicsItem::deviceNum()
@@ -402,10 +398,17 @@ QString &GraphicsItem::deviceLocation()
     return m_itemInfo.m_deviceLocation;
 }
 
-QString &GraphicsItem::operatorDuty()
+QString &GraphicsItem::manufacturers()
 {
-    return m_itemInfo.m_operatorOnDuty;
+    return m_itemInfo.m_manufacturers;
 }
+
+QString &GraphicsItem::periodOfValidity()
+{
+    return m_itemInfo.m_periodOfValidity;
+}
+
+
 
 void GraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
@@ -430,20 +433,20 @@ void GraphicsItem::updateHoverText()
     QString hoverText = QString("分机号:%1\n"
                                 "回路号:%2\n"
                                 "地址号:%3\n"
-                                "报警类型:%4\n"
-                                "设备产品编码:%5\n"
-                                "设备设施型号:%6\n"
-                                "报警当前状态:%7\n"
-                                "报警时间:%8\n"
-                                "设备所属系统:%9\n"
-                                "建筑设施名称:%10\n"
-                                "设施所在楼层:%11\n"
-                                "设施所在位置:%12\n"
-                                "值班人员:%13").arg(m_itemInfo.m_extNum).arg(m_itemInfo.m_loopNum).arg(m_itemInfo.m_addrNum)
-            .arg(m_itemInfo.m_alarmType).arg(m_itemInfo.m_deviceNum).arg(m_itemInfo.m_equipmentModel)
-            .arg(m_itemInfo.m_currentAlarmState).arg(m_itemInfo.m_alarmTime)
-            .arg(m_itemInfo.m_alarmReplyTime).arg(m_itemInfo.m_sysOfDevice).arg(m_itemInfo.m_buildingName)
-            .arg(m_itemInfo.m_floorOfDevice).arg(m_itemInfo.m_deviceLocation).arg(m_itemInfo.m_operatorOnDuty);
+                                "设备编码:%4\n"
+                                "设备型号:%5\n"
+                                "状态:%6\n"
+                                "报警时间:%7\n"
+                                "系统:%8\n"
+                                "建筑名称:%9\n"
+                                "楼层:%10\n"
+                                "位置:%11\n"
+                                "制造商:%12\n"
+                                "有效期:%13").arg(m_itemInfo.m_extNum).arg(m_itemInfo.m_loopNum).arg(m_itemInfo.m_addrNum)
+            .arg(m_itemInfo.m_deviceNum).arg(m_itemInfo.m_equipmentModel).arg(m_itemInfo.m_currentState)
+            .arg(m_itemInfo.m_alarmTime).arg(m_itemInfo.m_sysOfDevice).arg(m_itemInfo.m_buildingName)
+            .arg(m_itemInfo.m_floorOfDevice).arg(m_itemInfo.m_deviceLocation).arg(m_itemInfo.m_manufacturers)
+            .arg(m_itemInfo.m_periodOfValidity);
     setHoverText(hoverText);
 }
 

@@ -11,10 +11,12 @@
 #include <QDebug>
 #include "control/controller.h"
 #include <QModelIndex>
+
 QMap<int,GraphicsView *>ArchitePlanView::m_widgetMap =QMap<int,GraphicsView *>();
 ArchitePlanView::ArchitePlanView(QWidget *parent)
     : QWidget(parent),
-      m_currentAlarmType("全部")
+      m_currentAlarmType("全部"),
+      m_alarmPos(0)
 {
     initWidget();
     setGlobalArchiteFromJson();
@@ -59,17 +61,31 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
                 m_tabWidget->setCurrentIndex(1);
                 if(stdItem->hasChildren())
                 {
-                  m_treeView->clicked(stdItem->child(0)->index());
+                    m_treeView->clicked(stdItem->child(0)->index());
                 }
 
             }
         }
     });
+
+    connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::editItem,this,&ArchitePlanView::editGlobalItem);
+    connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::setBuildingName,this,[=](GlobalGraphicsItem *item,const QString &name)
+    {
+        QStandardItem *stdItem = m_globalToArchitePlanHash[item];
+        if(stdItem!=nullptr)
+        {
+            stdItem->setText(name);
+        }
+
+    });
+
+    connect(m_autoSwitchTimer,&QTimer::timeout,this,&ArchitePlanView::viewsAutoSwitch);
 }
 
 ArchitePlanView::~ArchitePlanView()
 {
     m_treeView->saveTreeItem();
+    m_autoSwitchTimer->stop();
     saveArchiteInfo();
     saveOtherArchiteInfo();
 }
@@ -98,18 +114,22 @@ void ArchitePlanView::createAlarm(const QString &alarmTypeName)
     }
 }
 
+void ArchitePlanView::setAutoSwitch(bool isAuto)
+{
+    m_isAutoSwitch = isAuto;
+}
+
 void ArchitePlanView::eliminateAlarm(GraphicsItem *item)
 {
     if(item==nullptr)
     {
         return;
     }
-    item->alarmType() = "无";
+    item->currentState() = tr("正常");
     item->stopAnimations();
     item->stopColorAnimation();
     item->setGraphicsEffect(nullptr);
     item->restoreSize();
-    item->getItemInfo().m_currentAlarmState = "报警消除";
     DataStore::deleteTypeItem(item);
     emit  eliminateAlarmFromTable(item);
 }
@@ -118,7 +138,7 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
 {
     if(item!=nullptr)
     {
-        item->getItemInfo().m_alarmType= alarmTypeName;
+        item->getItemInfo().m_currentState= alarmTypeName;
         DataStore::insertTypeItem(alarmTypeName,item);
         if(DataStore::getTypeItemList(alarmTypeName).at(0)==item)
         {
@@ -136,7 +156,7 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
         insertAlarmWidget(alarmTypeName,view);
         insertAlarmWidget("全部",view);
         updateAlarmWidget(view);
-        item->getItemInfo().m_currentAlarmState= "正在报警";
+        item->getItemInfo().m_currentState= "正常";
         QString alarmHappendTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
         item->getItemInfo().m_alarmTime = alarmHappendTime;
         emit alarmItem(item);
@@ -203,6 +223,7 @@ void ArchitePlanView::initWidget()
     m_tabWidget = new QTabWidget(this);
     m_globalGraphicsView = new GlobalGraphicsView(this);
     m_sysArchitePlanView = new SysArchitePlanView(this);
+    m_autoSwitchTimer = new QTimer(this);
     m_treeView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     m_treeView->setMaximumWidth(180);
     m_stackedWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
@@ -667,8 +688,7 @@ void ArchitePlanView::clearAlarm()
             item->stopColorAnimation();
             item->setGraphicsEffect(nullptr);
             item->restoreSize();
-            item->alarmType() = "无";
-            item->getItemInfo().m_currentAlarmState = "报警消除";
+            item->getItemInfo().m_currentState = tr("正常");
             DataStore::clearTypeItem();
             clearAlarmWidget();
             emit noPage();
@@ -790,6 +810,37 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
 
 }
 
+void ArchitePlanView::viewsAutoSwitch()
+{
+    m_tabWidget->setCurrentIndex(1);
+    if(m_alarmViewList.size()>m_alarmPos)
+    {
+        autoFitView(m_alarmViewList.at(m_alarmPos));
+        m_alarmPos++;
+    }
+    else
+    {
+        m_alarmPos =0;
+    }
+}
+
+void ArchitePlanView::startAutoSwitch(bool isAuto)
+{
+    if(isAuto)
+    {
+        m_alarmViewList = haveAlarms(m_currentAlarmType);
+        if(!m_autoSwitchTimer->isActive())
+        {
+            m_autoSwitchTimer->start(1000);
+        }
+    }
+    else
+    {
+        m_autoSwitchTimer->stop();
+        m_alarmPos =0;
+    }
+}
+
 GraphicsView *ArchitePlanView::viewToParentItem(QStandardItem *item)
 {
     QMap<QStandardItem*,int>itemMap;
@@ -812,6 +863,36 @@ QList<GraphicsView *> ArchitePlanView::viewsToChildItem(QStandardItem *item)
             int chileItemPage = itemMap[childItem];
             GraphicsView*childWidget = m_widgetMap[chileItemPage];
             viewList.push_back(childWidget);
+        }
+    }
+    return viewList;
+}
+
+QList<GraphicsView *> ArchitePlanView::haveAlarms(const QString &alarm)
+{
+    QList<GraphicsView *>viewList;
+    for(int i=0;i<m_stackedWidget->count();i++)
+    {
+        GraphicsView*view =dynamic_cast<GraphicsView*>(m_stackedWidget->widget(i));
+        if(alarm==tr("全部"))
+        {
+            if(view->haveAnyAlarm())
+            {
+                if(!viewList.contains(view))
+                {
+                    viewList.push_back(view);
+                }
+            }
+        }
+        else
+        {
+            if(view->haveAlarmType(alarm))
+            {
+                if(!viewList.contains(view))
+                {
+                    viewList.push_back(view);
+                }
+            }
         }
     }
     return viewList;

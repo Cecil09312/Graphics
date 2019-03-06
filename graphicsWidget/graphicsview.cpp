@@ -117,7 +117,7 @@ bool GraphicsView::haveAlarmType(const QString &type)
         GraphicsItem*currentItem=  dynamic_cast<GraphicsItem*>(item);
         if(currentItem!=nullptr)
         {
-            if(currentItem->alarmType()==type)
+            if(currentItem->currentState()==type)
             {
                 haveAlarm = true;
                 break;

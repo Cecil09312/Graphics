@@ -36,26 +36,26 @@ Rectangle {
                 columnSpacing: 5
                 rowSpacing: 5
                 columns: 4
-                Text {
+//                Text {
 
-                    text: qsTr("报警类型:")
-                    height: 40
-                    verticalAlignment: Text.AlignVCenter
-                }
-                ComboBox {
-                    id: alarmTypeComboBox
-                    Layout.fillWidth: true
-                    width: 150
-                    height: 40
-                    model: [qsTr("无"), qsTr("火警"), qsTr("联动"), qsTr("监管"), qsTr(
-                            "故障"), qsTr("反馈"), qsTr("屏蔽")]
-                    onCurrentTextChanged: {
-                        emit: setItemInfo("alarmType", currentText)
-                    }
-                }
+//                    text: qsTr("状态:")
+//                    height: 40
+//                    verticalAlignment: Text.AlignVCenter
+//                }
+//                ComboBox {
+//                    id: alarmTypeComboBox
+//                    Layout.fillWidth: true
+//                    width: 150
+//                    height: 40
+//                    model: [qsTr("正常"), qsTr("火警"), qsTr("联动"), qsTr("监管"), qsTr(
+//                            "故障"), qsTr("反馈"), qsTr("屏蔽")]
+//                    onCurrentTextChanged: {
+//                        emit: setItemInfo("alarmType", currentText)
+//                    }
+//                }
 
                 Text {
-                    text: qsTr("设备设施型号:")
+                    text: qsTr("设备型号:")
                     height: 40
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -118,7 +118,7 @@ Rectangle {
 
                 Text {
                     id: deviceNumTxt
-                    text: qsTr("设备产品编码:")
+                    text: qsTr("设备编码:")
                     height: 40
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -134,7 +134,7 @@ Rectangle {
                 }
 
                 Text {
-                    text: qsTr("设备所属系统:")
+                    text: qsTr("系统:")
                     height: 40
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -150,24 +150,8 @@ Rectangle {
                 }
 
                 Text {
-                    text: qsTr("总保护区域名称:")
-                    height: 40
-                    verticalAlignment: Text.AlignVCenter
-                }
-                TextField {
-                    id: protectedAreaTextField
-                    Layout.fillWidth: true
-                    width: 150
-                    height: 40
-                    onTextEdited: {
-                        emit: setItemInfo("protectedArea",
-                                          protectedAreaTextField.text)
-                    }
-                }
 
-                Text {
-
-                    text: qsTr("建筑设施名称:")
+                    text: qsTr("建筑名称:")
                     height: 40
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -184,7 +168,7 @@ Rectangle {
 
                 Text {
 
-                    text: qsTr("设施所在楼层:")
+                    text: qsTr("楼层:")
                     height: 40
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -200,7 +184,7 @@ Rectangle {
                 }
                 Text {
 
-                    text: qsTr("设施所在位置:")
+                    text: qsTr("位置:")
                     height: 40
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -214,20 +198,39 @@ Rectangle {
                                           deviceLocationTextField.text)
                     }
                 }
+
+
                 Text {
 
-                    text: qsTr("值班人员:")
+                    text: qsTr("有效期:")
                     height: 40
                     verticalAlignment: Text.AlignVCenter
                 }
                 TextField {
-                    id: operatorOnDutyTextField
+                    id: periodOfValidityTextField
                     Layout.fillWidth: true
                     width: 150
                     height: 40
                     onTextEdited: {
-                        emit: setItemInfo("operatorOnDuty",
-                                          operatorOnDutyTextField.text)
+                        emit: setItemInfo("periodOfValidity",
+                                          periodOfValidityTextField.text)
+                    }
+                }
+
+                Text {
+
+                    text: qsTr("制造商:")
+                    height: 40
+                    verticalAlignment: Text.AlignVCenter
+                }
+                TextField {
+                    id: manufacturersTextField
+                    Layout.fillWidth: true
+                    width: 150
+                    height: 40
+                    onTextEdited: {
+                        emit: setItemInfo("manufacturers",
+                                          manufacturersTextField.text)
                     }
                 }
 
@@ -322,9 +325,7 @@ Rectangle {
         deviceSysTextField.text = sysOfDevice
     }
 
-    function setProtectedArea(protectedArea) {
-        protectedAreaTextField.text = protectedArea
-    }
+
 
     function setBuildingName(buildingName) {
         buildingNameTextField.text = buildingName
@@ -338,14 +339,17 @@ Rectangle {
         deviceLocationTextField.text = deviceLocation
     }
 
-    function setOperatorOnDuty(operatorOnDuty) {
-        operatorOnDutyTextField.text = operatorOnDuty
+    function setPeriodOfValidity(period)
+    {
+         periodOfValidityTextField.text = period
     }
 
-    function setAlarmType(type) {
-        alarmTypeComboBox.currentIndex = alarmTypeComboBox.find(type)
-        // iconAddr.text = iconName;
+    function setManufacturers(manufacturers)
+    {
+        manufacturersTextField.text = manufacturers
     }
+
+
 
     function setItemSize(size) {
         sizeSpinBox.value = size
@@ -356,11 +360,9 @@ Rectangle {
         addrNumTextField.clear()
         deviceNumTextField.clear()
         deviceSysTextField.clear()
-        protectedAreaTextField.clear()
         buildingNameTextField.clear()
         floorOfDeviceTextField.clear()
         deviceLocationTextField.clear()
-        operatorOnDutyTextField.clear()
     }
 
     function currentIconIndex() {

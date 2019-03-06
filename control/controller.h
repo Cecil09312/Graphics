@@ -31,7 +31,7 @@ public:
     ArchitePlanView *getArchitePlanView() const;
     UserManager *getUserManager() const;
     UserManager::UserRight getUserRight();
-    //SpeechObj *getSpeechObj();
+    SpeechObj *getSpeechObj();
     AbstractLink *getUdpObj();
     ConfigurationManager *getSerialConfigurationManager();
 private:
@@ -44,12 +44,12 @@ private:
     ArchitePlanView *m_architePlanView;
     UserManager*m_userManager;
 
-   // QSharedPointer<SpeechObj>m_speechObj;
-    QSharedPointer<AbstractLink>m_udpObj;
+    QSharedPointer<SpeechObj>m_speechObj;
+    AbstractLink*m_udpObj;
     QSharedPointer<ConfigurationManager> m_serialConfigurationManager;
     QSharedPointer<ConfigurationManager> m_tcpConfigurationManager;
     QSharedPointer<ConfigurationManager> m_udpConfigurationManager;
-    QSharedPointer<ModbusManager>m_modbusManager;
+    // QSharedPointer<ModbusManager>m_modbusManager;
 
 };
 

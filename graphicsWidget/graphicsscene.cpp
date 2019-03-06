@@ -27,18 +27,17 @@ GraphicsScene::GraphicsScene(QObject *parent):
         if(currentItem!=nullptr)
         {
             QMetaObject::invokeMethod(m_itemSettingObj,"setDeviceNum",Q_ARG(QVariant,currentItem->deviceNum()));
-            QMetaObject::invokeMethod(m_itemSettingObj,"setAlarmType",Q_ARG(QVariant,currentItem->alarmType()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setItemSize",Q_ARG(QVariant,currentItem->radius()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setExtNum",Q_ARG(QVariant,currentItem->extNum()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setLoopNum",Q_ARG(QVariant,currentItem->loopNum()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setAddrNum",Q_ARG(QVariant,currentItem->addrNum()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setEquipmentModel",Q_ARG(QVariant,currentItem->equipmentModel()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setSysOfDevice",Q_ARG(QVariant,currentItem->sysOfDevice()));
-            //QMetaObject::invokeMethod(m_itemSettingObj,"setProtectedArea",Q_ARG(QVariant,currentItem->protectedAreaName()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setBuildingName",Q_ARG(QVariant,currentItem->buildingName()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setFloorOfDevice",Q_ARG(QVariant,currentItem->floorOfDevice()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setDeviceLocation",Q_ARG(QVariant,currentItem->deviceLocation()));
-            QMetaObject::invokeMethod(m_itemSettingObj,"setOperatorOnDuty",Q_ARG(QVariant,currentItem->operatorDuty()));
+            QMetaObject::invokeMethod(m_itemSettingObj,"setPeriodOfValidity",Q_ARG(QVariant,currentItem->periodOfValidity()));
+            QMetaObject::invokeMethod(m_itemSettingObj,"setManufacturers",Q_ARG(QVariant,currentItem->manufacturers()));
 
         }
         else
@@ -224,11 +223,6 @@ void GraphicsScene::setItemSize(qreal size)
 }
 
 
-
-
-
-
-
 void GraphicsScene::setItemIcon(QString iconName)
 {
     GraphicsItem *currentItem=dynamic_cast<GraphicsItem *> (itemAt(m_currentPointF,QTransform()));
@@ -244,9 +238,9 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
     GraphicsItem *currentItem=dynamic_cast<GraphicsItem *> (itemAt(m_currentPointF,QTransform()));
     if(currentItem!=nullptr)
     {
-        if(type=="alarmType")
+        if(type=="currentState")
         {
-            currentItem->getItemInfo().m_alarmType = info;
+            currentItem->getItemInfo().m_currentState = info;
         }
         else if(type=="equipmentModel")
         {
@@ -279,12 +273,11 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
             currentItem->getItemInfo().m_sysOfDevice = info;
 
         }
+        else if(type =="manufacturers")
+        {
+            currentItem->getItemInfo().m_manufacturers = info;
 
-//        else if(type =="protectedArea")
-//        {
-//            currentItem->getItemInfo().m_protectedAreaName = info;
-
-//        }
+        }
         else if(type =="buildingName")
         {
             currentItem->getItemInfo().m_buildingName = info;
@@ -298,15 +291,14 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
             currentItem->getItemInfo().m_deviceLocation = info;
         }
 
-        else if(type == "operatorOnDuty")
+        else if(type == "periodOfValidity")
         {
-            currentItem->getItemInfo().m_operatorOnDuty = info;
+            currentItem->getItemInfo().m_periodOfValidity = info;
 
         }
     }
 
 }
-
 
 void GraphicsScene::init()
 {
@@ -368,19 +360,17 @@ void GraphicsScene::setItemInfo(GraphicsItem *item, const QHash<QString, QVarian
         itemInfo.m_extNum= itemHash["extNum"].toString();
         itemInfo.m_loopNum= itemHash["loopNum"].toString();
         itemInfo.m_addrNum= itemHash["addrNum"].toString();
-        itemInfo.m_alarmType= itemHash["alarmType"].toString();
         itemInfo.m_deviceNum= itemHash["deviceNum"].toString();
         itemInfo.m_equipmentModel= itemHash["equipmentModel"].toString();
-        itemInfo.m_currentAlarmState= itemHash["currentAlarmState"].toString();
-        itemInfo.m_alarmTime= itemHash["alarmTime"].toString();
-       // itemInfo.m_alarmReceiveTime= itemHash["alarmReceiveTime"].toString();
-        itemInfo.m_alarmReplyTime= itemHash["alarmReplyTime"].toString();
+        itemInfo.m_currentState= itemHash["currentState"].toString();
+        //itemInfo.m_alarmTime= itemHash["alarmTime"].toString();
+        //itemInfo.m_alarmReplyTime= itemHash["alarmReplyTime"].toString();
         itemInfo.m_sysOfDevice= itemHash["sysOfDevice"].toString();
-        //itemInfo.m_protectedAreaName= itemHash["protectedAreaName"].toString();
         itemInfo.m_deviceLocation=itemHash["deviceLocation"].toString();
         itemInfo.m_buildingName= itemHash["buildingName"].toString();
         itemInfo.m_floorOfDevice= itemHash["floorOfDevice"].toString();
-        itemInfo.m_operatorOnDuty= itemHash["operatorOnDuty"].toString();
+        itemInfo.m_manufacturers= itemHash["manufacturers"].toString();
+        itemInfo.m_periodOfValidity = itemHash["periodOfValidity"].toString();
         item->setItemInfo(itemInfo);
         item->setIconName(itemHash["iconName"].toString());
         item->setRadius(itemHash["size"].toDouble());

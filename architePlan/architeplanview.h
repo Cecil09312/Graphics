@@ -15,6 +15,9 @@
 #include "architePlan/sysarchiteplanview.h"
 #include "graphicsWidget/globalgraphicsview.h"
 #include "graphicsWidget/globalgraphicsitem.h"
+#include <QTimer>
+
+
 class ArchitePlanView : public QWidget
 {
     Q_OBJECT
@@ -28,6 +31,7 @@ public:
     int currentPage();
     Q_INVOKABLE void clearAlarm();
     Q_INVOKABLE void createAlarm(const QString &alarmTypeName);
+    Q_INVOKABLE void setAutoSwitch(bool isAuto);
     void eliminateAlarm(GraphicsItem *item);//消除报警
     void generateAlarm(const QString &alarmTypeName, GraphicsItem*item, GraphicsView *view);
     void insertAlarmWidget(const QString &type,GraphicsView*view);
@@ -39,6 +43,7 @@ public:
 
     GraphicsView * viewToParentItem(QStandardItem* item);
     QList<GraphicsView *>viewsToChildItem(QStandardItem* item);
+    QList<GraphicsView *> haveAlarms(const QString &alarm);
     void autoFitView(QGraphicsView *view);
 signals:
     void alarmHappend(const QString &alarmType);
@@ -49,6 +54,7 @@ signals:
     void alarmItem(GraphicsItem *item);
     void eliminateAlarmFromTable(GraphicsItem *item);
     void clearAlarmFromTable();
+    void editGlobalItem();
 public slots:
     void firstFireAlarm();
     void lastFireAlarm();
@@ -56,6 +62,8 @@ public slots:
     void toPreviousPage();
     void toNextPage();
     void deleteViewFromItem(QStandardItem *item);
+    void viewsAutoSwitch();
+    void startAutoSwitch(bool isAuto);
 private:
     void initWidget();
     void saveArchiteInfo();
@@ -79,6 +87,10 @@ private:
     const QString c_jsonFilePath=QCoreApplication::applicationDirPath()+"/treeView.json";
     QString m_globalArchitePlanPixmapName;
     QHash<GlobalGraphicsItem*,QStandardItem*>m_globalToArchitePlanHash;
+    bool m_isAutoSwitch;
+    QTimer *m_autoSwitchTimer;
+    QList<GraphicsView *>m_alarmViewList;
+    int m_alarmPos;
 };
 
 #endif // ARCHITEPLANVIEW_H

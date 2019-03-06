@@ -12,8 +12,8 @@ QmlForJson::QmlForJson(QObject *parent)
 void QmlForJson::writeFile(const QVariant &value,const QString &fileName)
 {
 
-    QFuture <void > future = QtConcurrent::run([=]()
-    {
+   // QFuture <void > future = QtConcurrent::run([=]()
+   // {
         QFile file(fileName);
 
         if(file.open(QIODevice::WriteOnly))
@@ -22,8 +22,8 @@ void QmlForJson::writeFile(const QVariant &value,const QString &fileName)
             file.write(document.toJson());
             file.close();
         }
-    });
-    future.waitForFinished();
+   // });
+    //future.waitForFinished();
 }
 
 QVariant QmlForJson::readFile(const QString &fileName)

@@ -42,6 +42,7 @@ UdpLink::~UdpLink()
     m_udpSocket->close();
     m_udpSocket->deleteLater();
     m_thread->quit();
+    //m_thread->wait();
     m_thread->deleteLater();
 }
 

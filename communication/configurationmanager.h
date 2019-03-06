@@ -34,7 +34,7 @@ signals:
 public slots:
 
 private:
-   QHash<QString,QVariant> m_configurationValue;
+    QHash<QString,QVariant> m_configurationValue;
     Configuration m_configuration;
     QHash<QString,QVariant>m_serialConfigurationHash;
     QHash<QString,QVariant>m_tcpConfigurationHash;

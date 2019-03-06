@@ -47,11 +47,11 @@ ModbusManager::ModbusManager(Configuration configuration, QObject *parent):
 
     }
 
-    m_thread->start();
+
     m_modbusClient->moveToThread(m_thread);
     m_modbusClient.data()->moveToThread(m_thread);
     this->moveToThread(m_thread);
-
+    m_thread->start();
     QObject::connect(this,&ModbusManager::connectModbus,this,[=](ConnectState state)
     {
         if(state==DisConnected)
@@ -116,8 +116,11 @@ ModbusManager::ModbusManager(Configuration configuration, QObject *parent):
 
 ModbusManager::~ModbusManager()
 {
+    qDebug() << "**************";
     m_thread->quit();
+
     m_thread->deleteLater();
+    qDebug() << "%%%%%%%%%%%%";
 }
 
 void ModbusManager::connectDevice(ConnectState state)

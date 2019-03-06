@@ -41,8 +41,8 @@ CrtWidget::CrtWidget(QWidget *parent) :
     m_infoTableView->tableModel()->setDbOpen(true);
     // m_infoTableView->tableModel()->sqlCommit("select *from AlarmInfo");
     QStringList alarmInfoList,valueList;
-    alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"报警类型"<<"设备产品编号"
-                  << "设备设施型号"<<"报警当前状态"<<"报警时间"<<"设备所属系统"<< "建筑设施名称"<<"设施所在楼层"<<"设施所在位置"<<"值班人员";
+    alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"设备编号"
+                  << "设备型号"<<"状态"<<"报警时间"<<"系统"<< "建筑名称"<<"楼层"<<"位置";
 
     //    alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"报警类型"<<"设备产品编号"
     //                  << "设备设施型号"<<"报警收到时间"<<"设备所属系统"<<"总保护区域名称"
@@ -56,16 +56,16 @@ CrtWidget::CrtWidget(QWidget *parent) :
     connect(m_architePlanView,&ArchitePlanView::alarmHappend,this,&CrtWidget::alarmStatistics);
     connect(m_architePlanView,&ArchitePlanView::alarmItem,this,[=](GraphicsItem *item)
     {
-        m_sqliteManager->executeQuery(sqlInfo.arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->alarmType()).arg(item->deviceNum())
-                                      .arg(item->equipmentModel()).arg(item->getItemInfo().m_currentAlarmState).arg(item->getItemInfo().m_alarmTime)
+        m_sqliteManager->executeQuery(sqlInfo.arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->deviceNum())
+                                      .arg(item->equipmentModel()).arg(item->getItemInfo().m_currentState).arg(item->getItemInfo().m_alarmTime)
                                       .arg(item->sysOfDevice()).arg(item->buildingName())
-                                      .arg(item->floorOfDevice()).arg(item->deviceLocation()).arg(item->operatorDuty()));
+                                      .arg(item->floorOfDevice()).arg(item->deviceLocation()));
         alarmDataOnTable();
     });
 
     connect(m_infoTableView,&InfoTableView::tableValue,this,[=](QSqlRecord record)
     {
-        QString deviceNum=  record.value("设备产品编号").toString();
+        QString deviceNum=  record.value("设备编号").toString();
         QList<QList<QGraphicsItem *> > globalValueList= DataStore::getTypeItemHash().values();
         GraphicsView *view = nullptr;
         foreach (QList<QGraphicsItem *>valueList, globalValueList)
@@ -132,14 +132,14 @@ CrtWidget::CrtWidget(QWidget *parent) :
     connect(m_architePlanView,&ArchitePlanView::clearAlarmFromTable,this,[=]()
     {
         QString eliminateTime =  QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
-        m_sqliteManager->executeQuery(QString("update AlarmInfo set 报警恢复正常时间 ='%1',报警当前状态 = '报警消除' where 报警当前状态 = '正在报警'").arg(eliminateTime));
+        m_sqliteManager->executeQuery(QString("update AlarmInfo set 报警恢复正常时间 ='%1',状态 = '正常' where 状态 != '正常'").arg(eliminateTime));
         alarmDataOnTable();
     });
 
     connect(m_architePlanView,&ArchitePlanView::eliminateAlarmFromTable,this,[=](GraphicsItem *item)
     {
         QString eliminateTime =  QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
-        m_sqliteManager->executeQuery(QString("update AlarmInfo set 报警恢复正常时间 ='%1',报警当前状态 = '报警消除' where 报警当前状态 = '正在报警' and 设备产品编号 = '%2'").arg(eliminateTime).arg(item->deviceNum()));
+        m_sqliteManager->executeQuery(QString("update AlarmInfo set 报警恢复正常时间 ='%1',状态 = '正常' where 报警当前状态 != '正常' and 设备产品编号 = '%2'").arg(eliminateTime).arg(item->deviceNum()));
         alarmDataOnTable();
     });
 }
@@ -370,16 +370,16 @@ void CrtWidget::alarmDataOnTable()
 {
 
     QStringList alarmInfoList;
-    alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"报警类型"<<"设备产品编号"
-                  << "设备设施型号"<<"报警收到时间"<<"设备所属系统"<<"总保护区域名称"
-                  << "建筑设施名称"<<"设施所在楼层"<<"设施所在位置"<<"值班人员";
+    alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"设备编号"
+                  << "设备型号"<<"报警时间"<<"系统"
+                  << "建筑名称"<<"楼层"<<"位置";
     if(m_architePlanView->currentAlarmType()=="全部")
     {
-        m_infoTableView->tableModel()->sqlCommit(QString("select %1 from AlarmInfo where 报警当前状态 = '正在报警'").arg(alarmInfoList.join(",")));
+        m_infoTableView->tableModel()->sqlCommit(QString("select %1 from AlarmInfo where 状态 != '正常'").arg(alarmInfoList.join(",")));
     }
     else
     {
-        m_infoTableView->tableModel()->sqlCommit(QString("select %1 from AlarmInfo where 报警类型 ='%2' and 报警当前状态 = '正在报警'").arg(alarmInfoList.join(",")).arg(m_architePlanView->currentAlarmType()));
+        m_infoTableView->tableModel()->sqlCommit(QString("select %1 from AlarmInfo where 状态 ='%2'").arg(alarmInfoList.join(",")).arg(m_architePlanView->currentAlarmType()));
     }
 }
 

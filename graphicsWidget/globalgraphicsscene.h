@@ -5,6 +5,7 @@
 #include <QGraphicsSvgItem>
 #include <QMenu>
 #include <QAction>
+#include <QQuickView>
 
 class GlobalGraphicsItem;
 class GlobalGraphicsScene : public QGraphicsScene
@@ -16,12 +17,20 @@ public:
     void showMenu(const QPoint &point);
     GlobalGraphicsItem *addGlobalGraphicsItem(QPointF point);
     void clearGraphicsItem();
+    Q_INVOKABLE QString currentBuildName();
+    Q_INVOKABLE qreal currentItemSize();
+    Q_INVOKABLE QString currentItemIcon();
+public slots:
+    void setCurrentItemSize(qreal size);
+    void setCurrentItemIcon(const QString &icon);
+    void setCurrentBuildName(const QString &name);
 signals:
     void editItem();
     void goToArchitePlan(GlobalGraphicsItem*item);
     void addGlobalItem(GlobalGraphicsItem*item);
     void deleteGlobalItem(GlobalGraphicsItem*item);
     void clearItem();
+    void setBuildingName(GlobalGraphicsItem*item,const QString &name);
 
 protected:
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent*event);
@@ -35,7 +44,8 @@ private:
     QAction *m_clearItemAction;
     QAction *m_goToAchitePlanAction;
     int m_num;
-
+    QQuickView *m_globalItemSettingView;
+    QObject *m_globalItemObj;
 };
 
 #endif // GLOBALGRAPHICSSCENE_H

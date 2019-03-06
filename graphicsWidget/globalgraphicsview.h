@@ -14,6 +14,7 @@ public:
     void setPicture(const QString &pictureName);
     QString pictureName();
     GlobalGraphicsScene *currentScene();
+
 private:
     QGraphicsSvgItem *m_svgItem;
     GlobalGraphicsScene *m_graphicsScene;

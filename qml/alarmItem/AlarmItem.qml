@@ -7,6 +7,7 @@ import QtQuick.Controls.Styles 1.4
 Rectangle {
     width: 150
     signal currentAlarmType(string type)
+    signal startAutoSwitch(bool isAuto)
     RowLayout {
         id: alarmBtnLayout
         height: 50
@@ -398,6 +399,17 @@ Rectangle {
             font.pointSize: 12
             font.family: qsTr("Times New Roman")
             text: qsTr("总0页/第0页")
+        }
+
+        CheckBox {
+            id: checkBox
+            text: qsTr("自动切换")
+            width: parent.width
+            font.pointSize: 12
+            font.family: qsTr("Times New Roman")
+            onClicked: {
+                ArchitePlanView.startAutoSwitch(checked)
+            }
         }
     }
 

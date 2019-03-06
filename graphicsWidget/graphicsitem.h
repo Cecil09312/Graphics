@@ -16,21 +16,15 @@ struct ItemInfo
     QString m_extNum;//分机号
     QString m_loopNum;//回路号
     QString m_addrNum;//地址号
-
-    QString m_alarmType;//报警类型
-
     QString m_deviceNum;//条码
     QString m_equipmentModel;//类型
-    QString m_currentAlarmState;//状态
+    QString m_currentState;//状态
     QString m_alarmTime;//报警时间
-    //QString m_alarmReceiveTime;//报警收到时间
     QString m_alarmReplyTime;//报警恢复正常时间
     QString m_sysOfDevice;//系统
- //   QString m_protectedAreaName;//总保护区域名称
     QString m_buildingName;//设施
     QString m_floorOfDevice;//楼层
     QString m_deviceLocation;//位置
-    QString m_operatorOnDuty;//值班人员
     QString m_manufacturers;//制造商
     QString m_periodOfValidity;//有效期
 };
@@ -39,11 +33,6 @@ class GraphicsItem : public QObject,public QGraphicsItem
 {
     Q_OBJECT
     Q_INTERFACES(QGraphicsItem)
-    //    Q_PROPERTY(QColor color READ color WRITE setColor/* NOTIFY colorChanged*/)
-    //    Q_PROPERTY(qreal radius READ radius WRITE setRadius/* NOTIFY radiusChanged*/)
-    //    Q_PROPERTY(QString hoverText READ hoverText WRITE setHoverText/* NOTIFY hoverTextChanged*/)
-    //    Q_PROPERTY(QString itemText READ itemText WRITE setItemText/* NOTIFY itemTextChanged*/)
-    //    Q_PROPERTY(QColor itemTextColor READ itemTextColor WRITE setItemTextColor/* NOTIFY itemTextColorChanged*/)
 public:
     GraphicsItem(GraphicsScene *scene);
     ~GraphicsItem();
@@ -83,15 +72,15 @@ public:
     Q_INVOKABLE QString &extNum();
     Q_INVOKABLE QString &loopNum();
     Q_INVOKABLE QString &addrNum();
-    Q_INVOKABLE QString &alarmType();
+    Q_INVOKABLE QString &currentState();
     Q_INVOKABLE QString &deviceNum();
     Q_INVOKABLE QString &equipmentModel();
     Q_INVOKABLE QString &sysOfDevice();
-   // Q_INVOKABLE QString &protectedAreaName();
     Q_INVOKABLE QString &buildingName();
     Q_INVOKABLE QString &floorOfDevice();
     Q_INVOKABLE QString &deviceLocation();
-    Q_INVOKABLE QString &operatorDuty();
+    Q_INVOKABLE QString &manufacturers();
+    Q_INVOKABLE QString &periodOfValidity();
 
 protected:
 
