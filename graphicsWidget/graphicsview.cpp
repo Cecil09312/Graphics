@@ -113,7 +113,8 @@ bool GraphicsView::haveAlarmType(const QString &type)
 {
     QList<QGraphicsItem*> itemList= getItemList();
     bool haveAlarm = false;
-    foreach (QGraphicsItem*item, itemList) {
+    foreach (QGraphicsItem*item, itemList)
+    {
         GraphicsItem*currentItem=  dynamic_cast<GraphicsItem*>(item);
         if(currentItem!=nullptr)
         {
@@ -130,7 +131,8 @@ bool GraphicsView::haveAlarmType(const QString &type)
 bool GraphicsView::haveAnyAlarm()
 {
     bool isHave = false;
-    foreach (QString alarm, m_alarmStringList) {
+    foreach (QString alarm, m_alarmStringList)
+    {
         isHave =haveAlarmType(alarm);
         if(isHave)
         {

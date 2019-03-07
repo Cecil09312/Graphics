@@ -170,7 +170,7 @@ void GraphicsItem::setColor(const QColor &color)
 
 void GraphicsItem::startAnimations()
 {
-    m_colorEffect->setStrength(1.0);
+   m_colorEffect->setStrength(1.0);
     m_parallelAnimGroup->start();
 }
 
@@ -239,6 +239,11 @@ void GraphicsItem::setScaleStartValue(const QVariant &value)
 void GraphicsItem::setScaleEndValue(const QVariant &value)
 {
     m_scaleAnimation->setEndValue(value);
+}
+
+void GraphicsItem::setColorEffectValue(qreal value)
+{
+    m_colorEffect->setStrength(value);
 }
 
 void GraphicsItem::restoreSize()

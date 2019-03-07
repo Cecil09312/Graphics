@@ -46,6 +46,7 @@ Rectangle {
             onClicked: {
                 ArchitePlanView.clearAlarm()
                 allAlarmClear()
+                autoSwitchCheckBox.checked = false
             }
         }
 
@@ -343,17 +344,17 @@ Rectangle {
             }
         }
 
-        //        Button {
-        //            anchors.leftMargin: 20
-        //            width: parent.width
-        //            // Layout.fillHeight: true
-        //            font.pointSize: 14
-        //            font.family: qsTr("Times New Roman")
-        //            text: qsTr("模拟火警")
-        //            onClicked: {
-        //                ArchitePlanView.createAlarm(qsTr("火警"))
-        //            }
-        //        }
+        Button {
+            anchors.leftMargin: 20
+            width: parent.width
+            // Layout.fillHeight: true
+            font.pointSize: 14
+            font.family: qsTr("Times New Roman")
+            text: qsTr("模拟火警")
+            onClicked: {
+                ArchitePlanView.createAlarm(qsTr("火警"))
+            }
+        }
         ComboBox {
             id: alarmTypeComboBox
             anchors.leftMargin: 20
@@ -362,7 +363,6 @@ Rectangle {
             width: parent.width
             model: ["全部", "火警", "联动", "监管", "故障", "反馈", "屏蔽"]
             onCurrentTextChanged: {
-
                 emit: currentAlarmType(currentText)
             }
         }
@@ -375,7 +375,6 @@ Rectangle {
             font.family: qsTr("Times New Roman")
             text: qsTr("上一页")
             onClicked: {
-
                 ArchitePlanView.toPreviousPage()
             }
         }
@@ -402,7 +401,7 @@ Rectangle {
         }
 
         CheckBox {
-            id: checkBox
+            id: autoSwitchCheckBox
             text: qsTr("自动切换")
             width: parent.width
             font.pointSize: 12

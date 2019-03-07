@@ -172,7 +172,7 @@ QStandardItem * TreeView::addRootItem(const QString &root)
     {
         QStandardItem *rootItem =new QStandardItem(root);
         m_stdModel->insertRow(rootCount,rootItem);
-        m_treeIndexMap[rootItem]=totalRowCounts;
+       // m_treeIndexMap[rootItem]=totalRowCounts;
         //emit treeIndex(rootItem);
         m_parentIndexList.push_back(totalRowCounts);
         return rootItem;
@@ -200,7 +200,7 @@ QStandardItem* TreeView::addChildItem(QModelIndex index)
         {
             QStandardItem *standardItem = m_stdModel->item(index.row());
             int totalRowCounts = getTotalCount();
-            if(standardItem)
+            if(standardItem!=nullptr)
             {
                 int rowCount =0;
                 QList<int >childRowList = m_childIndexMap[index.row()];
@@ -354,7 +354,7 @@ void TreeView::initMenu()
 int TreeView::getTotalCount()
 {
     int rootCount= m_stdModel->rowCount();
-    int totalRowCounts = rootCount;
+    int totalRowCounts = 0;
     for(int i=0;i<rootCount;i++)
     {
         if(m_stdModel->item(i)->hasChildren())

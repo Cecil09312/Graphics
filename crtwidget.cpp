@@ -38,7 +38,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
     m_infoTableView->tableModel()->setDbName(dbName);
     // m_infoTableView->tableModel()->setDbConnectionName("alarmInfo");
     m_infoTableView->tableModel()->setDbPort(888);
-    m_infoTableView->tableModel()->setDbOpen(true);
+   // m_infoTableView->tableModel()->setDbOpen(true);
     // m_infoTableView->tableModel()->sqlCommit("select *from AlarmInfo");
     QStringList alarmInfoList,valueList;
     alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"设备编号"
@@ -56,11 +56,11 @@ CrtWidget::CrtWidget(QWidget *parent) :
     connect(m_architePlanView,&ArchitePlanView::alarmHappend,this,&CrtWidget::alarmStatistics);
     connect(m_architePlanView,&ArchitePlanView::alarmItem,this,[=](GraphicsItem *item)
     {
-        m_sqliteManager->executeQuery(sqlInfo.arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->deviceNum())
-                                      .arg(item->equipmentModel()).arg(item->getItemInfo().m_currentState).arg(item->getItemInfo().m_alarmTime)
-                                      .arg(item->sysOfDevice()).arg(item->buildingName())
-                                      .arg(item->floorOfDevice()).arg(item->deviceLocation()));
-        alarmDataOnTable();
+//        m_sqliteManager->executeQuery(sqlInfo.arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->deviceNum())
+//                                      .arg(item->equipmentModel()).arg(item->getItemInfo().m_currentState).arg(item->getItemInfo().m_alarmTime)
+//                                      .arg(item->sysOfDevice()).arg(item->buildingName())
+//                                      .arg(item->floorOfDevice()).arg(item->deviceLocation()));
+//        alarmDataOnTable();
     });
 
     connect(m_infoTableView,&InfoTableView::tableValue,this,[=](QSqlRecord record)

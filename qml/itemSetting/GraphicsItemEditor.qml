@@ -4,7 +4,7 @@ import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.0
 import itemIconInfoToJson 1.0
 
-Rectangle {
+Item {
     width: 640
     height: 560
     signal setSize(real size)
@@ -36,24 +36,24 @@ Rectangle {
                 columnSpacing: 5
                 rowSpacing: 5
                 columns: 4
-//                Text {
 
-//                    text: qsTr("状态:")
-//                    height: 40
-//                    verticalAlignment: Text.AlignVCenter
-//                }
-//                ComboBox {
-//                    id: alarmTypeComboBox
-//                    Layout.fillWidth: true
-//                    width: 150
-//                    height: 40
-//                    model: [qsTr("正常"), qsTr("火警"), qsTr("联动"), qsTr("监管"), qsTr(
-//                            "故障"), qsTr("反馈"), qsTr("屏蔽")]
-//                    onCurrentTextChanged: {
-//                        emit: setItemInfo("alarmType", currentText)
-//                    }
-//                }
+                //                Text {
 
+                //                    text: qsTr("状态:")
+                //                    height: 40
+                //                    verticalAlignment: Text.AlignVCenter
+                //                }
+                //                ComboBox {
+                //                    id: alarmTypeComboBox
+                //                    Layout.fillWidth: true
+                //                    width: 150
+                //                    height: 40
+                //                    model: [qsTr("正常"), qsTr("火警"), qsTr("联动"), qsTr("监管"), qsTr(
+                //                            "故障"), qsTr("反馈"), qsTr("屏蔽")]
+                //                    onCurrentTextChanged: {
+                //                        emit: setItemInfo("alarmType", currentText)
+                //                    }
+                //                }
                 Text {
                     text: qsTr("设备型号:")
                     height: 40
@@ -199,7 +199,6 @@ Rectangle {
                     }
                 }
 
-
                 Text {
 
                     text: qsTr("有效期:")
@@ -325,8 +324,6 @@ Rectangle {
         deviceSysTextField.text = sysOfDevice
     }
 
-
-
     function setBuildingName(buildingName) {
         buildingNameTextField.text = buildingName
     }
@@ -339,17 +336,13 @@ Rectangle {
         deviceLocationTextField.text = deviceLocation
     }
 
-    function setPeriodOfValidity(period)
-    {
-         periodOfValidityTextField.text = period
+    function setPeriodOfValidity(period) {
+        periodOfValidityTextField.text = period
     }
 
-    function setManufacturers(manufacturers)
-    {
+    function setManufacturers(manufacturers) {
         manufacturersTextField.text = manufacturers
     }
-
-
 
     function setItemSize(size) {
         sizeSpinBox.value = size

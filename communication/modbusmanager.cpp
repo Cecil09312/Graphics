@@ -116,11 +116,8 @@ ModbusManager::ModbusManager(Configuration configuration, QObject *parent):
 
 ModbusManager::~ModbusManager()
 {
-    qDebug() << "**************";
     m_thread->quit();
-
     m_thread->deleteLater();
-    qDebug() << "%%%%%%%%%%%%";
 }
 
 void ModbusManager::connectDevice(ConnectState state)

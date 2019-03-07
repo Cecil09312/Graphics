@@ -31,7 +31,7 @@ public:
     int currentPage();
     Q_INVOKABLE void clearAlarm();
     Q_INVOKABLE void createAlarm(const QString &alarmTypeName);
-    Q_INVOKABLE void setAutoSwitch(bool isAuto);
+
     void eliminateAlarm(GraphicsItem *item);//消除报警
     void generateAlarm(const QString &alarmTypeName, GraphicsItem*item, GraphicsView *view);
     void insertAlarmWidget(const QString &type,GraphicsView*view);
@@ -87,7 +87,6 @@ private:
     const QString c_jsonFilePath=QCoreApplication::applicationDirPath()+"/treeView.json";
     QString m_globalArchitePlanPixmapName;
     QHash<GlobalGraphicsItem*,QStandardItem*>m_globalToArchitePlanHash;
-    bool m_isAutoSwitch;
     QTimer *m_autoSwitchTimer;
     QList<GraphicsView *>m_alarmViewList;
     int m_alarmPos;

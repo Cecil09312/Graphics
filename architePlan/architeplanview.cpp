@@ -18,6 +18,7 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
       m_currentAlarmType("全部"),
       m_alarmPos(0)
 {
+
     initWidget();
     setGlobalArchiteFromJson();
     initFromJsonFile();
@@ -109,15 +110,15 @@ void ArchitePlanView::createAlarm(const QString &alarmTypeName)
         if(itemList.size()>pos)
         {
             GraphicsItem *currentItem = dynamic_cast<GraphicsItem *>(itemList.at(pos));
-            generateAlarm(alarmTypeName,currentItem,view);
+
+            if(!DataStore::getTypeItemList(alarmTypeName).contains(currentItem))
+            {
+                generateAlarm(alarmTypeName,currentItem,view);
+            }
         }
     }
 }
 
-void ArchitePlanView::setAutoSwitch(bool isAuto)
-{
-    m_isAutoSwitch = isAuto;
-}
 
 void ArchitePlanView::eliminateAlarm(GraphicsItem *item)
 {
@@ -138,28 +139,44 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
 {
     if(item!=nullptr)
     {
-        item->getItemInfo().m_currentState= alarmTypeName;
+        item->currentState()= alarmTypeName;
         DataStore::insertTypeItem(alarmTypeName,item);
-        if(DataStore::getTypeItemList(alarmTypeName).at(0)==item)
+        QList<QGraphicsItem *> graphicsItemList=   DataStore::getTypeItemList(alarmTypeName);
+
+        if(graphicsItemList.size()>0)
         {
-            item->startAnimations();
+            GraphicsItem*gItem =dynamic_cast<GraphicsItem*>(graphicsItemList.at(0));
+            if(gItem==item)
+            {
+                item->startAnimations();
+            }
+            else
+            {
+                item->startColorAnimation();
+            }
+
+            if(view!=nullptr)
+            {
+                if(view->getItemList().contains(item))
+                {
+                    autoFitView(view);
+                }
+
+                insertAlarmWidget(alarmTypeName,view);
+                insertAlarmWidget("全部",view);
+                updateAlarmWidget(view);
+            }
+
+            qDebug() << "&&&&&&&&&&&&&&&";
+            emit alarmHappend(alarmTypeName);
+
+            QString alarmHappendTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+            item->getItemInfo().m_alarmTime = alarmHappendTime;
+            emit alarmItem(item);
+            qDebug() << "################";
         }
-        else
-        {
-            item->startColorAnimation();
-        }
-        if(view->getItemList().contains(item))
-        {
-            autoFitView(view);
-        }
-        emit alarmHappend(alarmTypeName);
-        insertAlarmWidget(alarmTypeName,view);
-        insertAlarmWidget("全部",view);
-        updateAlarmWidget(view);
-        item->getItemInfo().m_currentState= "正常";
-        QString alarmHappendTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
-        item->getItemInfo().m_alarmTime = alarmHappendTime;
-        emit alarmItem(item);
+
+
     }
 }
 
@@ -247,13 +264,18 @@ void ArchitePlanView::initWidget()
     connect(m_treeView,&TreeView::treeIndex,this,[=](QStandardItem*item)
     {
         QMap<QStandardItem*,int>map= m_treeView->getTreeIndexMap();
-        int page = map[item];
-        if(m_widgetMap[page]==nullptr)
+        if(item!=nullptr)
         {
-            GraphicsView *widget = new GraphicsView(this);
-            m_widgetMap[page]=widget;
-            m_stackedWidget->addWidget(widget);
+            int page = map[item];
+
+            if(m_widgetMap[page]==nullptr)
+            {
+                GraphicsView *widget = new GraphicsView(this);
+                m_widgetMap[page]=widget;
+                m_stackedWidget->addWidget(widget);
+            }
         }
+
 
     });
     connect(m_treeView,&TreeView::clicked,this,[=](const QModelIndex&index)
@@ -374,11 +396,12 @@ void ArchitePlanView::autoFitView(QGraphicsView *view)
 {
     QList< QList<QGraphicsItem *> >list= DataStore::getTypeItemHash().values();
     QList<QGraphicsItem *> alarmItemList;
-    foreach (QList<QGraphicsItem *> itemList, list) {
-        foreach (QGraphicsItem * item, itemList) {
+    foreach (QList<QGraphicsItem *> itemList, list)
+    {
+        foreach (QGraphicsItem * item, itemList)
+        {
             alarmItemList.push_back(item);
         }
-
     }
 
     QHash<QGraphicsView*,QList<QGraphicsItem *> >itemToViewHash;
@@ -386,8 +409,10 @@ void ArchitePlanView::autoFitView(QGraphicsView *view)
     GraphicsView *currentView = dynamic_cast<GraphicsView *>(view);
     if(currentView !=nullptr)
     {
-        foreach (QGraphicsItem *alarmItem, alarmItemList) {
-            if(currentView->getItemList().contains(alarmItem)){
+        foreach (QGraphicsItem *alarmItem, alarmItemList)
+        {
+            if(currentView->getItemList().contains(alarmItem))
+            {
                 itemToViewHash[currentView].push_back(alarmItem);
             }
         }
@@ -442,15 +467,15 @@ QHash<QString,QVariant> ArchitePlanView::saveViewInfo(QStandardItem *item)
 
 void ArchitePlanView::initFromJsonFile()
 {
+
     QList<QVariant> valueList=JsonEdit::instance()->readFile(c_jsonFilePath).toList();
     for(int i=0;i<valueList.size();i++)
     {
+
         QHash<QString,QVariant> parentHash=  valueList.at(i).toHash();
         if(!parentHash.isEmpty())
         {
-            QStandardItem *parentItem= m_treeView->addRootItem("");
-            parentItem->setText(parentHash["name"].toString());
-
+            QStandardItem *parentItem= m_treeView->addRootItem(parentHash["name"].toString());
             QList<QGraphicsItem*>  globalItemList=     m_globalGraphicsView->currentScene()->items();
             foreach (QGraphicsItem*curItem, globalItemList)
             {
@@ -520,34 +545,38 @@ void ArchitePlanView::findFireAlarm(int pos)
 {
     QList<QGraphicsItem*>itemList= DataStore::getTypeItemList(tr("火警"));
     int listSize = itemList.size();
-    QList<GraphicsView *>viewList = m_widgetMap.values();
 
+    QList<GraphicsView *>viewList = m_widgetMap.values();
     if(listSize>0)
     {
         foreach (GraphicsView *currentView, viewList)
         {
-            QList<QGraphicsItem*>viewItemList= currentView->getItemList();
-            foreach (QGraphicsItem*currentItem, viewItemList)
+            if(currentView!=nullptr)
             {
-                if(listSize>pos && pos>=0)
+                QList<QGraphicsItem*>viewItemList= currentView->getItemList();
+                foreach (QGraphicsItem*currentItem, viewItemList)
                 {
-                    if(currentItem==itemList.at(pos))
+                    if(listSize>pos && pos>=0)
                     {
-                        m_tabWidget->setCurrentIndex(1);
-                        m_stackedWidget->setCurrentWidget(currentView);
-                        return;
+                        if(currentItem==itemList.at(pos))
+                        {
+                            m_tabWidget->setCurrentIndex(1);
+                            m_stackedWidget->setCurrentWidget(currentView);
+                            return;
+                        }
                     }
-                }
-                else
-                {
-                    if(currentItem==itemList.at(listSize-1))
+                    else
                     {
-                        m_tabWidget->setCurrentIndex(1);
-                        m_stackedWidget->setCurrentWidget(currentView);
-                        return;
+                        if(currentItem==itemList.at(listSize-1))
+                        {
+                            m_tabWidget->setCurrentIndex(1);
+                            m_stackedWidget->setCurrentWidget(currentView);
+                            return;
+                        }
                     }
                 }
             }
+
         }
     }
 }
@@ -606,27 +635,33 @@ void ArchitePlanView::setGlobalArchiteFromJson()
 
 void ArchitePlanView::updateAlarmWidget(GraphicsView *currentView)
 {
-    int currentIndex = m_alarmWidgetHash[m_currentAlarmType].indexOf(currentView);
-    if(totalPage()>1)
+    // qDebug() << currentView;
+    if(currentView!=nullptr)
     {
-        if(currentIndex>0&&currentIndex<totalPage()-1)
+        int currentIndex = m_alarmWidgetHash[m_currentAlarmType].indexOf(currentView);
+        // qDebug() << "currentIndex" << currentIndex;
+        if(totalPage()>1)
         {
-            emit normalPage();
-        }
-        else if(currentIndex==0)
-        {
-            emit toFirstPage();
+            if(currentIndex>0&&currentIndex<totalPage()-1)
+            {
+                emit normalPage();
+            }
+            else if(currentIndex==0)
+            {
+                emit toFirstPage();
 
+            }
+            else if(currentIndex==totalPage()-1)
+            {
+                emit toLastPage();
+            }
         }
-        else if(currentIndex==totalPage()-1)
+        else if(totalPage()<=1)
         {
-            emit toLastPage();
+            emit noPage();
         }
     }
-    else if(totalPage()<=1)
-    {
-        emit noPage();
-    }
+
 }
 
 void ArchitePlanView::deleteAlarmWidget(GraphicsView *currentView)
@@ -684,13 +719,18 @@ void ArchitePlanView::clearAlarm()
         foreach (QGraphicsItem *currentItem, itemList)
         {
             GraphicsItem *item = dynamic_cast<GraphicsItem *>(currentItem);
-            item->stopAnimations();
-            item->stopColorAnimation();
-            item->setGraphicsEffect(nullptr);
-            item->restoreSize();
-            item->getItemInfo().m_currentState = tr("正常");
+            if(item!=nullptr)
+            {
+                item->stopAnimations();
+                item->stopColorAnimation();
+                item->setColorEffectValue(0.0);
+                item->restoreSize();
+                item->getItemInfo().m_currentState = tr("正常");
+            }
+
             DataStore::clearTypeItem();
             clearAlarmWidget();
+            m_alarmViewList.clear();
             emit noPage();
         }
     }
@@ -753,6 +793,7 @@ void ArchitePlanView::toNextPage()
 void ArchitePlanView::setCurrentAlarmType(const QString &type)
 {
     m_currentAlarmType = type;
+    m_alarmViewList = haveAlarms(m_currentAlarmType);
 }
 
 QString ArchitePlanView::currentAlarmType()
@@ -781,10 +822,15 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
             QStandardItem*childItem =  item->child(i);
             int chileItemPage = itemMap[childItem];
             GraphicsView*childWidget = m_widgetMap[chileItemPage];
-            m_stackedWidget->removeWidget(childWidget);
+            if(childWidget!=nullptr)
+            {
+                m_stackedWidget->removeWidget(childWidget);
+                deleteAlarmWidget(childWidget);
+            }
+
             m_widgetMap.remove(chileItemPage);
             m_treeView->getTreeIndexMap().remove(childItem);
-            deleteAlarmWidget(childWidget);
+
         }
     }
 
@@ -812,7 +858,15 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
 
 void ArchitePlanView::viewsAutoSwitch()
 {
-    m_tabWidget->setCurrentIndex(1);
+    if(m_tabWidget->count()>=2)
+    {
+        if(m_tabWidget->currentIndex()!=1)
+        {
+            m_tabWidget->setCurrentIndex(1);
+        }
+
+    }
+
     if(m_alarmViewList.size()>m_alarmPos)
     {
         autoFitView(m_alarmViewList.at(m_alarmPos));
@@ -876,23 +930,31 @@ QList<GraphicsView *> ArchitePlanView::haveAlarms(const QString &alarm)
         GraphicsView*view =dynamic_cast<GraphicsView*>(m_stackedWidget->widget(i));
         if(alarm==tr("全部"))
         {
-            if(view->haveAnyAlarm())
+            if(view!=nullptr)
             {
-                if(!viewList.contains(view))
+                if(view->haveAnyAlarm())
                 {
-                    viewList.push_back(view);
+                    if(!viewList.contains(view))
+                    {
+                        viewList.push_back(view);
+                    }
                 }
             }
+
         }
         else
         {
-            if(view->haveAlarmType(alarm))
+            if(view!=nullptr)
             {
-                if(!viewList.contains(view))
+                if(view->haveAlarmType(alarm))
                 {
-                    viewList.push_back(view);
+                    if(!viewList.contains(view))
+                    {
+                        viewList.push_back(view);
+                    }
                 }
             }
+
         }
     }
     return viewList;

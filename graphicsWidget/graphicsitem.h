@@ -52,7 +52,7 @@ public:
     void setColorEndValue(const QVariant &value);
     void setScaleStartValue(const QVariant &value);
     void setScaleEndValue(const QVariant &value);
-
+    void setColorEffectValue(qreal value);
     void restoreSize();
 
     void setColor(const QColor &color);

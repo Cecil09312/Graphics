@@ -102,6 +102,7 @@ GraphicsScene::GraphicsScene(QObject *parent):
 GraphicsScene::~GraphicsScene()
 {
     delete m_graphicsItemSettingMenu;
+    delete m_itemSettingView;
 }
 
 void GraphicsScene::addGraphicsItem(qreal ax, qreal ay)
