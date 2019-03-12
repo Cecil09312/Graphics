@@ -4,15 +4,17 @@ import Qt.labs.platform 1.0
 import itemIconInfoToJson 1.0
 
 Rectangle {
-    width: 640
-    height: 240
+    width: 680
+    height: 480
 
-    signal saveItemInfoToJson
+    signal saveItemInfoToJson()
     ListModel {
         id: listModel
         ListElement {
             deviceName: qsTr("报警装置")
             imagePath: "qrc:/images/fireAlarm.png"
+            manufacturers: qsTr("北京利达华信电子有限公司")
+            periodOfvalidity: ""
         }
     }
 
@@ -33,12 +35,6 @@ Rectangle {
                     height: 40
                     source: imagePath
                 }
-                Text {
-                    id: deviceNameTxt
-                    height: 40
-                    text: qsTr("设备类型")
-                    verticalAlignment: Text.AlignVCenter
-                }
 
                 TextField {
                     id: deviceNameTextFild
@@ -50,21 +46,40 @@ Rectangle {
                         deviceName = deviceNameTextFild.text
                     }
                 }
-                Text {
-                    id: pathTxt
+
+                TextField {
+                    id: manufacturersTextField
+                    width: 160
                     height: 40
-                    text: qsTr("图标路径")
-                    verticalAlignment: Text.AlignVCenter
+                    text: manufacturers
+
+                    onTextChanged: {
+                        manufacturers = manufacturersTextField.text
+                    }
                 }
+
+                TextField {
+                    id: periodTextField
+                    width: 150
+                    height: 40
+                    text: periodOfvalidity
+
+                    onTextChanged: {
+                        periodOfvalidity = periodTextField.text
+                    }
+                }
+
                 TextField {
                     id: imagePathTextField
                     width: 150
                     height: 40
                     text: imagePath
+
                     onTextChanged: {
                         imagePath = imagePathTextField.text
                     }
                 }
+
                 Button {
                     id: imageSettingBtn
                     width: 80
@@ -104,13 +119,71 @@ Rectangle {
         }
     }
 
+    Row {
+        id: titleRow
+        anchors.top: parent.top
+        anchors.margins: 10
+        spacing: 5
+        Text {
+            id: iconTxt
+            width: 40
+            // height: 40
+            text: qsTr("图标")
+            font.family: "Times New Roman"
+            font.pixelSize: 14
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+        }
+        Text {
+            id: deviceNameTxt
+            font.family: "Times New Roman"
+            font.pixelSize: 14
+            // height: 40
+            width: 150
+            text: qsTr("设备")
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+        }
+        Text {
+            id: manufacturersTxt
+            width: 160
+            // height: 40
+            text: qsTr("制造商")
+            font.family: "Times New Roman"
+            font.pixelSize: 14
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+        }
+
+        Text {
+            id: periodTxt
+            width: 150
+            // height: 40
+            text: qsTr("有效期")
+            font.family: "Times New Roman"
+            font.pixelSize: 14
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+        }
+
+        Text {
+            id: pathTxt
+            font.family: "Times New Roman"
+            font.pixelSize: 14
+            width: 150
+            text: qsTr("图标路径")
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+        }
+    }
+
     ListView {
         id: listView
-        anchors.top: parent.top
+        anchors.top: titleRow.bottom
         anchors.left: parent.left
         anchors.bottom: buttons.top
         anchors.right: parent.right
-        anchors.margins: 10
+        //anchors.margins: 10
         model: listModel
         delegate: listDelegate
     }
@@ -130,6 +203,8 @@ Rectangle {
                 obj["imagePath"] = Qt.resolvedUrl(
                             decodeURI("qrc:/images/fireAlarm.png"))
                 obj["deviceName"] = String(qsTr("报警装置%1").arg(listModel.count))
+                obj["manufacturers"] = qsTr("北京利达华信电子有限公司")
+                obj["periodOfvalidity"] = ""
                 listModel.append(obj)
                 saveInfo()
             }
@@ -169,6 +244,12 @@ Rectangle {
                                           obj["deviceName"].toString())
             itemIconInfo.saveItemIconInfo(String("%1").arg(i), "imagePath",
                                           obj["imagePath"].toString())
+
+            itemIconInfo.saveItemIconInfo(String("%1").arg(i), "manufacturers",
+                                          obj["manufacturers"].toString())
+            itemIconInfo.saveItemIconInfo(String("%1").arg(i),
+                                          "periodOfvalidity",
+                                          obj["periodOfvalidity"].toString())
         }
         itemIconInfo.itemIconInfoToJson()
         emit: saveItemInfoToJson()

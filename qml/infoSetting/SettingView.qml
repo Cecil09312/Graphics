@@ -28,13 +28,6 @@ Controls1_4.TabView {
     }
 
     Controls1_4.Tab {
-        title: qsTr("信息传输")
-        InfoTransport {
-            id: infoTransPort
-        }
-    }
-
-    Controls1_4.Tab {
         title: qsTr("信息查询")
         anchors.topMargin: 20
         InfoQuery {
@@ -60,6 +53,13 @@ Controls1_4.TabView {
         title: qsTr("维保信息")
         MaintenanceInfo {
             id: maintenanceInfo
+        }
+    }
+
+    Controls1_4.Tab {
+        title: qsTr("消防控制室管理信息")
+        InfoTransport {
+            id: infoTransport
         }
     }
     style: TabViewStyle {

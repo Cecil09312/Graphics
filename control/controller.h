@@ -16,6 +16,8 @@
 #include "communication/udpconfiguration.h"
 #include "graphicsWidget/graphicsitem.h"
 #include "graphicsWidget/graphicsitem.h"
+#include "jsonEdit/qmlforjson.h"
+
 class Controller:public QObject
 {
     Q_OBJECT

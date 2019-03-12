@@ -5,7 +5,7 @@ import Qt.labs.platform 1.0
 import itemIconInfoToJson 1.0
 
 Item {
-    width: 640
+    width: 860
     height: 560
     signal setSize(real size)
     signal setIcon(string icon)
@@ -55,7 +55,7 @@ Item {
                 //                    }
                 //                }
                 Text {
-                    text: qsTr("设备型号:")
+                    text: qsTr("设备:")
                     height: 40
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -71,6 +71,16 @@ Item {
                             emit: setIcon(itemIconInfo.getIconName(
                                               currentIndex))
                             emit: setItemInfo("equipmentModel", currentText)
+
+                            emit: setItemInfo("manufacturers",
+                                              manufacturersText.text)
+                            emit: setItemInfo("periodOfValidity",
+                                              periodOfValidityText.text)
+
+                            manufacturersText.text = manufacturersValue(
+                                        currentIndex)
+                            periodOfValidityText.text = periodOfvalidityValue(
+                                        currentIndex)
                         }
                     }
                 }
@@ -149,39 +159,39 @@ Item {
                     }
                 }
 
-                Text {
+                //                Text {
 
-                    text: qsTr("建筑名称:")
-                    height: 40
-                    verticalAlignment: Text.AlignVCenter
-                }
-                TextField {
-                    id: buildingNameTextField
-                    Layout.fillWidth: true
-                    width: 150
-                    height: 40
-                    onTextEdited: {
-                        emit: setItemInfo("buildingName",
-                                          buildingNameTextField.text)
-                    }
-                }
+                //                    text: qsTr("建筑名称:")
+                //                    height: 40
+                //                    verticalAlignment: Text.AlignVCenter
+                //                }
+                //                TextField {
+                //                    id: buildingNameTextField
+                //                    Layout.fillWidth: true
+                //                    width: 150
+                //                    height: 40
+                //                    onTextEdited: {
+                //                        emit: setItemInfo("buildingName",
+                //                                          buildingNameTextField.text)
+                //                    }
+                //                }
 
-                Text {
+                //                Text {
 
-                    text: qsTr("楼层:")
-                    height: 40
-                    verticalAlignment: Text.AlignVCenter
-                }
-                TextField {
-                    id: floorOfDeviceTextField
-                    Layout.fillWidth: true
-                    width: 150
-                    height: 40
-                    onTextEdited: {
-                        emit: setItemInfo("floorOfDevice",
-                                          floorOfDeviceTextField.text)
-                    }
-                }
+                //                    text: qsTr("楼层:")
+                //                    height: 40
+                //                    verticalAlignment: Text.AlignVCenter
+                //                }
+                //                TextField {
+                //                    id: floorOfDeviceTextField
+                //                    Layout.fillWidth: true
+                //                    width: 150
+                //                    height: 40
+                //                    onTextEdited: {
+                //                        emit: setItemInfo("floorOfDevice",
+                //                                          floorOfDeviceTextField.text)
+                //                    }
+                //                }
                 Text {
 
                     text: qsTr("位置:")
@@ -205,15 +215,19 @@ Item {
                     height: 40
                     verticalAlignment: Text.AlignVCenter
                 }
-                TextField {
-                    id: periodOfValidityTextField
+                Text {
+                    id: periodOfValidityText
                     Layout.fillWidth: true
                     width: 150
                     height: 40
-                    onTextEdited: {
-                        emit: setItemInfo("periodOfValidity",
-                                          periodOfValidityTextField.text)
-                    }
+                    verticalAlignment: Text.AlignVCenter
+
+                    // verticalAlignment: Text.AlignVCenter
+
+                    //                    onTextEdited: {
+                    //                        emit: setItemInfo("periodOfValidity",
+                    //                                          periodOfValidityText.text)
+                    //                    }
                 }
 
                 Text {
@@ -222,15 +236,18 @@ Item {
                     height: 40
                     verticalAlignment: Text.AlignVCenter
                 }
-                TextField {
-                    id: manufacturersTextField
+                Text {
+                    id: manufacturersText
                     Layout.fillWidth: true
                     width: 150
                     height: 40
-                    onTextEdited: {
-                        emit: setItemInfo("manufacturers",
-                                          manufacturersTextField.text)
-                    }
+                    verticalAlignment: Text.AlignVCenter
+                    text: qsTr("北京利达华信电子有限公司")
+
+                    //                    onTextEdited: {
+                    //                        emit: setItemInfo("manufacturers",
+                    //                                          manufacturersText.text)
+                    //                    }
                 }
 
                 Text {
@@ -324,24 +341,23 @@ Item {
         deviceSysTextField.text = sysOfDevice
     }
 
-    function setBuildingName(buildingName) {
-        buildingNameTextField.text = buildingName
-    }
+    //    function setBuildingName(buildingName) {
+    //        buildingNameTextField.text = buildingName
+    //    }
 
-    function setFloorOfDevice(floorOfDevice) {
-        floorOfDeviceTextField.text = floorOfDevice
-    }
-
+    //    function setFloorOfDevice(floorOfDevice) {
+    //        floorOfDeviceTextField.text = floorOfDevice
+    //    }
     function setDeviceLocation(deviceLocation) {
         deviceLocationTextField.text = deviceLocation
     }
 
     function setPeriodOfValidity(period) {
-        periodOfValidityTextField.text = period
+        periodOfValidityText.text = period
     }
 
     function setManufacturers(manufacturers) {
-        manufacturersTextField.text = manufacturers
+        manufacturersText.text = manufacturers
     }
 
     function setItemSize(size) {
@@ -353,14 +369,48 @@ Item {
         addrNumTextField.clear()
         deviceNumTextField.clear()
         deviceSysTextField.clear()
-        buildingNameTextField.clear()
-        floorOfDeviceTextField.clear()
+        //buildingNameTextField.clear()
+        //floorOfDeviceTextField.clear()
         deviceLocationTextField.clear()
     }
 
     function currentIconIndex() {
         itemIconInfo.setCurrentIconIndex(equipmentModelComboBox.currentIndex)
         return equipmentModelComboBox.currentIndex
+    }
+
+    function manufacturersValue(pos) {
+        var itemIconInfoStr = new String
+        itemIconInfoStr = itemIconInfo.readFileFromJson()
+        if (itemIconInfoStr.length === 0) {
+            return ""
+        } else {
+            if (pos < itemIconInfo.sizeOfHash()) {
+                var currentObj = new Object
+                var currentIndex = String("%1").arg(pos)
+                currentObj = JSON.parse(itemIconInfoStr)[currentIndex]
+                return currentObj["manufacturers"]
+            } else {
+                return ""
+            }
+        }
+    }
+
+    function periodOfvalidityValue(pos) {
+        var itemIconInfoStr = new String
+        itemIconInfoStr = itemIconInfo.readFileFromJson()
+        if (itemIconInfoStr.length === 0) {
+            return ""
+        } else {
+            if (pos < itemIconInfo.sizeOfHash()) {
+                var currentObj = new Object
+                var currentIndex = String("%1").arg(pos)
+                currentObj = JSON.parse(itemIconInfoStr)[currentIndex]
+                return currentObj["periodOfvalidity"]
+            } else {
+                return ""
+            }
+        }
     }
 
     function readInfo() {
@@ -371,6 +421,7 @@ Item {
             itemIconInfo.setCurrentIconIndex(-1)
             return
         }
+
         var itemIconInfoStr = new String
         itemIconInfoStr = itemIconInfo.readFileFromJson()
         if (itemIconInfoStr.length === 0)
@@ -390,6 +441,13 @@ Item {
                     var currentImagePathStr = new String
                     currentImagePathStr = currentObj["imagePath"]
                     itemIconInfo.setIconIndexHash(j, currentImagePathStr)
+                    //                    itemIconInfo.setOtherInfoHash(j, "manufacturers",
+                    //                                                  currentObj["manufacturers"])
+                    //                    itemIconInfo.setOtherInfoHash(
+                    //                                j, "periodOfvalidity",
+                    //                                currentObj["periodOfvalidity"])
+                    //                    manufacturersText.text = currentObj["manufacturers"]
+                    //                    periodOfValidityText.text = currentObj["periodOfvalidity"]
                 }
 
                 for (var i = modelCount; i < size; i++) {
@@ -404,6 +462,13 @@ Item {
                     var imagePathStr = new String
                     imagePathStr = obj["imagePath"]
                     itemIconInfo.setIconIndexHash(i, imagePathStr)
+                    //                    itemIconInfo.setOtherInfoHash(i, "manufacturers",
+                    //                                                  currentObj["manufacturers"])
+                    //                    itemIconInfo.setOtherInfoHash(
+                    //                                i, "periodOfvalidity",
+                    //                                currentObj["periodOfvalidity"])
+                    //                    manufacturersText.text = currentObj["manufacturers"]
+                    //                    periodOfValidityText.text = currentObj["periodOfvalidity"]
                 }
             } else {
 
@@ -420,6 +485,16 @@ Item {
             equipmentModelComboBox.currentIndex = 0
         }
         itemIconInfo.setCurrentIconIndex(equipmentModelComboBox.currentIndex)
+        manufacturersText.text = manufacturersValue(
+                    equipmentModelComboBox.currentIndex)
+        periodOfValidityText.text = periodOfvalidityValue(
+                    equipmentModelComboBox.currentIndex)
+        //        if (equipmentModelComboBox.currentIndex >= 0) {
+        //            manufacturersText.text = itemIconInfo.otherInfo(
+        //                        equipmentModelComboBox.currentIndex, "manufacturers")
+        //            periodOfValidityText.text = itemIconInfo.otherInfo(
+        //                        equipmentModelComboBox.currentIndex, "periodOfvalidity")
+        //        }
     }
 
     Connections {

@@ -12,7 +12,9 @@ CanConfiguration::~CanConfiguration()
 
 QVariant CanConfiguration::getConfiguration()
 {
-    QVariant data=  QmlForJson::readFile(getConfigurationPath());
+
+    QmlForJson qmlForJson;
+    QVariant data=  qmlForJson.readFile(getConfigurationPath());
     QHash<QString,QVariant>canConfigurationHash = data.toHash();
     return canConfigurationHash["can"];
 }

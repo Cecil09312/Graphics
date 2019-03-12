@@ -16,7 +16,8 @@
 #include "graphicsWidget/globalgraphicsview.h"
 #include "graphicsWidget/globalgraphicsitem.h"
 #include <QTimer>
-
+#include "database/sqlitemanager.h"
+#include "database/sqlitemanager.h"
 
 class ArchitePlanView : public QWidget
 {
@@ -30,7 +31,7 @@ public:
     int totalPage();
     int currentPage();
     Q_INVOKABLE void clearAlarm();
-    Q_INVOKABLE void createAlarm(const QString &alarmTypeName);
+    Q_INVOKABLE void createAlarm(const QString &extNum, const QString &loopNum, const QString &addressNum, const QString &alarmTypeName);
 
     void eliminateAlarm(GraphicsItem *item);//消除报警
     void generateAlarm(const QString &alarmTypeName, GraphicsItem*item, GraphicsView *view);
@@ -41,10 +42,13 @@ public:
     Q_INVOKABLE void setCurrentAlarmType(const QString &type);
     QString currentAlarmType();
 
-    GraphicsView * viewToParentItem(QStandardItem* item);
-    QList<GraphicsView *>viewsToChildItem(QStandardItem* item);
+    GraphicsView * viewFromChildItem(QStandardItem* childItem);
+    QList<GraphicsView *> viewsFromParentItem(QStandardItem* parentItem);
     QList<GraphicsView *> haveAlarms(const QString &alarm);
     void autoFitView(QGraphicsView *view);
+    Q_INVOKABLE void toAlarmView();
+    QStandardItem*getParnentItemFromView(GraphicsView*view);
+    QStandardItem*getItemFromView(GraphicsView*view);
 signals:
     void alarmHappend(const QString &alarmType);
     void toLastPage();
@@ -69,7 +73,8 @@ private:
     void saveArchiteInfo();
     QHash<QString, QVariant> saveViewInfo(QStandardItem *item);
     void initFromJsonFile();
-    void setViewFromJson(const QHash<QString, QVariant> &hash, QStandardItem *treeItem);
+    void initFromDataBase(GraphicsView *view, const QString &buildingName, const QString &floor);
+    GraphicsView* setViewFromJson(const QHash<QString, QVariant> &hash, QStandardItem *treeItem);
     void findFireAlarm(int pos);
     void saveOtherArchiteInfo();
     void setGlobalArchiteFromJson();
@@ -90,6 +95,11 @@ private:
     QTimer *m_autoSwitchTimer;
     QList<GraphicsView *>m_alarmViewList;
     int m_alarmPos;
+    QHash<QStandardItem*,GraphicsView *>m_itemToViewHash;
+
+    QList<QVariant> m_jsonValueList;
+
+    SqlManager *m_sqliteManager;
 };
 
 #endif // ARCHITEPLANVIEW_H

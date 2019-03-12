@@ -6,7 +6,6 @@
 #include <QSharedPointer>
 class ConfigurationManager;
 
-
 class AbstractConfiguration//配置虚基类
 {
     friend class ConfigurationManager;

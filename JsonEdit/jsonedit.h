@@ -34,7 +34,7 @@ public:
         {
             if(m_jsonEdit!=nullptr)
             {
-                delete m_jsonEdit;
+                m_jsonEdit->deleteLater();
                 m_jsonEdit = nullptr;
             }
         }

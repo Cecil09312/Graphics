@@ -83,7 +83,7 @@ Rectangle {
             id: fireAlarmStatusIndicator
             Layout.column: 0
             Layout.row: 0
-            color: "green"
+            color: "green" //火警:绿色:正常,红色:报警
             active: true
 
             ColorAnimation on color {
@@ -108,7 +108,7 @@ Rectangle {
             id: linkageStatusIndicator
             Layout.column: 0
             Layout.row: 1
-            color: "green"
+            color: "green" //联动:绿色:正常,红色:报警
             active: true
             ColorAnimation on color {
                 id: linkageAnimation
@@ -132,7 +132,7 @@ Rectangle {
             id: superviseStatusIndicator
             Layout.column: 0
             Layout.row: 2
-            color: "green"
+            color: "green" //监管:绿色:正常,红色:报警
             active: true
             ColorAnimation on color {
                 id: superviseAnimation
@@ -156,7 +156,7 @@ Rectangle {
             id: faultStatusIndicator
             Layout.column: 0
             Layout.row: 3
-            color: "black"
+            color: "green" //故障:绿色:正常,黄色:故障
             active: true
             ColorAnimation on color {
                 id: faultAnimation
@@ -180,7 +180,7 @@ Rectangle {
             id: feedbackStatusIndicator
             Layout.column: 0
             Layout.row: 4
-            color: "black"
+            color: "green" //反馈:绿色:正常,红色:异常
             active: true
             ColorAnimation on color {
 
@@ -205,7 +205,7 @@ Rectangle {
             id: shieldStatusIndicator
             Layout.column: 0
             Layout.row: 5
-            color: "green"
+            color: "green" //屏蔽:绿色:正常,红色:异常
             active: true
             ColorAnimation on color {
                 id: shieldAnimation
@@ -350,9 +350,9 @@ Rectangle {
             // Layout.fillHeight: true
             font.pointSize: 14
             font.family: qsTr("Times New Roman")
-            text: qsTr("模拟火警")
+            text: qsTr("报警平面")
             onClicked: {
-                ArchitePlanView.createAlarm(qsTr("火警"))
+                ArchitePlanView.toAlarmView()
             }
         }
         ComboBox {
@@ -580,8 +580,8 @@ Rectangle {
         startShieldAnimation(false)
         startMainConnunicationAnimation(false)
 
-        setFireAlarmColor(true, "green")
-        setLinkageAlarmColor(true, "green")
+        setFireAlarmColor(true, fireAlarmStatusIndicator.color)
+        setLinkageAlarmColor(true, linkageStatusIndicator.color)
         setSuperviseAlarmColor(true, "green")
         setfaultAlarmColor(true, "green")
         setFeedbackColor(true, "green")

@@ -97,6 +97,7 @@ AbstractLink *Controller::getUdpObj()
     return m_udpObj;
 }
 
+
 ConfigurationManager *Controller::getSerialConfigurationManager()
 {
     return m_serialConfigurationManager.data();
@@ -112,7 +113,7 @@ Controller::Controller()
     m_tcpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new TcpConfiguration),this)) ;
     m_udpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new UdpConfiguration),this)) ;
     // m_modbusManager = QSharedPointer<ModbusManager>(new ModbusManager(Configuration(new TcpConfiguration)),&QObject::deleteLater);
-    m_udpObj->connectLink();
+   // m_udpObj->connectLink();
     // m_modbusManager.data()->connectDevice(ModbusManager::Connected);
 }
 

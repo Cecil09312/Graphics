@@ -1,10 +1,11 @@
 ﻿#include "configurationmanager.h"
-#include "jsonEdit/qmlforjson.h"
 #include <QDebug>
 ConfigurationManager::ConfigurationManager(Configuration configuration,QObject *parent) : QObject(parent)
 {
     m_configuration = configuration;
-    QVariant configurationInfo = QmlForJson::readFile(m_configuration.data()->c_configurationPath);
+
+    QmlForJson qmlForJson;
+    QVariant configurationInfo = qmlForJson.readFile(m_configuration.data()->c_configurationPath);
     QHash<QString,QVariant>configurationValueHash = configurationInfo.toHash();
     m_serialConfigurationHash = configurationValueHash["serial"].toHash();
     m_tcpConfigurationHash = configurationValueHash["tcp"].toHash();
@@ -75,7 +76,9 @@ void ConfigurationManager::setConfigurationValue(const QString &key, const QVari
 
 void ConfigurationManager::saveConfiguration()
 {
-    QmlForJson::writeFile(m_configuration.data()->m_configurationHash,m_configuration.data()->c_configurationPath);
+
+    QmlForJson qmlForJson;
+    qmlForJson.writeFile(m_configuration.data()->m_configurationHash,m_configuration.data()->c_configurationPath);
 }
 
 QString ConfigurationManager::currentPortName()

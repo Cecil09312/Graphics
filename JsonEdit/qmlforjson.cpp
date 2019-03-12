@@ -18,19 +18,18 @@ void QmlForJson::writeFile(const QVariant &value,const QString &fileName)
 
         if(file.open(QIODevice::WriteOnly))
         {
-            QJsonDocument document = QJsonDocument::fromVariant(value);
-            file.write(document.toJson());
+            file.write(QJsonDocument::fromVariant(value).toJson());
             file.close();
         }
    // });
-    //future.waitForFinished();
+   // future.waitForFinished();
 }
 
 QVariant QmlForJson::readFile(const QString &fileName)
 {
-    static QVariant value = QVariant();
+    QVariant value;
 
-    QFuture <void > future = QtConcurrent::run([=]()
+    QFuture <void > future = QtConcurrent::run([&]()
     {
         QFile file(fileName);
         if(file.exists())

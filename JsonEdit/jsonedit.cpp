@@ -121,12 +121,15 @@ QList<QVariant>JsonEdit::getRoot() const
 
 void JsonEdit::writeFile(const QString &fileName)
 {
-    QmlForJson::writeFile(getRoot(),fileName);
+    QmlForJson qmlForJson;
+    qmlForJson.writeFile(getRoot(),fileName);
+    m_rootList.clear();
 }
 
 QVariant JsonEdit::readFile(const QString &fileName)
 {
-    return QmlForJson::readFile(fileName);
+    QmlForJson qmlForJson;
+    return qmlForJson.readFile(fileName);
 }
 
 void JsonEdit::fileClear()

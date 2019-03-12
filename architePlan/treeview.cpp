@@ -122,7 +122,7 @@ TreeView::~TreeView()
 {
     m_treeSettingMenu->close();
     delete m_treeSettingMenu;
-    delete m_architeSettingView;
+    m_architeSettingView->deleteLater();
 }
 
 
@@ -172,7 +172,7 @@ QStandardItem * TreeView::addRootItem(const QString &root)
     {
         QStandardItem *rootItem =new QStandardItem(root);
         m_stdModel->insertRow(rootCount,rootItem);
-       // m_treeIndexMap[rootItem]=totalRowCounts;
+        // m_treeIndexMap[rootItem]=totalRowCounts;
         //emit treeIndex(rootItem);
         m_parentIndexList.push_back(totalRowCounts);
         return rootItem;
@@ -251,7 +251,7 @@ void TreeView::deleteTreeItem(QModelIndex index)
     if(index.isValid())
     {
         QStandardItem *standardItem = m_stdModel->itemFromIndex(index);
-        GraphicsView*view=  Controller::instance()->getArchitePlanView()->viewToParentItem(standardItem);
+        GraphicsView*view=  Controller::instance()->getArchitePlanView()->viewFromChildItem(standardItem);
         if(view!=nullptr)
         {
             if(view->haveAnyAlarm())
@@ -305,6 +305,21 @@ void TreeView::setItemName(const QString &name)
     QModelIndex index = indexAt(m_rootPoint);
     QStandardItem*item = m_stdModel->itemFromIndex(index);
     item->setText(name);
+    if(item->parent()!=nullptr)
+    {
+        ArchitePlanView*architePlanView=   Controller::instance()->getArchitePlanView();
+        GraphicsView *graphicsView= architePlanView->viewFromChildItem(item);
+        QList<QGraphicsItem *>itemList=  graphicsView->getItemList();
+        foreach (QGraphicsItem *currentItem, itemList)
+        {
+            GraphicsItem*graphicsItem = dynamic_cast<GraphicsItem*>(currentItem);
+            if(graphicsItem!=nullptr)
+            {
+                graphicsItem->floorOfDevice() = name;
+            }
+        }
+
+    }
 }
 
 void TreeView::insertPixmap(const QString &fileName)

@@ -42,7 +42,8 @@ private:
     InfoTableView*m_infoTableView;
     QQuickView *m_loginQuickView;
     QQuickView *m_alarmQuickView;
-    QQmlApplicationEngine *m_settingViewEngine;
+    QQuickView *m_settingView;
+    //QQmlApplicationEngine *m_settingViewEngine;
     SqlManager *m_sqliteManager;
     QObject *m_alarmObj;
 };

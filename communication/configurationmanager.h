@@ -5,6 +5,7 @@
 #include "abstractconfiguration.h"
 #include <QSharedPointer>
 #include <QSerialPortInfo>
+#include "jsonEdit/qmlforjson.h"
 //typedef QSharedPointer<AbstractConfiguration> Configuration;
 class ConfigurationManager : public QObject
 {

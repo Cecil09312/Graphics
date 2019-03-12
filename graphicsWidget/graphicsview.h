@@ -18,7 +18,7 @@ public:
     ~GraphicsView();
     QPixmap graphicsPixmap() const;
     QString pixmapName();
-    QList<QGraphicsItem *> getItemList();
+    QList<QGraphicsItem *> &getItemList();
     QGraphicsItem * getItem(int pos);
     bool haveAlarmType(const QString &type);
     bool haveAnyAlarm();

@@ -127,8 +127,6 @@ void GlobalGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
             }
             // painter->drawText(QRectF(-12,-12,12,12),m_itemInfo.m_deviceNum);
         }
-
-
     }
 
     if (option->state & QStyle::State_Selected)

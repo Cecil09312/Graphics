@@ -1,5 +1,5 @@
 ﻿#include "udpconfiguration.h"
-#include "jsonEdit/qmlforjson.h"
+
 UdpConfiguration::UdpConfiguration()
 {
   m_configurationType = Udp;
@@ -12,7 +12,8 @@ UdpConfiguration::~UdpConfiguration()
 
 QVariant UdpConfiguration::getConfiguration()
 {
-    QVariant data=  QmlForJson::readFile(getConfigurationPath());
+    QmlForJson qmlForJson;
+    QVariant data=  qmlForJson.readFile(getConfigurationPath());
     QHash<QString,QVariant>udpConfigurationHash = data.toHash();
     return udpConfigurationHash["udp"];
 }

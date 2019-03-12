@@ -33,8 +33,8 @@ GraphicsScene::GraphicsScene(QObject *parent):
             QMetaObject::invokeMethod(m_itemSettingObj,"setAddrNum",Q_ARG(QVariant,currentItem->addrNum()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setEquipmentModel",Q_ARG(QVariant,currentItem->equipmentModel()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setSysOfDevice",Q_ARG(QVariant,currentItem->sysOfDevice()));
-            QMetaObject::invokeMethod(m_itemSettingObj,"setBuildingName",Q_ARG(QVariant,currentItem->buildingName()));
-            QMetaObject::invokeMethod(m_itemSettingObj,"setFloorOfDevice",Q_ARG(QVariant,currentItem->floorOfDevice()));
+            //QMetaObject::invokeMethod(m_itemSettingObj,"setBuildingName",Q_ARG(QVariant,currentItem->buildingName()));
+            //QMetaObject::invokeMethod(m_itemSettingObj,"setFloorOfDevice",Q_ARG(QVariant,currentItem->floorOfDevice()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setDeviceLocation",Q_ARG(QVariant,currentItem->deviceLocation()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setPeriodOfValidity",Q_ARG(QVariant,currentItem->periodOfValidity()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setManufacturers",Q_ARG(QVariant,currentItem->manufacturers()));
@@ -102,7 +102,7 @@ GraphicsScene::GraphicsScene(QObject *parent):
 GraphicsScene::~GraphicsScene()
 {
     delete m_graphicsItemSettingMenu;
-    delete m_itemSettingView;
+    m_itemSettingView->deleteLater();
 }
 
 void GraphicsScene::addGraphicsItem(qreal ax, qreal ay)
@@ -116,6 +116,7 @@ void GraphicsScene::addGraphicsItem(const QPointF &pointF)
     item->setPos(pointF);
     this->addItem(item);
     m_itemList.push_back(item);
+    emit createItem(item);
     //DataStore::insertTypeItem(tr("火警"),item);
 }
 
@@ -335,7 +336,7 @@ void GraphicsScene::init()
 
 
 
-QList<QGraphicsItem *> GraphicsScene::getItemList() const
+QList<QGraphicsItem *>& GraphicsScene::getItemList()
 {
     return m_itemList;
 }
@@ -364,8 +365,6 @@ void GraphicsScene::setItemInfo(GraphicsItem *item, const QHash<QString, QVarian
         itemInfo.m_deviceNum= itemHash["deviceNum"].toString();
         itemInfo.m_equipmentModel= itemHash["equipmentModel"].toString();
         itemInfo.m_currentState= itemHash["currentState"].toString();
-        //itemInfo.m_alarmTime= itemHash["alarmTime"].toString();
-        //itemInfo.m_alarmReplyTime= itemHash["alarmReplyTime"].toString();
         itemInfo.m_sysOfDevice= itemHash["sysOfDevice"].toString();
         itemInfo.m_deviceLocation=itemHash["deviceLocation"].toString();
         itemInfo.m_buildingName= itemHash["buildingName"].toString();

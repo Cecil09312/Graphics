@@ -21,11 +21,14 @@ public:
     Q_INVOKABLE static void clearIconIndex();
     Q_INVOKABLE static int currentIconIndex();
     Q_INVOKABLE static void setCurrentIconIndex(int index);
+    Q_INVOKABLE void setOtherInfoHash(int pos ,const QString&itemName,QVariant value);
+    Q_INVOKABLE QVariant otherInfo(int pos ,const QString&itemName);
 
 private:
     QHash<QString,QVariant>m_iconInfoHash;
     const QString c_filePath = QCoreApplication::applicationDirPath()+"/iconInfo.json";
     static QHash<int,QString> s_iconIndexHash;
+    QHash<int ,QHash<QString,QVariant> >m_otherInfoHash;
     static int s_currentIconIndex;
 };
 

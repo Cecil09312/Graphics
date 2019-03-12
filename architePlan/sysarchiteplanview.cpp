@@ -35,7 +35,8 @@ QVariant SysArchitePlanView::infoToJson()
 
 void SysArchitePlanView::setSysArchitePlanInfo()
 {
-    QVariant jsonValue = QmlForJson::readFile();
+    QmlForJson qmlForJoson;
+    QVariant jsonValue = qmlForJoson.readFile();
     QHash<QString,QVariant> infoHash= jsonValue.toHash();
     QHash<QString,QVariant> sysArchitePlanHash=infoHash["sysArchitePlan"].toHash();
     QList<QString> sysArchitePlanList = sysArchitePlanHash.keys();

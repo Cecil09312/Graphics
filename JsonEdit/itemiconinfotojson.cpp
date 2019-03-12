@@ -95,4 +95,14 @@ void ItemIconInfoToJson::setCurrentIconIndex(int index)
     s_currentIconIndex = index;
 }
 
+void ItemIconInfoToJson::setOtherInfoHash(int pos, const QString &itemName, QVariant value)
+{
+    m_otherInfoHash[pos][itemName] = value;
+}
+
+QVariant ItemIconInfoToJson::otherInfo(int pos, const QString &itemName)
+{
+    return m_otherInfoHash[pos][itemName];
+}
+
 

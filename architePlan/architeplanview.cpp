@@ -2,7 +2,6 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QSplitter>
-
 #include <QGLWidget>
 #include <QOpenGLWidget>
 #include "dataStore/datastore.h"
@@ -13,6 +12,7 @@
 #include <QModelIndex>
 
 QMap<int,GraphicsView *>ArchitePlanView::m_widgetMap =QMap<int,GraphicsView *>();
+
 ArchitePlanView::ArchitePlanView(QWidget *parent)
     : QWidget(parent),
       m_currentAlarmType("全部"),
@@ -76,6 +76,24 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
         if(stdItem!=nullptr)
         {
             stdItem->setText(name);
+            QList<GraphicsView *>viewList=  viewsFromParentItem(stdItem);
+            foreach (GraphicsView *view, viewList)
+            {
+                if(view!=nullptr)
+                {
+                    QList<QGraphicsItem*>graphicsItemList = view->getItemList();
+                    foreach (QGraphicsItem*graphicsItem, graphicsItemList)
+                    {
+                        GraphicsItem*curItem = dynamic_cast<GraphicsItem*>(graphicsItem);
+
+                        if(curItem!=nullptr)
+                        {
+                            curItem->buildingName() = name;
+                        }
+
+                    }
+                }
+            }
         }
 
     });
@@ -89,31 +107,34 @@ ArchitePlanView::~ArchitePlanView()
     m_autoSwitchTimer->stop();
     saveArchiteInfo();
     saveOtherArchiteInfo();
+
+    m_sqliteManager->close();
+    m_sqliteManager->deleteLater();
 }
 
 
-void ArchitePlanView::createAlarm(const QString &alarmTypeName)
+void ArchitePlanView::createAlarm(const QString&extNum,const QString&loopNum,const QString&addressNum,const QString &alarmTypeName)
 {
-    int page =qAbs(qrand()% m_stackedWidget->count());
-
-    if(m_widgetMap.size()>page && page>=0)
+    foreach (GraphicsView *view, m_widgetMap.values())
     {
-        // QString alarmTypeName =tr("火警");
-        GraphicsView *view = m_widgetMap[page];
-        if(view==nullptr)
-            return;
-        QList<QGraphicsItem *>itemList =   view->getItemList();
-        if(itemList.size()<=0)
-            return;
-
-        int pos = qAbs(qrand()%itemList.size()) ;
-        if(itemList.size()>pos)
+        if(view!=nullptr)
         {
-            GraphicsItem *currentItem = dynamic_cast<GraphicsItem *>(itemList.at(pos));
-
-            if(!DataStore::getTypeItemList(alarmTypeName).contains(currentItem))
+            QList<QGraphicsItem *>itemList =   view->getItemList();
+            foreach(QGraphicsItem *item,itemList)
             {
-                generateAlarm(alarmTypeName,currentItem,view);
+                GraphicsItem *currentItem = dynamic_cast<GraphicsItem *>(item);
+                if(currentItem!=nullptr)
+                {
+                    if(currentItem->extNum()==extNum&&currentItem->loopNum()==loopNum&&currentItem->addrNum()==addressNum)
+                    {
+                        if(!DataStore::getTypeItemList(alarmTypeName).contains(currentItem))
+                        {
+                            generateAlarm(alarmTypeName,currentItem,view);
+                        }
+                        break;
+                    }
+                }
+
             }
         }
     }
@@ -165,18 +186,27 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
                 insertAlarmWidget(alarmTypeName,view);
                 insertAlarmWidget("全部",view);
                 updateAlarmWidget(view);
-            }
+                if(!m_alarmViewList.contains(view))
+                {
+                    m_alarmViewList.push_back(view);
+                }
 
-            qDebug() << "&&&&&&&&&&&&&&&";
+                if(m_tabWidget->count()>=2)
+                {
+                    if(m_tabWidget->currentIndex()!=1)
+                    {
+                        m_tabWidget->setCurrentIndex(1);
+                    }
+                }
+                autoFitView(view);
+
+            }
             emit alarmHappend(alarmTypeName);
 
             QString alarmHappendTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
             item->getItemInfo().m_alarmTime = alarmHappendTime;
             emit alarmItem(item);
-            qDebug() << "################";
         }
-
-
     }
 }
 
@@ -230,8 +260,6 @@ void ArchitePlanView::currentGraphicsViewZoom(bool isZoomIn)
 
 }
 
-
-
 void ArchitePlanView::initWidget()
 {
 
@@ -261,21 +289,41 @@ void ArchitePlanView::initWidget()
     globalHLayout->setContentsMargins(QMargins(0,0,0,0));
     setLayout(globalHLayout);
     Controller::instance()->setSysArchitePlanView(m_sysArchitePlanView);
+    QString dbName = QCoreApplication::applicationDirPath()+"/architeInfo.db";
+    m_sqliteManager = SqlManager::fromDriver("QSQLITE");
+
+    m_sqliteManager->setDataBase("QSQLITE","info", "",
+                                 "","",dbName,8888);
+    m_sqliteManager->open();
+    if(m_sqliteManager->isOpen())
+    {
+        QStringList tableNameList = m_sqliteManager->getTables(dbName);
+
+        if(!tableNameList.contains("ItemInfo"))
+        {
+            m_sqliteManager->executeQuery("create table ItemInfo(extNum text,addrNum text,loopNum text,buildingName text,currentState text,deviceLocation text ,deviceNum text,equipmentModel text,floorOfDevice text,iconName text,manufacturers text,periodOfValidity text,pos text,size double,sysOfDevice text)");
+        }
+
+        //        if(!tableNameList.contains("GlobalArchite"))
+        //        {
+        //            m_sqliteManager->executeQuery("create table GlobalArchite(分机号 text, 回路号 text,地址号 text,设备编号 text ,设备 text,状态 text,报警时间 text,报警恢复时间 text,系统 text,建筑名称 text,楼层 text,位置 text,制造商 text,有效期 text)");
+        //        }
+    }
+
     connect(m_treeView,&TreeView::treeIndex,this,[=](QStandardItem*item)
     {
         QMap<QStandardItem*,int>map= m_treeView->getTreeIndexMap();
         if(item!=nullptr)
         {
             int page = map[item];
-
             if(m_widgetMap[page]==nullptr)
             {
                 GraphicsView *widget = new GraphicsView(this);
                 m_widgetMap[page]=widget;
                 m_stackedWidget->addWidget(widget);
+                m_itemToViewHash[item] = widget;
             }
         }
-
 
     });
     connect(m_treeView,&TreeView::clicked,this,[=](const QModelIndex&index)
@@ -390,6 +438,64 @@ void ArchitePlanView::saveArchiteInfo()
 
     JsonEdit::instance()->writeFile(c_jsonFilePath);
 
+    m_sqliteManager->executeQuery("delete from ItemInfo");
+    QList<int> keyValueList= m_widgetMap.keys();
+    foreach (int value, keyValueList)
+    {
+        GraphicsView *view=  m_widgetMap.value(value);
+        if(view!=nullptr)
+        {
+            QList<QVariant>valueList,extNumList,addrNumList,loopNumList,buildingNameList,
+                    currentStateList,deviceLocationList,deviceNumList,equipmentModelList,floorOfDeviceList,
+                    iconNameList,manufacturersList,periodOfValidityList,posList,sizeList,sysOfDeviceList;
+            QList<QGraphicsItem *> itemList= view->getItemList();
+            foreach (QGraphicsItem *item, itemList)
+            {
+                GraphicsItem*currentItem = dynamic_cast<GraphicsItem*>(item);
+                if(currentItem!=nullptr)
+                {
+                    extNumList.push_back( currentItem->extNum());
+                    addrNumList.push_back(currentItem->addrNum());
+                    loopNumList.push_back(currentItem->loopNum());
+                    buildingNameList.push_back(currentItem->buildingName());
+                    currentStateList.push_back(currentItem->currentState());
+                    deviceLocationList.push_back(currentItem->deviceLocation());
+                    deviceNumList.push_back(currentItem->deviceNum());
+                    equipmentModelList.push_back(currentItem->equipmentModel());
+                    floorOfDeviceList.push_back(currentItem->floorOfDevice());
+                    iconNameList.push_back(currentItem->iconName());
+                    manufacturersList.push_back(currentItem->manufacturers());
+                    periodOfValidityList.push_back(currentItem->periodOfValidity());
+                    posList.push_back(QString("%1,%2").arg(currentItem->scenePos().x()).arg(currentItem->scenePos().y()));
+                    sizeList.push_back(currentItem->radius());
+                    sysOfDeviceList.push_back(currentItem->sysOfDevice());
+                }
+            }
+
+            valueList.push_back(extNumList);
+            valueList.push_back(addrNumList);
+            valueList.push_back(loopNumList);
+            valueList.push_back(buildingNameList);
+
+            valueList.push_back(currentStateList);
+            valueList.push_back(deviceLocationList);
+            valueList.push_back(deviceNumList);
+            valueList.push_back(equipmentModelList);
+
+
+            valueList.push_back(floorOfDeviceList);
+            valueList.push_back(iconNameList);
+            valueList.push_back(manufacturersList);
+            valueList.push_back(periodOfValidityList);
+
+            valueList.push_back(posList);
+            valueList.push_back(sizeList);
+            valueList.push_back(sysOfDeviceList);
+            m_sqliteManager->insertBatch("ItemInfo",valueList);
+
+        }
+    }
+
 }
 
 void ArchitePlanView::autoFitView(QGraphicsView *view)
@@ -439,6 +545,68 @@ void ArchitePlanView::autoFitView(QGraphicsView *view)
 
 }
 
+void ArchitePlanView::toAlarmView()
+{
+    foreach (GraphicsView*view, m_alarmViewList)
+    {
+        if(view!=nullptr)
+        {
+            if(view->haveAlarmType(tr("火警"))||view->haveAlarmType(tr("联动")))
+            {
+                if(m_tabWidget->count()>=2)
+                {
+                    if(m_tabWidget->currentIndex()!=1)
+                    {
+                        m_tabWidget->setCurrentIndex(1);
+                    }
+                }
+                autoFitView(view);
+                break;
+            }
+        }
+    }
+}
+
+QStandardItem *ArchitePlanView::getParnentItemFromView(GraphicsView *view)
+{
+    if(view!=nullptr)
+    {
+        QStandardItem *stdItem=  m_itemToViewHash.key(view);
+        if(stdItem!=nullptr)
+        {
+            QStandardItem*parentItem = stdItem->parent();
+            return parentItem;
+
+        }
+        else
+        {
+            return nullptr;
+        }
+
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+QStandardItem *ArchitePlanView::getItemFromView(GraphicsView *view)
+{
+    if(view!=nullptr)
+    {
+        QStandardItem *stdItem=  m_itemToViewHash.key(view);
+        return stdItem;
+
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+
+
+
 QHash<QString,QVariant> ArchitePlanView::saveViewInfo(QStandardItem *item)
 {
     QHash<QString,QVariant> imageHash;
@@ -449,30 +617,19 @@ QHash<QString,QVariant> ArchitePlanView::saveViewInfo(QStandardItem *item)
     if(widget!=nullptr)
     {
         imageHash["path"]=widget->pixmapName();
-        QList<QGraphicsItem *>currentItemList =widget->getItemList();
-        QList<QVariant>itemList;
-        foreach (QGraphicsItem * graphicsItem, currentItemList)
-        {
-            GraphicsItem*currentItem=  dynamic_cast<GraphicsItem*> (graphicsItem);
-            if(currentItem!=nullptr)
-            {
-                itemList.push_back(currentItem->itemInfo());
-            }
-        }
 
-        imageHash["item"] = itemList;
     }
+
     return imageHash;
 }
 
 void ArchitePlanView::initFromJsonFile()
 {
 
-    QList<QVariant> valueList=JsonEdit::instance()->readFile(c_jsonFilePath).toList();
-    for(int i=0;i<valueList.size();i++)
+    m_jsonValueList=JsonEdit::instance()->readFile(c_jsonFilePath).toList();
+    for(int i=0;i<m_jsonValueList.size();i++)
     {
-
-        QHash<QString,QVariant> parentHash=  valueList.at(i).toHash();
+        QHash<QString,QVariant> parentHash=  m_jsonValueList.at(i).toHash();
         if(!parentHash.isEmpty())
         {
             QStandardItem *parentItem= m_treeView->addRootItem(parentHash["name"].toString());
@@ -490,9 +647,11 @@ void ArchitePlanView::initFromJsonFile()
                 }
             }
 
+            //  QHash<QString,QVariant> parentPixmapHash = parentHash["image"].toHash();
+            // setViewFromJson(parentPixmapHash,parentItem);
+
             QList<QVariant> childList =  parentHash["child"].toList();
-            QHash<QString,QVariant> parentPixmapHash = parentHash["image"].toHash();
-            setViewFromJson(parentPixmapHash,parentItem);
+
             for(int j=0;j<childList.size();j++)
             {
                 QHash<QString,QVariant> childHash=  childList.at(j).toHash();
@@ -505,7 +664,8 @@ void ArchitePlanView::initFromJsonFile()
                     {
                         childItem->setText(childHash["name"].toString());
                         QHash<QString,QVariant> childPixmapHash = childHash["image"].toHash();
-                        setViewFromJson(childPixmapHash,childItem);
+                        GraphicsView*view=  setViewFromJson(childPixmapHash,childItem);
+                        initFromDataBase(view,parentItem->text(),childItem->text());
                     }
                 }
 
@@ -513,9 +673,51 @@ void ArchitePlanView::initFromJsonFile()
 
         }
     }
+    m_jsonValueList.clear();
 }
 
-void ArchitePlanView::setViewFromJson(const QHash<QString,QVariant> &hash,QStandardItem *treeItem)
+void ArchitePlanView::initFromDataBase(GraphicsView *view,const QString &buildingName,const QString &floor)
+{
+    QStringList valueList=  m_sqliteManager->executeQuery(QString("select *from ItemInfo where buildingName ='%1' and floorOfDevice = '%2'").arg(buildingName).arg(floor));
+    int valueSize = valueList.size();
+    if(view!=nullptr)
+    {
+        if(valueSize>=15&&valueSize%15==0)
+        {
+            for(int j=0;j<valueSize;j=j+15)
+            {
+                QGraphicsScene *scene = view->scene();
+                GraphicsScene *graphicsScene = dynamic_cast<GraphicsScene*>(scene);
+                GraphicsItem *item = new GraphicsItem(graphicsScene);
+                item->extNum() =valueList.at(j);
+                item->addrNum() = valueList.at(j+1);
+                item->loopNum() =valueList.at(j+2);
+                item->buildingName() = valueList.at(j+3);
+                item->currentState() =valueList.at(j+4);
+                item->deviceLocation() = valueList.at(j+5);
+                item->deviceNum() =valueList.at(j+6);
+                item->equipmentModel() = valueList.at(j+7);
+                item->floorOfDevice() =valueList.at(j+8);
+                item->setIconName( valueList.at(j+9));
+                item->manufacturers() =valueList.at(j+10);
+                item->periodOfValidity() = valueList.at(j+11);
+                QString posStr = valueList.at(j+12);
+                item->setPos(QPointF(posStr.section(",",0,0).toDouble(),posStr.section(",",1,1).toDouble()));
+                QString sizeStr = valueList.at(j+13);
+                item->setRadius(sizeStr.toDouble());
+                item->sysOfDevice() =valueList.at(j+14);
+                if(graphicsScene!=nullptr)
+                {
+                    graphicsScene->addItem(item);
+                    graphicsScene->getItemList().push_back(item);
+                }
+
+            }
+        }
+    }
+}
+
+GraphicsView* ArchitePlanView::setViewFromJson(const QHash<QString,QVariant> &hash,QStandardItem *treeItem)
 {
 
     if(!hash.isEmpty())
@@ -526,18 +728,13 @@ void ArchitePlanView::setViewFromJson(const QHash<QString,QVariant> &hash,QStand
         GraphicsView*widget = m_widgetMap[page];
         if(widget!=nullptr)
         {
-            QList<QVariant> itemList=  hash["item"].toList();
-            foreach (QVariant itemValue, itemList) {
-                GraphicsScene *scene = dynamic_cast<GraphicsScene *> (widget->scene()) ;
-                if(scene!=nullptr)
-                {
-                    GraphicsItem *item = new GraphicsItem(scene);
-                    scene->setItemInfo(item,itemValue.toHash());
-                }
-            }
             widget->loadPixmap(hash["path"].toString());
-
         }
+        return widget;
+    }
+    else
+    {
+        return nullptr;
     }
 }
 
@@ -607,12 +804,15 @@ void ArchitePlanView::saveOtherArchiteInfo()
     architePlanHash["grobalPlanPicture"] =m_globalArchitePlanPixmapName;
     architePlanHash["grobalPlanItemInfo"] = itemInfoList;
     //architePlanHash["grobalArchitePlan"] =globalGraphicsHash;
-    QmlForJson::writeFile(architePlanHash);
+    QmlForJson qmlForJson;
+    qmlForJson.writeFile(architePlanHash);
 }
 
 void ArchitePlanView::setGlobalArchiteFromJson()
 {
-    QHash<QString,QVariant> valueHash = QmlForJson::readFile().toHash();
+
+    QmlForJson qmlForJson;
+    QHash<QString,QVariant> valueHash = qmlForJson.readFile().toHash();
     QString pixmapName= valueHash["grobalPlanPicture"].toString();
     setGlobalArchitePixmap(pixmapName);
     QList<QVariant>itemList = valueHash["grobalPlanItemInfo"].toList();
@@ -793,7 +993,6 @@ void ArchitePlanView::toNextPage()
 void ArchitePlanView::setCurrentAlarmType(const QString &type)
 {
     m_currentAlarmType = type;
-    m_alarmViewList = haveAlarms(m_currentAlarmType);
 }
 
 QString ArchitePlanView::currentAlarmType()
@@ -806,7 +1005,7 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
     QMap<QStandardItem*,int>itemMap;
     itemMap = m_treeView->getTreeIndexMap();
 
-    if(item->parent()!=nullptr)
+    if(item->parent()==nullptr)
     {
         GlobalGraphicsItem*globalGraphicsItem=  m_globalToArchitePlanHash.key(item);
         if(globalGraphicsItem!=nullptr)
@@ -832,19 +1031,6 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
             m_treeView->getTreeIndexMap().remove(childItem);
 
         }
-    }
-
-
-    int page =itemMap[item];
-    GraphicsView*widget = m_widgetMap[page];
-    if(widget!=nullptr)
-    {
-        m_stackedWidget->removeWidget(widget);
-        deleteAlarmWidget(widget);
-    }
-    if(m_widgetMap.keys().contains(page))
-    {
-        m_widgetMap.remove(page);
     }
 
     GlobalGraphicsItem*globalItem =  m_globalToArchitePlanHash.key(item);
@@ -882,7 +1068,6 @@ void ArchitePlanView::startAutoSwitch(bool isAuto)
 {
     if(isAuto)
     {
-        m_alarmViewList = haveAlarms(m_currentAlarmType);
         if(!m_autoSwitchTimer->isActive())
         {
             m_autoSwitchTimer->start(1000);
@@ -895,25 +1080,33 @@ void ArchitePlanView::startAutoSwitch(bool isAuto)
     }
 }
 
-GraphicsView *ArchitePlanView::viewToParentItem(QStandardItem *item)
+GraphicsView *ArchitePlanView::viewFromChildItem(QStandardItem *childItem)
 {
     QMap<QStandardItem*,int>itemMap;
     itemMap = m_treeView->getTreeIndexMap();
-    int page =itemMap[item];
-    GraphicsView*widget = m_widgetMap[page];
+    GraphicsView*widget = nullptr;
+    if(childItem!=nullptr)
+    {
+        if(childItem->parent()!=nullptr)
+        {
+            int page =itemMap[childItem];
+            widget = m_widgetMap[page];
+        }
+    }
     return widget;
+
 }
 
-QList<GraphicsView *> ArchitePlanView::viewsToChildItem(QStandardItem *item)
+QList<GraphicsView *> ArchitePlanView::viewsFromParentItem(QStandardItem *parentItem)
 {
     QMap<QStandardItem*,int>itemMap;
     itemMap = m_treeView->getTreeIndexMap();
     QList<GraphicsView*>viewList;
-    if(item->hasChildren())
+    if(parentItem->hasChildren())
     {
-        for(int i=0;i<item->rowCount();i++)
+        for(int i=0;i<parentItem->rowCount();i++)
         {
-            QStandardItem*childItem =  item->child(i);
+            QStandardItem*childItem =  parentItem->child(i);
             int chileItemPage = itemMap[childItem];
             GraphicsView*childWidget = m_widgetMap[chileItemPage];
             viewList.push_back(childWidget);
@@ -921,6 +1114,7 @@ QList<GraphicsView *> ArchitePlanView::viewsToChildItem(QStandardItem *item)
     }
     return viewList;
 }
+
 
 QList<GraphicsView *> ArchitePlanView::haveAlarms(const QString &alarm)
 {

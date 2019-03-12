@@ -16,11 +16,13 @@ struct ItemInfo
     QString m_extNum;//分机号
     QString m_loopNum;//回路号
     QString m_addrNum;//地址号
-    QString m_deviceNum;//条码
-    QString m_equipmentModel;//类型
+    QString m_deviceNum;//设备编号
+    QString m_equipmentModel;//设备
+//    QString m_equipmentName;//设备
+//    QString m_equipmentType;//设备
     QString m_currentState;//状态
     QString m_alarmTime;//报警时间
-    QString m_alarmReplyTime;//报警恢复正常时间
+    QString m_alarmReplyTime;//报警恢复时间
     QString m_sysOfDevice;//系统
     QString m_buildingName;//设施
     QString m_floorOfDevice;//楼层

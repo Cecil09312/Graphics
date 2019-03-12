@@ -15,6 +15,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_graphicsScene = scene;
 
     m_itemInfo.m_currentState = tr("正常");
+    m_itemInfo.m_manufacturers = tr("北京利达华信电子有限公司");
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);
     m_colorEffect = new QGraphicsColorizeEffect(this);
@@ -439,7 +440,7 @@ void GraphicsItem::updateHoverText()
                                 "回路号:%2\n"
                                 "地址号:%3\n"
                                 "设备编码:%4\n"
-                                "设备型号:%5\n"
+                                "设备:%5\n"
                                 "状态:%6\n"
                                 "报警时间:%7\n"
                                 "系统:%8\n"

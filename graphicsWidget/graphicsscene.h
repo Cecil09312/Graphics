@@ -20,10 +20,11 @@ public:
     void removeGraphicsItem(const QPointF &pointF);
     void showMenu(const QPoint &point );
     QPointF currentScenePos();
-    QList<QGraphicsItem*>getItemList() const;
+    QList<QGraphicsItem *> &getItemList();
     QGraphicsItem*getItem(int pos) const;
     void setItemInfo(GraphicsItem*item, const QHash<QString,QVariant>&itemHash);
-
+signals:
+    void createItem(GraphicsItem *item);
 protected:
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent*event);
     void mousePressEvent(QGraphicsSceneMouseEvent*event);

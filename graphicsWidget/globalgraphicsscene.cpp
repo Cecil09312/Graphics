@@ -81,7 +81,7 @@ GlobalGraphicsScene::~GlobalGraphicsScene()
 {
     m_menu->close();
     delete m_menu;
-    delete m_globalItemSettingView;
+    m_globalItemSettingView->deleteLater();
 }
 
 void GlobalGraphicsScene::showMenu(const QPoint &point)

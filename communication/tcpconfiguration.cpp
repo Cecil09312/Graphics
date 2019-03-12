@@ -1,5 +1,4 @@
 ﻿#include "tcpconfiguration.h"
-#include "jsonEdit/qmlforjson.h"
 TcpConfiguration::TcpConfiguration()
 {
   m_configurationType = Tcp;
@@ -12,7 +11,9 @@ TcpConfiguration::~TcpConfiguration()
 
 QVariant TcpConfiguration::getConfiguration()
 {
-    QVariant data=  QmlForJson::readFile(getConfigurationPath());
+
+    QmlForJson qmlForJson;
+    QVariant data=  qmlForJson.readFile(getConfigurationPath());
     QHash<QString,QVariant>tcpConfigurationHash = data.toHash();
     return tcpConfigurationHash["tcp"];
 }

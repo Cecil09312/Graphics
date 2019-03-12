@@ -4,6 +4,8 @@
 #include <QScrollBar>
 #include "control/controller.h"
 #include "graphicsitem.h"
+#include "architePlan/architeplanview.h"
+
 qreal GraphicsView::m_scale =1;
 GraphicsView::GraphicsView(QWidget *parent, int type):
     QGraphicsView(parent),
@@ -23,6 +25,28 @@ GraphicsView::GraphicsView(QWidget *parent, int type):
         setScene(m_scene);
         m_scene->addItem(m_svgItem);
         m_sysViewScene  = nullptr;
+        connect(m_scene,&GraphicsScene::createItem,this,[=](GraphicsItem *item)
+        {
+            ArchitePlanView*architePlanView= Controller::instance()->getArchitePlanView();
+            if(architePlanView!=nullptr)
+            {
+                QStandardItem *childItem= architePlanView->getItemFromView(this);
+                if(item!=nullptr)
+                {
+                    if(childItem!=nullptr)
+                    {
+                        item->floorOfDevice() = childItem->text();
+                        QStandardItem *parentItem = childItem->parent();
+                        if(parentItem!=nullptr)
+                        {
+                            item->buildingName() = parentItem->text();
+                        }
+                    }
+
+                }
+
+            }
+        });
     }
     else
     {
@@ -40,7 +64,6 @@ GraphicsView::GraphicsView(QWidget *parent, int type):
             m_scene->showMenu(QCursor::pos());
         }
     });
-
 
 
 }
@@ -88,14 +111,10 @@ QString GraphicsView::pixmapName()
     return m_pixmapName;
 }
 
-QList<QGraphicsItem *> GraphicsView::getItemList()
+QList<QGraphicsItem *>& GraphicsView::getItemList()
 {
-    QList<QGraphicsItem*>itemList;
-    if(m_scene!=nullptr)
-    {
-        itemList= m_scene->getItemList();
-    }
-    return itemList;
+
+    return m_scene->getItemList();
 }
 
 QGraphicsItem *GraphicsView::getItem(int pos)

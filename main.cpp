@@ -6,7 +6,7 @@
 //#include <QWindowsWindowFunctions>
 int main(int argc, char *argv[])
 {
-   qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
+   //qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
     QApplication a(argc, argv);
     QFile file(":/qss/styleSheet.qss");
