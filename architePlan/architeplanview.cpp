@@ -201,6 +201,18 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
                 autoFitView(view);
 
             }
+            QStandardItem *parentItem =   getParnentItemFromView(view);
+            if(parentItem!=nullptr)
+            {
+                GlobalGraphicsItem*globalGraphicsItem=  m_globalToArchitePlanHash.key(parentItem);
+                if(globalGraphicsItem!=nullptr)
+                {
+                    if(!globalGraphicsItem->animalIsRunning())
+                    {
+                        globalGraphicsItem->startAnimal(true);
+                    }
+                }
+            }
             emit alarmHappend(alarmTypeName);
 
             QString alarmHappendTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
@@ -304,10 +316,10 @@ void ArchitePlanView::initWidget()
             m_sqliteManager->executeQuery("create table ItemInfo(extNum text,addrNum text,loopNum text,buildingName text,currentState text,deviceLocation text ,deviceNum text,equipmentModel text,floorOfDevice text,iconName text,manufacturers text,periodOfValidity text,pos text,size double,sysOfDevice text)");
         }
 
-        //        if(!tableNameList.contains("GlobalArchite"))
-        //        {
-        //            m_sqliteManager->executeQuery("create table GlobalArchite(分机号 text, 回路号 text,地址号 text,设备编号 text ,设备 text,状态 text,报警时间 text,报警恢复时间 text,系统 text,建筑名称 text,楼层 text,位置 text,制造商 text,有效期 text)");
-        //        }
+        if(!tableNameList.contains("GlobalArchite"))
+        {
+            m_sqliteManager->executeQuery("create table GlobalArchite(buildingName text, pos text,size double,iconName text)");
+        }
     }
 
     connect(m_treeView,&TreeView::treeIndex,this,[=](QStandardItem*item)
@@ -784,62 +796,61 @@ void ArchitePlanView::saveOtherArchiteInfo()
 
     architePlanHash["sysArchitePlan"] = m_sysArchitePlanView->infoToJson();
 
+    m_sqliteManager->executeQuery("delete from GlobalArchite");
     QList<QGraphicsItem*> itemList=  m_globalGraphicsView->currentScene()->items();
-    QList<QVariant>itemInfoList;
+    QList<QVariant>buildingNameList,posList,sizeList,iconNameList,valueList;
     foreach (QGraphicsItem*graphicsItem, itemList)
     {
-
         GlobalGraphicsItem *globalItem = dynamic_cast<GlobalGraphicsItem *>(graphicsItem);
         if(globalItem!=nullptr)
         {
-            QHash<QString,QVariant> globalGraphicsItemInfoHash;
-            globalGraphicsItemInfoHash["itemSize"] = globalItem->itemSize();
-            globalGraphicsItemInfoHash["itemPos"] = QString("%1,%2").arg( globalItem->scenePos().x()).arg(globalItem->scenePos().y());
-            globalGraphicsItemInfoHash["itemIcon"] = globalItem->iconName();
-            globalGraphicsItemInfoHash["buildName"] = globalItem->buildName();
-            itemInfoList.push_back(globalGraphicsItemInfoHash);
+            buildingNameList.push_back(globalItem->buildName());
+            posList.push_back(QString("%1,%2").arg( globalItem->scenePos().x()).arg(globalItem->scenePos().y()));
+            sizeList.push_back(globalItem->itemSize());
+            iconNameList.push_back(globalItem->iconName());
         }
     }
-
+    valueList.push_back(buildingNameList);
+    valueList.push_back(posList);
+    valueList.push_back(sizeList);
+    valueList.push_back(iconNameList);
+    m_sqliteManager->insertBatch("GlobalArchite",valueList);
     architePlanHash["grobalPlanPicture"] =m_globalArchitePlanPixmapName;
-    architePlanHash["grobalPlanItemInfo"] = itemInfoList;
-    //architePlanHash["grobalArchitePlan"] =globalGraphicsHash;
     QmlForJson qmlForJson;
     qmlForJson.writeFile(architePlanHash);
 }
 
 void ArchitePlanView::setGlobalArchiteFromJson()
 {
-
     QmlForJson qmlForJson;
     QHash<QString,QVariant> valueHash = qmlForJson.readFile().toHash();
     QString pixmapName= valueHash["grobalPlanPicture"].toString();
     setGlobalArchitePixmap(pixmapName);
-    QList<QVariant>itemList = valueHash["grobalPlanItemInfo"].toList();
-    foreach (QVariant value, itemList)
+    QStringList itemValueList=   m_sqliteManager->executeQuery("select *from GlobalArchite");
+    int listSize = itemValueList.size();
+    for(int i=0;i<listSize;i=i+4)
     {
-        QHash<QString,QVariant>infoHash= value.toHash();
-        QString itemPosStr = infoHash["itemPos"].toString();
-        qreal x = itemPosStr.section(",",0,0).toDouble();
-        qreal y = itemPosStr.section(",",1,1).toDouble();
+        QString posStr = itemValueList.at(i+1);
+        qreal x = posStr.section(",",0,0).toDouble();
+        qreal y = posStr.section(",",1,1).toDouble();
         QPointF point(x,y);
         GlobalGraphicsItem *currentItem=   m_globalGraphicsView->currentScene()->addGlobalGraphicsItem(point);
         if(currentItem!=nullptr)
         {
-            currentItem->setBuildName(infoHash["buildName"].toString());
-            currentItem->setIconName(infoHash["itemIcon"].toString());
-            currentItem->setItemSize(infoHash["itemSize"].toDouble());
+            currentItem->setBuildName(itemValueList.at(i));
+            currentItem->setIconName(itemValueList.at(i+3));
+            QString sizeStr= itemValueList.at(i+2);
+            currentItem->setItemSize(sizeStr.toDouble());
         }
     }
+
 }
 
 void ArchitePlanView::updateAlarmWidget(GraphicsView *currentView)
 {
-    // qDebug() << currentView;
     if(currentView!=nullptr)
     {
         int currentIndex = m_alarmWidgetHash[m_currentAlarmType].indexOf(currentView);
-        // qDebug() << "currentIndex" << currentIndex;
         if(totalPage()>1)
         {
             if(currentIndex>0&&currentIndex<totalPage()-1)
@@ -928,6 +939,7 @@ void ArchitePlanView::clearAlarm()
                 item->getItemInfo().m_currentState = tr("正常");
             }
 
+
             DataStore::clearTypeItem();
             clearAlarmWidget();
             m_alarmViewList.clear();
@@ -935,6 +947,18 @@ void ArchitePlanView::clearAlarm()
         }
     }
 
+  QList<QGraphicsItem*> globalGraphicsItemList= m_globalGraphicsView->currentScene()->items();
+  foreach (QGraphicsItem*item, globalGraphicsItemList)
+  {
+      GlobalGraphicsItem *globalGraphicsItem = dynamic_cast<GlobalGraphicsItem*>(item);
+      if(globalGraphicsItem!=nullptr)
+      {
+          if(globalGraphicsItem->animalIsRunning())
+          {
+              globalGraphicsItem->startAnimal(false);
+          }
+      }
+  }
     emit clearAlarmFromTable();
 }
 

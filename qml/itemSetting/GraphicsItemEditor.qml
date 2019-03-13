@@ -22,9 +22,12 @@ Item {
         id: swipView
         currentIndex: 0
         anchors.fill: parent
+
         anchors.leftMargin: 20
         anchors.bottomMargin: 20
         anchors.topMargin: 40
+        anchors.bottom: parent.bottom
+
         interactive: false
         Item {
 
@@ -36,24 +39,6 @@ Item {
                 columnSpacing: 5
                 rowSpacing: 5
                 columns: 4
-
-                //                Text {
-
-                //                    text: qsTr("状态:")
-                //                    height: 40
-                //                    verticalAlignment: Text.AlignVCenter
-                //                }
-                //                ComboBox {
-                //                    id: alarmTypeComboBox
-                //                    Layout.fillWidth: true
-                //                    width: 150
-                //                    height: 40
-                //                    model: [qsTr("正常"), qsTr("火警"), qsTr("联动"), qsTr("监管"), qsTr(
-                //                            "故障"), qsTr("反馈"), qsTr("屏蔽")]
-                //                    onCurrentTextChanged: {
-                //                        emit: setItemInfo("alarmType", currentText)
-                //                    }
-                //                }
                 Text {
                     text: qsTr("设备:")
                     height: 40
@@ -159,39 +144,6 @@ Item {
                     }
                 }
 
-                //                Text {
-
-                //                    text: qsTr("建筑名称:")
-                //                    height: 40
-                //                    verticalAlignment: Text.AlignVCenter
-                //                }
-                //                TextField {
-                //                    id: buildingNameTextField
-                //                    Layout.fillWidth: true
-                //                    width: 150
-                //                    height: 40
-                //                    onTextEdited: {
-                //                        emit: setItemInfo("buildingName",
-                //                                          buildingNameTextField.text)
-                //                    }
-                //                }
-
-                //                Text {
-
-                //                    text: qsTr("楼层:")
-                //                    height: 40
-                //                    verticalAlignment: Text.AlignVCenter
-                //                }
-                //                TextField {
-                //                    id: floorOfDeviceTextField
-                //                    Layout.fillWidth: true
-                //                    width: 150
-                //                    height: 40
-                //                    onTextEdited: {
-                //                        emit: setItemInfo("floorOfDevice",
-                //                                          floorOfDeviceTextField.text)
-                //                    }
-                //                }
                 Text {
 
                     text: qsTr("位置:")
@@ -221,13 +173,6 @@ Item {
                     width: 150
                     height: 40
                     verticalAlignment: Text.AlignVCenter
-
-                    // verticalAlignment: Text.AlignVCenter
-
-                    //                    onTextEdited: {
-                    //                        emit: setItemInfo("periodOfValidity",
-                    //                                          periodOfValidityText.text)
-                    //                    }
                 }
 
                 Text {
@@ -280,7 +225,7 @@ Item {
         id: indicator
         count: swipView.count
         currentIndex: swipView.currentIndex
-        anchors.bottom: swipView.bottom
+        anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
     }
     Row {
@@ -341,13 +286,6 @@ Item {
         deviceSysTextField.text = sysOfDevice
     }
 
-    //    function setBuildingName(buildingName) {
-    //        buildingNameTextField.text = buildingName
-    //    }
-
-    //    function setFloorOfDevice(floorOfDevice) {
-    //        floorOfDeviceTextField.text = floorOfDevice
-    //    }
     function setDeviceLocation(deviceLocation) {
         deviceLocationTextField.text = deviceLocation
     }

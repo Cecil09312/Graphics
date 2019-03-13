@@ -53,15 +53,17 @@ TreeView::TreeView(QWidget *parent):
                     break;
                 }
             }
-
         }
 
         if(isCanClear)
         {
-            QMessageBox::critical(this,"警告","存在报警信息，消除报警才能清除");
-            return;
+            QMessageBox::critical(this,tr("警告"),tr("存在报警信息，消除报警才能清除"));
         }
-        clearItem();
+        else
+        {
+           clearItem();
+        }
+
     });
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this,&TreeView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)
@@ -85,20 +87,37 @@ TreeView::TreeView(QWidget *parent):
                 if(stdItem!=nullptr && stdItem->parent()!=nullptr)
                 {
                     m_editAction->setEnabled(true);
+                    m_deleteAction->setEnabled(true);
+                    m_addChildAction->setEnabled(false);
                 }
-                else
+                else if(stdItem==nullptr)
                 {
                     m_editAction->setEnabled(false);
+                    m_deleteAction->setEnabled(false);
+                    m_addChildAction->setEnabled(false);
+                }
+                else if(stdItem!=nullptr && stdItem->parent()==nullptr)
+                {
+                    m_editAction->setEnabled(false);
+                    m_deleteAction->setEnabled(true);
+                    m_addChildAction->setEnabled(true);
                 }
             }
             else
             {
                 m_editAction->setEnabled(false);
+                m_deleteAction->setEnabled(false);
+                m_addChildAction->setEnabled(false);
             }
 
-            m_deleteAction->setEnabled(true);
-            m_clearAction->setEnabled(true);
-            m_addChildAction->setEnabled(true);
+            if(m_stdModel->rowCount()>0)
+            {
+                m_clearAction->setEnabled(true);
+            }
+            else
+            {
+                m_clearAction->setEnabled(false);
+            }
         }
 
         m_treeSettingMenu->exec(QCursor::pos());
@@ -256,7 +275,7 @@ void TreeView::deleteTreeItem(QModelIndex index)
         {
             if(view->haveAnyAlarm())
             {
-                QMessageBox::critical(this,"警告","存在报警，消除报警后才能删除");
+                QMessageBox::critical(this,tr("警告"),tr("存在报警，消除报警后才能删除"));
                 return;
             }
         }
@@ -352,7 +371,7 @@ void TreeView::initMenu()
 {
     m_treeSettingMenu = new QMenu;
     //m_addAction  = new QAction(tr("添加楼层"),m_treeSettingMenu);
-    m_addChildAction = new QAction(tr("增加楼层"),m_treeSettingMenu);
+    m_addChildAction = new QAction(tr("添加楼层"),m_treeSettingMenu);
     m_editAction = new QAction(tr("编辑"),m_treeSettingMenu);
     m_deleteAction= new QAction(tr("删除"),m_treeSettingMenu);
     m_clearAction= new QAction(tr("清空"),m_treeSettingMenu);

@@ -49,25 +49,71 @@ GraphicsScene::GraphicsScene(QObject *parent):
     });
     connect(m_clearAction,&QAction::triggered,this,[=]()
     {
+        bool isHavingAlarm = false;
         foreach (QGraphicsItem*item, m_itemList)
         {
-            removeItem(item);
+            GraphicsItem * graphicsItem = dynamic_cast<GraphicsItem *>(item);
+            if(graphicsItem!=nullptr)
+            {
+                if(graphicsItem->currentState()!=tr("正常"))
+                {
+                    isHavingAlarm = true;
+                    break;
+                }
+            }
         }
-        m_itemList.clear();
-        DataStore::clearTypeItem();
+        if(!isHavingAlarm)
+        {
+            foreach (QGraphicsItem*item, m_itemList)
+            {
+                removeItem(item);
+            }
+            m_itemList.clear();
+            DataStore::clearTypeItem();
+        }
+        else
+        {
+            QMessageBox::critical(nullptr,tr("警告"),tr("存在报警信息，不能被清空"));
+        }
+
     });
     connect(m_deleteSelectedAction,&QAction::triggered,this,[=]()
     {
         QList<QGraphicsItem*>itemList =selectedItems();
+        bool isHavingAlarm = false;
         foreach (QGraphicsItem*item,itemList)
         {
-            if(item!=nullptr)
+            GraphicsItem *graphicsItem = dynamic_cast<GraphicsItem*>(item);
+
+            if(graphicsItem!=nullptr)
             {
-                removeItem(item);
-                m_itemList.removeOne(item);
-                DataStore::deleteTypeItem(item);
+                if(graphicsItem->currentState()!=tr("正常"))
+                {
+                    isHavingAlarm = true;
+                    break;
+                }
             }
         }
+
+        if(!isHavingAlarm)
+        {
+            foreach (QGraphicsItem*item,itemList)
+            {
+                GraphicsItem *graphicsItem = dynamic_cast<GraphicsItem*>(item);
+
+                if(graphicsItem!=nullptr)
+                {
+                    removeItem(graphicsItem);
+                    m_itemList.removeOne(graphicsItem);
+                    DataStore::deleteTypeItem(graphicsItem);
+                }
+            }
+        }
+        else
+        {
+            QMessageBox::critical(nullptr,tr("警告"),tr("存在报警信息，不能被删除"));
+        }
+
     });
     connect(m_closeAction,&QAction::triggered,this,[=]()
     {
@@ -132,9 +178,19 @@ void GraphicsScene::removeGraphicsItem(const QPointF &pointF)
     {
         if(m_itemList.contains(currentItem))
         {
-            m_itemList.removeOne(currentItem);
-            removeItem(currentItem);
-            DataStore::deleteTypeItem(currentItem);
+            GraphicsItem *graphicsItem = dynamic_cast<GraphicsItem *>(currentItem);
+            if(graphicsItem->currentState()==tr("正常"))
+            {
+                m_itemList.removeOne(currentItem);
+                removeItem(currentItem);
+                DataStore::deleteTypeItem(currentItem);
+            }
+            else
+            {
+
+                QMessageBox::critical(nullptr,tr("警告"),tr("有报警，不能被删除"));
+            }
+
         }
 
     }
@@ -161,8 +217,23 @@ void GraphicsScene::showMenu(const QPoint &point)
             {
                 m_deleteAction->setEnabled(false);
             }
-            m_clearAction->setEnabled(true);
-            m_deleteSelectedAction->setEnabled(true);
+            if(m_itemList.isEmpty())
+            {
+                m_clearAction->setEnabled(false);
+            }
+            else
+            {
+                m_clearAction->setEnabled(true);
+            }
+            if(selectedItems().isEmpty())
+            {
+                m_deleteSelectedAction->setEnabled(false);
+            }
+            else
+            {
+                m_deleteSelectedAction->setEnabled(true);
+            }
+
         }
         else
         {
@@ -187,7 +258,7 @@ void GraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
         if(Controller::instance()->getUserRight()==UserManager::Super)
         {
             if(ItemIconInfoToJson::currentIconIndex()>=0)
-            addGraphicsItem(event->scenePos().x(),event->scenePos().y());
+                addGraphicsItem(event->scenePos().x(),event->scenePos().y());
         }
     }
 }

@@ -39,7 +39,7 @@ public:
     GraphicsItem(GraphicsScene *scene);
     ~GraphicsItem();
     QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *);
+
     void startAnimations();
     void stopAnimations();
     void startColorAnimation();
@@ -85,7 +85,7 @@ public:
     Q_INVOKABLE QString &periodOfValidity();
 
 protected:
-
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
 private:

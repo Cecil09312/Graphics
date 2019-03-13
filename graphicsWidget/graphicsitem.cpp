@@ -9,7 +9,7 @@
 #include <QGraphicsView>
 int GraphicsItem::m_num =1;
 GraphicsItem::GraphicsItem(GraphicsScene *scene):
-    m_radius(12.0)
+    m_radius(20.0)
 
 {
     m_graphicsScene = scene;
@@ -23,7 +23,6 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_colorEffect->setStrength(0.0);
     setProperty("color",m_color);
     setProperty("scale",m_radius);
-
     m_colorAnimation = new QPropertyAnimation(this,"color");
     m_colorAnimation->setStartValue(QColor(Qt::black));
     m_colorAnimation->setEndValue(QColor(Qt::red));
@@ -41,7 +40,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_parallelAnimGroup->addAnimation(m_scaleAnimation);
     m_parallelAnimGroup->setLoopCount(-1);
 
-    m_itemTextFont.setPointSize(6);
+    m_itemTextFont.setPointSize(12);
     m_itemTextFont.setFamily("Times New Roman");
     setAcceptHoverEvents(true);
     m_itemInfo.m_deviceNum = QString("%1").arg(m_num++);
@@ -127,6 +126,7 @@ QRectF GraphicsItem::boundingRect() const
 void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*option, QWidget */*widget*/)
 {
 
+
     painter->setFont(m_itemTextFont);
     if(m_iconName.endsWith(".svg"))
     {
@@ -148,9 +148,9 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*optio
         {
             if(!QPixmap(m_iconName).isNull())
             {
-                painter->drawPixmap(-12,-12,12,12,QPixmap(m_iconName));
+                painter->drawPixmap(-20,-20,20,20,QPixmap(m_iconName));
             }
-            painter->drawText(QRectF(-12,-12,12,12),m_itemInfo.m_deviceNum);
+            painter->drawText(QRectF(-20,-20,20,20),m_itemInfo.m_deviceNum);
         }
 
 
@@ -171,7 +171,7 @@ void GraphicsItem::setColor(const QColor &color)
 
 void GraphicsItem::startAnimations()
 {
-   m_colorEffect->setStrength(1.0);
+    m_colorEffect->setStrength(1.0);
     m_parallelAnimGroup->start();
 }
 

@@ -3,12 +3,12 @@
 #include "control/controller.h"
 #include <QDebug>
 GlobalGraphicsItem::GlobalGraphicsItem(GlobalGraphicsScene *scene)
-    :m_radius(20.0)
+    :m_radius(50.0)
 {
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);
     m_scene = scene;
-    m_iconName = ":/images/fireAlarm.png";
+    m_iconName = ":/images/build.png";
     setProperty("size",m_radius);
     m_propertyAnimation = new QPropertyAnimation(this,"size");
     m_propertyAnimation->setDuration(1000);
@@ -17,16 +17,14 @@ GlobalGraphicsItem::GlobalGraphicsItem(GlobalGraphicsScene *scene)
     m_propertyAnimation->setLoopCount(-1);
     connect(m_propertyAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &value)
     {
-        m_radius = value.toDouble();
-        m_scene->update();
+        setItemSize(value.toDouble());
     });
 
     connect(m_propertyAnimation,&QPropertyAnimation::stateChanged,this,[=](QAbstractAnimation::State newState, QAbstractAnimation::State oldState)
     {
         if(oldState==QAbstractAnimation::Running&&newState==QAbstractAnimation::Stopped)
         {
-            m_radius = 20.0;
-            m_scene->update();
+            setItemSize(50.0);
         }
     });
 
@@ -40,6 +38,7 @@ GlobalGraphicsItem::~GlobalGraphicsItem()
 void GlobalGraphicsItem::setIconName(const QString &name)
 {
     m_iconName = name;
+    m_scene->update();
 }
 
 QString GlobalGraphicsItem::iconName()
@@ -56,6 +55,7 @@ void GlobalGraphicsItem::setItemSize(qreal radius)
 {
     m_radius = radius;
     m_scene->update();
+
 }
 
 void GlobalGraphicsItem::setHoverText(const QString &hoverText)
@@ -71,6 +71,8 @@ QString GlobalGraphicsItem::buildName()
 void GlobalGraphicsItem::setBuildName(const QString &name)
 {
     m_buildName = name;
+    m_scene->update();
+
 }
 
 void GlobalGraphicsItem::startAnimal(bool isStart)
@@ -83,6 +85,19 @@ void GlobalGraphicsItem::startAnimal(bool isStart)
     {
         m_propertyAnimation->stop();
     }
+}
+
+bool GlobalGraphicsItem::animalIsRunning()
+{
+    if(m_propertyAnimation->state()==QAbstractAnimation::Running)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+
 }
 
 QRectF GlobalGraphicsItem::boundingRect() const
@@ -103,11 +118,14 @@ QRectF GlobalGraphicsItem::boundingRect() const
 
 void GlobalGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
 {
+    QFont font;
+    font.setPointSize(14);
+    painter->setFont(font);
     if(m_iconName.endsWith(".svg"))
     {
         QSvgRenderer renderer(m_iconName);
         renderer.render(painter,QRectF(-m_radius,-m_radius,m_radius*2,m_radius*2));
-        //painter->drawText(QRect(-m_radius,-m_radius,m_radius,m_radius),m_itemInfo.m_deviceNum);
+        painter->drawText(QRect(-m_radius,-m_radius,m_radius,m_radius),m_buildName);
     }
     else
     {
@@ -117,15 +135,15 @@ void GlobalGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
             {
                 painter->drawPixmap(-m_radius,-m_radius,m_radius*2,m_radius*2,QPixmap(m_iconName));
             }
-            //painter->drawText(QRect(-m_radius,-m_radius,m_radius,m_radius),m_itemInfo.m_deviceNum);
+            painter->drawText(QRect(-m_radius,-m_radius,m_radius,m_radius),m_buildName);
         }
         else
         {
             if(!QPixmap(m_iconName).isNull())
             {
-                painter->drawPixmap(-12,-12,12,12,QPixmap(m_iconName));
+                painter->drawPixmap(-50,-50,50,50,QPixmap(m_iconName));
             }
-            // painter->drawText(QRectF(-12,-12,12,12),m_itemInfo.m_deviceNum);
+             painter->drawText(QRectF(-50,-50,50,50),m_buildName);
         }
     }
 

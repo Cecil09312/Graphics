@@ -43,7 +43,6 @@ private:
     QQuickView *m_loginQuickView;
     QQuickView *m_alarmQuickView;
     QQuickView *m_settingView;
-    //QQmlApplicationEngine *m_settingViewEngine;
     SqlManager *m_sqliteManager;
     QObject *m_alarmObj;
 };

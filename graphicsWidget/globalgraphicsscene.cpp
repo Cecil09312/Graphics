@@ -35,8 +35,15 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
         GlobalGraphicsItem *item = dynamic_cast<GlobalGraphicsItem *>(graphicsItem);
         if(item!=nullptr)
         {
-            removeItem(graphicsItem);
-            emit deleteGlobalItem(item);
+            if(!item->animalIsRunning())
+            {
+                removeItem(graphicsItem);
+                emit deleteGlobalItem(item);
+            }
+            else
+            {
+                QMessageBox::critical(nullptr,tr("信息警告"),tr("有报警信息存在，不能被删除"));
+            }
         }
     });
 
@@ -49,8 +56,15 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
             GlobalGraphicsItem *item=  dynamic_cast<GlobalGraphicsItem *>(currentItem);
             if(item!=nullptr)
             {
-                removeItem(item);
-                emit deleteGlobalItem(item);
+                if(!item->animalIsRunning())
+                {
+                    removeItem(item);
+                    emit deleteGlobalItem(item);
+                }
+                else
+                {
+                    QMessageBox::critical(nullptr,tr("信息警告"),tr("有报警信息存在，不能被删除"));
+                }
             }
         }
     });
@@ -67,13 +81,39 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
     {
         QGraphicsItem *graphicsItem =  itemAt(m_pointF,QTransform());
         GlobalGraphicsItem *item = dynamic_cast<GlobalGraphicsItem *>(graphicsItem);
-        emit goToArchitePlan(item);
+        if(item!=nullptr)
+        {
+            emit goToArchitePlan(item);
+        }
+
     });
-    connect(m_clearItemAction,&QAction::triggered,this,&GlobalGraphicsScene::clearItem);
+    connect(m_clearItemAction,&QAction::triggered,this,[=]()
+    {
+        QList<QGraphicsItem*>itemList=  items();
+        bool isHaveAlarm = false;
+        foreach (QGraphicsItem*item, itemList)
+        {
+            GlobalGraphicsItem *globalGraphics = dynamic_cast<GlobalGraphicsItem*>(item);
+            if(globalGraphics!=nullptr)
+            {
+                if(globalGraphics->animalIsRunning())
+                {
+                    isHaveAlarm = true;
+                    break;
+                }
+            }
+        }
+        if(!isHaveAlarm)
+        {
+            emit clearItem();
+        }
+        else
+        {
+            QMessageBox::critical(nullptr,tr("信息警告"),tr("有报警信息存在，不能被清空"));
+        }
+    });
     Q_ASSERT(m_globalItemObj);
     connect(m_globalItemObj,SIGNAL(setItemValue(qreal)),this,SLOT(setCurrentItemSize(qreal)));
-
-
 
 }
 
@@ -86,21 +126,52 @@ GlobalGraphicsScene::~GlobalGraphicsScene()
 
 void GlobalGraphicsScene::showMenu(const QPoint &point)
 {
+    QGraphicsItem *graphicsItem =  itemAt(m_pointF,QTransform());
+    GlobalGraphicsItem *item = dynamic_cast<GlobalGraphicsItem *>(graphicsItem);
     if(Controller::instance()->getUserRight()!=UserManager::Super)
     {
         m_removeItemAction->setEnabled(false);
         m_editItemAction->setEnabled(false);
         m_removeSelectItemAction->setEnabled(false);
         m_clearItemAction->setEnabled(false);
-
     }
     else
     {
-        m_removeItemAction->setEnabled(true);
-        m_editItemAction->setEnabled(true);
-        m_removeSelectItemAction->setEnabled(true);
-        m_clearItemAction->setEnabled(true);
-
+        if(items().size()>1)
+        {
+            if(item!=nullptr)
+            {
+                m_removeItemAction->setEnabled(true);
+                m_editItemAction->setEnabled(true);
+            }
+            else
+            {
+                m_removeItemAction->setEnabled(false);
+                m_editItemAction->setEnabled(false);
+            }
+            m_clearItemAction->setEnabled(true);
+        }
+        else
+        {
+            m_removeItemAction->setEnabled(false);
+            m_clearItemAction->setEnabled(false);
+        }
+        if(selectedItems().isEmpty())
+        {
+            m_removeSelectItemAction->setEnabled(false);
+        }
+        else
+        {
+            m_removeSelectItemAction->setEnabled(true);
+        }
+    }
+    if(item!=nullptr)
+    {
+        m_goToAchitePlanAction->setEnabled(true);
+    }
+    else
+    {
+        m_goToAchitePlanAction->setEnabled(false);
     }
     m_menu->exec(point);
 }

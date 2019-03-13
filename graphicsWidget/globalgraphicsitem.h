@@ -18,7 +18,7 @@ public:
     GlobalGraphicsItem(GlobalGraphicsScene*scene= nullptr);
     ~GlobalGraphicsItem();
     QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *);
+
     void setIconName(const QString &name);
     QString iconName();
     qreal itemSize();
@@ -27,9 +27,10 @@ public:
     QString buildName();
     void setBuildName(const QString &name);
     void startAnimal(bool isStart);
+    bool animalIsRunning();
 
 protected:
-
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
 private:

@@ -35,6 +35,7 @@ Rectangle {
         }
 
         Button {
+            id: resetBtn
             // anchors.leftMargin: 20
             Layout.alignment: Qt.AlignRight
             text: qsTr("复位")
@@ -47,6 +48,12 @@ Rectangle {
                 ArchitePlanView.clearAlarm()
                 allAlarmClear()
                 autoSwitchCheckBox.checked = false
+            }
+            onPressed: {
+                highlighted = true
+            }
+            onReleased: {
+                highlighted = false
             }
         }
 
@@ -342,6 +349,13 @@ Rectangle {
             onClicked: {
 
             }
+
+            onPressed: {
+                highlighted = true
+            }
+            onReleased: {
+                highlighted = false
+            }
         }
 
         Button {
@@ -353,6 +367,13 @@ Rectangle {
             text: qsTr("报警平面")
             onClicked: {
                 ArchitePlanView.toAlarmView()
+                // ArchitePlanView.createAlarm("0", "0", "2", qsTr("火警"))
+            }
+            onPressed: {
+                highlighted = true
+            }
+            onReleased: {
+                highlighted = false
             }
         }
         ComboBox {
@@ -377,6 +398,12 @@ Rectangle {
             onClicked: {
                 ArchitePlanView.toPreviousPage()
             }
+            onPressed: {
+                highlighted = true
+            }
+            onReleased: {
+                highlighted = false
+            }
         }
 
         Button {
@@ -388,6 +415,12 @@ Rectangle {
             text: qsTr("下一页")
             onClicked: {
                 ArchitePlanView.toNextPage()
+            }
+            onPressed: {
+                highlighted = true
+            }
+            onReleased: {
+                highlighted = false
             }
         }
 
