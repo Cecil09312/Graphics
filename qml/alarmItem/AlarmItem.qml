@@ -366,8 +366,8 @@ Rectangle {
             font.family: qsTr("Times New Roman")
             text: qsTr("报警平面")
             onClicked: {
-                ArchitePlanView.toAlarmView()
-                // ArchitePlanView.createAlarm("0", "0", "2", qsTr("火警"))
+                // ArchitePlanView.toAlarmView()
+                ArchitePlanView.createAlarm("0", "0", "2", qsTr("火警"))
             }
             onPressed: {
                 highlighted = true

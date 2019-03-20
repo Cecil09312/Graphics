@@ -13,7 +13,7 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
         Text {
-            text: qsTr("建筑物名称")
+            text: qsTr("建筑名称")
             Layout.row: 0
             Layout.column: 0
         }
@@ -36,20 +36,43 @@ Rectangle {
         }
 
         Text {
-            text: qsTr("图标")
+            text: qsTr("值班人员")
             Layout.row: 1
             Layout.column: 0
         }
 
         TextField {
-            id: iconTextField
+            id: personOnDutyTextField
             Layout.row: 1
             Layout.column: 1
         }
 
         Button {
-            id: iconSelectBtn
+            id: personOnDutySettingBtn
             Layout.row: 1
+            Layout.column: 2
+            text: qsTr("设置")
+            onClicked: {
+                GlobalItemSettingView.setPersonOnDuty(
+                            personOnDutyTextField.text)
+            }
+        }
+
+        Text {
+            text: qsTr("图标")
+            Layout.row: 2
+            Layout.column: 0
+        }
+
+        TextField {
+            id: iconTextField
+            Layout.row: 2
+            Layout.column: 1
+        }
+
+        Button {
+            id: iconSelectBtn
+            Layout.row: 2
             Layout.column: 2
             text: qsTr("选择图标")
             onClicked: {
@@ -60,12 +83,12 @@ Rectangle {
         Text {
 
             text: qsTr("大小")
-            Layout.row: 2
+            Layout.row: 3
             Layout.column: 0
         }
         SpinBox {
             id: spinBox
-            Layout.row: 2
+            Layout.row: 3
             Layout.column: 1
 
             Layout.fillWidth: true
@@ -90,7 +113,6 @@ Rectangle {
             }
             onValueChanged: {
                 emit: setItemValue(value)
-                //GlobalItemSettingView.setCurrentItemSize(value / 10.0)
             }
         }
     }
@@ -117,9 +139,8 @@ Rectangle {
 
         iconTextField.text = name
     }
-    //    Component.onCompleted: {
-    //        buildNameTextField.text = GlobalItemSettingView.currentBuildName()
-    //        spinBox.value = GlobalItemSettingView.currentItemSize()
-    //        iconTextField.text = GlobalItemSettingView.currentItemIcon()
-    //    }
+
+    function setPersonOnDuty(person) {
+        personOnDutyTextField.text = person
+    }
 }

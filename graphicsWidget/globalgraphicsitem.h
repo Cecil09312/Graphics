@@ -14,6 +14,7 @@ class GlobalGraphicsItem : public QObject,public QGraphicsItem
     Q_PROPERTY(QString iconName READ iconName WRITE setIconName)
     Q_PROPERTY(qreal itemSize READ itemSize WRITE setItemSize)
     Q_PROPERTY(QString buildName READ buildName WRITE setBuildName)
+    Q_PROPERTY(QString personOnDuty READ personOnDuty WRITE setPersonOnDuty)
 public:
     GlobalGraphicsItem(GlobalGraphicsScene*scene= nullptr);
     ~GlobalGraphicsItem();
@@ -28,6 +29,8 @@ public:
     void setBuildName(const QString &name);
     void startAnimal(bool isStart);
     bool animalIsRunning();
+    QString personOnDuty();
+    void setPersonOnDuty(const QString&name);
 
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *);
@@ -39,6 +42,7 @@ private:
     qreal m_radius;
     QString m_hoverText;
     QString m_buildName;
+    QString m_personOnDuty;
     QPropertyAnimation *m_propertyAnimation;
 };
 

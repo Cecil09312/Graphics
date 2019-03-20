@@ -19,10 +19,11 @@ CrtWidget::CrtWidget(QWidget *parent) :
     QOpenGLWidget(parent)
 {
 
-    initWidget();
-
     setWindowFlags(Qt::FramelessWindowHint|Qt::Window);
     QString dbName = QCoreApplication::applicationDirPath()+"/alarmInfo.db";
+    m_alarmInfoDbName = dbName;
+    initWidget();
+
     m_sqliteManager->setDataBase("QSQLITE","alarmInfo","","","",dbName,888);
     m_sqliteManager->open();
     if(m_sqliteManager->isOpen())
@@ -30,7 +31,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
         QStringList tableNameList = m_sqliteManager->getTables(dbName);
         if(!tableNameList.contains("AlarmInfo"))
         {
-            m_sqliteManager->executeQuery("create table AlarmInfo(分机号 text, 回路号 text,地址号 text,设备编号 text ,设备 text,状态 text,报警时间 text,报警恢复时间 text,系统 text,建筑名称 text,楼层 text,位置 text,制造商 text,有效期 text)");
+            m_sqliteManager->executeQuery("create table AlarmInfo(分机号 text, 回路号 text,地址号 text,设备编码 text ,设备 text,报警状态 text,报警时间 text,报警恢复时间 text,系统 text,建筑名称 text,楼层 text,位置 text,制造商 text,有效期 text,操作员 text)");
         }
     }
 
@@ -41,8 +42,8 @@ CrtWidget::CrtWidget(QWidget *parent) :
     m_infoTableView->tableModel()->setDbOpen(true);
     // m_infoTableView->tableModel()->sqlCommit("select *from AlarmInfo");
     QStringList alarmInfoList,valueList;
-    alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"设备编号"
-                  << "设备"<<"状态"<<"报警时间"<<"报警恢复时间"<<"系统"<< "建筑名称"<<"楼层"<<"位置"<< "制造商" << "有效期";
+    alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"设备编码"
+                  << "设备"<<"报警状态"<<"报警时间"<<"报警恢复时间"<<"系统"<< "建筑名称"<<"楼层"<<"位置"<< "制造商" << "有效期" <<"操作员";
 
     for(int i=0;i<alarmInfoList.size();i++)
     {
@@ -56,13 +57,13 @@ CrtWidget::CrtWidget(QWidget *parent) :
         m_sqliteManager->executeQuery(sqlInfo.arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->deviceNum())
                                       .arg(item->equipmentModel()).arg(item->currentState()).arg(item->getItemInfo().m_alarmTime)
                                       .arg(item->getItemInfo().m_alarmReplyTime).arg(item->sysOfDevice()).arg(item->buildingName())
-                                      .arg(item->floorOfDevice()).arg(item->deviceLocation()).arg(item->manufacturers()).arg(item->periodOfValidity()));
+                                      .arg(item->floorOfDevice()).arg(item->deviceLocation()).arg(item->manufacturers()).arg(item->periodOfValidity()).arg(item->deviceOperator()));
         alarmDataOnTable();
     });
 
     connect(m_infoTableView,&InfoTableView::tableValue,this,[=](QSqlRecord record)
     {
-        QString deviceNum=  record.value("设备编号").toString();
+        QString deviceNum=  record.value("设备编码").toString();
         QList<QList<QGraphicsItem *> > globalValueList= DataStore::getTypeItemHash().values();
         GraphicsView *view = nullptr;
         foreach (QList<QGraphicsItem *>valueList, globalValueList)
@@ -129,14 +130,14 @@ CrtWidget::CrtWidget(QWidget *parent) :
     connect(m_architePlanView,&ArchitePlanView::clearAlarmFromTable,this,[=]()
     {
         QString eliminateTime =  QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
-        m_sqliteManager->executeQuery(QString("update AlarmInfo set 报警恢复时间 ='%1',状态 = '正常' where 状态 != '正常'").arg(eliminateTime));
+        m_sqliteManager->executeQuery(QString("update AlarmInfo set 报警恢复时间 ='%1',报警状态 = '正常' where 报警状态 != '正常'").arg(eliminateTime));
         alarmDataOnTable();
     });
 
     connect(m_architePlanView,&ArchitePlanView::eliminateAlarmFromTable,this,[=](GraphicsItem *item)
     {
         QString eliminateTime =  QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
-        m_sqliteManager->executeQuery(QString("update AlarmInfo set 报警恢复时间 ='%1',状态 = '正常' where 状态 != '正常' and 设备编号 = '%2'").arg(eliminateTime).arg(item->deviceNum()));
+        m_sqliteManager->executeQuery(QString("update AlarmInfo set 报警恢复时间 ='%1',报警状态 = '正常' where 报警状态 != '正常' and 设备编码 = '%2'").arg(eliminateTime).arg(item->deviceNum()));
         alarmDataOnTable();
     });
 }
@@ -151,6 +152,19 @@ CrtWidget::~CrtWidget()
     m_settingView->deleteLater();
 }
 
+QString CrtWidget::alarmInfoDbName()
+{
+    return m_alarmInfoDbName;
+}
+
+void CrtWidget::closeEvent(QCloseEvent *event)
+{
+    m_loginQuickView->close();
+    m_settingView->close();
+    event->accept();
+}
+
+
 void CrtWidget::widgetExit()
 {
     close();
@@ -158,11 +172,17 @@ void CrtWidget::widgetExit()
 
 void CrtWidget::loginWidgetShow()
 {
+    QObject *loginObj =  m_loginQuickView->rootObject();
     m_loginQuickView->show();
+    if(loginObj!=nullptr)
+    {
+        QMetaObject::invokeMethod(loginObj,"clearLoginInfo");
+    }
 }
 
 void CrtWidget::settingWindowShow()
 {
+    m_architePlanView->saveArchiteInfoToDb();
     m_settingView->show();
 }
 
@@ -258,7 +278,7 @@ void CrtWidget::alarmStatistics(const QString &type)
 
 void CrtWidget::initWidget()
 {
-
+    Controller::instance()->setCrtWidget(this);
     qmlRegisterSingletonType<Controller>("userManager", 1, 0, "UserManager",
                                          [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
         Q_UNUSED(engine)
@@ -275,6 +295,13 @@ void CrtWidget::initWidget()
         return Controller::instance();
     });
 
+    qmlRegisterSingletonType<Controller>("crtWidget", 1, 0, "Crt",
+                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+        Q_UNUSED(engine)
+        Q_UNUSED(scriptEngine)
+
+        return Controller::instance()->getCrtWidget();
+    });
 
     qmlRegisterSingletonType<Controller>("serialConfigurationManager", 1, 0, "SerialPortInfo",
                                          [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
@@ -283,6 +310,20 @@ void CrtWidget::initWidget()
         return Controller::instance()->getSerialConfigurationManager();
     });
 
+    qmlRegisterSingletonType<Controller>("ftpConfigurationManager", 1, 0, "FtpInfo",
+                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+        Q_UNUSED(engine)
+        Q_UNUSED(scriptEngine)
+        return Controller::instance()->getFtpConfigurationManager();
+    });
+
+
+    qmlRegisterSingletonType<Controller>("tcpConfigurationManager", 1, 0, "TcpInfo",
+                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+        Q_UNUSED(engine)
+        Q_UNUSED(scriptEngine)
+        return Controller::instance()->getTcpConfigurationManager();
+    });
 
 
     qmlRegisterSingletonType<Controller>("sysArchitePlanView", 1, 0, "SysArchitePlanView",
@@ -366,16 +407,16 @@ void CrtWidget::alarmDataOnTable()
 {
 
     QStringList alarmInfoList;
-    alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"设备编号"
-                  << "设备"<<"状态"<<"报警时间"<<"系统"
+    alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"设备编码"
+                  << "设备"<<"报警状态"<<"报警时间"<<"系统"
                   << "建筑名称"<<"楼层"<<"位置";
     if(m_architePlanView->currentAlarmType()=="全部")
     {
-        m_infoTableView->tableModel()->sqlCommit(QString("select %1 from AlarmInfo where 状态 != '正常'").arg(alarmInfoList.join(",")));
+        m_infoTableView->tableModel()->sqlCommit(QString("select %1 from AlarmInfo where 报警状态 != '正常'").arg(alarmInfoList.join(",")));
     }
     else
     {
-        m_infoTableView->tableModel()->sqlCommit(QString("select %1 from AlarmInfo where 状态 ='%2'").arg(alarmInfoList.join(",")).arg(m_architePlanView->currentAlarmType()));
+        m_infoTableView->tableModel()->sqlCommit(QString("select %1 from AlarmInfo where 报警状态 ='%2'").arg(alarmInfoList.join(",")).arg(m_architePlanView->currentAlarmType()));
     }
 }
 

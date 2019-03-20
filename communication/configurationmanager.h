@@ -29,6 +29,12 @@ public:
     Q_INVOKABLE QString currentFlowControl();
     Q_INVOKABLE int currentDataBits();
     Q_INVOKABLE int currentStopBits();
+    Q_INVOKABLE QString ftpHost();
+    Q_INVOKABLE int ftpPort();
+    Q_INVOKABLE QString ftpUser();
+    Q_INVOKABLE QString ftpPassword();
+    Q_INVOKABLE QString tcpAddr();
+    Q_INVOKABLE int tcpPort();
 
 signals:
 
@@ -41,6 +47,7 @@ private:
     QHash<QString,QVariant>m_tcpConfigurationHash;
     QHash<QString,QVariant>m_canConfigurationHash;
     QHash<QString,QVariant>m_udpConfigurationHash;
+    QHash<QString,QVariant>m_ftpConfigurationHash;
 };
 
 #endif // CONFIGURATIONMANAGER_H

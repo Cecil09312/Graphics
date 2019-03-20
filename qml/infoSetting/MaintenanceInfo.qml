@@ -82,7 +82,7 @@ Item {
         }
 
         Text {
-            text: qsTr("详细内容")
+            text: qsTr("内容描述")
         }
 
         TextArea {
@@ -105,13 +105,17 @@ Item {
             text: qsTr("建筑名称")
         }
 
-        ComboBox {
+        TextField {
+            id: buildingNameTextField
+            width: 150
         }
         Text {
             text: qsTr("楼层")
         }
 
-        ComboBox {
+        TextField {
+            id: floorTextField
+            width: 150
         }
 
         Text {
@@ -119,13 +123,17 @@ Item {
         }
 
         TextField {
+            id: locationTextField
+            width: 150
         }
 
         Text {
             text: qsTr("系统")
         }
 
-        ComboBox {
+        TextField {
+            id: sysTextField
+            width: 150
         }
     }
 

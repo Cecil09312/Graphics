@@ -17,6 +17,7 @@
 #include "database/sqlmanager.h"
 #include "dataStore/abstractdataprotocol.h"
 #include "dataStore/serialdataprotocol.h"
+#include <QCloseEvent>
 class CrtWidget : public QOpenGLWidget
 {
     Q_OBJECT
@@ -24,6 +25,9 @@ class CrtWidget : public QOpenGLWidget
 public:
     explicit CrtWidget(QWidget *parent = 0);
     ~CrtWidget();
+    Q_INVOKABLE QString alarmInfoDbName();
+protected:
+    void closeEvent(QCloseEvent *event);
 
 public slots:
     void widgetExit();
@@ -45,6 +49,7 @@ private:
     QQuickView *m_settingView;
     SqlManager *m_sqliteManager;
     QObject *m_alarmObj;
+    QString m_alarmInfoDbName;
 };
 
 #endif // CRTWIDGET_H

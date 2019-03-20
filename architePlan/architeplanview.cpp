@@ -302,6 +302,7 @@ void ArchitePlanView::initWidget()
     setLayout(globalHLayout);
     Controller::instance()->setSysArchitePlanView(m_sysArchitePlanView);
     QString dbName = QCoreApplication::applicationDirPath()+"/architeInfo.db";
+    m_architeInfoDbName = dbName;
     m_sqliteManager = SqlManager::fromDriver("QSQLITE");
 
     m_sqliteManager->setDataBase("QSQLITE","info", "",
@@ -313,12 +314,12 @@ void ArchitePlanView::initWidget()
 
         if(!tableNameList.contains("ItemInfo"))
         {
-            m_sqliteManager->executeQuery("create table ItemInfo(extNum text,addrNum text,loopNum text,buildingName text,currentState text,deviceLocation text ,deviceNum text,equipmentModel text,floorOfDevice text,iconName text,manufacturers text,periodOfValidity text,pos text,size double,sysOfDevice text)");
+            m_sqliteManager->executeQuery("create table ItemInfo(extNum text,addrNum text,loopNum text,buildingName text,currentState text,deviceLocation text ,deviceNum text,equipmentModel text,floorOfDevice text,iconName text,manufacturers text,periodOfValidity text,pos text,size double,sysOfDevice text,operator text)");
         }
 
         if(!tableNameList.contains("GlobalArchite"))
         {
-            m_sqliteManager->executeQuery("create table GlobalArchite(buildingName text, pos text,size double,iconName text)");
+            m_sqliteManager->executeQuery("create table GlobalArchite(buildingName text,personOnDuty text, pos text,size double,iconName text)");
         }
     }
 
@@ -449,65 +450,7 @@ void ArchitePlanView::saveArchiteInfo()
     }
 
     JsonEdit::instance()->writeFile(c_jsonFilePath);
-
-    m_sqliteManager->executeQuery("delete from ItemInfo");
-    QList<int> keyValueList= m_widgetMap.keys();
-    foreach (int value, keyValueList)
-    {
-        GraphicsView *view=  m_widgetMap.value(value);
-        if(view!=nullptr)
-        {
-            QList<QVariant>valueList,extNumList,addrNumList,loopNumList,buildingNameList,
-                    currentStateList,deviceLocationList,deviceNumList,equipmentModelList,floorOfDeviceList,
-                    iconNameList,manufacturersList,periodOfValidityList,posList,sizeList,sysOfDeviceList;
-            QList<QGraphicsItem *> itemList= view->getItemList();
-            foreach (QGraphicsItem *item, itemList)
-            {
-                GraphicsItem*currentItem = dynamic_cast<GraphicsItem*>(item);
-                if(currentItem!=nullptr)
-                {
-                    extNumList.push_back( currentItem->extNum());
-                    addrNumList.push_back(currentItem->addrNum());
-                    loopNumList.push_back(currentItem->loopNum());
-                    buildingNameList.push_back(currentItem->buildingName());
-                    currentStateList.push_back(currentItem->currentState());
-                    deviceLocationList.push_back(currentItem->deviceLocation());
-                    deviceNumList.push_back(currentItem->deviceNum());
-                    equipmentModelList.push_back(currentItem->equipmentModel());
-                    floorOfDeviceList.push_back(currentItem->floorOfDevice());
-                    iconNameList.push_back(currentItem->iconName());
-                    manufacturersList.push_back(currentItem->manufacturers());
-                    periodOfValidityList.push_back(currentItem->periodOfValidity());
-                    posList.push_back(QString("%1,%2").arg(currentItem->scenePos().x()).arg(currentItem->scenePos().y()));
-                    sizeList.push_back(currentItem->radius());
-                    sysOfDeviceList.push_back(currentItem->sysOfDevice());
-                }
-            }
-
-            valueList.push_back(extNumList);
-            valueList.push_back(addrNumList);
-            valueList.push_back(loopNumList);
-            valueList.push_back(buildingNameList);
-
-            valueList.push_back(currentStateList);
-            valueList.push_back(deviceLocationList);
-            valueList.push_back(deviceNumList);
-            valueList.push_back(equipmentModelList);
-
-
-            valueList.push_back(floorOfDeviceList);
-            valueList.push_back(iconNameList);
-            valueList.push_back(manufacturersList);
-            valueList.push_back(periodOfValidityList);
-
-            valueList.push_back(posList);
-            valueList.push_back(sizeList);
-            valueList.push_back(sysOfDeviceList);
-            m_sqliteManager->insertBatch("ItemInfo",valueList);
-
-        }
-    }
-
+    saveArchiteInfoToDb();
 }
 
 void ArchitePlanView::autoFitView(QGraphicsView *view)
@@ -602,6 +545,65 @@ QStandardItem *ArchitePlanView::getParnentItemFromView(GraphicsView *view)
     }
 }
 
+void ArchitePlanView::saveArchiteInfoToDb()
+{
+    m_sqliteManager->executeQuery("delete from ItemInfo");
+    QList<int> keyValueList= m_widgetMap.keys();
+    foreach (int value, keyValueList)
+    {
+        GraphicsView *view=  m_widgetMap.value(value);
+        if(view!=nullptr)
+        {
+            QList<QVariant>valueList,extNumList,addrNumList,loopNumList,buildingNameList,
+                    currentStateList,deviceLocationList,deviceNumList,equipmentModelList,floorOfDeviceList,
+                    iconNameList,manufacturersList,periodOfValidityList,posList,sizeList,sysOfDeviceList,operatorList;
+            QList<QGraphicsItem *> itemList= view->getItemList();
+            foreach (QGraphicsItem *item, itemList)
+            {
+                GraphicsItem*currentItem = dynamic_cast<GraphicsItem*>(item);
+                if(currentItem!=nullptr)
+                {
+                    extNumList.push_back( currentItem->extNum());
+                    addrNumList.push_back(currentItem->addrNum());
+                    loopNumList.push_back(currentItem->loopNum());
+                    buildingNameList.push_back(currentItem->buildingName());
+                    currentStateList.push_back(currentItem->currentState());
+                    deviceLocationList.push_back(currentItem->deviceLocation());
+                    deviceNumList.push_back(currentItem->deviceNum());
+                    equipmentModelList.push_back(currentItem->equipmentModel());
+                    floorOfDeviceList.push_back(currentItem->floorOfDevice());
+                    iconNameList.push_back(currentItem->iconName());
+                    manufacturersList.push_back(currentItem->manufacturers());
+                    periodOfValidityList.push_back(currentItem->periodOfValidity());
+                    posList.push_back(QString("%1,%2").arg(currentItem->scenePos().x()).arg(currentItem->scenePos().y()));
+                    sizeList.push_back(currentItem->radius());
+                    sysOfDeviceList.push_back(currentItem->sysOfDevice());
+                    operatorList.push_back(currentItem->deviceOperator());
+                }
+            }
+
+            valueList.push_back(extNumList);
+            valueList.push_back(addrNumList);
+            valueList.push_back(loopNumList);
+            valueList.push_back(buildingNameList);
+            valueList.push_back(currentStateList);
+            valueList.push_back(deviceLocationList);
+            valueList.push_back(deviceNumList);
+            valueList.push_back(equipmentModelList);
+            valueList.push_back(floorOfDeviceList);
+            valueList.push_back(iconNameList);
+            valueList.push_back(manufacturersList);
+            valueList.push_back(periodOfValidityList);
+            valueList.push_back(posList);
+            valueList.push_back(sizeList);
+            valueList.push_back(sysOfDeviceList);
+            valueList.push_back(operatorList);
+            m_sqliteManager->insertBatch("ItemInfo",valueList);
+
+        }
+    }
+}
+
 QStandardItem *ArchitePlanView::getItemFromView(GraphicsView *view)
 {
     if(view!=nullptr)
@@ -614,6 +616,11 @@ QStandardItem *ArchitePlanView::getItemFromView(GraphicsView *view)
     {
         return nullptr;
     }
+}
+
+QString ArchitePlanView::architeInfoDbName()
+{
+    return m_architeInfoDbName;
 }
 
 
@@ -637,7 +644,6 @@ QHash<QString,QVariant> ArchitePlanView::saveViewInfo(QStandardItem *item)
 
 void ArchitePlanView::initFromJsonFile()
 {
-
     m_jsonValueList=JsonEdit::instance()->readFile(c_jsonFilePath).toList();
     for(int i=0;i<m_jsonValueList.size();i++)
     {
@@ -694,9 +700,9 @@ void ArchitePlanView::initFromDataBase(GraphicsView *view,const QString &buildin
     int valueSize = valueList.size();
     if(view!=nullptr)
     {
-        if(valueSize>=15&&valueSize%15==0)
+        if(valueSize>=16&&valueSize%16==0)
         {
-            for(int j=0;j<valueSize;j=j+15)
+            for(int j=0;j<valueSize;j=j+16)
             {
                 QGraphicsScene *scene = view->scene();
                 GraphicsScene *graphicsScene = dynamic_cast<GraphicsScene*>(scene);
@@ -718,6 +724,7 @@ void ArchitePlanView::initFromDataBase(GraphicsView *view,const QString &buildin
                 QString sizeStr = valueList.at(j+13);
                 item->setRadius(sizeStr.toDouble());
                 item->sysOfDevice() =valueList.at(j+14);
+                item->deviceOperator() = valueList.at(j+15);
                 if(graphicsScene!=nullptr)
                 {
                     graphicsScene->addItem(item);
@@ -798,19 +805,21 @@ void ArchitePlanView::saveOtherArchiteInfo()
 
     m_sqliteManager->executeQuery("delete from GlobalArchite");
     QList<QGraphicsItem*> itemList=  m_globalGraphicsView->currentScene()->items();
-    QList<QVariant>buildingNameList,posList,sizeList,iconNameList,valueList;
+    QList<QVariant>buildingNameList,personOnDutyList,posList,sizeList,iconNameList,valueList;
     foreach (QGraphicsItem*graphicsItem, itemList)
     {
         GlobalGraphicsItem *globalItem = dynamic_cast<GlobalGraphicsItem *>(graphicsItem);
         if(globalItem!=nullptr)
         {
             buildingNameList.push_back(globalItem->buildName());
+            personOnDutyList.push_back(globalItem->personOnDuty());
             posList.push_back(QString("%1,%2").arg( globalItem->scenePos().x()).arg(globalItem->scenePos().y()));
             sizeList.push_back(globalItem->itemSize());
             iconNameList.push_back(globalItem->iconName());
         }
     }
     valueList.push_back(buildingNameList);
+    valueList.push_back(personOnDutyList);
     valueList.push_back(posList);
     valueList.push_back(sizeList);
     valueList.push_back(iconNameList);
@@ -828,9 +837,9 @@ void ArchitePlanView::setGlobalArchiteFromJson()
     setGlobalArchitePixmap(pixmapName);
     QStringList itemValueList=   m_sqliteManager->executeQuery("select *from GlobalArchite");
     int listSize = itemValueList.size();
-    for(int i=0;i<listSize;i=i+4)
+    for(int i=0;i<listSize;i=i+5)
     {
-        QString posStr = itemValueList.at(i+1);
+        QString posStr = itemValueList.at(i+2);
         qreal x = posStr.section(",",0,0).toDouble();
         qreal y = posStr.section(",",1,1).toDouble();
         QPointF point(x,y);
@@ -838,8 +847,9 @@ void ArchitePlanView::setGlobalArchiteFromJson()
         if(currentItem!=nullptr)
         {
             currentItem->setBuildName(itemValueList.at(i));
-            currentItem->setIconName(itemValueList.at(i+3));
-            QString sizeStr= itemValueList.at(i+2);
+            currentItem->setPersonOnDuty(itemValueList.at(i+1));
+            currentItem->setIconName(itemValueList.at(i+4));
+            QString sizeStr= itemValueList.at(i+3);
             currentItem->setItemSize(sizeStr.toDouble());
         }
     }

@@ -20,10 +20,12 @@ public:
     Q_INVOKABLE QString currentBuildName();
     Q_INVOKABLE qreal currentItemSize();
     Q_INVOKABLE QString currentItemIcon();
+    Q_INVOKABLE QString personOnDuty();
 public slots:
     void setCurrentItemSize(qreal size);
     void setCurrentItemIcon(const QString &icon);
     void setCurrentBuildName(const QString &name);
+    void setPersonOnDuty(const QString &personName);
 signals:
     void editItem();
     void goToArchitePlan(GlobalGraphicsItem*item);

@@ -15,39 +15,63 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
         columnSpacing: 5
+
         Text {
-            id: userName
-            text: qsTr("用户名")
+            id: userRight
+            text: qsTr("用户权限")
             Layout.row: 0
             Layout.column: 0
         }
         ComboBox {
-            id: userNameComboBox
+            id: userRightComboBox
             model: ["超级用户", "工程人员", "员工"]
             Layout.row: 0
             Layout.column: 1
             Layout.fillWidth: true
+            onCurrentTextChanged: {
+                if (currentText == "超级用户") {
+                    userName.visible = false
+                    userNameTextField.visible = false
+                } else {
+                    userName.visible = true
+                    userNameTextField.visible = true
+                }
+            }
         }
         Text {
-
-            id: password
-            text: qsTr("密码")
+            id: userName
+            text: qsTr("用户名")
             Layout.row: 1
             Layout.column: 0
         }
         TextField {
-            id: passwordTextField
+            id: userNameTextField
             Layout.row: 1
             Layout.column: 1
+            Layout.fillWidth: true
+            placeholderText: qsTr("用户名")
+        }
+
+        Text {
+
+            id: password
+            text: qsTr("密码")
+            Layout.row: 2
+            Layout.column: 0
+        }
+        TextField {
+            id: passwordTextField
+            Layout.row: 2
+            Layout.column: 1
             echoMode: TextInput.Password
-            placeholderText: "Password field"
+            placeholderText: qsTr("密码")
             inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase
                               | Qt.ImhSensitiveData | Qt.ImhNoPredictiveText
             Layout.fillWidth: true
         }
 
         RowLayout {
-            Layout.row: 2
+            Layout.row: 3
             Layout.column: 1
             spacing: 5
             Layout.topMargin: 10
@@ -56,20 +80,26 @@ Rectangle {
                 onClicked: {
                     var passwordStr = new String
                     var userRight = new Number
-                    if (userNameComboBox.currentText === qsTr("超级用户")) {
+                    if (userRightComboBox.currentText === qsTr("超级用户")) {
                         userRight = UserManager.Super
-                        passwordStr = UserManager.password(UserManager.Super)
-                    } else if (userNameComboBox.currentText === qsTr("工程人员")) {
+                        passwordStr = UserManager.password(UserManager.Super,
+                                                           "system")
+                    } else if (userRightComboBox.currentText === qsTr("工程人员")) {
                         userRight = UserManager.Engineer
-                        passwordStr = UserManager.password(UserManager.Engineer)
-                    } else if (userNameComboBox.currentText === qsTr("员工")) {
+                        passwordStr = UserManager.password(
+                                    UserManager.Engineer,
+                                    userNameTextField.text)
+                    } else if (userRightComboBox.currentText === qsTr("员工")) {
                         userRight = UserManager.Employee
-                        passwordStr = UserManager.password(UserManager.Employee)
+                        passwordStr = UserManager.password(
+                                    UserManager.Employee,
+                                    userNameTextField.text)
                     }
 
                     if (passwordTextField.text === passwordStr) {
 
                         UserManager.setUserRight(userRight)
+                        UserManager.setUserName(userNameTextField.text)
                         infoMessageDialog.open()
                     } else {
                         criticalMessageDialog.open()
@@ -89,7 +119,7 @@ Rectangle {
     MessageDialog {
         id: criticalMessageDialog
         title: qsTr("错误提示")
-        text: qsTr("密码错误，请重新输入......")
+        text: qsTr("密码或者用户名错误，请重新输入......")
         icon: StandardIcon.Critical
         standardButtons: StandardButton.Yes
     }
@@ -98,10 +128,20 @@ Rectangle {
         id: infoMessageDialog
         standardButtons: StandardButton.Yes | StandardButton.No
         title: qsTr("信息提示")
-        text: qsTr("密码输入正确!")
+        text: qsTr("密码输入正确!登陆成功!")
         icon: StandardIcon.Information
         onYes: {
             CrtWidget.logWidgetClose()
         }
+    }
+
+    Component.onCompleted: {
+        userName.visible = false
+        userNameTextField.visible = false
+    }
+
+    function clearLoginInfo() {
+        userNameTextField.clear()
+        passwordTextField.clear()
     }
 }

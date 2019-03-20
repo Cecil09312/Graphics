@@ -16,12 +16,13 @@ public:
         Employee
     };
     explicit UserManager(QObject *parent = nullptr);
-    Q_INVOKABLE  QString password(const UserRight& right);
-    Q_INVOKABLE  void  setPassword(const UserRight& right,const QString &userPassword);
+    Q_INVOKABLE  QString password(const UserRight& right, const QString &userName);
+    Q_INVOKABLE  void  setPassword(const UserRight& right, const QString &userPassword, const QString &userName);
     Q_INVOKABLE  QString userName();
-    Q_INVOKABLE  void setUserName(const UserRight& right,const QString &name);
+    Q_INVOKABLE  void setUserName(const QString &name);
     Q_INVOKABLE  UserRight userRight();
     Q_INVOKABLE  void setUserRight(const UserRight& right);
+    Q_INVOKABLE  void addUser(const QString &userName,const UserRight& right,const QString &password);
     ~UserManager();
 
 signals:

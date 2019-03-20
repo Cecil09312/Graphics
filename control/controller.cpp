@@ -65,6 +65,16 @@ void Controller::setArchitePlanView(ArchitePlanView *architePlanView)
     m_architePlanView = architePlanView;
 }
 
+void Controller::setCrtWidget(CrtWidget *widget)
+{
+    m_crtWidget = widget;
+}
+
+CrtWidget *Controller::getCrtWidget()
+{
+    return m_crtWidget;
+}
+
 ArchitePlanView *Controller::getArchitePlanView() const
 {
     return m_architePlanView;
@@ -103,6 +113,16 @@ ConfigurationManager *Controller::getSerialConfigurationManager()
     return m_serialConfigurationManager.data();
 }
 
+ConfigurationManager *Controller::getFtpConfigurationManager()
+{
+    return m_ftpConfigurationManager.data();
+}
+
+ConfigurationManager *Controller::getTcpConfigurationManager()
+{
+    return m_tcpConfigurationManager.data();
+}
+
 Controller::Controller()
 {
     m_commObj = QSharedPointer<AbstractLink>(new SerialLink(),&QObject::deleteLater);
@@ -112,6 +132,7 @@ Controller::Controller()
     m_serialConfigurationManager =QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new SerialConfiguration),this)) ;
     m_tcpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new TcpConfiguration),this)) ;
     m_udpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new UdpConfiguration),this)) ;
+    m_ftpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new FtpConfiguration),this));
     // m_modbusManager = QSharedPointer<ModbusManager>(new ModbusManager(Configuration(new TcpConfiguration)),&QObject::deleteLater);
    // m_udpObj->connectLink();
     // m_modbusManager.data()->connectDevice(ModbusManager::Connected);

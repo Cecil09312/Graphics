@@ -2,10 +2,13 @@
 import QtQuick.Controls 2.2
 import QtQuick.Controls 1.4 as Controls1_4
 import qmlTableModel 1.0
+import crtWidget 1.0
+import QtQuick.Dialogs 1.2
+
 Item {
-    id: alarmInfoItem
+    //id: alarmInfoItem
     //title: qsTr("报警记录查询")
-   // anchors.fill: parent
+    // anchors.fill: parent
     anchors.bottomMargin: 40
     anchors.topMargin: 20
     Row {
@@ -51,14 +54,14 @@ Item {
         }
 
         Text {
-            id: alarmInfoAlarmType
-            text: qsTr("报警类型")
+            id: alarmInfoAlarmState
+            text: qsTr("报警状态")
             height: 30
             horizontalAlignment: TextEdit.AlignHCenter
             verticalAlignment: TextEdit.AlignVCenter
         }
         TextField {
-            id: alarmInfoAlarmTypeTextField
+            id: alarmInfoAlarmStateTextField
             height: 30
             width: 100
         }
@@ -67,7 +70,29 @@ Item {
             text: qsTr("查询")
             height: 30
             onClicked: {
-                // console.log(selectInfo())
+                alarmInfoListModel.sqlCommit(
+                            String(
+                                "select 分机号,回路号,地址号,系统,设备编码,设备,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo where %1").arg(
+                                selectInfo()))
+            }
+        }
+
+        Button {
+            id: alarmInfoQueryAllBtn
+            text: qsTr("查询所有")
+            height: 30
+            onClicked: {
+                alarmInfoListModel.sqlCommit(
+                            "select 分机号,回路号,地址号,系统,设备编码,设备,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo")
+            }
+        }
+
+        Button {
+            id: alarmInfoClearBtn
+            text: qsTr("清空")
+            height: 30
+            onClicked: {
+                messageDialog.open()
             }
         }
     }
@@ -78,12 +103,8 @@ Item {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
+        width: alarmInfoQuery.width
         anchors.topMargin: 5
-        Controls1_4.TableViewColumn {
-            role: "num"
-            title: qsTr("编号")
-            width: 60
-        }
 
         Controls1_4.TableViewColumn {
             role: "extNum"
@@ -104,32 +125,26 @@ Item {
         }
         Controls1_4.TableViewColumn {
             role: "deviceSys"
-            title: qsTr("设备所属系统")
-            width: 100
-        }
-
-        Controls1_4.TableViewColumn {
-            role: "alarmType"
-            title: qsTr("报警类型")
-            width: 100
+            title: qsTr("系统")
+            width: 60
         }
 
         Controls1_4.TableViewColumn {
             role: "productNum"
-            title: qsTr("设备产品编号")
-            width: 100
+            title: qsTr("设备编码")
+            width: 60
         }
 
         Controls1_4.TableViewColumn {
             role: "deviceType"
-            title: qsTr("设备设施型号")
-            width: 100
+            title: qsTr("设备")
+            width: 60
         }
 
         Controls1_4.TableViewColumn {
             role: "currentAlarmState"
-            title: qsTr("报警当前状态")
-            width: 100
+            title: qsTr("报警状态")
+            width: 60
         }
 
         Controls1_4.TableViewColumn {
@@ -139,62 +154,45 @@ Item {
         }
 
         Controls1_4.TableViewColumn {
-            role: "receiveAlarmTime"
-            title: qsTr("报警收到时间")
-            width: 100
-        }
-
-        Controls1_4.TableViewColumn {
             role: "rebackAlarmTime"
-            title: qsTr("恢复正常状态时间")
-            width: 120
-        }
-        Controls1_4.TableViewColumn {
-            role: "protectedSectionName"
-            title: qsTr("总保护区域名称")
+            title: qsTr("报警恢复时间")
             width: 100
         }
 
         Controls1_4.TableViewColumn {
             role: "buildName"
-            title: qsTr("建筑设施名称")
-            width: 100
+            title: qsTr("建筑名称")
+            width: 60
         }
 
         Controls1_4.TableViewColumn {
             role: "floor"
-            title: qsTr("设备所在楼层")
-            width: 100
+            title: qsTr("楼层")
+            width: 60
         }
 
         Controls1_4.TableViewColumn {
             role: "deviceLocation"
-            title: qsTr("设备所处部位")
-            width: 100
+            title: qsTr("位置")
+            width: 60
         }
 
         Controls1_4.TableViewColumn {
-            role: "watcher"
-            title: qsTr("值班员")
-            width: 100
+            role: "operator"
+            title: qsTr("操作员")
+            width: 60
         }
 
-        Controls1_4.TableViewColumn {
-            role: "remark"
-            title: qsTr("备注")
-            width: 100
-        }
         model: alarmInfoListModel
     }
     QmlTableModel {
         id: alarmInfoListModel
-        //        dbDriver: qsTr("QSQLITE")
-        //        dbName: "C:/Users/1/Desktop/mySqlite.db"
-        //        dbUser: "sss"
-        //        dbPassword: "www"
-        //        dbConnectionName: "defaultName"
-        //        dbPort: 1111
-        roleNameList: ["num", "extNum", "loopNum", "addrNum", "deviceSys", "alarmType", "productNum", "deviceType", "currentAlarmState", "alarmTime", "receiveAlarmTime", "rebackAlarmTime", "protectedSectionName", "buildName", "floor", "deviceLocation", "watcher", "remark"]
+        dbDriver: qsTr("QSQLITE")
+        dbName: Crt.alarmInfoDbName()
+        dbConnectionName: "alarmInfoDb"
+        dbPort: 888
+        roleNameList: ["extNum", "loopNum", "addrNum", "deviceSys", "productNum", "deviceType", "currentAlarmState", "alarmTime", "rebackAlarmTime", "buildName", "floor", "deviceLocation", "operator"]
+        titleList: ["分机号", "回路号", "地址号", "系统", "设备编码", "设备", "报警状态", "报警时间", "报警恢复时间", "建筑名称", "楼层", "位置", "操作员"]
     }
     function selectInfo() {
         var info = new String
@@ -203,31 +201,57 @@ Item {
         }
 
         if (alarmInfoLoopNumTextField.text.length > 0) {
+
             if (info.length > 0) {
-                info += ","
+                info += " and "
             }
             info += (qsTr("回路号=") + alarmInfoLoopNumTextField.text)
         }
         if (alarmInfoAddNumTextField.text.length > 0) {
+
             if (info.length > 0) {
-                info += ","
+                info += " and "
             }
             info += (qsTr("地址号=") + alarmInfoAddNumTextField.text)
         }
 
-        if (alarmInfoAlarmTypeTextField.text.length > 0) {
+        if (alarmInfoAlarmStateTextField.text.length > 0) {
             if (info.length > 0) {
-                info += ","
+                info += " and "
             }
-            info += (qsTr("报警类型=") + alarmInfoAlarmTypeTextField.text)
+            info += (qsTr("报警状态=") + "'" + alarmInfoAlarmStateTextField.text + "'")
         }
         return info
     }
 
+    function saveToPdf() {
+        alarmInfoListModel.saveToPdf()
+    }
+    function startPrint() {
+        alarmInfoListModel.startPrint()
+    }
+    function printPreview() {
+        alarmInfoListModel.printPreview()
+    }
+
     Component.onCompleted: {
 
+        alarmInfoListModel.setDbOpen(true)
+        alarmInfoListModel.sqlCommit(
+                    "select 分机号,回路号,地址号,系统,设备编码,设备,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo")
+    }
 
-        // alarmInfoListModel.setDbOpen(true)
-        // alarmInfoListModel.sqlCommit("select *from COMPANY")
+    MessageDialog {
+        id: messageDialog
+        title: qsTr("警告提示")
+        text: qsTr("如果信息超过1000条，或者没有正在报警的信息可以清除。注意信息的保存和备份。")
+        icon: StandardIcon.Warning
+        standardButtons: StandardButton.Yes | StandardButton.No
+        onYes: {
+            alarmInfoListModel.sqlCommit("delete from AlarmInfo")
+        }
+        onNo: {
+            close()
+        }
     }
 }

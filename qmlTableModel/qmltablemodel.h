@@ -5,6 +5,7 @@
 #include <QQmlParserStatus>
 #include "database/sqlitemanager.h"
 #include "database/sqlmanager.h"
+#include "print/print.h"
 
 class QmlTableModel : public QSqlQueryModel
 {
@@ -17,6 +18,7 @@ class QmlTableModel : public QSqlQueryModel
     Q_PROPERTY(QString dbPassword READ dbPassword WRITE setDbPassword)
     Q_PROPERTY(QString dbName READ dbName WRITE setDbName)
     Q_PROPERTY(int dbPort READ dbPort WRITE setDbPort)
+    Q_PROPERTY(QList<QString> titleList READ titleList WRITE setTitleList)
 
 public:
     explicit QmlTableModel(QObject *parent = nullptr);
@@ -24,8 +26,10 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
     QHash<int, QByteArray> roleNames() const Q_DECL_OVERRIDE;
     Q_INVOKABLE void sqlCommit(const QString &sqlStr);
-    QList <QString>roleNameList();
+    QList<QString> roleNameList();
     void setRoleNameList(const QList <QString> &roleNamesList);
+    void setTitleList(const QList <QString> &titleList);
+    QList<QString> titleList();
     QString &dbDriver();
     void setDbDriver(const QString &driver);
     QString &dbConnectionName();
@@ -40,11 +44,16 @@ public:
     void setDbName(const QString &name);
     int dbPort();
     void setDbPort(int port);
-   Q_INVOKABLE bool dbOpen();
-   Q_INVOKABLE void setDbOpen(bool isOpen);
+    Q_INVOKABLE bool dbOpen();
+    Q_INVOKABLE void setDbOpen(bool isOpen);
+    Q_INVOKABLE void saveToPdf();
+    Q_INVOKABLE void startPrint();
+    Q_INVOKABLE void printPreview();
+    QList<QVariant>getValues();
 private:
     QHash<int, QByteArray>m_roleHash;
     QList<QString> m_roleNameList;
+    QList<QString> m_titleList;
     QString m_sqlTable;
     SqlManager *m_sqlManager;
 
@@ -56,6 +65,7 @@ private:
     QString m_dbName;
     int m_dbPort;
     bool m_dbOpen;
+    Print *m_print;
 
 };
 

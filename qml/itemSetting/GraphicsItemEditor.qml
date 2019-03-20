@@ -188,11 +188,25 @@ Item {
                     height: 40
                     verticalAlignment: Text.AlignVCenter
                     text: qsTr("北京利达华信电子有限公司")
+                }
 
-                    //                    onTextEdited: {
-                    //                        emit: setItemInfo("manufacturers",
-                    //                                          manufacturersText.text)
-                    //                    }
+                Text {
+
+                    text: qsTr("操作员:")
+                    height: 40
+                    verticalAlignment: Text.AlignVCenter
+                }
+                TextField {
+                    id: operatorTextField
+                    Layout.fillWidth: true
+                    width: 150
+                    height: 40
+                    verticalAlignment: Text.AlignVCenter
+                    onTextEdited: {
+                        emit: setItemInfo("operator",
+                                         operatorTextField.text)
+                    }
+
                 }
 
                 Text {
@@ -298,6 +312,10 @@ Item {
         manufacturersText.text = manufacturers
     }
 
+    function setOperator(deviceOperator) {
+        operatorTextField.text = deviceOperator
+    }
+
     function setItemSize(size) {
         sizeSpinBox.value = size
     }
@@ -307,9 +325,8 @@ Item {
         addrNumTextField.clear()
         deviceNumTextField.clear()
         deviceSysTextField.clear()
-        //buildingNameTextField.clear()
-        //floorOfDeviceTextField.clear()
         deviceLocationTextField.clear()
+        operatorTextField.clear()
     }
 
     function currentIconIndex() {
@@ -379,34 +396,18 @@ Item {
                     var currentImagePathStr = new String
                     currentImagePathStr = currentObj["imagePath"]
                     itemIconInfo.setIconIndexHash(j, currentImagePathStr)
-                    //                    itemIconInfo.setOtherInfoHash(j, "manufacturers",
-                    //                                                  currentObj["manufacturers"])
-                    //                    itemIconInfo.setOtherInfoHash(
-                    //                                j, "periodOfvalidity",
-                    //                                currentObj["periodOfvalidity"])
-                    //                    manufacturersText.text = currentObj["manufacturers"]
-                    //                    periodOfValidityText.text = currentObj["periodOfvalidity"]
                 }
 
                 for (var i = modelCount; i < size; i++) {
                     var index = String("%1").arg(i)
                     var obj = new Object
                     obj = JSON.parse(itemIconInfoStr)[index]
-
-                    //var currentObj = JSON.parse(obj["deviceName"].toString())
                     var deviceObj = new Object
                     deviceObj["deviceName"] = obj["deviceName"]
                     deviceTypeModel.append(deviceObj)
                     var imagePathStr = new String
                     imagePathStr = obj["imagePath"]
                     itemIconInfo.setIconIndexHash(i, imagePathStr)
-                    //                    itemIconInfo.setOtherInfoHash(i, "manufacturers",
-                    //                                                  currentObj["manufacturers"])
-                    //                    itemIconInfo.setOtherInfoHash(
-                    //                                i, "periodOfvalidity",
-                    //                                currentObj["periodOfvalidity"])
-                    //                    manufacturersText.text = currentObj["manufacturers"]
-                    //                    periodOfValidityText.text = currentObj["periodOfvalidity"]
                 }
             } else {
 
@@ -416,9 +417,7 @@ Item {
     }
 
     Component.onCompleted: {
-
         readInfo()
-
         if (equipmentModelComboBox.count > 0) {
             equipmentModelComboBox.currentIndex = 0
         }
@@ -427,12 +426,7 @@ Item {
                     equipmentModelComboBox.currentIndex)
         periodOfValidityText.text = periodOfvalidityValue(
                     equipmentModelComboBox.currentIndex)
-        //        if (equipmentModelComboBox.currentIndex >= 0) {
-        //            manufacturersText.text = itemIconInfo.otherInfo(
-        //                        equipmentModelComboBox.currentIndex, "manufacturers")
-        //            periodOfValidityText.text = itemIconInfo.otherInfo(
-        //                        equipmentModelComboBox.currentIndex, "periodOfvalidity")
-        //        }
+
     }
 
     Connections {

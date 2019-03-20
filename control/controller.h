@@ -17,6 +17,8 @@
 #include "graphicsWidget/graphicsitem.h"
 #include "graphicsWidget/graphicsitem.h"
 #include "jsonEdit/qmlforjson.h"
+#include "communication/ftpconfiguration.h"
+#include "crtwidget.h"
 
 class Controller:public QObject
 {
@@ -30,12 +32,16 @@ public:
     void setSysArchitePlanView(SysArchitePlanView*sysArchitePlanView);
     SysArchitePlanView *getSysArchitePlanView() const;
     void setArchitePlanView(ArchitePlanView *architePlanView);
+    void setCrtWidget(CrtWidget *widget);
+    CrtWidget *getCrtWidget();
     ArchitePlanView *getArchitePlanView() const;
     UserManager *getUserManager() const;
     UserManager::UserRight getUserRight();
     SpeechObj *getSpeechObj();
     AbstractLink *getUdpObj();
     ConfigurationManager *getSerialConfigurationManager();
+    ConfigurationManager *getFtpConfigurationManager();
+    ConfigurationManager *getTcpConfigurationManager();
 private:
     Controller();
 private:
@@ -45,12 +51,15 @@ private:
     SysArchitePlanView *m_sysArthitePlanView;
     ArchitePlanView *m_architePlanView;
     UserManager*m_userManager;
+    CrtWidget *m_crtWidget;
 
     QSharedPointer<SpeechObj>m_speechObj;
     AbstractLink*m_udpObj;
     QSharedPointer<ConfigurationManager> m_serialConfigurationManager;
     QSharedPointer<ConfigurationManager> m_tcpConfigurationManager;
     QSharedPointer<ConfigurationManager> m_udpConfigurationManager;
+    QSharedPointer<ConfigurationManager> m_ftpConfigurationManager;
+
     // QSharedPointer<ModbusManager>m_modbusManager;
 
 };

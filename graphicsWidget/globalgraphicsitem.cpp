@@ -3,10 +3,11 @@
 #include "control/controller.h"
 #include <QDebug>
 GlobalGraphicsItem::GlobalGraphicsItem(GlobalGraphicsScene *scene)
-    :m_radius(50.0)
+    :m_radius(40.0)
 {
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);
+    setAcceptHoverEvents(true);
     m_scene = scene;
     m_iconName = ":/images/build.png";
     setProperty("size",m_radius);
@@ -24,7 +25,7 @@ GlobalGraphicsItem::GlobalGraphicsItem(GlobalGraphicsScene *scene)
     {
         if(oldState==QAbstractAnimation::Running&&newState==QAbstractAnimation::Stopped)
         {
-            setItemSize(50.0);
+            setItemSize(40.0);
         }
     });
 
@@ -61,6 +62,7 @@ void GlobalGraphicsItem::setItemSize(qreal radius)
 void GlobalGraphicsItem::setHoverText(const QString &hoverText)
 {
     m_hoverText = hoverText;
+    update();
 }
 
 QString GlobalGraphicsItem::buildName()
@@ -98,6 +100,16 @@ bool GlobalGraphicsItem::animalIsRunning()
         return false;
     }
 
+}
+
+QString GlobalGraphicsItem::personOnDuty()
+{
+    return m_personOnDuty;
+}
+
+void GlobalGraphicsItem::setPersonOnDuty(const QString &name)
+{
+    m_personOnDuty = name;
 }
 
 QRectF GlobalGraphicsItem::boundingRect() const
@@ -141,9 +153,9 @@ void GlobalGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
         {
             if(!QPixmap(m_iconName).isNull())
             {
-                painter->drawPixmap(-50,-50,50,50,QPixmap(m_iconName));
+                painter->drawPixmap(-40,-40,40,40,QPixmap(m_iconName));
             }
-             painter->drawText(QRectF(-50,-50,50,50),m_buildName);
+             painter->drawText(QRectF(-40,-40,40,40),m_buildName);
         }
     }
 
@@ -166,6 +178,12 @@ void GlobalGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void GlobalGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
+    QString hoverText = QString("建筑名称:%1\n"
+                                "值班人员:%2\n"
+                                "大小:%3").arg(m_buildName)
+            .arg(m_personOnDuty)
+            .arg(m_radius);
+    setHoverText(hoverText);
     setToolTip(m_hoverText);
     event->accept();
 }

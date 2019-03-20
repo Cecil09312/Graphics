@@ -19,6 +19,8 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);
     m_colorEffect = new QGraphicsColorizeEffect(this);
+    setAcceptHoverEvents(true);
+
     setGraphicsEffect(m_colorEffect);
     m_colorEffect->setStrength(0.0);
     setProperty("color",m_color);
@@ -42,7 +44,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
 
     m_itemTextFont.setPointSize(12);
     m_itemTextFont.setFamily("Times New Roman");
-    setAcceptHoverEvents(true);
+
     m_itemInfo.m_deviceNum = QString("%1").arg(m_num++);
     int itemIconIndex = ItemIconInfoToJson::currentIconIndex();
     QHash<QString,QVariant>itemIconInfoHash = m_itemIconInfoToJson.getIconInfoHash();
@@ -336,6 +338,7 @@ QHash<QString, QVariant> GraphicsItem::itemInfo()
     itemHash["iconName"] = m_iconName;
     itemHash["size"] = m_radius;
     itemHash["pos"] = QString("%1,%2").arg(scenePos().x()).arg(scenePos().y());
+    itemHash["operator"] = m_itemInfo.m_deviceOperator;
     return itemHash;
 }
 
@@ -414,6 +417,11 @@ QString &GraphicsItem::periodOfValidity()
     return m_itemInfo.m_periodOfValidity;
 }
 
+QString &GraphicsItem::deviceOperator()
+{
+    return m_itemInfo.m_deviceOperator;
+}
+
 
 
 void GraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
@@ -441,18 +449,19 @@ void GraphicsItem::updateHoverText()
                                 "地址号:%3\n"
                                 "设备编码:%4\n"
                                 "设备:%5\n"
-                                "状态:%6\n"
+                                "报警状态:%6\n"
                                 "报警时间:%7\n"
                                 "系统:%8\n"
                                 "建筑名称:%9\n"
                                 "楼层:%10\n"
                                 "位置:%11\n"
                                 "制造商:%12\n"
-                                "有效期:%13").arg(m_itemInfo.m_extNum).arg(m_itemInfo.m_loopNum).arg(m_itemInfo.m_addrNum)
+                                "有效期:%13\n"
+                                "操作员:%14").arg(m_itemInfo.m_extNum).arg(m_itemInfo.m_loopNum).arg(m_itemInfo.m_addrNum)
             .arg(m_itemInfo.m_deviceNum).arg(m_itemInfo.m_equipmentModel).arg(m_itemInfo.m_currentState)
             .arg(m_itemInfo.m_alarmTime).arg(m_itemInfo.m_sysOfDevice).arg(m_itemInfo.m_buildingName)
             .arg(m_itemInfo.m_floorOfDevice).arg(m_itemInfo.m_deviceLocation).arg(m_itemInfo.m_manufacturers)
-            .arg(m_itemInfo.m_periodOfValidity);
+            .arg(m_itemInfo.m_periodOfValidity).arg(m_itemInfo.m_deviceOperator);
     setHoverText(hoverText);
 }
 

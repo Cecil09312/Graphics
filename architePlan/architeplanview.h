@@ -48,7 +48,9 @@ public:
     void autoFitView(QGraphicsView *view);
     Q_INVOKABLE void toAlarmView();
     QStandardItem*getParnentItemFromView(GraphicsView*view);
+    void saveArchiteInfoToDb();
     QStandardItem*getItemFromView(GraphicsView*view);
+    Q_INVOKABLE QString architeInfoDbName();
 signals:
     void alarmHappend(const QString &alarmType);
     void toLastPage();
@@ -100,6 +102,7 @@ private:
     QList<QVariant> m_jsonValueList;
 
     SqlManager *m_sqliteManager;
+    QString m_architeInfoDbName;
 };
 
 #endif // ARCHITEPLANVIEW_H

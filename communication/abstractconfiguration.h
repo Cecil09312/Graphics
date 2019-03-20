@@ -4,8 +4,8 @@
 #include <QVariant>
 #include <QApplication>
 #include <QSharedPointer>
-class ConfigurationManager;
 
+class ConfigurationManager;
 class AbstractConfiguration//配置虚基类
 {
     friend class ConfigurationManager;
@@ -16,6 +16,7 @@ public:
         Serial,
         Tcp,
         Udp,
+        Ftp,
         Can
     };
     AbstractConfiguration();

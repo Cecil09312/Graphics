@@ -6,6 +6,7 @@ import QtQuick.Controls.Styles 1.4
 
 Controls1_4.TabView {
 
+    anchors.fill: parent
     Controls1_4.Tab {
         title: qsTr("串口设置")
         SerialPortSetting {
@@ -30,6 +31,7 @@ Controls1_4.TabView {
     Controls1_4.Tab {
         title: qsTr("信息查询")
         anchors.topMargin: 20
+
         InfoQuery {
             id: infoQuery
         }
@@ -60,6 +62,13 @@ Controls1_4.TabView {
         title: qsTr("消防控制室管理信息")
         InfoTransport {
             id: infoTransport
+        }
+    }
+
+    Controls1_4.Tab {
+        title: qsTr("网络设置")
+        NetworkSetting {
+            id: networkSetting
         }
     }
     style: TabViewStyle {

@@ -16,19 +16,18 @@ struct ItemInfo
     QString m_extNum;//分机号
     QString m_loopNum;//回路号
     QString m_addrNum;//地址号
-    QString m_deviceNum;//设备编号
+    QString m_deviceNum;//设备编码
     QString m_equipmentModel;//设备
-//    QString m_equipmentName;//设备
-//    QString m_equipmentType;//设备
-    QString m_currentState;//状态
+    QString m_currentState;//报警状态
     QString m_alarmTime;//报警时间
     QString m_alarmReplyTime;//报警恢复时间
     QString m_sysOfDevice;//系统
-    QString m_buildingName;//设施
+    QString m_buildingName;//建筑名称
     QString m_floorOfDevice;//楼层
     QString m_deviceLocation;//位置
     QString m_manufacturers;//制造商
     QString m_periodOfValidity;//有效期
+    QString m_deviceOperator;//操作员
 };
 
 class GraphicsItem : public QObject,public QGraphicsItem
@@ -83,6 +82,7 @@ public:
     Q_INVOKABLE QString &deviceLocation();
     Q_INVOKABLE QString &manufacturers();
     Q_INVOKABLE QString &periodOfValidity();
+    Q_INVOKABLE QString &deviceOperator();
 
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *);

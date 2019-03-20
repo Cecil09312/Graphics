@@ -39,6 +39,8 @@ GraphicsScene::GraphicsScene(QObject *parent):
             QMetaObject::invokeMethod(m_itemSettingObj,"setPeriodOfValidity",Q_ARG(QVariant,currentItem->periodOfValidity()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setManufacturers",Q_ARG(QVariant,currentItem->manufacturers()));
 
+            QMetaObject::invokeMethod(m_itemSettingObj,"setOperator",Q_ARG(QVariant,currentItem->deviceOperator()));
+
         }
         else
         {
@@ -368,6 +370,10 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
         {
             currentItem->getItemInfo().m_periodOfValidity = info;
 
+        }
+        else if(type == "operator")
+        {
+            currentItem->deviceOperator() = info;
         }
     }
 

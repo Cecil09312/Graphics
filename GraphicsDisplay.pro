@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui quick svg opengl concurrent sql texttospeech serialport serialbus
+QT       += core gui quick svg opengl concurrent sql texttospeech serialport serialbus printsupport network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -76,7 +76,10 @@ SOURCES += \
     dataStore/monitoringprotocol.cpp \
     graphicsWidget/globalgraphicsview.cpp \
     graphicsWidget/globalgraphicsscene.cpp \
-    graphicsWidget/globalgraphicsitem.cpp
+    graphicsWidget/globalgraphicsitem.cpp \
+    print/print.cpp \
+    communication/ftpmanager.cpp \
+    communication/ftpconfiguration.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -117,7 +120,10 @@ HEADERS += \
     dataStore/monitoringprotocol.h \
     graphicsWidget/globalgraphicsview.h \
     graphicsWidget/globalgraphicsscene.h \
-    graphicsWidget/globalgraphicsitem.h
+    graphicsWidget/globalgraphicsitem.h \
+    print/print.h \
+    communication/ftpmanager.h \
+    communication/ftpconfiguration.h
 
 FORMS +=
 

@@ -1,4 +1,5 @@
 ﻿#include "tcpconfiguration.h"
+
 TcpConfiguration::TcpConfiguration()
 {
   m_configurationType = Tcp;

@@ -5,11 +5,12 @@ import QtQuick.Controls 1.4 as Contral_1_4
 Rectangle {
     id: rect
     visible: true
-    width: 840
+    width: 900
     height: 640
 
     SettingView {
         id: settingView
         anchors.fill: parent
+        width: parent.width
     }
 }

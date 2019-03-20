@@ -76,6 +76,7 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
         QMetaObject::invokeMethod(m_globalItemObj,"setBuileName",Q_ARG(QVariant,currentBuildName()));
         QMetaObject::invokeMethod(m_globalItemObj,"setGlobalItemValue",Q_ARG(QVariant,currentItemSize()));
         QMetaObject::invokeMethod(m_globalItemObj,"setGlobalIcon",Q_ARG(QVariant,currentItemIcon()));
+        QMetaObject::invokeMethod(m_globalItemObj,"setPersonOnDuty",Q_ARG(QVariant,personOnDuty()));
     });
     connect(m_goToAchitePlanAction,&QAction::triggered,this,[=]()
     {
@@ -224,6 +225,16 @@ void GlobalGraphicsScene::setCurrentBuildName(const QString &name)
     }
 }
 
+void GlobalGraphicsScene::setPersonOnDuty(const QString &personName)
+{
+    QGraphicsItem *graphicsItem =  itemAt(m_pointF,QTransform());
+    GlobalGraphicsItem *item = dynamic_cast<GlobalGraphicsItem *>(graphicsItem);
+    if(item!=nullptr)
+    {
+        item->setPersonOnDuty(personName);
+    }
+}
+
 qreal GlobalGraphicsScene::currentItemSize()
 {
     QGraphicsItem *graphicsItem =  itemAt(m_pointF,QTransform());
@@ -256,6 +267,20 @@ QString GlobalGraphicsScene::currentItemIcon()
     if(item!=nullptr)
     {
         return item->iconName();
+    }
+    else
+    {
+        return "";
+    }
+}
+
+QString GlobalGraphicsScene::personOnDuty()
+{
+    QGraphicsItem *graphicsItem =  itemAt(m_pointF,QTransform());
+    GlobalGraphicsItem *item = dynamic_cast<GlobalGraphicsItem *>(graphicsItem);
+    if(item!=nullptr)
+    {
+        return item->personOnDuty();
     }
     else
     {

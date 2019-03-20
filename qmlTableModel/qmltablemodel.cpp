@@ -8,7 +8,7 @@ QmlTableModel::QmlTableModel(QObject *parent)
     : QSqlQueryModel(parent),
       m_sqlManager(nullptr)
 {
-
+    m_print = new Print(this);
 }
 
 QmlTableModel::~QmlTableModel()
@@ -60,6 +60,16 @@ void QmlTableModel::setRoleNameList(const QList<QString> &roleNamesList)
     {
         m_roleHash[Qt::UserRole+i] = m_roleNameList.at(i).toLocal8Bit();
     }
+}
+
+void QmlTableModel::setTitleList(const QList<QString> &titleList)
+{
+    m_titleList = titleList;
+}
+
+QList<QString> QmlTableModel::titleList()
+{
+    return m_titleList;
 }
 
 
@@ -172,6 +182,36 @@ void QmlTableModel::setDbOpen(bool isOpen)
             m_sqlManager->close();
         }
     }
+}
+
+void QmlTableModel::saveToPdf()
+{
+
+    m_print->saveToPdf(titleList(),getValues());
+}
+
+void QmlTableModel::startPrint()
+{
+    m_print->startPrint(titleList(),getValues());
+}
+
+void QmlTableModel::printPreview()
+{
+    m_print->printPreview(titleList(),getValues());
+}
+
+QList<QVariant> QmlTableModel::getValues()
+{
+    QList<QVariant>valueList;
+    for(int i=0;i<rowCount();i++)
+    {
+        QSqlRecord sqlRecord = record(i);
+        for(int j=0;j<sqlRecord.count();j++)
+        {
+            valueList.push_back(sqlRecord.value(j));
+        }
+    }
+    return valueList;
 }
 
 

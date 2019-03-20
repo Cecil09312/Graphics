@@ -11,6 +11,7 @@ ConfigurationManager::ConfigurationManager(Configuration configuration,QObject *
     m_tcpConfigurationHash = configurationValueHash["tcp"].toHash();
     m_canConfigurationHash = configurationValueHash["can"].toHash();
     m_udpConfigurationHash = configurationValueHash["udp"].toHash();
+    m_ftpConfigurationHash = configurationValueHash["ftp"].toHash();
     if(m_serialConfigurationHash.isEmpty())
     {
         m_serialConfigurationHash["portName"]="";
@@ -19,7 +20,7 @@ ConfigurationManager::ConfigurationManager(Configuration configuration,QObject *
         m_serialConfigurationHash["stopBits"] = 1;
         m_serialConfigurationHash["parity"]  = "无校验";
         m_serialConfigurationHash["flowControl"] = "无";
-       // m_configuration.data()->setConfiguration(m_serialConfigurationHash);
+        // m_configuration.data()->setConfiguration(m_serialConfigurationHash);
 
     }
     if(m_tcpConfigurationHash.isEmpty())
@@ -41,13 +42,21 @@ ConfigurationManager::ConfigurationManager(Configuration configuration,QObject *
         m_udpConfigurationHash["sendAddr"] = "127.0.0.1";
         m_udpConfigurationHash["sendPort"] = 8080;
     }
+
+    if(m_ftpConfigurationHash.isEmpty())
+    {
+        m_ftpConfigurationHash["host"] = "127.0.0.1";
+        m_ftpConfigurationHash["port"] =21;
+        m_ftpConfigurationHash["user"] = "sss";
+        m_ftpConfigurationHash["password"] = "1234";
+    }
     if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Serial)
     {
-       m_configuration.data()->setConfiguration(m_serialConfigurationHash);
+        m_configuration.data()->setConfiguration(m_serialConfigurationHash);
     }
     else if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Tcp)
     {
-       m_configuration.data()->setConfiguration(m_tcpConfigurationHash);
+        m_configuration.data()->setConfiguration(m_tcpConfigurationHash);
     }
     else if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Can)
     {
@@ -56,6 +65,10 @@ ConfigurationManager::ConfigurationManager(Configuration configuration,QObject *
     else if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Udp)
     {
         m_configuration.data()->setConfiguration(m_udpConfigurationHash);
+    }
+    else if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Ftp)
+    {
+        m_configuration.data()->setConfiguration(m_ftpConfigurationHash);
     }
 }
 
@@ -83,7 +96,7 @@ void ConfigurationManager::saveConfiguration()
 
 QString ConfigurationManager::currentPortName()
 {
-   return m_serialConfigurationHash["portName"].toString();
+    return m_serialConfigurationHash["portName"].toString();
 }
 
 quint32 ConfigurationManager::currentBaudRate()
@@ -98,17 +111,47 @@ QString ConfigurationManager::currentParity()
 
 QString ConfigurationManager::currentFlowControl()
 {
-     return m_serialConfigurationHash["flowControl"].toString();
+    return m_serialConfigurationHash["flowControl"].toString();
 }
 
 int ConfigurationManager::currentDataBits()
 {
-     return m_serialConfigurationHash["dataBits"].toInt();
+    return m_serialConfigurationHash["dataBits"].toInt();
 }
 
 int ConfigurationManager::currentStopBits()
 {
     return m_serialConfigurationHash["stopBits"].toInt();
+}
+
+QString ConfigurationManager::ftpHost()
+{
+    return m_ftpConfigurationHash["host"].toString();
+}
+
+int ConfigurationManager::ftpPort()
+{
+    return m_ftpConfigurationHash["port"].toString().toInt();
+}
+
+QString ConfigurationManager::ftpUser()
+{
+    return m_ftpConfigurationHash["user"].toString();
+}
+
+QString ConfigurationManager::ftpPassword()
+{
+    return m_ftpConfigurationHash["password"].toString();
+}
+
+QString ConfigurationManager::tcpAddr()
+{
+    return m_tcpConfigurationHash["hostAddr"].toString();
+}
+
+int ConfigurationManager::tcpPort()
+{
+    return m_tcpConfigurationHash["port"].toInt();
 }
 
 QList<QSerialPortInfo> ConfigurationManager::getSerialPortInfo()

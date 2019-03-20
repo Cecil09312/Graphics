@@ -21,5 +21,7 @@
         <file>qml/infoSetting/SpeechSetting.qml</file>
         <file>qml/infoSetting/MaintenanceInfo.qml</file>
         <file>qml/itemSetting/GlobalItemSetting.qml</file>
+        <file>qml/infoSetting/NetworkSetting.qml</file>
+        <file>qml/qmlTable/MaintInfoTableItem.qml</file>
     </qresource>
 </RCC>
