@@ -140,10 +140,19 @@ GraphicsScene::GraphicsScene(QObject *parent):
         }
     });
 
+
+    connect(m_analogAlarmAction,&QAction::triggered,this,[=]()
+    {
+        m_analogAlarmView->show();
+    });
     Q_ASSERT(m_itemSettingObj);
     connect(m_itemSettingObj,SIGNAL(setSize(qreal)),this,SLOT(setItemSize(qreal)));
     connect(m_itemSettingObj,SIGNAL(setIcon(QString)),this,SLOT(setItemIcon(QString)));
     connect(m_itemSettingObj,SIGNAL(setItemInfo(QString,QString)),this,SLOT(setItemInfoFromType(const QString , const QString &)));
+    m_analogAlarmObj = m_analogAlarmView->rootObject();
+    Q_ASSERT(m_analogAlarmObj);
+    connect(m_analogAlarmObj,SIGNAL(createAlarm(QString, QString, QString, QString)),this,SLOT(getAlarm(QString,QString, QString,QString)));
+    connect(m_analogAlarmObj,SIGNAL(clearAlarm()),this,SLOT(clearAlarms()));
 
 }
 
@@ -151,6 +160,7 @@ GraphicsScene::~GraphicsScene()
 {
     delete m_graphicsItemSettingMenu;
     m_itemSettingView->deleteLater();
+    delete m_analogAlarmView;
 }
 
 void GraphicsScene::addGraphicsItem(qreal ax, qreal ay)
@@ -315,55 +325,56 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
     {
         if(type=="currentState")
         {
-            currentItem->getItemInfo().m_currentState = info;
+            currentItem->currentState() = info;
         }
         else if(type=="equipmentModel")
         {
-            currentItem->getItemInfo().m_equipmentModel = info;
-
+            currentItem->equipmentModel() = info;
         }
         else if(type=="extNum")
         {
-            currentItem->getItemInfo().m_extNum = info;
+            currentItem->extNum() = info;
 
         }
 
         else if(type=="loopNum")
         {
-            currentItem->getItemInfo().m_loopNum = info;
+            currentItem->loopNum() = info;
 
         }
         else if(type =="addrNum")
         {
-            currentItem->getItemInfo().m_addrNum = info;
+            currentItem->addrNum() = info;
         }
         else if(type =="deviceNum")
         {
-            currentItem->getItemInfo().m_deviceNum = info;
-            update();
+            currentItem->deviceNum() = info;
+            currentItem->update();
+           // update();
         }
 
         else if(type =="sysOfDevice")
         {
-            currentItem->getItemInfo().m_sysOfDevice = info;
+            currentItem->sysOfDevice() = info;
 
         }
         else if(type =="manufacturers")
         {
-            currentItem->getItemInfo().m_manufacturers = info;
+            currentItem->manufacturers() = info;
 
         }
         else if(type =="buildingName")
         {
-            currentItem->getItemInfo().m_buildingName = info;
+            currentItem->buildingName() = info;
         }
         else if(type =="floorOfDevice")
         {
-            currentItem->getItemInfo().m_floorOfDevice = info;
+            currentItem->floorOfDevice() = info;
         }
+
         else if(type == "deviceLocation")
         {
-            currentItem->getItemInfo().m_deviceLocation = info;
+            currentItem->deviceLocation() = info;
         }
 
         else if(type == "periodOfValidity")
@@ -379,6 +390,25 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
 
 }
 
+void GraphicsScene::getAlarm(QString extNum, QString loopNum, QString addrNum, QString alarmState)
+{
+    ArchitePlanView*architePlanView=   Controller::instance()->getArchitePlanView();
+    if(architePlanView!=nullptr)
+    {
+        architePlanView->createAlarm(extNum,loopNum,addrNum,alarmState,true);
+    }
+}
+
+void GraphicsScene::clearAlarms()
+{
+    ArchitePlanView*architePlanView=   Controller::instance()->getArchitePlanView();
+    if(architePlanView!=nullptr)
+    {
+        architePlanView->clearAlarm(true);
+    }
+
+}
+
 void GraphicsScene::init()
 {
     m_graphicsItemSettingMenu = new QMenu;
@@ -388,6 +418,7 @@ void GraphicsScene::init()
     m_clearAction = new QAction(tr("清空"),m_graphicsItemSettingMenu);
     m_deleteSelectedAction = new QAction(tr("删除选中"),m_graphicsItemSettingMenu);
     m_closeAction= new QAction(tr("关闭"),m_graphicsItemSettingMenu);
+    m_analogAlarmAction = new QAction(tr("报警模拟"),m_graphicsItemSettingMenu);
     m_handDragAction = new QAction(tr("手动拖拽模式"),modeSelectMenu);
     m_rubberBandDragAction = new QAction(tr("橡皮筋模式"),modeSelectMenu);
     m_modeActionGroup = new QActionGroup(this);
@@ -395,6 +426,7 @@ void GraphicsScene::init()
     modeSelectMenu->addAction(m_rubberBandDragAction);
     m_modeActionGroup->addAction(m_rubberBandDragAction);
     m_modeActionGroup->addAction(m_handDragAction);
+
     m_modeActionGroup->setExclusive(true);
     m_handDragAction->setCheckable(true);
     m_rubberBandDragAction->setCheckable(true);
@@ -402,12 +434,16 @@ void GraphicsScene::init()
     m_graphicsItemSettingMenu->addMenu(modeSelectMenu);
     m_itemSettingView = new QQuickView;
     m_itemSettingView->setSource(QUrl("qrc:/qml/itemSetting/GraphicsItemEditor.qml"));
+
+    m_analogAlarmView = new QQuickView;
+    m_analogAlarmView->setSource(QUrl("qrc:/qml/itemSetting/AnalogAlarmItem.qml"));
     m_itemSettingObj= m_itemSettingView->rootObject();
     m_graphicsItemSettingMenu->addAction(m_deleteAction);
     m_graphicsItemSettingMenu->addAction(m_editAction);
     m_graphicsItemSettingMenu->addAction(m_clearAction);
     m_graphicsItemSettingMenu->addAction(m_deleteSelectedAction);
     m_graphicsItemSettingMenu->addAction(m_closeAction);
+    m_graphicsItemSettingMenu->addAction(m_analogAlarmAction);
 
 }
 

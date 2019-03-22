@@ -47,6 +47,7 @@ GraphicsView::GraphicsView(QWidget *parent, int type):
 
             }
         });
+
     }
     else
     {

@@ -50,6 +50,7 @@ public:
     Q_INVOKABLE void startPrint();
     Q_INVOKABLE void printPreview();
     QList<QVariant>getValues();
+    Q_INVOKABLE QString getValue(int row,const QString&roleName);
 private:
     QHash<int, QByteArray>m_roleHash;
     QList<QString> m_roleNameList;

@@ -19,6 +19,7 @@
 #include "jsonEdit/qmlforjson.h"
 #include "communication/ftpconfiguration.h"
 #include "crtwidget.h"
+#include "database/operatorinfo.h"
 
 class Controller:public QObject
 {
@@ -42,6 +43,7 @@ public:
     ConfigurationManager *getSerialConfigurationManager();
     ConfigurationManager *getFtpConfigurationManager();
     ConfigurationManager *getTcpConfigurationManager();
+    OperatorInfo *getOperatorInfo();
 private:
     Controller();
 private:
@@ -59,7 +61,7 @@ private:
     QSharedPointer<ConfigurationManager> m_tcpConfigurationManager;
     QSharedPointer<ConfigurationManager> m_udpConfigurationManager;
     QSharedPointer<ConfigurationManager> m_ftpConfigurationManager;
-
+   OperatorInfo*m_operatorInfo;
     // QSharedPointer<ModbusManager>m_modbusManager;
 
 };

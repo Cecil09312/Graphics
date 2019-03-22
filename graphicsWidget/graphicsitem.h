@@ -18,6 +18,7 @@ struct ItemInfo
     QString m_addrNum;//地址号
     QString m_deviceNum;//设备编码
     QString m_equipmentModel;//设备
+    QString m_alarmType;//报警类型
     QString m_currentState;//报警状态
     QString m_alarmTime;//报警时间
     QString m_alarmReplyTime;//报警恢复时间
@@ -83,6 +84,7 @@ public:
     Q_INVOKABLE QString &manufacturers();
     Q_INVOKABLE QString &periodOfValidity();
     Q_INVOKABLE QString &deviceOperator();
+    Q_INVOKABLE QString &alarmType();
 
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *);

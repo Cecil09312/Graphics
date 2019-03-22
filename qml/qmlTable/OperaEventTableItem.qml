@@ -2,6 +2,7 @@
 import QtQuick.Controls 2.2
 import QtQuick.Controls 1.4 as Controls1_4
 import qmlTableModel 1.0
+import operatorInfo 1.0
 
 Item {
     // id: operaEventItem
@@ -52,7 +53,7 @@ Item {
             text: qsTr("查询所有")
             height: 30
             onClicked: {
-
+                operaEventQueryModel.sqlCommit("select * from operator")
             }
         }
 
@@ -105,9 +106,18 @@ Item {
 
         QmlTableModel {
             id: operaEventQueryModel
+            dbDriver: qsTr("QSQLITE")
+            dbName: OperatorInfo.operatorInfoDbPath()
+            dbConnectionName: "operaEvent"
+            dbPort: 6888
             roleNameList: ["userName", "userRight", "event", "time"]
             titleList: [qsTr("用户名"), qsTr("用户权限"), qsTr("事件"), qsTr("时间")]
         }
+    }
+
+    Component.onCompleted: {
+        operaEventQueryModel.setDbOpen(true)
+        operaEventQueryModel.sqlCommit("select * from operator")
     }
 
     function selectInfo() {

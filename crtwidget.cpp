@@ -23,7 +23,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
     QString dbName = QCoreApplication::applicationDirPath()+"/alarmInfo.db";
     m_alarmInfoDbName = dbName;
     initWidget();
-
+    Controller::instance()->getOperatorInfo()->insertEvent(tr("系统开机"));
     m_sqliteManager->setDataBase("QSQLITE","alarmInfo","","","",dbName,888);
     m_sqliteManager->open();
     if(m_sqliteManager->isOpen())
@@ -31,19 +31,17 @@ CrtWidget::CrtWidget(QWidget *parent) :
         QStringList tableNameList = m_sqliteManager->getTables(dbName);
         if(!tableNameList.contains("AlarmInfo"))
         {
-            m_sqliteManager->executeQuery("create table AlarmInfo(分机号 text, 回路号 text,地址号 text,设备编码 text ,设备 text,报警状态 text,报警时间 text,报警恢复时间 text,系统 text,建筑名称 text,楼层 text,位置 text,制造商 text,有效期 text,操作员 text)");
+            m_sqliteManager->executeQuery("create table AlarmInfo(分机号 text, 回路号 text,地址号 text,设备编码 text ,设备 text,报警类型 text,报警状态 text,报警时间 text,报警恢复时间 text,系统 text,建筑名称 text,楼层 text,位置 text,制造商 text,有效期 text,操作员 text)");
         }
     }
 
     m_infoTableView->tableModel()->setDbDriver("QSQLITE");
     m_infoTableView->tableModel()->setDbName(dbName);
-    // m_infoTableView->tableModel()->setDbConnectionName("alarmInfo");
     m_infoTableView->tableModel()->setDbPort(888);
     m_infoTableView->tableModel()->setDbOpen(true);
-    // m_infoTableView->tableModel()->sqlCommit("select *from AlarmInfo");
     QStringList alarmInfoList,valueList;
     alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"设备编码"
-                  << "设备"<<"报警状态"<<"报警时间"<<"报警恢复时间"<<"系统"<< "建筑名称"<<"楼层"<<"位置"<< "制造商" << "有效期" <<"操作员";
+                  << "设备"<<"报警类型"<<"报警状态"<<"报警时间"<<"报警恢复时间"<<"系统"<< "建筑名称"<<"楼层"<<"位置"<< "制造商" << "有效期" <<"操作员";
 
     for(int i=0;i<alarmInfoList.size();i++)
     {
@@ -55,7 +53,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
     connect(m_architePlanView,&ArchitePlanView::alarmItem,this,[=](GraphicsItem *item)
     {
         m_sqliteManager->executeQuery(sqlInfo.arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->deviceNum())
-                                      .arg(item->equipmentModel()).arg(item->currentState()).arg(item->getItemInfo().m_alarmTime)
+                                      .arg(item->equipmentModel()).arg(item->alarmType()).arg(item->currentState()).arg(item->getItemInfo().m_alarmTime)
                                       .arg(item->getItemInfo().m_alarmReplyTime).arg(item->sysOfDevice()).arg(item->buildingName())
                                       .arg(item->floorOfDevice()).arg(item->deviceLocation()).arg(item->manufacturers()).arg(item->periodOfValidity()).arg(item->deviceOperator()));
         alarmDataOnTable();
@@ -64,16 +62,23 @@ CrtWidget::CrtWidget(QWidget *parent) :
     connect(m_infoTableView,&InfoTableView::tableValue,this,[=](QSqlRecord record)
     {
         QString deviceNum=  record.value("设备编码").toString();
+
+        QString extNum=  record.value("分机号").toString();
+        QString loopNum=  record.value("回路号").toString();
+        QString addrNum=  record.value("地址号").toString();
         QList<QList<QGraphicsItem *> > globalValueList= DataStore::getTypeItemHash().values();
         GraphicsView *view = nullptr;
+        GraphicsItem *currentGraphicsItem = nullptr;
         foreach (QList<QGraphicsItem *>valueList, globalValueList)
         {
             foreach (QGraphicsItem *item, valueList)
             {
                 GraphicsItem *currentItem = dynamic_cast<GraphicsItem *>(item);
-                if(currentItem->deviceNum()==deviceNum)
+                if(currentItem->deviceNum()==deviceNum&&currentItem->extNum()==extNum
+                        &&currentItem->loopNum()==loopNum&&currentItem->addrNum()==addrNum)
                 {
                     view = DataStore::itemDisplayView(currentItem);
+                    currentGraphicsItem = currentItem;
                     break;
                 }
             }
@@ -81,7 +86,11 @@ CrtWidget::CrtWidget(QWidget *parent) :
 
         if(view!=nullptr)
         {
-            m_architePlanView->autoFitView(view);
+            if(currentGraphicsItem!=nullptr)
+            {
+                view->fitInView(currentGraphicsItem,Qt::KeepAspectRatio);
+            }
+
         }
     });
 
@@ -105,6 +114,10 @@ CrtWidget::CrtWidget(QWidget *parent) :
         QMetaObject::invokeMethod(m_alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,false));
         QMetaObject::invokeMethod(m_alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()+1));
 
+    });
+
+    connect(m_architePlanView,&ArchitePlanView::reduInstruction,this,[=](bool isOk){
+        QMetaObject::invokeMethod(m_alarmObj,"allAlarmClear",Q_ARG(QVariant,isOk));
     });
 
     connect(m_architePlanView,&ArchitePlanView::toLastPage,this,[=](){
@@ -144,6 +157,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
 
 CrtWidget::~CrtWidget()
 {
+    Controller::instance()->getOperatorInfo()->insertEvent(tr("系统关机"));
     m_sqliteManager->close();
     m_sqliteManager->deleteLater();
     delete m_alarmContainer;
@@ -252,7 +266,7 @@ void CrtWidget::alarmStatistics(const QString &type)
     }
     else if(type==tr("监管"))
     {
-        QMetaObject::invokeMethod(m_alarmObj,"setSuperviseAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+        QMetaObject::invokeMethod(m_alarmObj,"setSuperviseAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"orange"));
         // QMetaObject::invokeMethod(m_alarmObj,"startSuperviseAnimation",Q_ARG(QVariant,true));
         QMetaObject::invokeMethod(m_alarmObj,"setSuperviseText",Q_ARG(QVariant,m_architePlanView->numOfTypeAlarm(type)));
     }
@@ -264,13 +278,13 @@ void CrtWidget::alarmStatistics(const QString &type)
     }
     else if(type==tr("反馈"))
     {
-        QMetaObject::invokeMethod(m_alarmObj,"setFeedbackColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+        QMetaObject::invokeMethod(m_alarmObj,"setFeedbackColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"blue"));
         // QMetaObject::invokeMethod(m_alarmObj,"startFeedbackAnimation",Q_ARG(QVariant,true));
         QMetaObject::invokeMethod(m_alarmObj,"setFeedbackText",Q_ARG(QVariant,m_architePlanView->numOfTypeAlarm(type)));
     }
     else if(type==tr("屏蔽"))
     {
-        QMetaObject::invokeMethod(m_alarmObj,"setShieldAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+        QMetaObject::invokeMethod(m_alarmObj,"setShieldAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"pink"));
         // QMetaObject::invokeMethod(m_alarmObj,"startShieldAnimation",Q_ARG(QVariant,true));
         QMetaObject::invokeMethod(m_alarmObj,"setShieldText",Q_ARG(QVariant,m_architePlanView->numOfTypeAlarm(type)));
     }
@@ -302,6 +316,15 @@ void CrtWidget::initWidget()
 
         return Controller::instance()->getCrtWidget();
     });
+
+    qmlRegisterSingletonType<Controller>("operatorInfo", 1, 0, "OperatorInfo",
+                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+        Q_UNUSED(engine)
+        Q_UNUSED(scriptEngine)
+
+        return Controller::instance()->getOperatorInfo();
+    });
+
 
     qmlRegisterSingletonType<Controller>("serialConfigurationManager", 1, 0, "SerialPortInfo",
                                          [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
@@ -408,7 +431,7 @@ void CrtWidget::alarmDataOnTable()
 
     QStringList alarmInfoList;
     alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"设备编码"
-                  << "设备"<<"报警状态"<<"报警时间"<<"系统"
+                  << "设备"<<"报警类型"<<"报警状态"<<"报警时间"<<"系统"
                   << "建筑名称"<<"楼层"<<"位置";
     if(m_architePlanView->currentAlarmType()=="全部")
     {

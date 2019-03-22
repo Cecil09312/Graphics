@@ -83,7 +83,7 @@ Rectangle {
                     if (userRightComboBox.currentText === qsTr("超级用户")) {
                         userRight = UserManager.Super
                         passwordStr = UserManager.password(UserManager.Super,
-                                                           "system")
+                                                           "super")
                     } else if (userRightComboBox.currentText === qsTr("工程人员")) {
                         userRight = UserManager.Engineer
                         passwordStr = UserManager.password(
@@ -99,7 +99,11 @@ Rectangle {
                     if (passwordTextField.text === passwordStr) {
 
                         UserManager.setUserRight(userRight)
-                        UserManager.setUserName(userNameTextField.text)
+                        if (userRight === UserManager.Super) {
+                            UserManager.setUserName("super")
+                        } else {
+                            UserManager.setUserName(userNameTextField.text)
+                        }
                         infoMessageDialog.open()
                     } else {
                         criticalMessageDialog.open()

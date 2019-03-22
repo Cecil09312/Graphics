@@ -274,7 +274,7 @@ Item {
         var currentUserRight
         if (userRight === qsTr("超级用户")) {
             currentUserRight = UserManager.Super
-            oldPasswordStr = UserManager.password(UserManager.Super, "system")
+            oldPasswordStr = UserManager.password(UserManager.Super, "super")
         } else if (userRight === qsTr("工程人员")) {
             currentUserRight = UserManager.Engineer
             oldPasswordStr = UserManager.password(UserManager.Engineer,
@@ -289,7 +289,7 @@ Item {
             if (newPasswordTextFiled.text.length > 0) {
                 if (currentUserRight === UserManager.Super) {
                     UserManager.setPassword(currentUserRight,
-                                            newPasswordTextFiled.text, "system")
+                                            newPasswordTextFiled.text, "super")
                 } else {
                     UserManager.setPassword(currentUserRight,
                                             newPasswordTextFiled.text,

@@ -26,31 +26,39 @@ public:
     explicit ArchitePlanView(QWidget *parent = nullptr);
     ~ArchitePlanView();
     int numOfTypeAlarm(const QString &type);
-    Q_INVOKABLE void setGlobalArchitePixmap(const QString &pixmapName);
+
     static QMap<int,GraphicsView *> &getWidgetMap();
     int totalPage();
     int currentPage();
-    Q_INVOKABLE void clearAlarm();
-    Q_INVOKABLE void createAlarm(const QString &extNum, const QString &loopNum, const QString &addressNum, const QString &alarmTypeName);
+
 
     void eliminateAlarm(GraphicsItem *item);//消除报警
-    void generateAlarm(const QString &alarmTypeName, GraphicsItem*item, GraphicsView *view);
+    void generateAlarm(const QString &alarmTypeName, GraphicsItem*item, GraphicsView *view, bool isAnalog=false);
     void insertAlarmWidget(const QString &type,GraphicsView*view);
     void deleteAlarmWidget(const QString &type, GraphicsView *view);
     void clearAlarmWidget();
     void clearAlarmWidget(const QString &type);
-    Q_INVOKABLE void setCurrentAlarmType(const QString &type);
+
     QString currentAlarmType();
 
     GraphicsView * viewFromChildItem(QStandardItem* childItem);
     QList<GraphicsView *> viewsFromParentItem(QStandardItem* parentItem);
     QList<GraphicsView *> haveAlarms(const QString &alarm);
     void autoFitView(QGraphicsView *view);
-    Q_INVOKABLE void toAlarmView();
+
     QStandardItem*getParnentItemFromView(GraphicsView*view);
     void saveArchiteInfoToDb();
     QStandardItem*getItemFromView(GraphicsView*view);
     Q_INVOKABLE QString architeInfoDbName();
+    Q_INVOKABLE void setGlobalArchitePixmap(const QString &pixmapName);
+    Q_INVOKABLE void clearAlarm(bool alarmColorRedu=false);
+    Q_INVOKABLE void createAlarm(const QString &extNum, const QString &loopNum,
+                                 const QString &addressNum, const QString &alarmTypeName,
+                                 bool isAnalog=false);
+    Q_INVOKABLE void toAlarmView();
+    Q_INVOKABLE void setCurrentAlarmType(const QString &type);
+    Q_INVOKABLE void toArchitePlan(const QString &extNum, const QString &loopNum,
+                                   const QString &addressNum);
 signals:
     void alarmHappend(const QString &alarmType);
     void toLastPage();
@@ -61,6 +69,7 @@ signals:
     void eliminateAlarmFromTable(GraphicsItem *item);
     void clearAlarmFromTable();
     void editGlobalItem();
+    void reduInstruction(bool alarmColorRedu);
 public slots:
     void firstFireAlarm();
     void lastFireAlarm();

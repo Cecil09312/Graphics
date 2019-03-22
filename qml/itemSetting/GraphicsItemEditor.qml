@@ -123,8 +123,7 @@ Item {
                     width: 150
                     height: 40
                     onTextEdited: {
-                        emit: setItemInfo("deviceNum",
-                                          deviceLocationTextField.text)
+                        emit: setItemInfo("deviceNum", deviceNumTextField.text)
                     }
                 }
 
@@ -203,10 +202,8 @@ Item {
                     height: 40
                     verticalAlignment: Text.AlignVCenter
                     onTextEdited: {
-                        emit: setItemInfo("operator",
-                                         operatorTextField.text)
+                        emit: setItemInfo("operator", operatorTextField.text)
                     }
-
                 }
 
                 Text {
@@ -426,7 +423,6 @@ Item {
                     equipmentModelComboBox.currentIndex)
         periodOfValidityText.text = periodOfvalidityValue(
                     equipmentModelComboBox.currentIndex)
-
     }
 
     Connections {

@@ -20,7 +20,7 @@ UserManager::UserManager(QObject *parent)
             {
                 m_sqliteManager->executeQuery("create table UserInfo(userRight text not null, userName text primary key not null,password text not null);");
                 m_sqliteManager->executeQuery("insert into UserInfo values('Employee','employee','1234')");
-                m_sqliteManager->executeQuery("insert into UserInfo values('Super','system','super')");
+                m_sqliteManager->executeQuery("insert into UserInfo values('Super','super','super')");
             }
             else
             {
@@ -94,6 +94,7 @@ QString UserManager::userName()
 void UserManager::setUserName(const QString &name)
 {
     m_userName = name;
+    emit userNameChanged(name);
 }
 
 UserManager::UserRight UserManager::userRight()
@@ -104,6 +105,7 @@ UserManager::UserRight UserManager::userRight()
 void UserManager::setUserRight(const UserManager::UserRight &right)
 {
     m_userRight = right;
+    emit userRightChanged(right);
 }
 
 void UserManager::addUser(const QString &userName, const UserManager::UserRight &right, const QString &password)

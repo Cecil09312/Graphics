@@ -3,6 +3,7 @@ import QtQuick.Extras 1.4
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
 import QtQuick.Controls.Styles 1.4
+import operatorInfo 1.0
 
 Rectangle {
     width: 150
@@ -46,8 +47,9 @@ Rectangle {
             font.family: qsTr("Times New Roman")
             onClicked: {
                 ArchitePlanView.clearAlarm()
-                allAlarmClear()
+                // allAlarmClear()
                 autoSwitchCheckBox.checked = false
+                OperatorInfo.insertEvent(qsTr("复位"))
             }
             onPressed: {
                 highlighted = true
@@ -139,7 +141,7 @@ Rectangle {
             id: superviseStatusIndicator
             Layout.column: 0
             Layout.row: 2
-            color: "green" //监管:绿色:正常,红色:报警
+            color: "green" //监管:绿色:正常,橙色:报警
             active: true
             ColorAnimation on color {
                 id: superviseAnimation
@@ -187,7 +189,7 @@ Rectangle {
             id: feedbackStatusIndicator
             Layout.column: 0
             Layout.row: 4
-            color: "green" //反馈:绿色:正常,红色:异常
+            color: "green" //反馈:绿色:正常,蓝色:异常
             active: true
             ColorAnimation on color {
 
@@ -212,7 +214,7 @@ Rectangle {
             id: shieldStatusIndicator
             Layout.column: 0
             Layout.row: 5
-            color: "green" //屏蔽:绿色:正常,红色:异常
+            color: "green" //屏蔽:绿色:正常,粉色:异常
             active: true
             ColorAnimation on color {
                 id: shieldAnimation
@@ -347,7 +349,7 @@ Rectangle {
             font.family: qsTr("Times New Roman")
             text: qsTr("消音")
             onClicked: {
-
+                OperatorInfo.insertEvent(qsTr("消音"))
             }
 
             onPressed: {
@@ -366,8 +368,8 @@ Rectangle {
             font.family: qsTr("Times New Roman")
             text: qsTr("报警平面")
             onClicked: {
-                // ArchitePlanView.toAlarmView()
-                ArchitePlanView.createAlarm("0", "0", "2", qsTr("火警"))
+                ArchitePlanView.toAlarmView()
+                // ArchitePlanView.createAlarm("0", "0", "2", qsTr("故障"))
             }
             onPressed: {
                 highlighted = true
@@ -604,7 +606,7 @@ Rectangle {
         var txt = qsTr("屏蔽 ") + value
         shieldNum.text = txt
     }
-    function allAlarmClear() {
+    function allAlarmClear(alarmColorRedu) {
         startFireAnimation(false)
         startLinkageAnimation(false)
         startSuperviseAnimation(false)
@@ -613,8 +615,14 @@ Rectangle {
         startShieldAnimation(false)
         startMainConnunicationAnimation(false)
 
-        setFireAlarmColor(true, fireAlarmStatusIndicator.color)
-        setLinkageAlarmColor(true, linkageStatusIndicator.color)
+        if (alarmColorRedu) {
+            setFireAlarmColor(true, "green")
+            setLinkageAlarmColor(true, "green")
+        } else {
+            setFireAlarmColor(true, fireAlarmStatusIndicator.color)
+            setLinkageAlarmColor(true, linkageStatusIndicator.color)
+        }
+
         setSuperviseAlarmColor(true, "green")
         setfaultAlarmColor(true, "green")
         setFeedbackColor(true, "green")

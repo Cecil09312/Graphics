@@ -13,14 +13,12 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
 
 {
     m_graphicsScene = scene;
-
     m_itemInfo.m_currentState = tr("正常");
     m_itemInfo.m_manufacturers = tr("北京利达华信电子有限公司");
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);
     m_colorEffect = new QGraphicsColorizeEffect(this);
     setAcceptHoverEvents(true);
-
     setGraphicsEffect(m_colorEffect);
     m_colorEffect->setStrength(0.0);
     setProperty("color",m_color);
@@ -97,7 +95,6 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
             m_graphicsScene->update();
         }
     });
-
 
 }
 
@@ -420,6 +417,11 @@ QString &GraphicsItem::periodOfValidity()
 QString &GraphicsItem::deviceOperator()
 {
     return m_itemInfo.m_deviceOperator;
+}
+
+QString &GraphicsItem::alarmType()
+{
+    return m_itemInfo.m_alarmType;
 }
 
 

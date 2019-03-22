@@ -79,7 +79,8 @@ SOURCES += \
     graphicsWidget/globalgraphicsitem.cpp \
     print/print.cpp \
     communication/ftpmanager.cpp \
-    communication/ftpconfiguration.cpp
+    communication/ftpconfiguration.cpp \
+    database/operatorinfo.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -123,7 +124,8 @@ HEADERS += \
     graphicsWidget/globalgraphicsitem.h \
     print/print.h \
     communication/ftpmanager.h \
-    communication/ftpconfiguration.h
+    communication/ftpconfiguration.h \
+    database/operatorinfo.h
 
 FORMS +=
 

@@ -29,6 +29,7 @@ public:
 protected:
     void closeEvent(QCloseEvent *event);
 
+
 public slots:
     void widgetExit();
     void loginWidgetShow();

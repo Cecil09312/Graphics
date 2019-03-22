@@ -214,6 +214,28 @@ QList<QVariant> QmlTableModel::getValues()
     return valueList;
 }
 
+QString QmlTableModel::getValue(int row, const QString &roleName)
+{
+    if(row<rowCount())
+    {
+        QSqlRecord sqlRecord = record(row);
+        int index =m_roleHash.key(roleName.toLocal8Bit())-Qt::UserRole;
+        if(index <sqlRecord.count())
+        {
+            return sqlRecord.value(index).toString();
+        }
+        else
+        {
+            return QString();
+        }
+    }
+    else
+    {
+        return QString();
+    }
+
+}
+
 
 
 

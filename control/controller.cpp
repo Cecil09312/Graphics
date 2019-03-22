@@ -18,6 +18,7 @@ Controller::~Controller()
     m_udpConfigurationManager.data()->saveConfiguration();
     m_speechObj.clear();
     m_udpObj->deleteLater();
+    m_operatorInfo->deleteLater();
     //m_userManager.clear();
 }
 
@@ -123,6 +124,11 @@ ConfigurationManager *Controller::getTcpConfigurationManager()
     return m_tcpConfigurationManager.data();
 }
 
+OperatorInfo *Controller::getOperatorInfo()
+{
+    return m_operatorInfo;
+}
+
 Controller::Controller()
 {
     m_commObj = QSharedPointer<AbstractLink>(new SerialLink(),&QObject::deleteLater);
@@ -133,6 +139,7 @@ Controller::Controller()
     m_tcpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new TcpConfiguration),this)) ;
     m_udpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new UdpConfiguration),this)) ;
     m_ftpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new FtpConfiguration),this));
+    m_operatorInfo = new OperatorInfo;
     // m_modbusManager = QSharedPointer<ModbusManager>(new ModbusManager(Configuration(new TcpConfiguration)),&QObject::deleteLater);
    // m_udpObj->connectLink();
     // m_modbusManager.data()->connectDevice(ModbusManager::Connected);

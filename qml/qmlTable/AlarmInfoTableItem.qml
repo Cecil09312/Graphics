@@ -54,14 +54,14 @@ Item {
         }
 
         Text {
-            id: alarmInfoAlarmState
-            text: qsTr("报警状态")
+            id: alarmInfoAlarmType
+            text: qsTr("报警类型")
             height: 30
             horizontalAlignment: TextEdit.AlignHCenter
             verticalAlignment: TextEdit.AlignVCenter
         }
         TextField {
-            id: alarmInfoAlarmStateTextField
+            id: alarmInfoAlarmTypeTextField
             height: 30
             width: 100
         }
@@ -72,7 +72,7 @@ Item {
             onClicked: {
                 alarmInfoListModel.sqlCommit(
                             String(
-                                "select 分机号,回路号,地址号,系统,设备编码,设备,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo where %1").arg(
+                                "select 分机号,回路号,地址号,系统,设备编码,设备,报警类型,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo where %1").arg(
                                 selectInfo()))
             }
         }
@@ -83,7 +83,7 @@ Item {
             height: 30
             onClicked: {
                 alarmInfoListModel.sqlCommit(
-                            "select 分机号,回路号,地址号,系统,设备编码,设备,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo")
+                            "select 分机号,回路号,地址号,系统,设备编码,设备,报警类型,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo")
             }
         }
 
@@ -142,6 +142,12 @@ Item {
         }
 
         Controls1_4.TableViewColumn {
+            role: "alarmType"
+            title: qsTr("报警类型")
+            width: 60
+        }
+
+        Controls1_4.TableViewColumn {
             role: "currentAlarmState"
             title: qsTr("报警状态")
             width: 60
@@ -184,6 +190,7 @@ Item {
         }
 
         model: alarmInfoListModel
+
     }
     QmlTableModel {
         id: alarmInfoListModel
@@ -191,8 +198,8 @@ Item {
         dbName: Crt.alarmInfoDbName()
         dbConnectionName: "alarmInfoDb"
         dbPort: 888
-        roleNameList: ["extNum", "loopNum", "addrNum", "deviceSys", "productNum", "deviceType", "currentAlarmState", "alarmTime", "rebackAlarmTime", "buildName", "floor", "deviceLocation", "operator"]
-        titleList: ["分机号", "回路号", "地址号", "系统", "设备编码", "设备", "报警状态", "报警时间", "报警恢复时间", "建筑名称", "楼层", "位置", "操作员"]
+        roleNameList: ["extNum", "loopNum", "addrNum", "deviceSys", "productNum", "deviceType", "alarmType", "currentAlarmState", "alarmTime", "rebackAlarmTime", "buildName", "floor", "deviceLocation", "operator"]
+        titleList: ["分机号", "回路号", "地址号", "系统", "设备编码", "设备", "报警类型", "报警状态", "报警时间", "报警恢复时间", "建筑名称", "楼层", "位置", "操作员"]
     }
     function selectInfo() {
         var info = new String
@@ -215,11 +222,11 @@ Item {
             info += (qsTr("地址号=") + alarmInfoAddNumTextField.text)
         }
 
-        if (alarmInfoAlarmStateTextField.text.length > 0) {
+        if (alarmInfoAlarmTypeTextField.text.length > 0) {
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("报警状态=") + "'" + alarmInfoAlarmStateTextField.text + "'")
+            info += (qsTr("报警类型=") + "'" + alarmInfoAlarmTypeTextField.text + "'")
         }
         return info
     }
@@ -238,7 +245,7 @@ Item {
 
         alarmInfoListModel.setDbOpen(true)
         alarmInfoListModel.sqlCommit(
-                    "select 分机号,回路号,地址号,系统,设备编码,设备,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo")
+                    "select 分机号,回路号,地址号,系统,设备编码,设备,报警类型,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo")
     }
 
     MessageDialog {

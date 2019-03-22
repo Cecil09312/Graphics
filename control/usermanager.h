@@ -8,6 +8,7 @@ class UserManager : public QObject
 {
     Q_OBJECT
     Q_ENUMS(UserRight)
+
 public:
     enum UserRight
     {
@@ -26,6 +27,8 @@ public:
     ~UserManager();
 
 signals:
+    void userNameChanged(const QString &userName);
+    void userRightChanged(const UserRight& right);
 
 public slots:
 private:

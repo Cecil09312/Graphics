@@ -148,6 +148,15 @@ Item {
             //resizable: true
         }
         model: deviceStateModel
+        onDoubleClicked: {
+            var curExtNum = new String
+            var curLoopNum = new String
+            var curAddrNum = new String
+            curExtNum = deviceStateModel.getValue(row, "extNum")
+            curLoopNum = deviceStateModel.getValue(row, "loopNum")
+            curAddrNum = deviceStateModel.getValue(row, "addrNum")
+            ArchitePlanView.toArchitePlan(curExtNum, curLoopNum, curAddrNum)
+        }
     }
     QmlTableModel {
         id: deviceStateModel

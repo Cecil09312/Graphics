@@ -24,7 +24,9 @@ public:
     QGraphicsItem*getItem(int pos) const;
     void setItemInfo(GraphicsItem*item, const QHash<QString,QVariant>&itemHash);
 signals:
-    void createItem(GraphicsItem *item);
+    void createItem(GraphicsItem *item);signals:
+
+
 protected:
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent*event);
     void mousePressEvent(QGraphicsSceneMouseEvent*event);
@@ -34,7 +36,8 @@ private slots:
     void setItemSize(qreal size);
     void setItemIcon(QString iconName);
     void setItemInfoFromType(const QString &type,const QString &info);
-
+    void getAlarm(QString extNum,QString loopNum, QString addrNum,QString alarmState);
+    void clearAlarms();
 private:
     void init();
 
@@ -49,9 +52,12 @@ private:
     QAction *m_closeAction;
     QAction *m_handDragAction;
     QAction *m_rubberBandDragAction;
+    QAction *m_analogAlarmAction;
     QPointF m_currentPointF;
     QQuickView *m_itemSettingView;
+    QQuickView *m_analogAlarmView;
     QObject *m_itemSettingObj;
+    QObject *m_analogAlarmObj;
 };
 
 #endif // GRAPHICSSCENE_H

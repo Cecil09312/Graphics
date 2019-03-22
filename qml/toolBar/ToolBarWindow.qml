@@ -102,38 +102,37 @@ ToolBar {
             }
         }
 
+        ToolButton {
+            id: helpBtn
+            width: 30
+            BorderImage {
+                id: helpImage
+                source: "qrc:/images/help.png"
+                width: parent.width
+                height: parent.height
+            }
+            ToolTip {
 
-        //        ToolButton {
-        //            id: helpBtn
-        //            width: 30
-        //            BorderImage {
-        //                id: helpImage
-        //                source: "qrc:/images/help.png"
-        //                width: parent.width
-        //                height: parent.height
-        //            }
-        //            ToolTip {
+                id: helpBtnToolTip
+                visible: helpBtn.hovered
+                text: qsTr("帮助")
+                contentItem: Text {
+                    text: helpBtnToolTip.text
+                    font.family: "Times New Roman"
+                    font.bold: true
+                    color: "black"
+                }
 
-        //                id: helpBtnToolTip
-        //                visible: helpBtn.hovered
-        //                text: qsTr("帮助")
-        //                contentItem: Text {
-        //                    text: helpBtnToolTip.text
-        //                    font.family: "Times New Roman"
-        //                    font.bold: true
-        //                    color: "black"
-        //                }
-
-        //                background: Rectangle {
-        //                    color: "transparent"
-        //                    BorderImage {
-        //                        source: "qrc:/images/dialog.png"
-        //                        anchors.fill: parent
-        //                    }
-        //                }
-        //                bottomMargin: 30
-        //            }
-        //        }
+                background: Rectangle {
+                    color: "transparent"
+                    BorderImage {
+                        source: "qrc:/images/dialog.png"
+                        anchors.fill: parent
+                    }
+                }
+                bottomMargin: 30
+            }
+        }
         ToolButton {
             id: quitBtn
             Layout.alignment: Qt.AlignRight

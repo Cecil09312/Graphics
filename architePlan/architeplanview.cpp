@@ -113,7 +113,7 @@ ArchitePlanView::~ArchitePlanView()
 }
 
 
-void ArchitePlanView::createAlarm(const QString&extNum,const QString&loopNum,const QString&addressNum,const QString &alarmTypeName)
+void ArchitePlanView::createAlarm(const QString&extNum,const QString&loopNum,const QString&addressNum,const QString &alarmTypeName,bool isAnalog)
 {
     foreach (GraphicsView *view, m_widgetMap.values())
     {
@@ -129,7 +129,7 @@ void ArchitePlanView::createAlarm(const QString&extNum,const QString&loopNum,con
                     {
                         if(!DataStore::getTypeItemList(alarmTypeName).contains(currentItem))
                         {
-                            generateAlarm(alarmTypeName,currentItem,view);
+                            generateAlarm(alarmTypeName,currentItem,view,isAnalog);
                         }
                         break;
                     }
@@ -156,23 +156,64 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item)
     emit  eliminateAlarmFromTable(item);
 }
 
-void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *item,GraphicsView *view)
+void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *item,GraphicsView *view, bool isAnalog)
 {
     if(item!=nullptr)
     {
+        if(item->currentState()!=tr("正常"))
+        {
+            return;
+        }
         item->currentState()= alarmTypeName;
+        if(isAnalog)
+        {
+            item->alarmType() = tr("模拟")+alarmTypeName;
+        }
         DataStore::insertTypeItem(alarmTypeName,item);
         QList<QGraphicsItem *> graphicsItemList=   DataStore::getTypeItemList(alarmTypeName);
 
         if(graphicsItemList.size()>0)
         {
             GraphicsItem*gItem =dynamic_cast<GraphicsItem*>(graphicsItemList.at(0));
-            if(gItem==item)
+
+            if(alarmTypeName==tr("屏蔽"))
             {
-                item->startAnimations();
+                item->setColorEndValue(QColor("pink"));
+            }
+            else if(alarmTypeName==tr("反馈"))
+            {
+
+                item->setColorEndValue(QColor("blue"));
+            }
+            else if(alarmTypeName==tr("故障"))
+            {
+                item->setColorEndValue(QColor("yellow"));
+            }
+            else if(alarmTypeName==tr("监管"))
+            {
+                item->setColorEndValue(QColor("orange"));
             }
             else
             {
+                item->setColorEndValue(QColor("red"));
+
+            }
+
+
+            if(gItem==item)
+            {
+                if(alarmTypeName==tr("火警"))
+                {
+                    item->startAnimations();
+                }
+                else
+                {
+                    item->startColorAnimation();
+                }
+            }
+            else
+            {
+
                 item->startColorAnimation();
             }
 
@@ -932,7 +973,7 @@ int ArchitePlanView::currentPage()
     return viewList.indexOf(view);
 }
 
-void ArchitePlanView::clearAlarm()
+void ArchitePlanView::clearAlarm(bool alarmColorRedu)
 {
     QList< QList<QGraphicsItem *> >list= DataStore::getTypeItemHash().values();
     foreach (QList<QGraphicsItem *>itemList, list)
@@ -954,21 +995,22 @@ void ArchitePlanView::clearAlarm()
             clearAlarmWidget();
             m_alarmViewList.clear();
             emit noPage();
+            emit reduInstruction(alarmColorRedu);
         }
     }
 
-  QList<QGraphicsItem*> globalGraphicsItemList= m_globalGraphicsView->currentScene()->items();
-  foreach (QGraphicsItem*item, globalGraphicsItemList)
-  {
-      GlobalGraphicsItem *globalGraphicsItem = dynamic_cast<GlobalGraphicsItem*>(item);
-      if(globalGraphicsItem!=nullptr)
-      {
-          if(globalGraphicsItem->animalIsRunning())
-          {
-              globalGraphicsItem->startAnimal(false);
-          }
-      }
-  }
+    QList<QGraphicsItem*> globalGraphicsItemList= m_globalGraphicsView->currentScene()->items();
+    foreach (QGraphicsItem*item, globalGraphicsItemList)
+    {
+        GlobalGraphicsItem *globalGraphicsItem = dynamic_cast<GlobalGraphicsItem*>(item);
+        if(globalGraphicsItem!=nullptr)
+        {
+            if(globalGraphicsItem->animalIsRunning())
+            {
+                globalGraphicsItem->startAnimal(false);
+            }
+        }
+    }
     emit clearAlarmFromTable();
 }
 
@@ -1027,6 +1069,37 @@ void ArchitePlanView::toNextPage()
 void ArchitePlanView::setCurrentAlarmType(const QString &type)
 {
     m_currentAlarmType = type;
+}
+
+void ArchitePlanView::toArchitePlan(const QString &extNum, const QString &loopNum, const QString &addressNum)
+{
+    foreach (GraphicsView *view, m_widgetMap.values())
+    {
+        if(view!=nullptr)
+        {
+            QList<QGraphicsItem *>itemList =   view->getItemList();
+            foreach(QGraphicsItem *item,itemList)
+            {
+                GraphicsItem *currentItem = dynamic_cast<GraphicsItem *>(item);
+                if(currentItem!=nullptr)
+                {
+                    if(currentItem->extNum()==extNum && currentItem->loopNum()==loopNum && currentItem->addrNum()==addressNum)
+                    {
+                        if(m_tabWidget->count()>=2)
+                        {
+                            if(m_tabWidget->currentIndex()!=1)
+                            {
+                                m_tabWidget->setCurrentIndex(1);
+                            }
+                        }
+                        m_stackedWidget->setCurrentWidget(view);
+                        view->fitInView(currentItem,Qt::KeepAspectRatio);
+                        return;
+                    }
+                }
+            }
+        }
+    }
 }
 
 QString ArchitePlanView::currentAlarmType()

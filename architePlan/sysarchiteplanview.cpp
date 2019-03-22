@@ -97,7 +97,6 @@ void SysArchitePlanView::init()
     hLayout->addWidget(m_stackedWidget);
     setLayout(hLayout);
 
-
     QStringList sysViewNameList;
     sysViewNameList<< tr("火灾自动报警系统")<< tr("消防联动控制系统")
                    << tr("自动喷水灭火系统")<< tr("消火栓系统")
