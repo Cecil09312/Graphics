@@ -7,6 +7,7 @@ import Qt.labs.platform 1.0
 import sysArchitePlanView 1.0
 import architePlanView 1.0
 import qmlForJson 1.0
+import operatorInfo 1.0
 
 Item {
 
@@ -120,7 +121,11 @@ Item {
         title: "Please choose a file"
         folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
         onAccepted: {
-
+            OperatorInfo.insertEvent(
+                        qsTr("建筑总平面布局图变更"),
+                        qsTr(String("%1变更为%2").arg(
+                                 globalArchitePlanTextFiled.text).arg(
+                                 currentFile.toString())))
             globalArchitePlanTextFiled.text = currentFile.toString()
             ArchitePlanView.setGlobalArchitePixmap(
                         globalArchitePlanTextFiled.text)

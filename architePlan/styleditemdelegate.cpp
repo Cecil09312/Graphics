@@ -14,7 +14,6 @@ void StyledItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     {
         painter->save();
 
-
         QVariant variant = index.data(Qt::UserRole+1);
         QRectF rect;
         rect.setX(option.rect.x());

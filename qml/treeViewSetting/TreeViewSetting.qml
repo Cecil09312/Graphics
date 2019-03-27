@@ -4,11 +4,14 @@ import QtQuick.Layouts 1.3
 //import QtQuick.VirtualKeyboard 2.1
 import QtQuick.Window 2.3
 import Qt.labs.platform 1.0
+import operatorInfo 1.0
 
 Rectangle {
     id: treeViewSettingRec
     width: 480
     height: 240
+    property string architeName: ""
+    property string architeImage: ""
     GridLayout {
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
@@ -34,6 +37,11 @@ Rectangle {
             text: qsTr("确认")
             onClicked: {
                 TreeView.setItemName(primaryArchiteName.text)
+                OperatorInfo.insertEvent(qsTr("建筑平面图名称更改"),
+                                         qsTr(String("由\"%1\"变更为\"%2\"").arg(
+                                                  architeName).arg(
+                                                  primaryArchiteName.text)))
+                architeName = primaryArchiteName.text
             }
         }
 
@@ -85,8 +93,13 @@ Rectangle {
         folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
         nameFilters: "SVG Files(*.svg)"
         onAccepted: {
+            OperatorInfo.insertEvent(qsTr("建筑平面图更改"),
+                                     qsTr(String("\"%1\"变更为\"%2\"").arg(
+                                              architeImage).arg(
+                                              currentFile.toString())))
             primArchImageTextField.text = currentFile.toString()
             TreeView.insertPixmap(primArchImageTextField.text)
+            architeImage = primArchImageTextField.text
         }
     }
 
@@ -95,5 +108,14 @@ Rectangle {
         primArchImageTextField.clear()
         primaryArchiteName.focus = false
         primArchImageTextField.focus = false
+    }
+
+    function setArchiteName(name) {
+        primaryArchiteName.text = name
+        architeName = name
+    }
+    function setArchiteImage(image) {
+        primArchImageTextField.text = image
+        architeImage = image
     }
 }

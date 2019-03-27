@@ -75,7 +75,7 @@ Item {
 
             onClicked: {
                 deviceStateModel.sqlCommit(
-                            "select extNum ,loopNum,addrNum   ,manufacturers,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo")
+                            "select extNum ,loopNum,addrNum ,manufacturers,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo")
             }
         }
     }
@@ -172,27 +172,27 @@ Item {
 
         deviceStateModel.setDbOpen(true)
         deviceStateModel.sqlCommit(
-                    "select extNum ,loopNum,addrNum   ,manufacturers,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo")
+                    "select extNum ,loopNum,addrNum ,manufacturers,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo")
     }
 
     function selectInfo() {
         var info = new String
         if (loopNumTextField.text.length > 0) {
-            info += (qsTr("loopNum=") + loopNumTextField.text)
+            info += (qsTr("loopNum=") + "'"+loopNumTextField.text+"'")
         }
 
         if (addressNumTextField.text.length > 0) {
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("addrNum=") + addressNumTextField.text)
+            info += (qsTr("addrNum=") + "'"+addressNumTextField.text+"'")
         }
 
         if (extNumTextField.text.length > 0) {
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("extNum=") + extNumTextField.text)
+            info += (qsTr("extNum=") + "'"+extNumTextField.text+"'")
         }
         return info
     }

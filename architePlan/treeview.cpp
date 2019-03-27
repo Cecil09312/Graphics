@@ -30,7 +30,19 @@ TreeView::TreeView(QWidget *parent):
     connect(m_editAction,&QAction::triggered,this,[=]()
     {
         QObject *obj= m_architeSettingView->rootObject();
-        QMetaObject::invokeMethod(obj,"clearTextField");
+        QStandardItem *item = m_stdModel->itemFromIndex(indexAt(m_rootPoint));
+        if(item!=nullptr)
+        {
+            QMetaObject::invokeMethod(obj, "setArchiteName",Q_ARG(QVariant,item->text()));
+
+            ArchitePlanView *architeView=  Controller::instance()->getArchitePlanView();
+            GraphicsView *graphicsView =  architeView->viewFromChildItem(item);
+            if(graphicsView!=nullptr)
+            {
+                QMetaObject::invokeMethod(obj, "setArchiteImage",Q_ARG(QVariant,graphicsView->pixmapName()));
+            }
+        }
+        //QMetaObject::invokeMethod(obj,"clearTextField");
         m_architeSettingView->show();
     });
 
@@ -61,7 +73,7 @@ TreeView::TreeView(QWidget *parent):
         }
         else
         {
-           clearItem();
+            clearItem();
         }
 
     });

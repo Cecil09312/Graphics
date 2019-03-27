@@ -147,18 +147,17 @@ Item {
             }
         }
 
-
         Controls1_4.Tab {
             title: qsTr("操作事件查询")
             anchors.topMargin: 20
             OperaEventTableItem {
                 anchors.topMargin: 20
-                //id: operaEvent
 
+                id: operaEvent
                 Connections {
                     target: printBtn
                     onClicked: {
-                        if (tabView.currentIndex == 2) {
+                        if (tabView.currentIndex == 3) {
                             operaEvent.startPrint()
                         }
                     }
@@ -167,7 +166,7 @@ Item {
                 Connections {
                     target: printPreviewBtn
                     onClicked: {
-                        if (tabView.currentIndex == 2) {
+                        if (tabView.currentIndex == 3) {
                             operaEvent.printPreview()
                         }
                     }
@@ -176,7 +175,7 @@ Item {
                 Connections {
                     target: saveToPdfBtn
                     onClicked: {
-                        if (tabView.currentIndex == 2) {
+                        if (tabView.currentIndex == 3) {
                             operaEvent.saveToPdf()
                         }
                     }

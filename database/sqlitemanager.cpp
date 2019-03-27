@@ -1,5 +1,5 @@
-#include "sqlitemanager.h"
-
+﻿#include "sqlitemanager.h"
+#include <QDebug>
 SqliteManager::SqliteManager(QObject *parent)
     :SqlManager(parent)
 {
@@ -12,9 +12,4 @@ QStringList SqliteManager::getDatabases()
     return list;
 }
 
-QStringList SqliteManager::getTables(QString /*dataBase*/)
-{
-    QStringList list;
-    list= executeQuery( "SELECT name FROM sqlite_master WHERE type='table'");
-    return list;
-}
+

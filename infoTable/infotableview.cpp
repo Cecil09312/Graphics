@@ -4,7 +4,6 @@
 #include <QDebug>
 
 
-
 InfoTableView::InfoTableView(QWidget *parent)
     : QTableView(parent)
 {

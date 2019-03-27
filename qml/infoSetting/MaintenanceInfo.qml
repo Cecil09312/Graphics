@@ -5,6 +5,7 @@ Item {
     anchors.fill: parent
     anchors.leftMargin: 5
     anchors.rightMargin: 5
+    anchors.topMargin: 10
     Row {
         id: maintenanceRow
         anchors.top: parent.top
@@ -24,6 +25,7 @@ Item {
 
         TextField {
             id: timeTextField
+            placeholderText: qsTr("格式:2019/01/01 00:00:00")
         }
 
         Text {
@@ -40,19 +42,6 @@ Item {
         anchors.topMargin: 5
         columns: 2
         spacing: 5
-        Text {
-            text: qsTr("维保说明")
-        }
-
-        TextArea {
-
-            width: maintenanceRow.width
-            height: 100
-            background: Rectangle {
-                border.width: 1
-                color: "transparent"
-            }
-        }
 
         Text {
             text: qsTr("状态现象")
@@ -60,6 +49,7 @@ Item {
 
         TextArea {
 
+            id: stateTextArea
             width: maintenanceRow.width
             height: 100
             background: Rectangle {
@@ -69,10 +59,10 @@ Item {
         }
 
         Text {
-            text: qsTr("解决方法")
+            text: qsTr("维保方法")
         }
         TextArea {
-
+            id: methodsTextArea
             width: maintenanceRow.width
             height: 100
             background: Rectangle {
@@ -86,7 +76,7 @@ Item {
         }
 
         TextArea {
-
+            id: contentDescTextArea
             width: maintenanceRow.width
             height: 100
             background: Rectangle {
@@ -142,5 +132,43 @@ Item {
         anchors.top: selectInfoRow.bottom
         anchors.topMargin: 5
         text: qsTr("保存")
+        onClicked: {
+
+        }
+    }
+
+    function equipmentCode() {
+        return codeTextField.text
+    }
+
+    function maintTime() {
+        return timeTextField.text
+    }
+
+    function statePhenomenon() {
+        return stateTextArea.text
+    }
+
+    function methods() {
+        return methodsTextArea.text
+    }
+
+    function contentDesc() {
+        return contentDescTextArea.text
+    }
+    function buildingName() {
+        return buildingNameTextField.text
+    }
+
+    function floor() {
+        return floorTextField.text
+    }
+
+    function location() {
+        return locationTextField.text
+    }
+
+    function sysOfDevice() {
+        return sysTextField.text
     }
 }

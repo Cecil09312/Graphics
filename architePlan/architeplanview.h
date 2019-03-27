@@ -70,6 +70,7 @@ signals:
     void clearAlarmFromTable();
     void editGlobalItem();
     void reduInstruction(bool alarmColorRedu);
+    void tabIndex(int index);
 public slots:
     void firstFireAlarm();
     void lastFireAlarm();
@@ -112,6 +113,7 @@ private:
 
     SqlManager *m_sqliteManager;
     QString m_architeInfoDbName;
+    int m_itemInfoTableSize,m_globalArchiteTableSize;
 };
 
 #endif // ARCHITEPLANVIEW_H

@@ -5,6 +5,7 @@ import QtQuick.Window 2.3
 //import QtQuick.VirtualKeyboard 2.1
 import userManager 1.0
 import QtQuick.Dialogs 1.2
+import operatorInfo 1.0
 
 Rectangle {
     id: loginWindow
@@ -104,8 +105,10 @@ Rectangle {
                         } else {
                             UserManager.setUserName(userNameTextField.text)
                         }
+                        OperatorInfo.insertEvent(qsTr("用户登陆"))
                         infoMessageDialog.open()
                     } else {
+                        OperatorInfo.insertEvent(qsTr("用户登陆"), qsTr("失败"))
                         criticalMessageDialog.open()
                     }
                 }

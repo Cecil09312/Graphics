@@ -4,6 +4,7 @@ import QtQuick.Controls 1.4 as Controls1_4
 import qmlTableModel 1.0
 import crtWidget 1.0
 import QtQuick.Dialogs 1.2
+import architePlanView 1.0
 
 Item {
     //id: alarmInfoItem
@@ -190,7 +191,15 @@ Item {
         }
 
         model: alarmInfoListModel
-
+        onDoubleClicked: {
+            var curExtNum = new String
+            var curLoopNum = new String
+            var curAddrNum = new String
+            curExtNum = alarmInfoListModel.getValue(row, "extNum")
+            curLoopNum = alarmInfoListModel.getValue(row, "loopNum")
+            curAddrNum = alarmInfoListModel.getValue(row, "addrNum")
+            ArchitePlanView.toArchitePlan(curExtNum, curLoopNum, curAddrNum)
+        }
     }
     QmlTableModel {
         id: alarmInfoListModel
@@ -204,7 +213,7 @@ Item {
     function selectInfo() {
         var info = new String
         if (alarmInfoExtNumTextField.text.length > 0) {
-            info += (qsTr("分机号=") + alarmInfoExtNumTextField.text)
+            info += (qsTr("分机号=") + "'" + alarmInfoExtNumTextField.text + "'")
         }
 
         if (alarmInfoLoopNumTextField.text.length > 0) {
@@ -212,14 +221,14 @@ Item {
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("回路号=") + alarmInfoLoopNumTextField.text)
+            info += (qsTr("回路号=") + "'" + alarmInfoLoopNumTextField.text + "'")
         }
         if (alarmInfoAddNumTextField.text.length > 0) {
 
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("地址号=") + alarmInfoAddNumTextField.text)
+            info += (qsTr("地址号=") + "'" + alarmInfoAddNumTextField.text + "'")
         }
 
         if (alarmInfoAlarmTypeTextField.text.length > 0) {

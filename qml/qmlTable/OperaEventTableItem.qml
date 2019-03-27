@@ -44,7 +44,11 @@ Item {
             text: qsTr("查询")
             height: 30
             onClicked: {
-
+                operaEventQueryModel.sqlCommit(
+                            String("select * from operator where %1").arg(
+                                selectInfo()))
+                console.log(String("select * from operator where %1").arg(
+                                selectInfo()))
             }
         }
 
@@ -62,7 +66,7 @@ Item {
             text: qsTr("清空")
             height: 30
             onClicked: {
-
+                operaEventQueryModel.sqlCommit("delete from operator")
             }
         }
     }
@@ -77,28 +81,35 @@ Item {
         Controls1_4.TableViewColumn {
             role: "userName"
             title: qsTr("用户名")
-            width: 60
+            width: 100
             //resizable: true
         }
 
         Controls1_4.TableViewColumn {
             role: "userRight"
             title: qsTr("用户权限")
-            width: 60
+            width: 100
             //resizable: true
         }
 
         Controls1_4.TableViewColumn {
             role: "event"
             title: qsTr("事件")
-            width: 60
+            width: 150
+            //resizable: true
+        }
+
+        Controls1_4.TableViewColumn {
+            role: "result"
+            title: qsTr("结果")
+            width: 400
             //resizable: true
         }
 
         Controls1_4.TableViewColumn {
             role: "time"
             title: qsTr("时间")
-            width: 120
+            width: 200
             //resizable: true
         }
 
@@ -110,8 +121,9 @@ Item {
             dbName: OperatorInfo.operatorInfoDbPath()
             dbConnectionName: "operaEvent"
             dbPort: 6888
-            roleNameList: ["userName", "userRight", "event", "time"]
-            titleList: [qsTr("用户名"), qsTr("用户权限"), qsTr("事件"), qsTr("时间")]
+            roleNameList: ["userName", "userRight", "event", "result", "time"]
+            titleList: [qsTr("用户名"), qsTr("用户权限"), qsTr("事件"), qsTr(
+                    "结果"), qsTr("时间")]
         }
     }
 
@@ -122,15 +134,15 @@ Item {
 
     function selectInfo() {
         var info = new String
-        if (productNumTextField.text.length > 0) {
-            info += (qsTr("事件=") + productNumTextField.text)
+        if (eventTextField.text.length > 0) {
+            info += (qsTr("事件=") + "'" + eventTextField.text + "'")
         }
 
-        if (dateTextField.text.length > 0) {
+        if (timeTextField.text.length > 0) {
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("时间=") + dateTextField.text)
+            info += (qsTr("时间=") + "'" + timeTextField.text + "'")
         }
         return info
     }

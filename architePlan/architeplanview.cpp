@@ -351,16 +351,26 @@ void ArchitePlanView::initWidget()
     m_sqliteManager->open();
     if(m_sqliteManager->isOpen())
     {
-        QStringList tableNameList = m_sqliteManager->getTables(dbName);
+        QStringList tableNameList = m_sqliteManager->getTables();
+        QStringList itemInfoTableList;
+        itemInfoTableList<<"extNum text" << "addrNum text" << "loopNum text" << "buildingName text" << "currentState text"
+                        << "deviceLocation text" << "deviceNum text" << "equipmentModel text" << "floorOfDevice text"
+                        << "iconName text"<<"manufacturers text"<<"periodOfValidity text"<<"pos text"<<"size double"
+                        << "sysOfDevice text"<<"operator text";
+        m_itemInfoTableSize = itemInfoTableList.size();
+        QStringList globalArchiteList;
+        globalArchiteList << "buildingName text"<<"personOnDuty text"<< "pos text"<<"size double"<<"iconName text";
+        m_globalArchiteTableSize= globalArchiteList.size();
 
         if(!tableNameList.contains("ItemInfo"))
         {
-            m_sqliteManager->executeQuery("create table ItemInfo(extNum text,addrNum text,loopNum text,buildingName text,currentState text,deviceLocation text ,deviceNum text,equipmentModel text,floorOfDevice text,iconName text,manufacturers text,periodOfValidity text,pos text,size double,sysOfDevice text,operator text)");
+            m_sqliteManager->executeQuery(QString("create table ItemInfo(%1)").arg(itemInfoTableList.join(",")));
         }
 
         if(!tableNameList.contains("GlobalArchite"))
         {
-            m_sqliteManager->executeQuery("create table GlobalArchite(buildingName text,personOnDuty text, pos text,size double,iconName text)");
+
+            m_sqliteManager->executeQuery(QString("create table GlobalArchite(%1)").arg(globalArchiteList.join(",")));
         }
     }
 
@@ -460,6 +470,9 @@ void ArchitePlanView::initWidget()
         }
 
     });
+
+    connect(m_tabWidget,&QTabWidget::currentChanged,this,&ArchitePlanView::tabIndex);
+
 
 }
 
@@ -741,37 +754,39 @@ void ArchitePlanView::initFromDataBase(GraphicsView *view,const QString &buildin
     int valueSize = valueList.size();
     if(view!=nullptr)
     {
-        if(valueSize>=16&&valueSize%16==0)
+        if(valueSize>=m_itemInfoTableSize&&valueSize%m_itemInfoTableSize==0)
         {
-            for(int j=0;j<valueSize;j=j+16)
+            for(int j=0;j<valueSize;j=j+m_itemInfoTableSize)
             {
                 QGraphicsScene *scene = view->scene();
                 GraphicsScene *graphicsScene = dynamic_cast<GraphicsScene*>(scene);
-                GraphicsItem *item = new GraphicsItem(graphicsScene);
-                item->extNum() =valueList.at(j);
-                item->addrNum() = valueList.at(j+1);
-                item->loopNum() =valueList.at(j+2);
-                item->buildingName() = valueList.at(j+3);
-                item->currentState() =valueList.at(j+4);
-                item->deviceLocation() = valueList.at(j+5);
-                item->deviceNum() =valueList.at(j+6);
-                item->equipmentModel() = valueList.at(j+7);
-                item->floorOfDevice() =valueList.at(j+8);
-                item->setIconName( valueList.at(j+9));
-                item->manufacturers() =valueList.at(j+10);
-                item->periodOfValidity() = valueList.at(j+11);
-                QString posStr = valueList.at(j+12);
-                item->setPos(QPointF(posStr.section(",",0,0).toDouble(),posStr.section(",",1,1).toDouble()));
-                QString sizeStr = valueList.at(j+13);
-                item->setRadius(sizeStr.toDouble());
-                item->sysOfDevice() =valueList.at(j+14);
-                item->deviceOperator() = valueList.at(j+15);
-                if(graphicsScene!=nullptr)
+                if(valueList.size()>j+15)
                 {
-                    graphicsScene->addItem(item);
-                    graphicsScene->getItemList().push_back(item);
+                    GraphicsItem *item = new GraphicsItem(graphicsScene);
+                    item->extNum() =valueList.at(j);
+                    item->addrNum() = valueList.at(j+1);
+                    item->loopNum() =valueList.at(j+2);
+                    item->buildingName() = valueList.at(j+3);
+                    item->currentState() =valueList.at(j+4);
+                    item->deviceLocation() = valueList.at(j+5);
+                    item->deviceNum() =valueList.at(j+6);
+                    item->equipmentModel() = valueList.at(j+7);
+                    item->floorOfDevice() =valueList.at(j+8);
+                    item->setIconName( valueList.at(j+9));
+                    item->manufacturers() =valueList.at(j+10);
+                    item->periodOfValidity() = valueList.at(j+11);
+                    QString posStr = valueList.at(j+12);
+                    item->setPos(QPointF(posStr.section(",",0,0).toDouble(),posStr.section(",",1,1).toDouble()));
+                    QString sizeStr = valueList.at(j+13);
+                    item->setRadius(sizeStr.toDouble());
+                    item->sysOfDevice() =valueList.at(j+14);
+                    item->deviceOperator() = valueList.at(j+15);
+                    if(graphicsScene!=nullptr)
+                    {
+                        graphicsScene->addItem(item);
+                        graphicsScene->getItemList().push_back(item);
+                    }
                 }
-
             }
         }
     }
@@ -819,6 +834,7 @@ void ArchitePlanView::findFireAlarm(int pos)
                         {
                             m_tabWidget->setCurrentIndex(1);
                             m_stackedWidget->setCurrentWidget(currentView);
+                            autoFitView(currentView);
                             return;
                         }
                     }
@@ -828,6 +844,7 @@ void ArchitePlanView::findFireAlarm(int pos)
                         {
                             m_tabWidget->setCurrentIndex(1);
                             m_stackedWidget->setCurrentWidget(currentView);
+                            autoFitView(currentView);
                             return;
                         }
                     }
@@ -878,7 +895,7 @@ void ArchitePlanView::setGlobalArchiteFromJson()
     setGlobalArchitePixmap(pixmapName);
     QStringList itemValueList=   m_sqliteManager->executeQuery("select *from GlobalArchite");
     int listSize = itemValueList.size();
-    for(int i=0;i<listSize;i=i+5)
+    for(int i=0;i<listSize;i=i+m_globalArchiteTableSize)
     {
         QString posStr = itemValueList.at(i+2);
         qreal x = posStr.section(",",0,0).toDouble();
@@ -887,11 +904,14 @@ void ArchitePlanView::setGlobalArchiteFromJson()
         GlobalGraphicsItem *currentItem=   m_globalGraphicsView->currentScene()->addGlobalGraphicsItem(point);
         if(currentItem!=nullptr)
         {
-            currentItem->setBuildName(itemValueList.at(i));
-            currentItem->setPersonOnDuty(itemValueList.at(i+1));
-            currentItem->setIconName(itemValueList.at(i+4));
-            QString sizeStr= itemValueList.at(i+3);
-            currentItem->setItemSize(sizeStr.toDouble());
+            if(itemValueList.size()>i+4)
+            {
+                currentItem->setBuildName(itemValueList.at(i));
+                currentItem->setPersonOnDuty(itemValueList.at(i+1));
+                currentItem->setIconName(itemValueList.at(i+4));
+                QString sizeStr= itemValueList.at(i+3);
+                currentItem->setItemSize(sizeStr.toDouble());
+            }
         }
     }
 
@@ -1056,7 +1076,15 @@ void ArchitePlanView::toNextPage()
         }
         if(currentPage()==(count-1))
         {
-            emit toLastPage();
+            if(count==1)
+            {
+                emit noPage();
+            }
+            else
+            {
+                emit toLastPage();
+            }
+
         }
         else
         {

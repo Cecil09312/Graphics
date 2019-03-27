@@ -33,6 +33,10 @@ SqlManager::~SqlManager()
     }
 
 }
+QStringList SqlManager::getTables()
+{
+    return d->m_database.tables();
+}
 
 
 void SqlManager::setDataBase(const QString &driver, const QString &conectionName, const QString &host,
@@ -158,3 +162,14 @@ QSqlDatabase &SqlManager::getDatabase()
 {
     return d->m_database;
 }
+
+int SqlManager::tableColumns(const QString &/*tableName*/)
+{
+    return 0;
+}
+
+QString SqlManager::dbName() const
+{
+    return d->m_database.databaseName();
+}
+

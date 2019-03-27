@@ -39,7 +39,7 @@ GlobalGraphicsItem::~GlobalGraphicsItem()
 void GlobalGraphicsItem::setIconName(const QString &name)
 {
     m_iconName = name;
-    m_scene->update();
+    update();
 }
 
 QString GlobalGraphicsItem::iconName()

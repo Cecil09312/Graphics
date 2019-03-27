@@ -7,7 +7,6 @@ UserManager::UserManager(QObject *parent)
       m_userName(tr("employee"))
 {
     m_sqliteManager = SqlManager::fromDriver("SQLITE");
-
     if(m_sqliteManager!=nullptr)
     {
         QString dbName = QCoreApplication::applicationDirPath()+"/userSetting.db";
@@ -15,7 +14,7 @@ UserManager::UserManager(QObject *parent)
         m_sqliteManager->open();
         if(m_sqliteManager->isOpen())
         {
-            QStringList tableNameList = m_sqliteManager->getTables(dbName);
+            QStringList tableNameList = m_sqliteManager->getTables();
             if(tableNameList.isEmpty())
             {
                 m_sqliteManager->executeQuery("create table UserInfo(userRight text not null, userName text primary key not null,password text not null);");
@@ -28,7 +27,6 @@ UserManager::UserManager(QObject *parent)
                 if(valueList.size()>0)
                 {
                     m_password = valueList.at(0);
-
                 }
             }
         }

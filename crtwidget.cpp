@@ -28,13 +28,14 @@ CrtWidget::CrtWidget(QWidget *parent) :
     m_sqliteManager->open();
     if(m_sqliteManager->isOpen())
     {
-        QStringList tableNameList = m_sqliteManager->getTables(dbName);
+        QStringList tableNameList = m_sqliteManager->getTables();
         if(!tableNameList.contains("AlarmInfo"))
         {
             m_sqliteManager->executeQuery("create table AlarmInfo(分机号 text, 回路号 text,地址号 text,设备编码 text ,设备 text,报警类型 text,报警状态 text,报警时间 text,报警恢复时间 text,系统 text,建筑名称 text,楼层 text,位置 text,制造商 text,有效期 text,操作员 text)");
         }
     }
 
+    m_infoTableView->hide();
     m_infoTableView->tableModel()->setDbDriver("QSQLITE");
     m_infoTableView->tableModel()->setDbName(dbName);
     m_infoTableView->tableModel()->setDbPort(888);
@@ -61,36 +62,37 @@ CrtWidget::CrtWidget(QWidget *parent) :
 
     connect(m_infoTableView,&InfoTableView::tableValue,this,[=](QSqlRecord record)
     {
-        QString deviceNum=  record.value("设备编码").toString();
-
         QString extNum=  record.value("分机号").toString();
         QString loopNum=  record.value("回路号").toString();
         QString addrNum=  record.value("地址号").toString();
-        QList<QList<QGraphicsItem *> > globalValueList= DataStore::getTypeItemHash().values();
-        GraphicsView *view = nullptr;
-        GraphicsItem *currentGraphicsItem = nullptr;
-        foreach (QList<QGraphicsItem *>valueList, globalValueList)
+        m_architePlanView->toArchitePlan(extNum,loopNum,addrNum);
+
+    });
+
+
+    connect(m_architePlanView,&ArchitePlanView::clearAlarmFromTable,this,[=]()
+    {
+        QString eliminateTime =  QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+        m_sqliteManager->executeQuery(QString("update AlarmInfo set 报警恢复时间 ='%1',报警状态 = '正常' where 报警状态 != '正常'").arg(eliminateTime));
+        alarmDataOnTable();
+    });
+
+    connect(m_architePlanView,&ArchitePlanView::eliminateAlarmFromTable,this,[=](GraphicsItem *item)
+    {
+        QString eliminateTime =  QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+        m_sqliteManager->executeQuery(QString("update AlarmInfo set 报警恢复时间 ='%1',报警状态 = '正常' where 报警状态 != '正常' and 设备编码 = '%2'").arg(eliminateTime).arg(item->deviceNum()));
+        alarmDataOnTable();
+    });
+
+    connect(m_architePlanView,&ArchitePlanView::tabIndex,this,[=](int index)
+    {
+        if(index==1)
         {
-            foreach (QGraphicsItem *item, valueList)
-            {
-                GraphicsItem *currentItem = dynamic_cast<GraphicsItem *>(item);
-                if(currentItem->deviceNum()==deviceNum&&currentItem->extNum()==extNum
-                        &&currentItem->loopNum()==loopNum&&currentItem->addrNum()==addrNum)
-                {
-                    view = DataStore::itemDisplayView(currentItem);
-                    currentGraphicsItem = currentItem;
-                    break;
-                }
-            }
+            m_infoTableView->show();
         }
-
-        if(view!=nullptr)
+        else
         {
-            if(currentGraphicsItem!=nullptr)
-            {
-                view->fitInView(currentGraphicsItem,Qt::KeepAspectRatio);
-            }
-
+            m_infoTableView->hide();
         }
     });
 
@@ -140,19 +142,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
 
     });
 
-    connect(m_architePlanView,&ArchitePlanView::clearAlarmFromTable,this,[=]()
-    {
-        QString eliminateTime =  QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
-        m_sqliteManager->executeQuery(QString("update AlarmInfo set 报警恢复时间 ='%1',报警状态 = '正常' where 报警状态 != '正常'").arg(eliminateTime));
-        alarmDataOnTable();
-    });
 
-    connect(m_architePlanView,&ArchitePlanView::eliminateAlarmFromTable,this,[=](GraphicsItem *item)
-    {
-        QString eliminateTime =  QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
-        m_sqliteManager->executeQuery(QString("update AlarmInfo set 报警恢复时间 ='%1',报警状态 = '正常' where 报警状态 != '正常' and 设备编码 = '%2'").arg(eliminateTime).arg(item->deviceNum()));
-        alarmDataOnTable();
-    });
 }
 
 CrtWidget::~CrtWidget()
@@ -223,7 +213,7 @@ void CrtWidget::alarmChanged(QString alarm)
 
     alarmDataOnTable();
     Q_ASSERT(m_alarmObj);
-    if(totalPage>0)
+    if(totalPage>1)
     {
         if(currentPage>0&&currentPage<totalPage-1)
         {
@@ -243,8 +233,17 @@ void CrtWidget::alarmChanged(QString alarm)
     }
     else
     {
-        QMetaObject::invokeMethod(m_alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,false));
-        QMetaObject::invokeMethod(m_alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,false));
+        if(currentPage<=0)
+        {
+            QMetaObject::invokeMethod(m_alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,true));
+            QMetaObject::invokeMethod(m_alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,false));
+        }
+        else
+        {
+            QMetaObject::invokeMethod(m_alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,false));
+            QMetaObject::invokeMethod(m_alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,false));
+        }
+
     }
     QMetaObject::invokeMethod(m_alarmObj,"setPage",Q_ARG(QVariant,totalPage),Q_ARG(QVariant,currentPage+1));
 }

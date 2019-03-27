@@ -8,7 +8,7 @@ public:
     MySqlManager();
     ~MySqlManager();
     QStringList getDatabases();
-    QStringList getTables(QString dataBase);
+    int tableColumns(const QString &tableName);
 };
 
 #endif // MYSQLMANAGER_H

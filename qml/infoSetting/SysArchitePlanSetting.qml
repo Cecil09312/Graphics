@@ -5,6 +5,7 @@ import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.0
 import sysArchitePlanView 1.0
 import qmlForJson 1.0
+import operatorInfo 1.0
 
 Item {
     property var textFieldName: fireAlarmTxt
@@ -201,6 +202,10 @@ Item {
         folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
         nameFilters: "SVG Files(*.svg)"
         onAccepted: {
+            OperatorInfo.insertEvent(qsTr(String("%1图纸变更").arg(txtName)),
+                                     qsTr(String("%1变更为%2").arg(
+                                              textFieldName.text).arg(
+                                              currentFile.toString())))
             textFieldName.text = currentFile.toString()
             SysArchitePlanView.setSysDrawing(txtName, textFieldName.text)
         }

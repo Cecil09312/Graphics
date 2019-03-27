@@ -14,7 +14,7 @@ public:
     explicit SqlManager(QObject *parent = nullptr);
     virtual ~SqlManager();
     virtual QStringList getDatabases()=0;
-    virtual QStringList getTables(QString dataBase)=0;
+    QStringList getTables();
     void setDataBase(const QString &driver,const QString &conectionName, const QString &host,
                      const QString &user,const QString &password,const QString &dataBase,const int &port);
     bool insertBatch(const QString &tableName, const QList<QVariant> &valueList);
@@ -24,6 +24,9 @@ public:
     bool isOpen() const;
     void close();
     QSqlDatabase &getDatabase();
+    virtual int tableColumns(const QString &tableName);
+    QString dbName() const;
+
 signals:
 
 public slots:

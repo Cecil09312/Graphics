@@ -32,6 +32,7 @@ void GlobalGraphicsView::setPicture(const QString &pictureName)
     QSvgRenderer *renderer = new QSvgRenderer(pictureName);
     m_svgItem->setSharedRenderer(renderer);
     m_pictureName = pictureName;
+    m_svgItem->update();
 }
 
 QString GlobalGraphicsView::pictureName()

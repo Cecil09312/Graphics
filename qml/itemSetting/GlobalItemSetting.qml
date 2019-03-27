@@ -2,12 +2,16 @@
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
 import Qt.labs.platform 1.0
+import operatorInfo 1.0
 
 Rectangle {
 
     width: 480
     height: 360
     signal setItemValue(real value)
+    property string buildName: ""
+    property string personOnDuty: ""
+    property string iconPath: ""
 
     GridLayout {
         anchors.verticalCenter: parent.verticalCenter
@@ -32,6 +36,12 @@ Rectangle {
             onClicked: {
                 GlobalItemSettingView.setCurrentBuildName(
                             buildNameTextField.text)
+
+                OperatorInfo.insertEvent(qsTr("更改建筑物名称"),
+                                         String("建筑物名称由\"%1\"改为\"%2\"").arg(
+                                             buildName).arg(
+                                             buildNameTextField.text))
+                buildName = buildNameTextField.text
             }
         }
 
@@ -53,8 +63,14 @@ Rectangle {
             Layout.column: 2
             text: qsTr("设置")
             onClicked: {
+
                 GlobalItemSettingView.setPersonOnDuty(
                             personOnDutyTextField.text)
+                OperatorInfo.insertEvent(qsTr("更改值班人员"),
+                                         String("值班人员由\"%1\"更改为\"%2\"").arg(
+                                             personOnDuty).arg(
+                                             personOnDutyTextField.text))
+                personOnDuty = personOnDutyTextField.text
             }
         }
 
@@ -122,13 +138,19 @@ Rectangle {
         title: "Please choose a file"
         folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
         onAccepted: {
+
             GlobalItemSettingView.setCurrentItemIcon(currentFile)
             iconTextField.text = currentFile
+            OperatorInfo.insertEvent(qsTr("更改建筑物图标"),
+                                     String("建筑物图标由\"%1\"更改为\"%2\"").arg(
+                                         iconPath).arg(iconTextField.text))
+            iconPath = iconTextField.text
         }
     }
 
     function setBuileName(name) {
         buildNameTextField.text = name
+        buildName = name
     }
 
     function setGlobalItemValue(value) {
@@ -138,9 +160,11 @@ Rectangle {
     function setGlobalIcon(name) {
 
         iconTextField.text = name
+        iconPath = name
     }
 
     function setPersonOnDuty(person) {
         personOnDutyTextField.text = person
+        personOnDuty = person
     }
 }

@@ -3,6 +3,7 @@ import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.2
 import userManager 1.0
+import operatorInfo 1.0
 
 Item {
 
@@ -244,8 +245,11 @@ Item {
                                     UserManager.Engineer,
                                     newUserTextField.text) === newUserPasswordTextField.text) {
                             addNewUserSuccessDialog.open()
+                            OperatorInfo.insertEvent(qsTr("添加用户成功"))
                         } else {
                             addNewUserFailureDialog.open()
+                            OperatorInfo.insertEvent(qsTr("添加用户失败"),
+                                                     qsTr("添加用户失败,或者用户已经存在"))
                         }
                     } else if (newUserComboBox.currentText === qsTr("员工")) {
                         UserManager.addUser(newUserTextField.text,
@@ -295,11 +299,14 @@ Item {
                                             newPasswordTextFiled.text,
                                             currentUserName)
                 }
+                OperatorInfo.insertEvent(qsTr("修改密码成功"))
                 infoMessageDialog.open()
             } else {
+                OperatorInfo.insertEvent(qsTr("修改密码失败"), qsTr("新密码为空"))
                 warningMessageDialog.open()
             }
         } else {
+            OperatorInfo.insertEvent(qsTr("修改密码失败"), qsTr("初始密码错误"))
             criticalMessageDialog.open()
         }
     }
