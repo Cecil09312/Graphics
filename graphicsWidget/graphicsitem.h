@@ -71,6 +71,7 @@ public:
     QHash<QString,QVariant> itemInfo();
     void setItemInfo(const ItemInfo &itemInfo);
     ItemInfo &getItemInfo();
+    Q_INVOKABLE void setPeriodOfValidity(const QString &period);
     Q_INVOKABLE QString &extNum();
     Q_INVOKABLE QString &loopNum();
     Q_INVOKABLE QString &addrNum();

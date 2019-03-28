@@ -178,26 +178,26 @@ Item {
 
     function selectInfo() {
         var info = new String
-        if (productNumTextField.text.length > 0) {
-            info += (qsTr("产品编号=") + "'" + productNumTextField.text + "'")
+        if (equipmentNumTextField.text.length > 0) {
+            info += (qsTr("设备编码=") + "'" + equipmentNumTextField.text + "'")
         }
 
-        if (dateTextField.text.length > 0) {
+        if (maintTimeTextField.text.length > 0) {
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("维保日期=") + "'" + dateTextField.text + "'")
+            info += (qsTr("维保日期=") + "'" + maintTimeTextField.text + "'")
         }
         return info
     }
 
     function saveToPdf() {
-        operaEventQueryModel.saveToPdf()
+        maintInfoQueryModel.saveToPdf()
     }
     function startPrint() {
-        operaEventQueryModel.startPrint()
+        maintInfoQueryModel.startPrint()
     }
     function printPreview() {
-        operaEventQueryModel.printPreview()
+        maintInfoQueryModel.printPreview()
     }
 }

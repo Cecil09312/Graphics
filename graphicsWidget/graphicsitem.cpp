@@ -48,8 +48,11 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     QHash<QString,QVariant>itemIconInfoHash = m_itemIconInfoToJson.getIconInfoHash();
     if(itemIconInfoHash.size()>0)
     {
-        QHash<QString,QVariant> deviceNameHash=  itemIconInfoHash[QString("%1").arg(itemIconIndex)].toHash();
-        m_itemInfo.m_equipmentModel= deviceNameHash["deviceName"].toString();
+        QHash<QString,QVariant> deviceHash=  itemIconInfoHash[QString("%1").arg(itemIconIndex)].toHash();
+        m_itemInfo.m_equipmentModel= deviceHash["deviceName"].toString();
+        m_itemInfo.m_manufacturers = deviceHash["manufacturers"].toString();
+        m_itemInfo.m_periodOfValidity = deviceHash["periodOfvalidity"].toString();
+
     }
     else
     {
@@ -111,13 +114,13 @@ QRectF GraphicsItem::boundingRect() const
     if(m_radius>0)
     {
         return QRectF(-m_radius - penWidth / 2, -m_radius - penWidth / 2,
-                      m_radius*2 + penWidth, m_radius*2 + penWidth);
+                      m_radius*2.5 + penWidth, m_radius*2.5 + penWidth);
     }
     else
     {
 
         return QRectF(-10 - penWidth / 2, -10 - penWidth / 2,
-                      20 + penWidth, 20 + penWidth);
+                      25 + penWidth, 25 + penWidth);
     }
 
 }
@@ -130,7 +133,7 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*optio
     if(m_iconName.endsWith(".svg"))
     {
         QSvgRenderer renderer(m_iconName);
-        renderer.render(painter,QRectF(-m_radius,-m_radius,m_radius*2,m_radius*2));
+        renderer.render(painter,QRectF(-m_radius/1.25,-m_radius/1.25,m_radius*2,m_radius*2));
         painter->drawText(QRect(-m_radius,-m_radius,m_radius,m_radius),m_itemInfo.m_deviceNum);
     }
     else
@@ -139,7 +142,7 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*optio
         {
             if(!QPixmap(m_iconName).isNull())
             {
-                painter->drawPixmap(-m_radius,-m_radius,m_radius*2,m_radius*2,QPixmap(m_iconName));
+                painter->drawPixmap(-m_radius/1.25,-m_radius/1.25,m_radius*2,m_radius*2,QPixmap(m_iconName));
             }
             painter->drawText(QRect(-m_radius,-m_radius,m_radius,m_radius),m_itemInfo.m_deviceNum);
         }
@@ -147,19 +150,24 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*optio
         {
             if(!QPixmap(m_iconName).isNull())
             {
-                painter->drawPixmap(-20,-20,20,20,QPixmap(m_iconName));
+                painter->drawPixmap(-20/1.25,-20/1.25,20,20,QPixmap(m_iconName));
             }
             painter->drawText(QRectF(-20,-20,20,20),m_itemInfo.m_deviceNum);
         }
+    }
 
-
+    if(!m_itemInfo.m_periodOfValidity.isEmpty()&&QDate::fromString(m_itemInfo.m_periodOfValidity,"yyyy/MM/dd")<=QDate::currentDate())
+    {
+        painter->setPen(QPen(Qt::red));
+        painter->setBrush(Qt::red);
+        painter->drawEllipse(m_radius,m_radius,m_radius/4,m_radius/4);
     }
 
     if (option->state & QStyle::State_Selected)
     {
         painter->setPen(QPen(Qt::black, 0, Qt::DashLine));
         painter->setBrush(Qt::NoBrush);
-        painter->drawRect(boundingRect().adjusted(m_radius*2, m_radius*2, -m_radius*2, -m_radius*2));
+        painter->drawRect(boundingRect().adjusted(m_radius*2.5, m_radius*2.5, -m_radius*2.5, -m_radius*2.5));
     }
 }
 
@@ -347,6 +355,12 @@ void GraphicsItem::setItemInfo(const ItemInfo &itemInfo)
 ItemInfo &GraphicsItem::getItemInfo()
 {
     return m_itemInfo;
+}
+
+void GraphicsItem::setPeriodOfValidity(const QString &period)
+{
+    m_itemInfo.m_periodOfValidity = period;
+    update();
 }
 
 QString &GraphicsItem::extNum()

@@ -1,5 +1,6 @@
 ﻿import QtQuick 2.0
 import QtQuick.Controls 2.2
+import operatorInfo 1.0
 
 Item {
     anchors.fill: parent
@@ -86,8 +87,9 @@ Item {
         }
     }
 
-    Row {
+    Grid {
         id: selectInfoRow
+        columns: 8
         spacing: 5
         anchors.top: maintenanceGrid.bottom
         anchors.topMargin: 5
@@ -125,6 +127,24 @@ Item {
             id: sysTextField
             width: 150
         }
+
+        Text {
+            text: qsTr("值班人员")
+        }
+
+        TextField {
+            id: personOnDutyTextField
+            width: 150
+        }
+
+        Text {
+            text: qsTr("操作人员")
+        }
+
+        TextField {
+            id: operatorTextField
+            width: 150
+        }
     }
 
     Button {
@@ -133,7 +153,27 @@ Item {
         anchors.topMargin: 5
         text: qsTr("保存")
         onClicked: {
+            OperatorInfo.setMaintInfoValue(qsTr("设备编码"), codeTextField.text)
+            OperatorInfo.setMaintInfoValue(qsTr("维保时间"), timeTextField.text)
 
+            OperatorInfo.setMaintInfoValue(qsTr("维保员"), engineerTextField.text)
+            OperatorInfo.setMaintInfoValue(qsTr("状态现象"), stateTextArea.text)
+
+            OperatorInfo.setMaintInfoValue(qsTr("维保方法"), methodsTextArea.text)
+            OperatorInfo.setMaintInfoValue(qsTr("内容描述"),
+                                           contentDescTextArea.text)
+
+            OperatorInfo.setMaintInfoValue(qsTr("建筑名称"),
+                                           buildingNameTextField.text)
+            OperatorInfo.setMaintInfoValue(qsTr("楼层"), floorTextField.text)
+
+            OperatorInfo.setMaintInfoValue(qsTr("部位"), locationTextField.text)
+            OperatorInfo.setMaintInfoValue(qsTr("系统"), sysTextField.text)
+
+            OperatorInfo.setMaintInfoValue(qsTr("值班人员"),
+                                           personOnDutyTextField.text)
+            OperatorInfo.setMaintInfoValue(qsTr("操作人员"), operatorTextField.text)
+            OperatorInfo.saveMaintInfo()
         }
     }
 

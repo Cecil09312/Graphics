@@ -8,6 +8,8 @@ Rectangle {
     height: 480
 
     signal saveItemInfoToJson
+    signal periodValueChanged(int index, string periodValue)
+    signal manufacturersChanged(int index, string facturers)
     ListModel {
         id: listModel
         ListElement {
@@ -55,6 +57,8 @@ Rectangle {
 
                     onTextChanged: {
                         manufacturers = manufacturersTextField.text
+                        // emit: periodValueChanged(periodOfvalidity)
+                        emit: manufacturersChanged(index, manufacturers)
                     }
                 }
 
@@ -66,6 +70,7 @@ Rectangle {
                     placeholderText: qsTr("失效时间(如:2050/01/01)")
                     onTextChanged: {
                         periodOfvalidity = periodTextField.text
+                        emit: periodValueChanged(index, periodOfvalidity)
                     }
                 }
 

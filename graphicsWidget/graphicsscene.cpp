@@ -160,7 +160,7 @@ GraphicsScene::~GraphicsScene()
 {
     delete m_graphicsItemSettingMenu;
     m_itemSettingView->deleteLater();
-    delete m_analogAlarmView;
+    m_analogAlarmView->deleteLater();
 }
 
 void GraphicsScene::addGraphicsItem(qreal ax, qreal ay)
@@ -350,7 +350,7 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
         {
             currentItem->deviceNum() = info;
             currentItem->update();
-           // update();
+            // update();
         }
 
         else if(type =="sysOfDevice")
@@ -379,7 +379,7 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
 
         else if(type == "periodOfValidity")
         {
-            currentItem->getItemInfo().m_periodOfValidity = info;
+            currentItem->setPeriodOfValidity(info);
 
         }
         else if(type == "operator")

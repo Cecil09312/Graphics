@@ -58,9 +58,10 @@ Item {
                             emit: setItemInfo("equipmentModel", currentText)
 
                             emit: setItemInfo("manufacturers",
-                                              manufacturersText.text)
+                                              manufacturersValue(currentIndex))
                             emit: setItemInfo("periodOfValidity",
-                                              periodOfValidityText.text)
+                                              periodOfvalidityValue(
+                                                  currentIndex))
 
                             manufacturersText.text = manufacturersValue(
                                         currentIndex)
@@ -229,6 +230,16 @@ Item {
 
         ItemIconSetting {
             id: itemIconSetting
+            onPeriodValueChanged: {
+                itemIconInfo.setCurrentIconIndex(index)
+                emit: setItemInfo("periodOfValidity", periodValue)
+                periodOfValidityText.text = periodValue
+            }
+            onManufacturersChanged: {
+                itemIconInfo.setCurrentIconIndex(index)
+                emit: setItemInfo("manufacturers", facturers)
+                manufacturersText.text = facturers
+            }
         }
     }
 

@@ -14,7 +14,7 @@ OperatorInfo::OperatorInfo(QObject *parent)
     if(m_sqlManager->isOpen())
     {
         QStringList maintenanceList;
-        maintenanceList << "设备编码 text"<<"维保时间 text"<<"状态现象 text"<<"维保方法 text"<<"内容描述 text"<<"维保员 text"<<"楼层 text" <<"部位 text"<<"系统 text" <<"建筑名称 text"<<"值班人员 text" <<"操作人员 text";
+        maintenanceList << "设备编码 text primary key not null"<<"维保时间 text not null"<<"状态现象 text"<<"维保方法 text"<<"内容描述 text"<<"维保员 text"<<"楼层 text" <<"部位 text"<<"系统 text" <<"建筑名称 text"<<"值班人员 text" <<"操作人员 text";
         m_maintInfoTableSize= maintenanceList.size();
         QStringList tableList = m_sqlManager->getTables();
         if(!tableList.contains("operator"))
@@ -24,7 +24,7 @@ OperatorInfo::OperatorInfo(QObject *parent)
 
         if(!tableList.contains("maintenance"))
         {
-            m_sqlManager->executeQuery(QString("create table operator(%1)").arg(maintenanceList.join(",")));
+            m_sqlManager->executeQuery(QString("create table maintenance(%1)").arg(maintenanceList.join(",")));
         }
     }
 }
@@ -47,7 +47,19 @@ void OperatorInfo::saveMaintInfo()
     {
         QStringList keyList=  QStringList(m_maintInfoValueHash.keys()) ;
         QStringList valueList = QStringList(m_maintInfoValueHash.values());
-        m_sqlManager->executeQuery(QString("insert into maintenance %1 values(%2)").arg(keyList.join(",")).arg(valueList.join(",")));
+        QString queryStr = QString("insert into maintenance (%1) values (").arg(keyList.join(","));
+        for(int i=0;i<m_maintInfoTableSize;i++)
+        {
+            queryStr+="'";
+            queryStr+=valueList.at(i);
+            queryStr+="'";
+            if(i<m_maintInfoTableSize-1)
+            {
+                queryStr+=",";
+            }
+        }
+        queryStr+=")";
+        m_sqlManager->executeQuery(queryStr);
     }
 }
 

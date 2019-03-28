@@ -118,13 +118,13 @@ QRectF GlobalGraphicsItem::boundingRect() const
     if(m_radius>0)
     {
         return QRectF(-m_radius - penWidth / 2, -m_radius - penWidth / 2,
-                      m_radius*2 + penWidth, m_radius*2 + penWidth);
+                      m_radius*2.5 + penWidth, m_radius*2.5 + penWidth);
     }
     else
     {
 
         return QRectF(-10 - penWidth / 2, -10 - penWidth / 2,
-                      20 + penWidth, 20 + penWidth);
+                      25 + penWidth, 25 + penWidth);
     }
 }
 
@@ -136,7 +136,7 @@ void GlobalGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
     if(m_iconName.endsWith(".svg"))
     {
         QSvgRenderer renderer(m_iconName);
-        renderer.render(painter,QRectF(-m_radius,-m_radius,m_radius*2,m_radius*2));
+        renderer.render(painter,QRectF(-m_radius/1.25,-m_radius/1.25,m_radius*2,m_radius*2));
         painter->drawText(QRect(-m_radius,-m_radius,m_radius,m_radius),m_buildName);
     }
     else
@@ -145,7 +145,7 @@ void GlobalGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
         {
             if(!QPixmap(m_iconName).isNull())
             {
-                painter->drawPixmap(-m_radius,-m_radius,m_radius*2,m_radius*2,QPixmap(m_iconName));
+                painter->drawPixmap(-m_radius/1.25,-m_radius/1.25,m_radius*2,m_radius*2,QPixmap(m_iconName));
             }
             painter->drawText(QRect(-m_radius,-m_radius,m_radius,m_radius),m_buildName);
         }
@@ -153,9 +153,9 @@ void GlobalGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
         {
             if(!QPixmap(m_iconName).isNull())
             {
-                painter->drawPixmap(-40,-40,40,40,QPixmap(m_iconName));
+                painter->drawPixmap(-40/1.25,-40/1.25,40,40,QPixmap(m_iconName));
             }
-             painter->drawText(QRectF(-40,-40,40,40),m_buildName);
+             painter->drawText(QRectF(-40/1.25,-40/1.25,40,40),m_buildName);
         }
     }
 
@@ -163,7 +163,7 @@ void GlobalGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
     {
         painter->setPen(QPen(Qt::black, 0, Qt::DashLine));
         painter->setBrush(Qt::NoBrush);
-        painter->drawRect(boundingRect().adjusted(m_radius*2, m_radius*2, -m_radius*2, -m_radius*2));
+        painter->drawRect(boundingRect().adjusted(m_radius*2.5, m_radius*2.5, -m_radius*2.5, -m_radius*2.5));
     }
 }
 
