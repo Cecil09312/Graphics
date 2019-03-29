@@ -16,6 +16,7 @@ public:
 
 signals:
     void tableValue(QSqlRecord record);
+    void fitToWiew();
 public slots:
 private:
     void initWidget();

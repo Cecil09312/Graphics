@@ -51,7 +51,7 @@ private:
     QAction *m_clearAction;
     QStandardItemModel *m_stdModel;
     int m_index;
-    QMap<int,QList<int> >m_childIndexMap;
+    QMap<QStandardItem*,QList<int> >m_childIndexMap;
     QList<int>m_parentIndexList;
     QPoint m_rootPoint;
     QMap<QStandardItem*,int>m_treeIndexMap;

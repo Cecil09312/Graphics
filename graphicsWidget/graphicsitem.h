@@ -10,6 +10,7 @@
 #include <QGraphicsSvgItem>
 #include "jsonEdit/itemiconinfotojson.h"
 #include <QGraphicsColorizeEffect>
+
 class GraphicsScene;
 struct ItemInfo
 {

@@ -13,6 +13,14 @@ InfoTableView::InfoTableView(QWidget *parent)
         QSqlRecord record = m_tableModel->record(logicalIndex);
         emit tableValue(record);
     }) ;
+
+    connect(this->horizontalHeader(),&QHeaderView::sectionDoubleClicked,this,[=](int logicalIndex)
+    {
+        Q_UNUSED(logicalIndex) ;
+        emit fitToWiew();
+//        QSqlRecord record = m_tableModel->record(logicalIndex);
+//        emit tableValue(record);
+    }) ;
 }
 
 InfoTableView::~InfoTableView()

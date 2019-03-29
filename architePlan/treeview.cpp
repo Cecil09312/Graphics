@@ -234,7 +234,7 @@ QStandardItem* TreeView::addChildItem(QModelIndex index)
             if(standardItem!=nullptr)
             {
                 int rowCount =0;
-                QList<int >childRowList = m_childIndexMap[index.row()];
+                QList<int >childRowList = m_childIndexMap[standardItem];
                 int size = childRowList.size();
                 if(childRowList.size()>0)
                 {
@@ -245,7 +245,7 @@ QStandardItem* TreeView::addChildItem(QModelIndex index)
                 standardItem->setChild(size,childItem);
                 m_treeIndexMap[childItem] = totalRowCounts;
                 emit treeIndex(childItem);
-                m_childIndexMap[index.row()].push_back(rowCount);
+                m_childIndexMap[standardItem].push_back(rowCount);
                 return childItem;
             }
             else
@@ -309,9 +309,9 @@ void TreeView::deleteTreeItem(QModelIndex index)
                 if(parentItem->rowCount()>index.row())
                 {
 
-                    if(m_childIndexMap[index.parent().row()].size()>index.row())
+                    if(m_childIndexMap[parentItem].size()>index.row())
                     {
-                        m_childIndexMap[index.parent().row()].removeAt(index.row());
+                        m_childIndexMap[parentItem].removeAt(index.row());
                     }
                     parentItem->removeRow(index.row());
                     m_stdModel->setItem(index.parent().row(),parentItem);

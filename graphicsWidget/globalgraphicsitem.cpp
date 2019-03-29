@@ -131,7 +131,8 @@ QRectF GlobalGraphicsItem::boundingRect() const
 void GlobalGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
 {
     QFont font;
-    font.setPointSize(14);
+    font.setPointSize(12);
+    font.setFamily("Times New Roman");
     painter->setFont(font);
     if(m_iconName.endsWith(".svg"))
     {

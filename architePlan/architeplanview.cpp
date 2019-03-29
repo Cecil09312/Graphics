@@ -416,6 +416,7 @@ void ArchitePlanView::initWidget()
             if(widget!=nullptr)
             {
                 m_stackedWidget->removeWidget(widget);
+                delete widget;
             }
 
         }
@@ -670,6 +671,12 @@ QStandardItem *ArchitePlanView::getItemFromView(GraphicsView *view)
     {
         return nullptr;
     }
+}
+
+GraphicsView *ArchitePlanView::currentGraphicsView()
+{
+  GraphicsView *graphicsView = dynamic_cast<GraphicsView *> (m_stackedWidget->currentWidget());
+  return graphicsView;
 }
 
 QString ArchitePlanView::architeInfoDbName()
@@ -1145,7 +1152,12 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
         GlobalGraphicsItem*globalGraphicsItem=  m_globalToArchitePlanHash.key(item);
         if(globalGraphicsItem!=nullptr)
         {
-            m_globalGraphicsView->currentScene()->removeItem(globalGraphicsItem);
+            GlobalGraphicsScene * scene = m_globalGraphicsView->currentScene();
+            if(scene!=nullptr && scene->items().contains(globalGraphicsItem))
+            {
+                scene->removeItem(globalGraphicsItem);
+                delete globalGraphicsItem;
+            }
         }
 
     }
@@ -1160,6 +1172,7 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
             {
                 m_stackedWidget->removeWidget(childWidget);
                 deleteAlarmWidget(childWidget);
+                delete childWidget;
             }
 
             m_widgetMap.remove(chileItemPage);
@@ -1171,7 +1184,18 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
     GlobalGraphicsItem*globalItem =  m_globalToArchitePlanHash.key(item);
     if(globalItem!=nullptr)
     {
-        m_globalGraphicsView->currentScene()->removeItem(globalItem);
+        GlobalGraphicsScene *globalScene = m_globalGraphicsView->currentScene();
+        if(globalScene!=nullptr)
+        {
+            if(globalScene->items().contains(globalItem))
+            {
+                globalScene->removeItem(globalItem);
+                delete globalItem;
+            }
+
+        }
+
+        // delete globalItem;
     }
     m_treeView->getTreeIndexMap().remove(item);
 

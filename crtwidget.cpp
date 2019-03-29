@@ -69,6 +69,16 @@ CrtWidget::CrtWidget(QWidget *parent) :
 
     });
 
+    connect(m_infoTableView,&InfoTableView::fitToWiew,this,[=]()
+    {
+        GraphicsView *view = m_architePlanView->currentGraphicsView();
+        if(view!=nullptr)
+        {
+            m_architePlanView->autoFitView(view);
+        }
+
+    });
+
 
     connect(m_architePlanView,&ArchitePlanView::clearAlarmFromTable,this,[=]()
     {

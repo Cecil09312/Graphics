@@ -39,6 +39,7 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
             {
                 removeItem(graphicsItem);
                 emit deleteGlobalItem(item);
+                delete graphicsItem;
             }
             else
             {
@@ -58,8 +59,11 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
             {
                 if(!item->animalIsRunning())
                 {
+
                     removeItem(item);
                     emit deleteGlobalItem(item);
+                    delete item;
+
                 }
                 else
                 {
@@ -196,6 +200,7 @@ void GlobalGraphicsScene::clearGraphicsItem()
         if(currentItem!=nullptr)
         {
             removeItem(currentItem);
+            delete currentItem;
         }
     }
 }

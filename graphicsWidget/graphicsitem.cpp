@@ -40,7 +40,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_parallelAnimGroup->addAnimation(m_scaleAnimation);
     m_parallelAnimGroup->setLoopCount(-1);
 
-    m_itemTextFont.setPointSize(12);
+    m_itemTextFont.setPointSize(10);
     m_itemTextFont.setFamily("Times New Roman");
 
     m_itemInfo.m_deviceNum = QString("%1").arg(m_num++);

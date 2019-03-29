@@ -49,6 +49,7 @@ public:
     QStandardItem*getParnentItemFromView(GraphicsView*view);
     void saveArchiteInfoToDb();
     QStandardItem*getItemFromView(GraphicsView*view);
+    GraphicsView* currentGraphicsView();
     Q_INVOKABLE QString architeInfoDbName();
     Q_INVOKABLE void setGlobalArchitePixmap(const QString &pixmapName);
     Q_INVOKABLE void clearAlarm(bool alarmColorRedu=false);
