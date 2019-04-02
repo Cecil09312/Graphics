@@ -8,7 +8,7 @@ public:
     IndicatorDataProtocol();
     ~IndicatorDataProtocol();
     QByteArray dataPackage(const QList<QByteArray> &arrayList);
-    QList<QByteArray>frameData(QByteArray &array);
+    QList<QByteArray>frameData(const QByteArray &array);
 };
 
 #endif // INDICATORDATAPROTOCOL_H

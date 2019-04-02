@@ -170,7 +170,8 @@ void GlobalGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 
 void GlobalGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    if(Controller::instance()->getUserRight()==UserManager::Super)
+  UserManager::UserRight userRight =   Controller::instance()->getUserRight();
+    if(userRight==UserManager::Super||userRight==UserManager::Engineer)
     {
         setPos(event->scenePos());
         m_scene->update();

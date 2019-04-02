@@ -82,15 +82,8 @@ TreeView::TreeView(QWidget *parent):
     {
 
         m_rootPoint=  QWidget::mapFromGlobal(QCursor::pos());
-        if(Controller::instance()->getUserRight()!=UserManager::Super)
-        {
-            m_editAction->setEnabled(false);
-            m_deleteAction->setEnabled(false);
-            m_clearAction->setEnabled(false);
-            //m_addAction->setEnabled(false);
-            m_addChildAction->setEnabled(false);
-        }
-        else
+        UserManager::UserRight userRight=   Controller::instance()->getUserRight();
+        if(userRight==UserManager::Super||userRight==UserManager::Engineer)
         {
             QModelIndex index = indexAt(m_rootPoint);
             if(index.isValid())
@@ -130,6 +123,14 @@ TreeView::TreeView(QWidget *parent):
             {
                 m_clearAction->setEnabled(false);
             }
+        }
+        else
+        {
+            m_editAction->setEnabled(false);
+            m_deleteAction->setEnabled(false);
+            m_clearAction->setEnabled(false);
+            //m_addAction->setEnabled(false);
+            m_addChildAction->setEnabled(false);
         }
 
         m_treeSettingMenu->exec(QCursor::pos());

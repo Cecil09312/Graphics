@@ -44,9 +44,9 @@ GraphicsScene::GraphicsScene(QObject *parent):
         }
         else
         {
-
             QMetaObject::invokeMethod(m_itemSettingObj,"clearItemInfo");
         }
+        m_itemSettingView->close();
         m_itemSettingView->show();
     });
     connect(m_clearAction,&QAction::triggered,this,[=]()
@@ -143,12 +143,20 @@ GraphicsScene::GraphicsScene(QObject *parent):
 
     connect(m_analogAlarmAction,&QAction::triggered,this,[=]()
     {
+        m_analogAlarmView->close();
         m_analogAlarmView->show();
     });
     Q_ASSERT(m_itemSettingObj);
     connect(m_itemSettingObj,SIGNAL(setSize(qreal)),this,SLOT(setItemSize(qreal)));
     connect(m_itemSettingObj,SIGNAL(setIcon(QString)),this,SLOT(setItemIcon(QString)));
     connect(m_itemSettingObj,SIGNAL(setItemInfo(QString,QString)),this,SLOT(setItemInfoFromType(const QString , const QString &)));
+
+    connect(m_itemSettingObj,SIGNAL(setItemsManufacturers(int,QString)),this,SLOT(setItemsManufacturers(int,QString)));
+    connect(m_itemSettingObj,SIGNAL(setItemsIcon(int,QString)),this,SLOT(setItemsIcon(int,QString)));
+    connect(m_itemSettingObj,SIGNAL(setItemsPeriodOfValidity(int,QString)),this,SLOT(setItemsPeriodOfValidity(int,QString)));
+    connect(m_itemSettingObj,SIGNAL(setItemsDeviceName(int,QString)),this,SLOT(setItemsEquipmentModel(int,QString)));
+
+
     m_analogAlarmObj = m_analogAlarmView->rootObject();
     Q_ASSERT(m_analogAlarmObj);
     connect(m_analogAlarmObj,SIGNAL(createAlarm(QString, QString, QString, QString)),this,SLOT(getAlarm(QString,QString, QString,QString)));
@@ -204,20 +212,15 @@ void GraphicsScene::removeGraphicsItem(const QPointF &pointF)
             }
 
         }
-
     }
 }
 
 void GraphicsScene::showMenu(const QPoint &point)
 {
-    if(Controller::instance()->getUserRight()!=UserManager::Super)
-    {
-        m_deleteAction->setEnabled(false);
-        m_editAction->setEnabled(false);
-        m_clearAction->setEnabled(false);
-        m_deleteSelectedAction->setEnabled(false);
-    }
-    else
+
+    UserManager::UserRight userRight= Controller::instance()->getUserRight();
+
+    if(userRight==UserManager::Super||userRight==UserManager::Engineer)
     {
         if(!m_itemList.isEmpty())
         {
@@ -232,10 +235,12 @@ void GraphicsScene::showMenu(const QPoint &point)
             if(m_itemList.isEmpty())
             {
                 m_clearAction->setEnabled(false);
+                m_analogAlarmAction->setEnabled(false);
             }
             else
             {
                 m_clearAction->setEnabled(true);
+                m_analogAlarmAction->setEnabled(true);
             }
             if(selectedItems().isEmpty())
             {
@@ -252,8 +257,17 @@ void GraphicsScene::showMenu(const QPoint &point)
             m_deleteAction->setEnabled(false);
             m_clearAction->setEnabled(false);
             m_deleteSelectedAction->setEnabled(false);
+            m_analogAlarmAction->setEnabled(false);
         }
         m_editAction->setEnabled(true);
+    }
+    else
+    {
+        m_deleteAction->setEnabled(false);
+        m_editAction->setEnabled(false);
+        m_clearAction->setEnabled(false);
+        m_deleteSelectedAction->setEnabled(false);
+        m_analogAlarmAction->setEnabled(false);
     }
     m_graphicsItemSettingMenu->exec(point);
 }
@@ -334,13 +348,10 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
         else if(type=="extNum")
         {
             currentItem->extNum() = info;
-
         }
-
         else if(type=="loopNum")
         {
             currentItem->loopNum() = info;
-
         }
         else if(type =="addrNum")
         {
@@ -350,7 +361,7 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
         {
             currentItem->deviceNum() = info;
             currentItem->update();
-            // update();
+           // update();
         }
 
         else if(type =="sysOfDevice")
@@ -404,9 +415,76 @@ void GraphicsScene::clearAlarms()
     ArchitePlanView*architePlanView=   Controller::instance()->getArchitePlanView();
     if(architePlanView!=nullptr)
     {
-        architePlanView->clearAlarm(true);
+        architePlanView->clearAlarm();
     }
 
+}
+
+void GraphicsScene::setItemsIcon(int index, QString iconName)
+{
+  QList<QGraphicsItem*>itemList =  getItemList();
+  foreach (QGraphicsItem*item, itemList)
+  {
+      GraphicsItem*graphicsItem = dynamic_cast<GraphicsItem*>(item);
+      if(graphicsItem!=nullptr)
+      {
+          if(graphicsItem->iconIndex()==index)
+          {
+              graphicsItem->setIconName(iconName);
+          }
+      }
+  }
+}
+
+void GraphicsScene::setItemsEquipmentModel(int index, QString device)
+{
+    QList<QGraphicsItem*>itemList =  getItemList();
+    foreach (QGraphicsItem*item, itemList)
+    {
+        GraphicsItem*graphicsItem = dynamic_cast<GraphicsItem*>(item);
+        if(graphicsItem!=nullptr)
+        {
+            if(graphicsItem->iconIndex()==index)
+            {
+                graphicsItem->equipmentModel()=device;
+                graphicsItem->update();
+            }
+        }
+    }
+}
+
+void GraphicsScene::setItemsManufacturers(int index, QString manufacturers)
+{
+    QList<QGraphicsItem*>itemList =  getItemList();
+    foreach (QGraphicsItem*item, itemList)
+    {
+        GraphicsItem*graphicsItem = dynamic_cast<GraphicsItem*>(item);
+        if(graphicsItem!=nullptr)
+        {
+            if(graphicsItem->iconIndex()==index)
+            {
+                graphicsItem->manufacturers()=manufacturers;
+                graphicsItem->update();
+            }
+        }
+    }
+}
+
+void GraphicsScene::setItemsPeriodOfValidity(int index, QString periodOfValidity)
+{
+    QList<QGraphicsItem*>itemList =  getItemList();
+    foreach (QGraphicsItem*item, itemList)
+    {
+        GraphicsItem*graphicsItem = dynamic_cast<GraphicsItem*>(item);
+        if(graphicsItem!=nullptr)
+        {
+            if(graphicsItem->iconIndex()==index)
+            {
+                graphicsItem->periodOfValidity()=periodOfValidity;
+                graphicsItem->update();
+            }
+        }
+    }
 }
 
 void GraphicsScene::init()
@@ -442,8 +520,8 @@ void GraphicsScene::init()
     m_graphicsItemSettingMenu->addAction(m_editAction);
     m_graphicsItemSettingMenu->addAction(m_clearAction);
     m_graphicsItemSettingMenu->addAction(m_deleteSelectedAction);
-    m_graphicsItemSettingMenu->addAction(m_closeAction);
     m_graphicsItemSettingMenu->addAction(m_analogAlarmAction);
+    m_graphicsItemSettingMenu->addAction(m_closeAction);
 
 }
 

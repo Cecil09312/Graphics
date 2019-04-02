@@ -7,10 +7,12 @@ import QtQuick.Controls.Styles 1.4
 
 Item {
 
-    anchors.fill: parent
+    width: 900
+    height: 600
     Row {
 
         anchors.top: parent.top
+        anchors.topMargin: 10
         id: btnRow
         spacing: 10
         Button {
@@ -38,7 +40,7 @@ Item {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        //width: parent.width
+        width: parent.width
         anchors.topMargin: 20
 
         Controls1_4.Tab {

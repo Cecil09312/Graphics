@@ -10,22 +10,23 @@ MonitoringProtocol::~MonitoringProtocol()
 
 }
 
-QList<QByteArray> MonitoringProtocol::frameData(QByteArray &array)
+QList<QByteArray> MonitoringProtocol::frameData(const QByteArray &array)
 {
+    m_receiveDataArray.append(array);
     QList<QByteArray> arrayList;
-    while (array.contains("START"))
+    while (m_receiveDataArray.contains("START"))
     {
-        int startIndex = array.indexOf("START");
-        int endIndex = array.indexOf("END");
-        int arraySize = array.size();
+        int startIndex = m_receiveDataArray.indexOf("START");
+        int endIndex = m_receiveDataArray.indexOf("END");
+        int arraySize = m_receiveDataArray.size();
         if(startIndex>0)
         {
-            array = array.right(arraySize-startIndex);
+            m_receiveDataArray = m_receiveDataArray.right(arraySize-startIndex);
             startIndex = 0;
         }
         if(endIndex>0)
         {
-            QByteArray frameArray = array.mid(startIndex,qAbs(endIndex-startIndex)+1);
+            QByteArray frameArray = m_receiveDataArray.mid(startIndex,qAbs(endIndex-startIndex)+1);
             arrayList.push_back(frameArray);
         }
     }

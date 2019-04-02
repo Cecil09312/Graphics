@@ -22,7 +22,7 @@ QByteArray IndicatorDataProtocol::dataPackage(const QList<QByteArray> &arrayList
     return dataArray;
 }
 
-QList<QByteArray> IndicatorDataProtocol::frameData(QByteArray &array)
+QList<QByteArray> IndicatorDataProtocol::frameData(const QByteArray &array)
 {
     QList<QByteArray> dataArrayList;
     dataArrayList.push_back(array);

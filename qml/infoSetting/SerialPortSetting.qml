@@ -2,6 +2,7 @@
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
 import serialConfigurationManager 1.0
+import userManager 1.0
 
 Rectangle {
     //    width: 420
@@ -98,6 +99,7 @@ Rectangle {
         }
 
         Button {
+            id: saveBtn
             text: qsTr("保存")
             Layout.row: 6
             Layout.column: 1
@@ -106,10 +108,8 @@ Rectangle {
             onClicked: {
                 SerialPortInfo.setConfigurationValue("portName",
                                                      portComboBox.currentText)
-                SerialPortInfo.setConfigurationValue("baudRate",
-                                                     parseInt(
-                                                         baudComboBox.currentText,
-                                                         10))
+                SerialPortInfo.setConfigurationValue(
+                            "baudRate", parseInt(baudComboBox.currentText, 10))
 
                 SerialPortInfo.setConfigurationValue(
                             "dataBits",

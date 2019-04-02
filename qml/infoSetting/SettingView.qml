@@ -28,14 +28,14 @@ Controls1_4.TabView {
         }
     }
 
-    Controls1_4.Tab {
-        title: qsTr("信息查询")
-        anchors.topMargin: 20
+//    Controls1_4.Tab {
+//        title: qsTr("信息查询")
+//        anchors.topMargin: 20
 
-        InfoQuery {
-            id: infoQuery
-        }
-    }
+//        InfoQuery {
+//            id: infoQuery
+//        }
+//    }
 
     Controls1_4.Tab {
         title: qsTr("系统图设置")

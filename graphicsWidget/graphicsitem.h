@@ -72,7 +72,10 @@ public:
     QHash<QString,QVariant> itemInfo();
     void setItemInfo(const ItemInfo &itemInfo);
     ItemInfo &getItemInfo();
+    int iconIndex();
+    void setInfoFromIconIndex(int itemIconIndex);
     Q_INVOKABLE void setPeriodOfValidity(const QString &period);
+
     Q_INVOKABLE QString &extNum();
     Q_INVOKABLE QString &loopNum();
     Q_INVOKABLE QString &addrNum();
@@ -110,6 +113,7 @@ private:
     QFont m_itemTextFont;
     ItemIconInfoToJson m_itemIconInfoToJson;
     QGraphicsColorizeEffect *m_colorEffect;
+    int m_iconIndex;
 
 };
 

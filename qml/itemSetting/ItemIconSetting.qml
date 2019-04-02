@@ -10,6 +10,8 @@ Rectangle {
     signal saveItemInfoToJson
     signal periodValueChanged(int index, string periodValue)
     signal manufacturersChanged(int index, string facturers)
+    signal iconChanged(int index, string iconPath)
+    signal deviceNameChanged(int index, string device)
     ListModel {
         id: listModel
         ListElement {
@@ -47,6 +49,10 @@ Rectangle {
                     onTextChanged: {
                         deviceName = deviceNameTextFild.text
                     }
+                    onEditingFinished: {
+                        emit: deviceNameChanged(index, deviceName)
+                        saveInfo()
+                    }
                 }
 
                 TextField {
@@ -57,8 +63,11 @@ Rectangle {
 
                     onTextChanged: {
                         manufacturers = manufacturersTextField.text
-                        // emit: periodValueChanged(periodOfvalidity)
+                    }
+
+                    onEditingFinished: {
                         emit: manufacturersChanged(index, manufacturers)
+                        saveInfo()
                     }
                 }
 
@@ -67,10 +76,13 @@ Rectangle {
                     width: 160
                     height: 40
                     text: periodOfvalidity
-                    placeholderText: qsTr("失效时间(如:2050/01/01)")
+                    placeholderText: qsTr("有效期(如:2050/01/01)")
                     onTextChanged: {
                         periodOfvalidity = periodTextField.text
+                    }
+                    onEditingFinished: {
                         emit: periodValueChanged(index, periodOfvalidity)
+                        saveInfo()
                     }
                 }
 
@@ -119,6 +131,8 @@ Rectangle {
                 onAccepted: {
                     imagePath = Qt.resolvedUrl(decodeURI(
                                                    currentFile.toString()))
+                    emit: iconChanged(index, imagePath)
+                    saveInfo()
                 }
             }
         }
@@ -295,11 +309,11 @@ Rectangle {
             }
         }
     }
-    Component.onDestruction: {
-        saveInfo()
-    }
 
     Component.onCompleted: {
         readInfo()
+    }
+    Component.onDestruction: {
+        saveInfo()
     }
 }

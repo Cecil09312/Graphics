@@ -99,6 +99,69 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
     });
 
     connect(m_autoSwitchTimer,&QTimer::timeout,this,&ArchitePlanView::viewsAutoSwitch);
+
+    connect(Controller::instance()->getCommObj(),&AbstractLink::getData,this,[=](const QByteArray&array)
+    {
+        QList<QByteArray>dataArrayList=  m_serialDataProtocol->frameData(array);
+        foreach (QByteArray array, dataArrayList)
+        {
+            quint8 eventNum =  m_serialDataProtocol->dataByte(array,0);//事件
+            QString loopNum = QString("%1").arg(m_serialDataProtocol->dataByte(array,1));//回路
+            QString addrNum = QString("%1").arg(m_serialDataProtocol->dataByte(array,2));//地址
+            quint8 type = m_serialDataProtocol->dataByte(array,3);//属性，左6位主机地址
+            QString extNum = QString("%1").arg(type>>2&0x3f);
+
+            quint8 year= m_serialDataProtocol->dataByte(array,4);
+            quint8 month= m_serialDataProtocol->dataByte(array,5);
+            quint8 date = m_serialDataProtocol->dataByte(array,6);
+            quint8 hour = m_serialDataProtocol->dataByte(array,7);
+            quint8 minute= m_serialDataProtocol->dataByte(array,8)>>1&0x7f;
+            quint8 second= m_serialDataProtocol->dataByte(array,9);
+
+            QString timeStr = QString("%1/%2/%3 %4:%5:%6").arg((int)year+2000).arg((ushort)month,2,10,QChar('0'))
+                    .arg((ushort)date,2,10,QChar('0')).arg((ushort)hour,2,10,QChar('0')).arg((ushort)minute,2,10,QChar('0'))
+                    .arg((ushort)second,2,10,QChar('0'));
+
+            QHash<quint8,QString>alarmTypeHash,eliminateAlarmHash,commuStatusHash;
+            alarmTypeHash[0x01] = tr("火警");
+            alarmTypeHash[0x03] = tr("故障");
+            alarmTypeHash[0x05] = tr("联动");
+            alarmTypeHash[0x0a] = tr("监管");
+            alarmTypeHash[0x0b] = tr("屏蔽");
+            alarmTypeHash[0x0d] = tr("反馈");
+            commuStatusHash[0x12] = tr("主电");
+            commuStatusHash[0x13] = tr("备电");
+            if(commuStatusHash.keys().contains(eventNum))
+            {
+                if(loopNum.toInt()==0)
+                {
+                   emit communicationStatus(commuStatusHash[eventNum],true);
+                }
+                else if(loopNum.toInt()==1)
+                {
+                    emit communicationStatus(commuStatusHash[eventNum],false);
+                }
+
+            }
+
+            if(alarmTypeHash.keys().contains(eventNum))
+            {
+                createAlarm(extNum,loopNum,addrNum,alarmTypeHash[eventNum],false,timeStr);
+            }
+
+            //            alarmTypeHash[0x12] = tr("主电");
+            //            alarmTypeHash[0x13] = tr("备电");
+            //            alarmTypeHash[0x20] = tr("复位");
+            //            alarmTypeHash[0x23] = tr("消音");
+
+            eliminateAlarmHash[0x02] = tr("反馈消除");
+            eliminateAlarmHash[0x04] = tr("故障恢复");
+            // eliminateAlarmHash[0x06] = tr("停止");
+            eliminateAlarmHash[0x0c] = tr("屏蔽解除");
+
+            // createAlarm();
+        }
+    });
 }
 
 ArchitePlanView::~ArchitePlanView()
@@ -110,10 +173,11 @@ ArchitePlanView::~ArchitePlanView()
 
     m_sqliteManager->close();
     m_sqliteManager->deleteLater();
+    delete m_serialDataProtocol;
 }
 
 
-void ArchitePlanView::createAlarm(const QString&extNum,const QString&loopNum,const QString&addressNum,const QString &alarmTypeName,bool isAnalog)
+void ArchitePlanView::createAlarm(const QString&extNum,const QString&loopNum,const QString&addressNum,const QString &alarmTypeName,bool isAnalog,const QString &alarmTime)
 {
     foreach (GraphicsView *view, m_widgetMap.values())
     {
@@ -130,6 +194,7 @@ void ArchitePlanView::createAlarm(const QString&extNum,const QString&loopNum,con
                         if(!DataStore::getTypeItemList(alarmTypeName).contains(currentItem))
                         {
                             generateAlarm(alarmTypeName,currentItem,view,isAnalog);
+                            currentItem->getItemInfo().m_alarmTime = alarmTime;
                         }
                         break;
                     }
@@ -256,8 +321,8 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
             }
             emit alarmHappend(alarmTypeName);
 
-            QString alarmHappendTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
-            item->getItemInfo().m_alarmTime = alarmHappendTime;
+            //            QString alarmHappendTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+            //            item->getItemInfo().m_alarmTime = alarmHappendTime;
             emit alarmItem(item);
         }
     }
@@ -322,6 +387,8 @@ void ArchitePlanView::initWidget()
     m_globalGraphicsView = new GlobalGraphicsView(this);
     m_sysArchitePlanView = new SysArchitePlanView(this);
     m_autoSwitchTimer = new QTimer(this);
+
+    m_serialDataProtocol = new SerialDataProtocol;
     m_treeView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     m_treeView->setMaximumWidth(180);
     m_stackedWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
@@ -675,8 +742,8 @@ QStandardItem *ArchitePlanView::getItemFromView(GraphicsView *view)
 
 GraphicsView *ArchitePlanView::currentGraphicsView()
 {
-  GraphicsView *graphicsView = dynamic_cast<GraphicsView *> (m_stackedWidget->currentWidget());
-  return graphicsView;
+    GraphicsView *graphicsView = dynamic_cast<GraphicsView *> (m_stackedWidget->currentWidget());
+    return graphicsView;
 }
 
 QString ArchitePlanView::architeInfoDbName()

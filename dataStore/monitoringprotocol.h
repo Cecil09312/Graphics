@@ -7,8 +7,10 @@ class MonitoringProtocol : public AbstractDataProtocol
 public:
     MonitoringProtocol();
     ~MonitoringProtocol();
-    QList<QByteArray>frameData(QByteArray &array);
+    QList<QByteArray>frameData(const QByteArray &array);
     QByteArray dataPackage(const QList<QByteArray> &arrayList);
+private:
+    QByteArray m_receiveDataArray;
 };
 
 #endif // MONITORINGPROTOCOL_H

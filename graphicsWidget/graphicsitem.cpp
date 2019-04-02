@@ -45,38 +45,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
 
     m_itemInfo.m_deviceNum = QString("%1").arg(m_num++);
     int itemIconIndex = ItemIconInfoToJson::currentIconIndex();
-    QHash<QString,QVariant>itemIconInfoHash = m_itemIconInfoToJson.getIconInfoHash();
-    if(itemIconInfoHash.size()>0)
-    {
-        QHash<QString,QVariant> deviceHash=  itemIconInfoHash[QString("%1").arg(itemIconIndex)].toHash();
-        m_itemInfo.m_equipmentModel= deviceHash["deviceName"].toString();
-        m_itemInfo.m_manufacturers = deviceHash["manufacturers"].toString();
-        m_itemInfo.m_periodOfValidity = deviceHash["periodOfvalidity"].toString();
-
-    }
-    else
-    {
-        m_itemInfo.m_equipmentModel ="";
-        m_itemIconInfoToJson.setCurrentIconIndex(-1);
-    }
-    if(itemIconIndex>=0)
-    {
-        QString currentIconName = ItemIconInfoToJson::getIconName(itemIconIndex);
-        if(!currentIconName.isEmpty())
-        {
-            m_iconName = Controller::instance()->fileNameFromQml(currentIconName);
-        }
-        else
-        {
-            m_itemIconInfoToJson.setCurrentIconIndex(-1);
-        }
-
-    }
-    else
-    {
-        m_itemIconInfoToJson.setCurrentIconIndex(-1);
-    }
-
+    setInfoFromIconIndex(itemIconIndex);
     connect(m_colorAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &/*value*/)
     {
         QColor color =qvariant_cast<QColor> (m_colorAnimation->currentValue());
@@ -321,7 +290,8 @@ QString GraphicsItem::iconName() const
 
 void GraphicsItem::setIconName(const QString &iconName)
 {
-    m_iconName = iconName;
+    m_iconName = Controller::instance()->fileNameFromQml(iconName);
+
     update();
 }
 
@@ -355,6 +325,49 @@ void GraphicsItem::setItemInfo(const ItemInfo &itemInfo)
 ItemInfo &GraphicsItem::getItemInfo()
 {
     return m_itemInfo;
+}
+
+int GraphicsItem::iconIndex()
+{
+    return m_iconIndex;
+}
+
+void GraphicsItem::setInfoFromIconIndex(int itemIconIndex)
+{
+
+    QHash<QString,QVariant>itemIconInfoHash = m_itemIconInfoToJson.getIconInfoHash();
+    m_iconIndex = itemIconIndex;
+    if(itemIconInfoHash.size()>0)
+    {
+        QHash<QString,QVariant> deviceHash=  itemIconInfoHash[QString("%1").arg(itemIconIndex)].toHash();
+        m_itemInfo.m_equipmentModel= deviceHash["deviceName"].toString();
+        m_itemInfo.m_manufacturers = deviceHash["manufacturers"].toString();
+        m_itemInfo.m_periodOfValidity = deviceHash["periodOfvalidity"].toString();
+    }
+    else
+    {
+        m_itemInfo.m_equipmentModel ="";
+        m_itemIconInfoToJson.setCurrentIconIndex(-1);
+    }
+    if(itemIconIndex>=0)
+    {
+        QString currentIconName = ItemIconInfoToJson::getIconName(itemIconIndex);
+        if(!currentIconName.isEmpty())
+        {
+            m_iconName = Controller::instance()->fileNameFromQml(currentIconName);
+        }
+        else
+        {
+            m_itemIconInfoToJson.setCurrentIconIndex(-1);
+        }
+
+    }
+    else
+    {
+        m_itemIconInfoToJson.setCurrentIconIndex(-1);
+    }
+    update();
+
 }
 
 void GraphicsItem::setPeriodOfValidity(const QString &period)

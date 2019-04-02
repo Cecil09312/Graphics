@@ -63,7 +63,6 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
                     removeItem(item);
                     emit deleteGlobalItem(item);
                     delete item;
-
                 }
                 else
                 {
@@ -75,6 +74,7 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
 
     connect(m_editItemAction,&QAction::triggered,this,[=]()
     {
+        m_globalItemSettingView->close();
         m_globalItemSettingView->show();
         Q_ASSERT(m_globalItemObj);
         QMetaObject::invokeMethod(m_globalItemObj,"setBuileName",Q_ARG(QVariant,currentBuildName()));
@@ -133,14 +133,9 @@ void GlobalGraphicsScene::showMenu(const QPoint &point)
 {
     QGraphicsItem *graphicsItem =  itemAt(m_pointF,QTransform());
     GlobalGraphicsItem *item = dynamic_cast<GlobalGraphicsItem *>(graphicsItem);
-    if(Controller::instance()->getUserRight()!=UserManager::Super)
-    {
-        m_removeItemAction->setEnabled(false);
-        m_editItemAction->setEnabled(false);
-        m_removeSelectItemAction->setEnabled(false);
-        m_clearItemAction->setEnabled(false);
-    }
-    else
+
+    UserManager::UserRight userRight=   Controller::instance()->getUserRight();
+    if(userRight==UserManager::Super||userRight==UserManager::Engineer)
     {
         if(items().size()>1)
         {
@@ -169,6 +164,13 @@ void GlobalGraphicsScene::showMenu(const QPoint &point)
         {
             m_removeSelectItemAction->setEnabled(true);
         }
+    }
+    else
+    {
+        m_removeItemAction->setEnabled(false);
+        m_editItemAction->setEnabled(false);
+        m_removeSelectItemAction->setEnabled(false);
+        m_clearItemAction->setEnabled(false);
     }
     if(item!=nullptr)
     {
@@ -310,7 +312,8 @@ void GlobalGraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
     if(event->button()==Qt::LeftButton)
     {
-        if(Controller::instance()->getUserRight()==UserManager::Super)
+        UserManager::UserRight userRight=  Controller::instance()->getUserRight();
+        if(userRight==UserManager::Super|| userRight==UserManager::Engineer)
         {
             GlobalGraphicsItem*item=  addGlobalGraphicsItem(event->scenePos());
             emit addGlobalItem(item);

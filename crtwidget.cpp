@@ -152,7 +152,34 @@ CrtWidget::CrtWidget(QWidget *parent) :
 
     });
 
+    connect(m_architePlanView,&ArchitePlanView::communicationStatus,this,[=](const QString &status,bool isOk)
+    {
+        if(status==tr("主电"))
+        {
+            if(isOk)
+            {
+                QMetaObject::invokeMethod(m_alarmObj,"setMainConnunicationColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
 
+            }
+            else
+            {
+                QMetaObject::invokeMethod(m_alarmObj,"setMainConnunicationColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));//主电故障
+            }
+
+        }
+        else if(status==tr("备电"))
+        {
+            if(isOk)
+            {
+                QMetaObject::invokeMethod(m_alarmObj,"setStandbyPowerColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
+
+            }
+            else
+            {
+                QMetaObject::invokeMethod(m_alarmObj,"setStandbyPowerColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));//备电故障
+            }
+        }
+    });
 }
 
 CrtWidget::~CrtWidget()
@@ -160,6 +187,8 @@ CrtWidget::~CrtWidget()
     Controller::instance()->getOperatorInfo()->insertEvent(tr("系统关机"));
     m_sqliteManager->close();
     m_sqliteManager->deleteLater();
+    m_infoQueryView->close();
+    m_infoQueryView->deleteLater();
     delete m_alarmContainer;
     delete m_toolBarContainer;
     m_loginQuickView->deleteLater();
@@ -169,6 +198,11 @@ CrtWidget::~CrtWidget()
 QString CrtWidget::alarmInfoDbName()
 {
     return m_alarmInfoDbName;
+}
+
+void CrtWidget::queryViewShow()
+{
+    m_infoQueryView->show();
 }
 
 void CrtWidget::closeEvent(QCloseEvent *event)
@@ -196,8 +230,20 @@ void CrtWidget::loginWidgetShow()
 
 void CrtWidget::settingWindowShow()
 {
-    m_architePlanView->saveArchiteInfoToDb();
-    m_settingView->show();
+
+    UserManager::UserRight userRight=   Controller::instance()->getUserRight();
+    if(userRight!=UserManager::Employee)
+    {
+        m_architePlanView->saveArchiteInfoToDb();
+        m_settingView->close();
+        m_settingView->show();
+    }
+    else
+    {
+        m_settingView->close();
+        QMessageBox::critical(nullptr,tr("警告"),tr("此权限不允许打开，请重新登陆到其它权限。"));
+    }
+
 }
 
 //void CrtWidget::toFirstFireAlarm()
@@ -419,6 +465,9 @@ void CrtWidget::initWidget()
 
     m_settingView = new QQuickView;
     m_settingView->setSource(QUrl("qrc:/qml/infoSetting/SettingWindow.qml"));
+
+    m_infoQueryView = new QQuickView;
+    m_infoQueryView->setSource(QUrl("qrc:/qml/infoSetting/InfoQuery.qml"));
     QHBoxLayout *globalHLayout = new QHBoxLayout;
     globalHLayout->addWidget(m_alarmContainer);
     QSplitter *splitter = new QSplitter(Qt::Vertical,this);

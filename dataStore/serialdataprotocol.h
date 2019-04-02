@@ -8,7 +8,9 @@ public:
     SerialDataProtocol();
     ~SerialDataProtocol();
     QByteArray dataPackage(const QList<QByteArray> &arrayList);
-    QList<QByteArray>frameData(QByteArray &array);
+    QList<QByteArray>frameData(const QByteArray &array);
+private:
+    QByteArray m_receiveDataArray;
 };
 
 #endif // SERIALDATAPROTOCOL_H

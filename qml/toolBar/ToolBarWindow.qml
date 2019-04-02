@@ -65,6 +65,46 @@ ToolBar {
         }
 
         ToolButton {
+            id: infoQueryBtn
+            width: 30
+            Layout.alignment: Qt.AlignRight
+            BorderImage {
+                id: infoQueryBtnImage
+                source: "qrc:/images/search.png"
+                width: parent.width
+                height: parent.height
+            }
+
+            ToolTip {
+
+                id: infoQueryToolTip
+                visible: infoQueryBtn.hovered
+                text: qsTr("信息查询")
+                contentItem: Text {
+                    text: infoQueryToolTip.text
+                    font.family: "Times New Roman"
+                    font.bold: true
+                    color: "black"
+                }
+
+                background: Rectangle {
+                    color: "transparent"
+                    BorderImage {
+                        source: "qrc:/images/dialog.png"
+                        anchors.fill: parent
+                    }
+                }
+                bottomMargin: 30
+            }
+
+            onClicked: {
+
+                CrtWidget.queryViewShow()
+                // CrtWidget.settingWindowShow()
+            }
+        }
+
+        ToolButton {
             id: infoSettingBtn
             width: 30
             Layout.alignment: Qt.AlignRight

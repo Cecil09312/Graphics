@@ -26,6 +26,7 @@ public:
     explicit CrtWidget(QWidget *parent = 0);
     ~CrtWidget();
     Q_INVOKABLE QString alarmInfoDbName();
+    Q_INVOKABLE void queryViewShow();
 protected:
     void closeEvent(QCloseEvent *event);
 
@@ -48,6 +49,7 @@ private:
     QQuickView *m_loginQuickView;
     QQuickView *m_alarmQuickView;
     QQuickView *m_settingView;
+    QQuickView *m_infoQueryView;
     SqlManager *m_sqliteManager;
     QObject *m_alarmObj;
     QString m_alarmInfoDbName;

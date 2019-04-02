@@ -23,6 +23,8 @@ public:
     QList<QGraphicsItem *> &getItemList();
     QGraphicsItem*getItem(int pos) const;
     void setItemInfo(GraphicsItem*item, const QHash<QString,QVariant>&itemHash);
+    //void setItemFromIconIndex();
+
 signals:
     void createItem(GraphicsItem *item);signals:
 
@@ -38,6 +40,10 @@ private slots:
     void setItemInfoFromType(const QString &type,const QString &info);
     void getAlarm(QString extNum,QString loopNum, QString addrNum,QString alarmState);
     void clearAlarms();
+    void setItemsIcon(int index,QString iconName);
+    void setItemsEquipmentModel(int index,QString device);
+    void setItemsManufacturers(int index,QString manufacturers);
+    void setItemsPeriodOfValidity(int index,QString periodOfValidity);
 private:
     void init();
 

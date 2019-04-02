@@ -10,9 +10,20 @@ Item {
     signal setSize(real size)
     signal setIcon(string icon)
     signal setItemInfo(string type, string value)
+    signal setItemsManufacturers(int index, string manufacturers)
+    signal setItemsPeriodOfValidity(int index, string periodOfValidity)
+    signal setItemsIcon(int index, string iconName)
+    signal setItemsDeviceName(int index, string deviceName)
 
     ListModel {
         id: deviceTypeModel
+        ListElement {
+            deviceName: qsTr("报警装置")
+        }
+    }
+
+    ListModel {
+        id: deviceTypeTempModel
         ListElement {
             deviceName: qsTr("报警装置")
         }
@@ -232,13 +243,33 @@ Item {
             id: itemIconSetting
             onPeriodValueChanged: {
                 itemIconInfo.setCurrentIconIndex(index)
-                emit: setItemInfo("periodOfValidity", periodValue)
+                // emit: setItemInfo("periodOfValidity", periodValue)
                 periodOfValidityText.text = periodValue
+                emit: setItemsPeriodOfValidity(index, periodValue)
             }
             onManufacturersChanged: {
                 itemIconInfo.setCurrentIconIndex(index)
-                emit: setItemInfo("manufacturers", facturers)
+                // emit: setItemInfo("manufacturers", facturers)
                 manufacturersText.text = facturers
+                emit: setItemsManufacturers(index, facturers)
+            }
+            onDeviceNameChanged: {
+                var currentDeviceObj = new Object
+                currentDeviceObj["deviceName"] = device
+                deviceTypeModel.set(index, currentDeviceObj)
+                deviceTypeTempModel.clear()
+                for (var i = 0; i < deviceTypeModel.count; i++) {
+                    deviceTypeTempModel.append(deviceTypeModel.get(i))
+                }
+                deviceTypeModel.clear()
+                for (var j = 0; j < deviceTypeTempModel.count; j++) {
+                    deviceTypeModel.append(deviceTypeTempModel.get(j))
+                }
+                emit: setItemsDeviceName(index, device)
+            }
+
+            onIconChanged: {
+                emit: setItemsIcon(index, iconPath)
             }
         }
     }
