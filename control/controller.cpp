@@ -17,6 +17,7 @@ Controller::~Controller()
     m_tcpConfigurationManager.data()->saveConfiguration();
     m_udpConfigurationManager.data()->saveConfiguration();
     m_speechObj.clear();
+    m_tcpObj.clear();
     m_udpObj->deleteLater();
     m_operatorInfo->deleteLater();
     //m_userManager.clear();
@@ -108,6 +109,11 @@ AbstractLink *Controller::getUdpObj()
     return m_udpObj;
 }
 
+AbstractLink *Controller::getTcpObj()
+{
+    return m_tcpObj.data();
+}
+
 
 ConfigurationManager *Controller::getSerialConfigurationManager()
 {
@@ -132,6 +138,7 @@ OperatorInfo *Controller::getOperatorInfo()
 Controller::Controller()
 {
     m_commObj = QSharedPointer<AbstractLink>(new SerialLink(),&QObject::deleteLater);
+    m_tcpObj = QSharedPointer<AbstractLink>(new TcpLink(),&QObject::deleteLater);
     m_userManager =new UserManager(this);
     m_speechObj = QSharedPointer<SpeechObj>(new SpeechObj/*,&QObject::deleteLater*/);
     m_udpObj =new UdpLink;

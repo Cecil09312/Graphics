@@ -71,11 +71,10 @@ void Print::startPrint(QList<QString> roleNameList, QList<QVariant> valueList)
 void Print::printPreview(QList<QString> roleNameList, QList<QVariant> valueList)
 {
     QPrinter printer(QPrinter::HighResolution);
-    //自定义纸张大小
-    printer.setPageSize(QPrinter::Custom);
-
+    //纸张大小
+    printer.setPageSize(QPageSize(QPageSize::A4));
     QPrintPreviewDialog previewDialog(&printer, nullptr);
-    previewDialog.setMinimumSize(800,600);
+    previewDialog.setMinimumSize(960,800);
     connect(&previewDialog,&QPrintPreviewDialog::paintRequested,this,[=](QPrinter *printer)
     {
         QTextDocument text_document;

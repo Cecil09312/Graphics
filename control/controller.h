@@ -40,6 +40,7 @@ public:
     UserManager::UserRight getUserRight();
     SpeechObj *getSpeechObj();
     AbstractLink *getUdpObj();
+    AbstractLink *getTcpObj();
     ConfigurationManager *getSerialConfigurationManager();
     ConfigurationManager *getFtpConfigurationManager();
     ConfigurationManager *getTcpConfigurationManager();
@@ -50,6 +51,7 @@ private:
     //static Controller*m_controller;
     static QSharedPointer<Controller>m_controller;
     QSharedPointer<AbstractLink>m_commObj;
+    QSharedPointer<AbstractLink>m_tcpObj;
     SysArchitePlanView *m_sysArthitePlanView;
     ArchitePlanView *m_architePlanView;
     UserManager*m_userManager;
@@ -61,7 +63,7 @@ private:
     QSharedPointer<ConfigurationManager> m_tcpConfigurationManager;
     QSharedPointer<ConfigurationManager> m_udpConfigurationManager;
     QSharedPointer<ConfigurationManager> m_ftpConfigurationManager;
-   OperatorInfo*m_operatorInfo;
+    OperatorInfo*m_operatorInfo;
     // QSharedPointer<ModbusManager>m_modbusManager;
 
 };

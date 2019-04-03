@@ -1,5 +1,6 @@
 ﻿#include "abstractlink.h"
-
+#include <QThread>
+#include <QDebug>
 AbstractLink::AbstractLink(QObject *parent) : QObject(parent)
 {
 
@@ -17,10 +18,14 @@ void AbstractLink::sendData(const QByteArray &array)
 
 void AbstractLink::connectLink()
 {
-    emit startConnect();
+  emit startConnect();
 }
 
 void AbstractLink::disconnectLink()
 {
     emit stopConnect();
 }
+
+
+
+

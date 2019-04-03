@@ -44,7 +44,6 @@ void FtpManager::uploadFile(const QString &fileName )
             {
                 reply->close();
                 reply->deleteLater();
-
             }
         });
     });

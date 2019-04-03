@@ -3,6 +3,7 @@ import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import ftpConfigurationManager 1.0
 import tcpConfigurationManager 1.0
+import tcpLink 1.0
 
 Item {
 
@@ -53,6 +54,7 @@ Item {
                                     "port", parseInt(tcpPortTextField.text))
                         TcpInfo.setConfiguration()
                         TcpInfo.saveConfiguration()
+                        TcpLink.connectLink()
                     }
                 }
             }

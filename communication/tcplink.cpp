@@ -16,8 +16,12 @@ TcpLink::TcpLink(QObject *parent)
     qRegisterMetaType<QByteArray>("QByteArray");
     connect(this,&TcpLink::startConnect,this,[=]()
     {
-        m_tcpSocket->connectToHost(m_address,m_port);
-        m_tcpSocket->waitForConnected(1000);
+        if(m_tcpSocket->state()==QTcpSocket::UnconnectedState)
+        {
+            setConfiguration();
+            m_tcpSocket->connectToHost(m_address,m_port);
+            m_tcpSocket->waitForConnected(1000);
+        }
         //qDebug() << m_tcpSocket->state();
     });
     connect(this,&TcpLink::stopConnect,this,[=](){
@@ -33,7 +37,16 @@ TcpLink::TcpLink(QObject *parent)
 
     });
     connect(m_tcpSocket,&QTcpSocket::readyRead,this,&TcpLink::readData);
+    connect(m_tcpSocket,&QTcpSocket::connected,this,[=]()
+    {
+        emit isConnected(true);
+    });
+    connect(m_tcpSocket,&QTcpSocket::disconnected,this,[=]()
+    {
+        emit isConnected(false);
+    });
 
+    connectLink();
 
 }
 

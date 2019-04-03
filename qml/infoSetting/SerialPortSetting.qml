@@ -3,6 +3,7 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
 import serialConfigurationManager 1.0
 import userManager 1.0
+import serialLink 1.0
 
 Rectangle {
     //    width: 420
@@ -29,6 +30,14 @@ Rectangle {
             model: ListModel {
                 id: portListModel
             }
+
+            //            onCurrentTextChanged:
+            //            {
+            //                SerialPortInfo.setConfigurationValue("portName",currentText)
+            //                SerialPortInfo.setConfiguration()
+            //                SerialPortInfo.saveConfiguration()
+            //                SerialLink.connectLink()
+            //            }
         }
 
         Text {
@@ -124,6 +133,7 @@ Rectangle {
                             "flowControl", flowControlComboBox.currentText)
                 SerialPortInfo.setConfiguration()
                 SerialPortInfo.saveConfiguration()
+                SerialLink.connectLink()
             }
         }
     }

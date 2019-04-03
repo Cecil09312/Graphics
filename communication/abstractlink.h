@@ -5,6 +5,10 @@
 #include <QByteArray>
 #include <QSharedPointer>
 #include "abstractconfiguration.h"
+#include <QRunnable>
+#include <QThreadPool>
+
+
 class AbstractLink : public QObject
 {
     Q_OBJECT
@@ -25,6 +29,8 @@ public slots:
     virtual void setConfiguration()=0;
     void connectLink();
     void disconnectLink();
+private:
+
 };
 typedef QSharedPointer<AbstractLink> Link;
 #endif // ABSTRACTLINK_H

@@ -411,6 +411,21 @@ void CrtWidget::initWidget()
         return Controller::instance()->getSysArchitePlanView();
     });
 
+
+    qmlRegisterSingletonType<Controller>("serialLink", 1, 0, "SerialLink",
+                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+        Q_UNUSED(engine)
+        Q_UNUSED(scriptEngine)
+        return Controller::instance()->getCommObj();
+    });
+
+    qmlRegisterSingletonType<Controller>("tcpLink", 1, 0, "TcpLink",
+                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+        Q_UNUSED(engine)
+        Q_UNUSED(scriptEngine)
+        return Controller::instance()->getTcpObj();
+    });
+
     //    qmlRegisterSingletonType<Controller>("speechObj", 1, 0, "SpeechObj",
     //                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
     //        Q_UNUSED(engine)
