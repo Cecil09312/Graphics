@@ -23,6 +23,7 @@ public:
     QList<QGraphicsItem *> &getItemList();
     QGraphicsItem*getItem(int pos) const;
     void setItemInfo(GraphicsItem*item, const QHash<QString,QVariant>&itemHash);
+    bool isHavingAlarms();
     //void setItemFromIconIndex();
 
 signals:
@@ -44,6 +45,7 @@ private slots:
     void setItemsEquipmentModel(int index,QString device);
     void setItemsManufacturers(int index,QString manufacturers);
     void setItemsPeriodOfValidity(int index,QString periodOfValidity);
+    void restoreAlarm(QString extNum,QString loopNum, QString addrNum);
 private:
     void init();
 

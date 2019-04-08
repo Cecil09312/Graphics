@@ -13,17 +13,40 @@ ToolBar {
         anchors.left: parent.left
         Layout.fillWidth: true
         spacing: 20
+        Image {
+            id: titleImage
+            height: parent.height
+            width: 200
+            source: "qrc:/images/ldlogo.png"
+            Layout.alignment: Qt.AlignLeft
+        }
+
+        Text {
+            id: currentDataTimeText
+            height: parent.height
+            verticalAlignment: Text.AlignVCenter
+            //horizontalAlignment: Text.AlignHCenter
+            font.family: "Times New Roman"
+            font.pixelSize: 24
+            color: "green"
+
+            text: Qt.formatDateTime(new Date, "yyyy/MM/dd hh:mm:ss")
+            //Layout.alignment: Qt.AlignLeft
+            Layout.fillWidth: true
+        }
         Text {
             id: titleText
             height: parent.height
             verticalAlignment: Text.AlignVCenter
             //horizontalAlignment: Text.AlignHCenter
             font.family: "Times New Roman"
-            font.pixelSize: 28
-            color: "green"
+            font.pixelSize: 30
+            font.italic: true
+            font.bold: true
+            color: "black"
 
-            text: qsTr("消防控制室图形显示装置")
-            Layout.alignment: Qt.AlignLeft
+            text: qsTr("消防控制室图形显示装置V1.0")
+            // Layout.alignment: Qt.AlignLeft
             Layout.fillWidth: true
         }
         ToolButton {
@@ -211,5 +234,22 @@ ToolBar {
             Layout.alignment: Qt.AlignRight
             width: 30
         }
+    }
+
+    Timer {
+        id: time
+        interval: 1000
+        repeat: true
+        onTriggered: {
+            currentDataTimeText.text = Qt.formatDateTime(new Date,
+                                                         "yyyy/MM/dd hh:mm:ss")
+        }
+    }
+
+    Component.onCompleted: {
+        time.running = true
+    }
+    Component.onDestruction: {
+        time.running = false
     }
 }

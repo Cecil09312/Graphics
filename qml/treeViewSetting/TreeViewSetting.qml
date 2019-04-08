@@ -67,25 +67,25 @@ Rectangle {
             }
         }
 
-        RowLayout {
-            Layout.row: 2
-            Layout.column: 1
-            Layout.topMargin: 10
-            spacing: 5
+        //        RowLayout {
+        //            Layout.row: 2
+        //            Layout.column: 1
+        //            Layout.topMargin: 10
+        //            spacing: 5
 
-            Button {
-                id: saveBtn
-                text: qsTr("保存")
-            }
+        //            Button {
+        //                id: saveBtn
+        //                text: qsTr("保存")
+        //            }
 
-            Button {
-                id: quitBtn
-                text: qsTr("退出")
-                onClicked: {
-                    TreeView.architeSettingViewClose()
-                }
-            }
-        }
+        //            Button {
+        //                id: quitBtn
+        //                text: qsTr("退出")
+        //                onClicked: {
+        //                    TreeView.architeSettingViewClose()
+        //                }
+        //            }
+        //        }
     }
     FileDialog {
         id: fileDialog

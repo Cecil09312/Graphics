@@ -7,6 +7,7 @@ Item {
     height: 320
     signal createAlarm(string extNum, string loopNum, string addrNum, string alarmState)
     signal clearAlarm
+    signal alramRestore(string extNum, string loopNum, string addrNum)
     GridLayout {
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
@@ -57,21 +58,34 @@ Item {
             model: ["火警", "联动", "故障", "监管", "反馈", "屏蔽"]
         }
 
-        Row {
+        Button {
+
+            id: creatAlarmBtn
+            Layout.row: 4
+            Layout.column: 0
+            text: qsTr("报警开始")
+            onClicked: {
+                emit: createAlarm(extNumTextField.text, loopNumTextField.text,
+                                  addrNumTextField.text,
+                                  alarmStateComboBox.currentText)
+            }
+        }
+
+        Grid {
             Layout.row: 4
             Layout.column: 1
             spacing: 10
+            columns: 2
             Layout.fillWidth: true
+
             Button {
 
-                id: creatAlarmBtn
-
-                text: qsTr("报警开始")
+                id: deleteAlarmBtn
+                text: qsTr("报警恢复")
                 onClicked: {
-                    emit: createAlarm(extNumTextField.text,
-                                      loopNumTextField.text,
-                                      addrNumTextField.text,
-                                      alarmStateComboBox.currentText)
+                    emit: alramRestore(extNumTextField.text,
+                                       loopNumTextField.text,
+                                       addrNumTextField.text)
                 }
             }
 

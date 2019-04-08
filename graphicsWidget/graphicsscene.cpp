@@ -51,19 +51,7 @@ GraphicsScene::GraphicsScene(QObject *parent):
     });
     connect(m_clearAction,&QAction::triggered,this,[=]()
     {
-        bool isHavingAlarm = false;
-        foreach (QGraphicsItem*item, m_itemList)
-        {
-            GraphicsItem * graphicsItem = dynamic_cast<GraphicsItem *>(item);
-            if(graphicsItem!=nullptr)
-            {
-                if(graphicsItem->currentState()!=tr("正常"))
-                {
-                    isHavingAlarm = true;
-                    break;
-                }
-            }
-        }
+        bool isHavingAlarm = isHavingAlarms();
         if(!isHavingAlarm)
         {
             foreach (QGraphicsItem*item, m_itemList)
@@ -161,11 +149,13 @@ GraphicsScene::GraphicsScene(QObject *parent):
     Q_ASSERT(m_analogAlarmObj);
     connect(m_analogAlarmObj,SIGNAL(createAlarm(QString, QString, QString, QString)),this,SLOT(getAlarm(QString,QString, QString,QString)));
     connect(m_analogAlarmObj,SIGNAL(clearAlarm()),this,SLOT(clearAlarms()));
+    connect(m_analogAlarmObj,SIGNAL(alramRestore(QString, QString, QString)),this,SLOT(restoreAlarm(QString, QString, QString)));
 
 }
 
 GraphicsScene::~GraphicsScene()
 {
+    //clearAlarms();
     delete m_graphicsItemSettingMenu;
     m_itemSettingView->deleteLater();
     m_analogAlarmView->deleteLater();
@@ -415,7 +405,7 @@ void GraphicsScene::clearAlarms()
     ArchitePlanView*architePlanView=   Controller::instance()->getArchitePlanView();
     if(architePlanView!=nullptr)
     {
-        architePlanView->clearAlarm();
+        architePlanView->clearAlarm(true);
     }
 
 }
@@ -484,6 +474,15 @@ void GraphicsScene::setItemsPeriodOfValidity(int index, QString periodOfValidity
                 graphicsItem->update();
             }
         }
+    }
+}
+
+void GraphicsScene::restoreAlarm(QString extNum, QString loopNum, QString addrNum)
+{
+    ArchitePlanView*architePlanView=   Controller::instance()->getArchitePlanView();
+    if(architePlanView!=nullptr)
+    {
+        architePlanView->eliminateAlarm(extNum,loopNum,addrNum);
     }
 }
 
@@ -569,6 +568,24 @@ void GraphicsScene::setItemInfo(GraphicsItem *item, const QHash<QString, QVarian
         addItem(item);
         m_itemList.push_back(item);
     }
+}
+
+bool GraphicsScene::isHavingAlarms()
+{
+    bool isHavingAlarm = false;
+    foreach (QGraphicsItem*item, m_itemList)
+    {
+        GraphicsItem * graphicsItem = dynamic_cast<GraphicsItem *>(item);
+        if(graphicsItem!=nullptr)
+        {
+            if(graphicsItem->currentState()!=tr("正常"))
+            {
+                isHavingAlarm = true;
+                break;
+            }
+        }
+    }
+    return isHavingAlarm;
 }
 
 

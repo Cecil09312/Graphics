@@ -46,7 +46,7 @@ Rectangle {
             font.pointSize: 14
             font.family: qsTr("Times New Roman")
             onClicked: {
-                ArchitePlanView.clearAlarm()
+                ArchitePlanView.clearAlarm(true)
                 // allAlarmClear()
                 autoSwitchCheckBox.checked = false
                 OperatorInfo.insertEvent(qsTr("复位"))
@@ -58,29 +58,6 @@ Rectangle {
                 highlighted = false
             }
         }
-
-        //        Button {
-        //            id: firstAlarmBtn
-        //            Layout.alignment: Qt.AlignRight
-        //            text: qsTr("首警")
-        //            Layout.fillWidth: true
-        //            Layout.fillHeight: true
-        //            Layout.topMargin: 10
-        //            font.pointSize: 14
-        //            font.family: qsTr("Times New Roman")
-        //            // iconSource: "qrc:/images/alarm.png"
-        //            onClicked: {
-
-        //                // ArchitePlanView.lastFireAlarm()
-        //            }
-
-        //            onPressed: {
-        //                firstAlarmBtn.highlighted = true
-        //            }
-        //            onReleased: {
-        //                firstAlarmBtn.highlighted = false
-        //            }
-        //        }
     }
     GridLayout {
         id: alarmIndicatorLayout

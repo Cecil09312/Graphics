@@ -34,6 +34,7 @@ public:
 
 
     void eliminateAlarm(GraphicsItem *item);//消除报警
+
     void generateAlarm(const QString &alarmTypeName, GraphicsItem*item, GraphicsView *view, bool isAnalog=false);
     void insertAlarmWidget(const QString &type,GraphicsView*view);
     void deleteAlarmWidget(const QString &type, GraphicsView *view);
@@ -51,12 +52,15 @@ public:
     void saveArchiteInfoToDb();
     QStandardItem*getItemFromView(GraphicsView*view);
     GraphicsView* currentGraphicsView();
+    bool havingAlarms();
     Q_INVOKABLE QString architeInfoDbName();
     Q_INVOKABLE void setGlobalArchitePixmap(const QString &pixmapName);
     Q_INVOKABLE void clearAlarm(bool alarmColorRedu=false);
     Q_INVOKABLE void createAlarm(const QString &extNum, const QString &loopNum,
                                  const QString &addressNum, const QString &alarmTypeName,
                                  bool isAnalog=false,const QString &alarmTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
+    Q_INVOKABLE void eliminateAlarm(const QString &extNum, const QString &loopNum,
+                        const QString &addrNum);//消除报警
     Q_INVOKABLE void toAlarmView();
     Q_INVOKABLE void setCurrentAlarmType(const QString &type);
     Q_INVOKABLE void toArchitePlan(const QString &extNum, const QString &loopNum,
