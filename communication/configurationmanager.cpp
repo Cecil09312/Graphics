@@ -12,6 +12,7 @@ ConfigurationManager::ConfigurationManager(Configuration configuration,QObject *
     m_canConfigurationHash = configurationValueHash["can"].toHash();
     m_udpConfigurationHash = configurationValueHash["udp"].toHash();
     m_ftpConfigurationHash = configurationValueHash["ftp"].toHash();
+    m_indicatorConfigurationHash = configurationValueHash["indicator"].toHash();
     if(m_serialConfigurationHash.isEmpty())
     {
         m_serialConfigurationHash["portName"]="";
@@ -22,6 +23,16 @@ ConfigurationManager::ConfigurationManager(Configuration configuration,QObject *
         m_serialConfigurationHash["flowControl"] = "无";
         // m_configuration.data()->setConfiguration(m_serialConfigurationHash);
 
+    }
+
+    if(m_indicatorConfigurationHash.isEmpty())
+    {
+        m_indicatorConfigurationHash["portName"]="";
+        m_indicatorConfigurationHash["baudRate"] = 9600;
+        m_indicatorConfigurationHash["dataBits"] = 8;
+        m_indicatorConfigurationHash["stopBits"] = 1;
+        m_indicatorConfigurationHash["parity"]  = "无校验";
+        m_indicatorConfigurationHash["flowControl"] = "无";
     }
     if(m_tcpConfigurationHash.isEmpty())
     {
@@ -70,6 +81,9 @@ ConfigurationManager::ConfigurationManager(Configuration configuration,QObject *
     {
         m_configuration.data()->setConfiguration(m_ftpConfigurationHash);
     }
+    else if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Indicator){
+        m_configuration.data()->setConfiguration(m_indicatorConfigurationHash);
+    }
 }
 
 ConfigurationManager::~ConfigurationManager()
@@ -96,32 +110,75 @@ void ConfigurationManager::saveConfiguration()
 
 QString ConfigurationManager::currentPortName()
 {
-    return m_serialConfigurationHash["portName"].toString();
+    if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Indicator)
+    {
+        return  m_indicatorConfigurationHash["portName"].toString();
+    }
+    else
+    {
+        return m_serialConfigurationHash["portName"].toString();
+    }
 }
 
 quint32 ConfigurationManager::currentBaudRate()
 {
-    return m_serialConfigurationHash["baudRate"].toUInt();
+    if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Indicator)
+    {
+        return m_indicatorConfigurationHash["baudRate"].toUInt();
+    }
+    else
+    {
+        return m_serialConfigurationHash["baudRate"].toUInt();
+    }
+
 }
 
 QString ConfigurationManager::currentParity()
 {
-    return m_serialConfigurationHash["parity"].toString();
+    if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Indicator)
+    {
+        return m_indicatorConfigurationHash["parity"].toString();
+    }
+    else
+    {
+        return m_serialConfigurationHash["parity"].toString();
+    }
+
 }
 
 QString ConfigurationManager::currentFlowControl()
 {
-    return m_serialConfigurationHash["flowControl"].toString();
+    if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Indicator)
+    {
+        return m_indicatorConfigurationHash["flowControl"].toString();
+    }
+    else
+    {
+        return m_serialConfigurationHash["flowControl"].toString();
+    }
 }
 
 int ConfigurationManager::currentDataBits()
 {
-    return m_serialConfigurationHash["dataBits"].toInt();
+    if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Indicator)
+    {
+        return m_indicatorConfigurationHash["dataBits"].toInt();
+    }
+    else
+    {
+        return m_serialConfigurationHash["dataBits"].toInt();
+    }
 }
 
 int ConfigurationManager::currentStopBits()
-{
-    return m_serialConfigurationHash["stopBits"].toInt();
+{   if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Indicator)
+    {
+        return m_indicatorConfigurationHash["stopBits"].toInt();
+    }
+    else
+    {
+        return m_serialConfigurationHash["stopBits"].toInt();
+    }
 }
 
 QString ConfigurationManager::ftpHost()

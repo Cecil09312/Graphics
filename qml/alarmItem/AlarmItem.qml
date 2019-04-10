@@ -216,7 +216,7 @@ Rectangle {
             Layout.column: 0
             Layout.row: 6
             color: "green"
-            active: true
+            active: false
             ColorAnimation on color {
                 id: mainPowerAnimation
                 from: "red"
@@ -240,7 +240,7 @@ Rectangle {
             Layout.column: 0
             Layout.row: 7
             color: "green"
-            active: true
+            active: false
             ColorAnimation on color {
                 id: standbyPowerAnimation
                 from: "red"
@@ -264,7 +264,7 @@ Rectangle {
             Layout.column: 0
             Layout.row: 8
             color: "green"
-            active: true
+            active: false
             ColorAnimation on color {
                 id: equiComAnimation
                 from: "red"
@@ -288,7 +288,7 @@ Rectangle {
             Layout.column: 0
             Layout.row: 9
             color: "green"
-            active: true
+            active: false
             ColorAnimation on color {
                 id: centerComAnimation
                 from: "red"

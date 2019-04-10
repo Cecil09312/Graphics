@@ -20,7 +20,7 @@ public:
 
 
 signals:
-
+    void sendFileSuccess(bool isOk);
 public slots:
     void uploadFile(const QString &fileName);
 private:

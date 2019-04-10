@@ -16,7 +16,8 @@
 
 
 CrtWidget::CrtWidget(QWidget *parent) :
-    QOpenGLWidget(parent)
+    QOpenGLWidget(parent),
+    m_monitoringPackageNum(0)
 {
 
     setWindowFlags(Qt::FramelessWindowHint|Qt::Window);
@@ -50,6 +51,8 @@ CrtWidget::CrtWidget(QWidget *parent) :
         valueList.push_back(str);
     }
     QString sqlInfo = QString("insert into AlarmInfo (%1) values (%2)").arg(alarmInfoList.join(",")).arg(valueList.join(","));
+    Controller::instance()->getCommObj()->connectLink();
+    Controller::instance()->getTcpObj()->connectLink();
     connect(m_architePlanView,&ArchitePlanView::alarmHappend,this,&CrtWidget::alarmStatistics);
     connect(m_architePlanView,&ArchitePlanView::alarmItem,this,[=](GraphicsItem *item)
     {
@@ -106,6 +109,10 @@ CrtWidget::CrtWidget(QWidget *parent) :
         }
     });
 
+    connect(Controller::instance()->getCommObj(),&AbstractLink::getData,this,&CrtWidget::serialDataProcessing);
+
+    connect(Controller::instance()->getTcpObj(),&AbstractLink::getData,this,&CrtWidget::tcpDataProcessing);
+
     Q_ASSERT(m_alarmObj);
 
     if(m_architePlanView->totalPage()>0)
@@ -126,65 +133,66 @@ CrtWidget::CrtWidget(QWidget *parent) :
         QMetaObject::invokeMethod(m_alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,true));
         QMetaObject::invokeMethod(m_alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,false));
         QMetaObject::invokeMethod(m_alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()+1));
-
     });
 
-    connect(m_architePlanView,&ArchitePlanView::reduInstruction,this,[=](bool isOk){
+    connect(m_architePlanView,&ArchitePlanView::reduInstruction,this,[=](bool isOk)
+    {
         QMetaObject::invokeMethod(m_alarmObj,"allAlarmClear",Q_ARG(QVariant,isOk));
     });
 
-    connect(m_architePlanView,&ArchitePlanView::toLastPage,this,[=](){
+    connect(m_architePlanView,&ArchitePlanView::toLastPage,this,[=]()
+    {
         QMetaObject::invokeMethod(m_alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,false));
         QMetaObject::invokeMethod(m_alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,true));
         QMetaObject::invokeMethod(m_alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()+1));
-
     });
 
-    connect(m_architePlanView,&ArchitePlanView::normalPage,this,[=](){
+    connect(m_architePlanView,&ArchitePlanView::normalPage,this,[=]()
+    {
         QMetaObject::invokeMethod(m_alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,true));
         QMetaObject::invokeMethod(m_alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,true));
         QMetaObject::invokeMethod(m_alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()+1));
     });
 
-    connect(m_architePlanView,&ArchitePlanView::noPage,this,[=](){
+    connect(m_architePlanView,&ArchitePlanView::noPage,this,[=]()
+    {
         QMetaObject::invokeMethod(m_alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,false));
         QMetaObject::invokeMethod(m_alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,false));
         QMetaObject::invokeMethod(m_alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()+1));
-
     });
 
-    connect(m_architePlanView,&ArchitePlanView::communicationStatus,this,[=](const QString &status,bool isOk)
+
+    connect(Controller::instance()->getCommObj(),&AbstractLink::isConnected,this,[=](bool connected)
     {
-        if(status==tr("主电"))
+        if(connected)
         {
-            if(isOk)
-            {
-                QMetaObject::invokeMethod(m_alarmObj,"setMainConnunicationColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
-
-            }
-            else
-            {
-                QMetaObject::invokeMethod(m_alarmObj,"setMainConnunicationColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));//主电故障
-            }
-
+            QMetaObject::invokeMethod(m_alarmObj,"setEquiComColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));//设备通信
         }
-        else if(status==tr("备电"))
+        else
         {
-            if(isOk)
-            {
-                QMetaObject::invokeMethod(m_alarmObj,"setStandbyPowerColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
-
-            }
-            else
-            {
-                QMetaObject::invokeMethod(m_alarmObj,"setStandbyPowerColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));//备电故障
-            }
+            QMetaObject::invokeMethod(m_alarmObj,"setEquiComColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
         }
     });
+
+    connect(Controller::instance()->getTcpObj(),&TcpLink::isConnected,this,[=](bool connected)
+    {
+        if(connected)
+        {
+            QMetaObject::invokeMethod(m_alarmObj,"setCenterComColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));//中心通信
+        }
+        else
+        {
+            QMetaObject::invokeMethod(m_alarmObj,"setCenterComColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+        }
+    });
+
+
+
 }
 
 CrtWidget::~CrtWidget()
 {
+    Controller::instance()->getTransportInfo()->saveTransportInfoToJson();
     Controller::instance()->getOperatorInfo()->insertEvent(tr("系统关机"));
     m_sqliteManager->close();
     m_sqliteManager->deleteLater();
@@ -194,6 +202,8 @@ CrtWidget::~CrtWidget()
     delete m_toolBarContainer;
     m_loginQuickView->deleteLater();
     m_settingView->deleteLater();
+    delete m_serialDataProtocol ;
+    delete m_monitoringProtocol;
 }
 
 QString CrtWidget::alarmInfoDbName()
@@ -206,6 +216,7 @@ void CrtWidget::queryViewShow()
     m_architePlanView->saveArchiteInfoToDb();
     m_infoQueryView->show();
 }
+
 
 void CrtWidget::closeEvent(QCloseEvent *event)
 {
@@ -244,7 +255,6 @@ void CrtWidget::settingWindowShow()
     UserManager::UserRight userRight=   Controller::instance()->getUserRight();
     if(userRight!=UserManager::Employee)
     {
-
         m_settingView->close();
         m_settingView->show();
     }
@@ -349,7 +359,7 @@ void CrtWidget::alarmStatistics(const QString &type)
     {
         if(typeNum>0)
         {
-           QMetaObject::invokeMethod(m_alarmObj,"setfaultAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"yellow"));
+            QMetaObject::invokeMethod(m_alarmObj,"setfaultAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"yellow"));
         }
         else
         {
@@ -361,7 +371,7 @@ void CrtWidget::alarmStatistics(const QString &type)
     {
         if(typeNum>0)
         {
-           QMetaObject::invokeMethod(m_alarmObj,"setFeedbackColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"blue"));
+            QMetaObject::invokeMethod(m_alarmObj,"setFeedbackColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"blue"));
         }
         else
         {
@@ -373,13 +383,41 @@ void CrtWidget::alarmStatistics(const QString &type)
     {
         if(typeNum>0)
         {
-          QMetaObject::invokeMethod(m_alarmObj,"setShieldAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"pink"));
+            QMetaObject::invokeMethod(m_alarmObj,"setShieldAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"pink"));
         }
         else
         {
             QMetaObject::invokeMethod(m_alarmObj,"setShieldAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
         }
         QMetaObject::invokeMethod(m_alarmObj,"setShieldText",Q_ARG(QVariant,typeNum));
+    }
+}
+
+void CrtWidget::communicationStatus(const QString &status, bool isOK)
+{
+    Q_ASSERT(m_alarmObj);
+    if(status==tr("主电"))
+    {
+        if(isOK)
+        {
+            QMetaObject::invokeMethod(m_alarmObj,"setMainConnunicationColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
+        }
+        else
+        {
+            QMetaObject::invokeMethod(m_alarmObj,"setMainConnunicationColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));//主电故障
+        }
+
+    }
+    else if(status==tr("备电"))
+    {
+        if(isOK)
+        {
+            QMetaObject::invokeMethod(m_alarmObj,"setStandbyPowerColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
+        }
+        else
+        {
+            QMetaObject::invokeMethod(m_alarmObj,"setStandbyPowerColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));//备电故障
+        }
     }
 }
 
@@ -418,12 +456,26 @@ void CrtWidget::initWidget()
         return Controller::instance()->getOperatorInfo();
     });
 
+    qmlRegisterSingletonType<Controller>("transportInfo", 1, 0, "TransportInfo",
+                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+        Q_UNUSED(engine)
+        Q_UNUSED(scriptEngine)
+
+        return Controller::instance()->getTransportInfo();
+    });
 
     qmlRegisterSingletonType<Controller>("serialConfigurationManager", 1, 0, "SerialPortInfo",
                                          [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
         Q_UNUSED(engine)
         Q_UNUSED(scriptEngine)
         return Controller::instance()->getSerialConfigurationManager();
+    });
+
+    qmlRegisterSingletonType<Controller>("indicatorConfigurationManager", 1, 0, "IndicatorConfiguration",
+                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+        Q_UNUSED(engine)
+        Q_UNUSED(scriptEngine)
+        return Controller::instance()->getIndicatorConfigurationManager();
     });
 
     qmlRegisterSingletonType<Controller>("ftpConfigurationManager", 1, 0, "FtpInfo",
@@ -457,6 +509,13 @@ void CrtWidget::initWidget()
         return Controller::instance()->getCommObj();
     });
 
+    qmlRegisterSingletonType<Controller>("indicatorLightCom", 1, 0, "IndicatorLightCom",
+                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+        Q_UNUSED(engine)
+        Q_UNUSED(scriptEngine)
+        return Controller::instance()->getIndicatorObj();
+    });
+
     qmlRegisterSingletonType<Controller>("tcpLink", 1, 0, "TcpLink",
                                          [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
         Q_UNUSED(engine)
@@ -471,7 +530,9 @@ void CrtWidget::initWidget()
     //        return Controller::instance()->getSpeechObj();
     //    });
 
-
+    m_serialDataProtocol = new SerialDataProtocol;
+    m_monitoringProtocol = new MonitoringProtocol;
+    m_ftpManager = new FtpManager(this);
     qmlRegisterType<QmlTableModel>("qmlTableModel",1,0,"QmlTableModel");
     qmlRegisterType<QmlForJson>("qmlForJson",1,0,"QmlForJson");
     qmlRegisterType<ItemIconInfoToJson>("itemIconInfoToJson",1,0,"ItemIconInfoToJson");
@@ -551,6 +612,130 @@ void CrtWidget::alarmDataOnTable()
     else
     {
         m_infoTableView->tableModel()->sqlCommit(QString("select %1 from AlarmInfo where 报警状态 ='%2'").arg(alarmInfoList.join(",")).arg(m_architePlanView->currentAlarmType()));
+    }
+}
+
+void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
+{
+    QList<QByteArray>dataArrayList=  m_serialDataProtocol->frameData(arrayValue);
+    foreach (QByteArray array, dataArrayList)
+    {
+        quint8 eventNum =  m_serialDataProtocol->dataByte(array,0);//事件
+        QString loopNum = QString("%1").arg(m_serialDataProtocol->dataByte(array,1));//回路
+        QString addrNum = QString("%1").arg(m_serialDataProtocol->dataByte(array,2));//地址
+        quint8 type = m_serialDataProtocol->dataByte(array,3);//属性，左6位主机地址
+        QString extNum = QString("%1").arg(type>>2&0x3f);
+
+        quint8 year= m_serialDataProtocol->dataByte(array,4);
+        quint8 month= m_serialDataProtocol->dataByte(array,5);
+        quint8 date = m_serialDataProtocol->dataByte(array,6);
+        quint8 hour = m_serialDataProtocol->dataByte(array,7);
+        quint8 minute= m_serialDataProtocol->dataByte(array,8)>>1&0x7f;
+        quint8 second= m_serialDataProtocol->dataByte(array,9);
+
+        QString timeStr = QString("%1/%2/%3 %4:%5:%6").arg((int)year+2000).arg((ushort)month,2,10,QChar('0'))
+                .arg((ushort)date,2,10,QChar('0')).arg((ushort)hour,2,10,QChar('0')).arg((ushort)minute,2,10,QChar('0'))
+                .arg((ushort)second,2,10,QChar('0'));
+
+        QHash<quint8,QString>alarmTypeHash,eliminateAlarmHash,commuStatusHash;
+        alarmTypeHash[0x01] = tr("火警");
+        alarmTypeHash[0x03] = tr("故障");
+        alarmTypeHash[0x05] = tr("联动");
+        alarmTypeHash[0x0a] = tr("监管");
+        alarmTypeHash[0x0b] = tr("屏蔽");
+        alarmTypeHash[0x0d] = tr("反馈");
+        commuStatusHash[0x12] = tr("主电");
+        commuStatusHash[0x13] = tr("备电");
+        commuStatusHash[0x23] = tr("消音");
+        commuStatusHash[0x20] = tr("复位");
+        if(commuStatusHash.keys().contains(eventNum))
+        {
+            if(loopNum.toInt()==0)
+            {
+                communicationStatus(commuStatusHash[eventNum],true);
+            }
+            else if(loopNum.toInt()==1)
+            {
+                communicationStatus(commuStatusHash[eventNum],false);
+            }
+        }
+
+        if(alarmTypeHash.keys().contains(eventNum))
+        {
+            m_architePlanView->createAlarm(extNum,loopNum,addrNum,alarmTypeHash[eventNum],false,timeStr);
+        }
+
+
+        eliminateAlarmHash[0x02] = tr("反馈消除");
+        eliminateAlarmHash[0x04] = tr("故障恢复");
+        eliminateAlarmHash[0x06] = tr("停止");
+        eliminateAlarmHash[0x0c] = tr("屏蔽解除");
+        if(eliminateAlarmHash.keys().contains(eventNum))
+        {
+            m_architePlanView->eliminateAlarm(extNum,loopNum,addrNum);
+        }
+
+        if(eventNum ==0x01)//收到火警
+        {
+            m_monitoringPackageNum++;
+            QList<QByteArray> valueList;
+            valueList.push_back(QString("%1").arg(44,4,10,QChar('0')).toLocal8Bit());
+            valueList.push_back(QString("%1").arg(m_monitoringPackageNum,4,10,QChar('0')).toLocal8Bit());
+            valueList.push_back(QByteArray("000"));
+            QString extNumStr=QString("%1").arg(extNum.toInt(),4,10,QChar('0'));
+            valueList.push_back(extNumStr.toLocal8Bit());
+            valueList.push_back(QString("%1").arg(loopNum.toInt(),3,10,QChar('0')).toLocal8Bit());
+            valueList.push_back(QString("%1").arg(addrNum.toInt(),4,10,QChar('0')).toLocal8Bit());
+            QString dateTimeStr = QString("%1%2%3%4%5%6").arg((int)year+2000).arg((ushort)month,2,10,QChar('0'))
+                    .arg((ushort)date,2,10,QChar('0')).arg((ushort)hour,2,10,QChar('0')).arg((ushort)minute,2,10,QChar('0'))
+                    .arg((ushort)second,2,10,QChar('0'));
+            valueList.push_back(dateTimeStr.toLocal8Bit());
+            Controller::instance()->getTcpObj()->writeData(m_monitoringProtocol->dataPackage(valueList));
+        }
+    }
+}
+
+void CrtWidget::tcpDataProcessing(const QByteArray &arrayValue)
+{
+    QList<QByteArray>dataArrayList=  m_monitoringProtocol->frameData(arrayValue);
+    foreach (QByteArray dataArray, dataArrayList)
+    {
+        int dataSize = dataArray.size();
+        QByteArray indexArray=m_monitoringProtocol->dataBytes(dataArray,4,dataSize-1);
+        int indexNum = indexArray.toInt();
+        if(dataSize==8)
+        {
+
+            if(indexNum==m_monitoringPackageNum)
+            {
+                //火警信息接收成功
+            }
+
+        }
+        else if(dataSize>8)
+        {
+            QList<QByteArray> sendArrayList;
+            sendArrayList.push_back(QString("%1").arg(16,4,10,QChar('0')).toLocal8Bit());
+            sendArrayList.push_back(indexArray);
+            Controller::instance()->getTcpObj()->writeData(m_monitoringProtocol->dataPackage(sendArrayList));
+            QByteArray typeArray=   dataArray.right(3);
+            QHash<int,QString>typeInfoHash;
+            typeInfoHash[0]=tr("消防控制室的管理机构");
+            typeInfoHash[1]=tr("系统竣工图纸");
+            typeInfoHash[2]=tr("各分系统控制逻辑关系说明");
+            typeInfoHash[3]=tr("设备使用说明书");
+            typeInfoHash[4]=tr("系统操作规程");
+            typeInfoHash[5]=tr("应急预案");
+            typeInfoHash[6]=tr("值班制度");
+            typeInfoHash[7]=tr("维护保养制度");
+            typeInfoHash[8]=tr("维护保养记录");
+            QString infoPath=  Controller::instance()->getTransportInfo()->transportInfo(typeInfoHash[typeArray.toInt()]);
+            if(!infoPath.isEmpty())
+            {
+               m_ftpManager->uploadFile(infoPath);
+            }
+
+        }
     }
 }
 

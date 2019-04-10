@@ -18,8 +18,7 @@
 #include <QTimer>
 #include "database/sqlitemanager.h"
 #include "database/sqlitemanager.h"
-#include "dataStore/abstractdataprotocol.h"
-#include "dataStore/serialdataprotocol.h"
+
 class ArchitePlanView : public QWidget
 {
     Q_OBJECT
@@ -77,7 +76,7 @@ signals:
     void editGlobalItem();
     void reduInstruction(bool alarmColorRedu);
     void tabIndex(int index);
-    void communicationStatus(const QString &status,bool isOK);
+
 public slots:
     void firstFireAlarm();
     void lastFireAlarm();
@@ -121,7 +120,7 @@ private:
     SqlManager *m_sqliteManager;
     QString m_architeInfoDbName;
     int m_itemInfoTableSize,m_globalArchiteTableSize;
-    AbstractDataProtocol *m_serialDataProtocol;
+
 };
 
 #endif // ARCHITEPLANVIEW_H

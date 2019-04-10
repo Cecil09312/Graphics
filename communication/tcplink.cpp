@@ -16,11 +16,16 @@ TcpLink::TcpLink(QObject *parent)
     qRegisterMetaType<QByteArray>("QByteArray");
     connect(this,&TcpLink::startConnect,this,[=]()
     {
+
         if(m_tcpSocket->state()==QTcpSocket::UnconnectedState)
         {
             setConfiguration();
             m_tcpSocket->connectToHost(m_address,m_port);
             m_tcpSocket->waitForConnected(1000);
+            if(m_tcpSocket->state()!=QTcpSocket::ConnectedState)
+            {
+                emit isConnected(false);
+            }
         }
         //qDebug() << m_tcpSocket->state();
     });
@@ -45,8 +50,6 @@ TcpLink::TcpLink(QObject *parent)
     {
         emit isConnected(false);
     });
-
-    connectLink();
 
 }
 

@@ -18,6 +18,10 @@
 #include "dataStore/abstractdataprotocol.h"
 #include "dataStore/serialdataprotocol.h"
 #include <QCloseEvent>
+#include "dataStore/monitoringprotocol.h"
+#include "dataStore/indicatordataprotocol.h"
+#include "communication/ftpmanager.h"
+
 class CrtWidget : public QOpenGLWidget
 {
     Q_OBJECT
@@ -27,6 +31,7 @@ public:
     ~CrtWidget();
     Q_INVOKABLE QString alarmInfoDbName();
     Q_INVOKABLE void queryViewShow();
+
 protected:
     void closeEvent(QCloseEvent *event);
 
@@ -38,9 +43,13 @@ public slots:
     void logWidgetClose();
     void alarmChanged(QString alarm);
     void alarmStatistics(const QString &type);
+    void communicationStatus(const QString &status,bool isOK);
+    void serialDataProcessing(const QByteArray&arrayValue);
+    void tcpDataProcessing(const QByteArray&arrayValue);
 private:
     void initWidget();
     void alarmDataOnTable();
+
 private:
     QWidget *m_alarmContainer;
     QWidget *m_toolBarContainer;
@@ -53,6 +62,12 @@ private:
     SqlManager *m_sqliteManager;
     QObject *m_alarmObj;
     QString m_alarmInfoDbName;
+    AbstractDataProtocol *m_serialDataProtocol;
+    AbstractDataProtocol *m_monitoringProtocol;
+    int m_monitoringPackageNum;
+    FtpManager *m_ftpManager;
+
+//    QHash<QString,int>m_packageNumHash;
 };
 
 #endif // CRTWIDGET_H

@@ -1,4 +1,6 @@
 ﻿#include "monitoringprotocol.h"
+#include <QFuture>
+#include <QtConcurrent>
 
 MonitoringProtocol::MonitoringProtocol()
 {
@@ -12,37 +14,77 @@ MonitoringProtocol::~MonitoringProtocol()
 
 QList<QByteArray> MonitoringProtocol::frameData(const QByteArray &array)
 {
-    m_receiveDataArray.append(array);
     QList<QByteArray> arrayList;
-    while (m_receiveDataArray.contains("START"))
+    QFuture<void> futute = QtConcurrent::run([&]()
     {
-        int startIndex = m_receiveDataArray.indexOf("START");
-        int endIndex = m_receiveDataArray.indexOf("END");
-        int arraySize = m_receiveDataArray.size();
-        if(startIndex>0)
+        m_receiveDataArray.append(array);
+
+        char start[] = "START";
+        char end[] = "END";
+        while (m_receiveDataArray.contains(start))
         {
-            m_receiveDataArray = m_receiveDataArray.right(arraySize-startIndex);
-            startIndex = 0;
+            int startIndex = m_receiveDataArray.indexOf("START");
+            int endIndex = m_receiveDataArray.indexOf("END");
+            qDebug() << startIndex << endIndex;
+            int arraySize = m_receiveDataArray.size();
+
+
+            if(startIndex>0)
+            {
+                m_receiveDataArray = m_receiveDataArray.right(arraySize-startIndex);
+                startIndex = 0;
+            }
+            if(m_receiveDataArray.size()>=9)
+            {
+                QByteArray packageLenArray= dataBytes(m_receiveDataArray,5,8);
+                int packageLen= packageLenArray.toInt();
+                if(m_receiveDataArray.size()>=packageLen)
+                {
+                    QByteArray frameArray = m_receiveDataArray.mid(startIndex,packageLen);
+
+                    if(frameArray.right(3)==QByteArray(end))
+                    {
+                        arrayList.push_back(dataBytes(frameArray,5,packageLen-4));
+                        m_receiveDataArray.remove(startIndex,packageLen);
+                    }
+                    else
+                    {
+                        m_receiveDataArray.remove(startIndex,5);//删除START
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+            else
+            {
+                break;
+            }
         }
-        if(endIndex>0)
-        {
-            QByteArray frameArray = m_receiveDataArray.mid(startIndex,qAbs(endIndex-startIndex)+1);
-            arrayList.push_back(frameArray);
-        }
-    }
+    });
+    futute.waitForFinished();
+
     return arrayList;
 }
 
 QByteArray MonitoringProtocol::dataPackage(const QList<QByteArray> &arrayList)
 {
-    QByteArray startArray("START");
-    QByteArray endArray("END");
+    char start[] = "START";
+    char end[]="END";
+    QByteArray startArray(start);
+    QByteArray endArray(end);
     QByteArray array;
-    array.push_back(startArray);
-    foreach (QByteArray dataArray, arrayList)
+    QFuture<void> futute = QtConcurrent::run([&]()
     {
-        array.push_back(dataArray);
-    }
-    array.push_back(endArray);
+        array.push_back(startArray);//包括包长、索引等
+        foreach (QByteArray dataArray, arrayList)
+        {
+            array.push_back(dataArray);
+        }
+        array.push_back(endArray);
+    });
+    futute.waitForFinished();
+
     return array;
 }

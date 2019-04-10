@@ -48,6 +48,7 @@ private:
     QHash<QString,QVariant>m_canConfigurationHash;
     QHash<QString,QVariant>m_udpConfigurationHash;
     QHash<QString,QVariant>m_ftpConfigurationHash;
+    QHash<QString,QVariant>m_indicatorConfigurationHash;
 };
 
 #endif // CONFIGURATIONMANAGER_H

@@ -38,12 +38,18 @@ void FtpManager::uploadFile(const QString &fileName )
             file.close();
         }
         manager.put(QNetworkRequest(url),dataArray);
+
         connect(&manager,&QNetworkAccessManager::finished,this,[=](QNetworkReply *reply)
         {
             if(reply!=nullptr)
             {
+                emit sendFileSuccess(true);
                 reply->close();
                 reply->deleteLater();
+            }
+            else
+            {
+                emit sendFileSuccess(false);
             }
         });
     });

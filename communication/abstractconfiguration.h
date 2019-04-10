@@ -17,7 +17,8 @@ public:
         Tcp,
         Udp,
         Ftp,
-        Can
+        Can,
+        Indicator
     };
     AbstractConfiguration();
     virtual ~AbstractConfiguration();

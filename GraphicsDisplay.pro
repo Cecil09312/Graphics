@@ -80,7 +80,10 @@ SOURCES += \
     print/print.cpp \
     communication/ftpmanager.cpp \
     communication/ftpconfiguration.cpp \
-    database/operatorinfo.cpp
+    database/operatorinfo.cpp \
+    jsonEdit/transportinfo.cpp \
+    communication/indicatorlightcom.cpp \
+    communication/indicatorlightconfiguration.cpp
 
 HEADERS += \
         crtwidget.h \
@@ -125,7 +128,10 @@ HEADERS += \
     print/print.h \
     communication/ftpmanager.h \
     communication/ftpconfiguration.h \
-    database/operatorinfo.h
+    database/operatorinfo.h \
+    jsonEdit/transportinfo.h \
+    communication/indicatorlightcom.h \
+    communication/indicatorlightconfiguration.h
 
 FORMS +=
 

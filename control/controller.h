@@ -20,7 +20,9 @@
 #include "communication/ftpconfiguration.h"
 #include "crtwidget.h"
 #include "database/operatorinfo.h"
-
+#include "jsonEdit/transportinfo.h"
+#include "communication/indicatorlightconfiguration.h"
+#include "communication/indicatorlightcom.h"
 class Controller:public QObject
 {
     Q_OBJECT
@@ -41,10 +43,13 @@ public:
     SpeechObj *getSpeechObj();
     AbstractLink *getUdpObj();
     AbstractLink *getTcpObj();
+    AbstractLink *getIndicatorObj();
     ConfigurationManager *getSerialConfigurationManager();
     ConfigurationManager *getFtpConfigurationManager();
     ConfigurationManager *getTcpConfigurationManager();
+    ConfigurationManager *getIndicatorConfigurationManager();
     OperatorInfo *getOperatorInfo();
+    TransportInfo *getTransportInfo();
 private:
     Controller();
 private:
@@ -52,6 +57,7 @@ private:
     static QSharedPointer<Controller>m_controller;
     QSharedPointer<AbstractLink>m_commObj;
     QSharedPointer<AbstractLink>m_tcpObj;
+    QSharedPointer<AbstractLink>m_IndicatorObj;
     SysArchitePlanView *m_sysArthitePlanView;
     ArchitePlanView *m_architePlanView;
     UserManager*m_userManager;
@@ -63,7 +69,9 @@ private:
     QSharedPointer<ConfigurationManager> m_tcpConfigurationManager;
     QSharedPointer<ConfigurationManager> m_udpConfigurationManager;
     QSharedPointer<ConfigurationManager> m_ftpConfigurationManager;
+     QSharedPointer<ConfigurationManager> m_indicatorConfigurationManager;
     OperatorInfo*m_operatorInfo;
+    QSharedPointer<TransportInfo>m_transportInfo;
     // QSharedPointer<ModbusManager>m_modbusManager;
 
 };

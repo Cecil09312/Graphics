@@ -1,5 +1,6 @@
 ﻿#include "indicatordataprotocol.h"
-
+#include <QFuture>
+#include <QtConcurrent>
 IndicatorDataProtocol::IndicatorDataProtocol()
 {
 
@@ -13,18 +14,27 @@ IndicatorDataProtocol::~IndicatorDataProtocol()
 QByteArray IndicatorDataProtocol::dataPackage(const QList<QByteArray> &arrayList)
 {
     QByteArray dataArray;
-    dataArray.push_back(0x0a);
-    foreach (QByteArray array, arrayList)
+    QFuture<void> future= QtConcurrent::run([&]()
     {
-        dataArray.push_back(array);//数据
-    }
-    dataArray.push_back(0x0b);
+        dataArray.push_back(0x0a);
+        foreach (QByteArray array, arrayList)
+        {
+            dataArray.push_back(array);//数据
+        }
+        dataArray.push_back(0x0b);
+    });
+    future.waitForFinished();
     return dataArray;
 }
 
 QList<QByteArray> IndicatorDataProtocol::frameData(const QByteArray &array)
 {
     QList<QByteArray> dataArrayList;
-    dataArrayList.push_back(array);
+    QFuture<void> future= QtConcurrent::run([&]()
+    {
+      dataArrayList.push_back(array);
+    });
+    future.waitForFinished();
+
     return dataArrayList;
 }
