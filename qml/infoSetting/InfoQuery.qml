@@ -7,8 +7,9 @@ import QtQuick.Controls.Styles 1.4
 
 Item {
 
+    id: root
     width: 900
-    height: 600
+    height: 680
     Row {
 
         anchors.top: parent.top
@@ -37,17 +38,17 @@ Item {
     Controls1_4.TabView {
         id: tabView
         anchors.top: btnRow.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        width: parent.width
+        anchors.left: root.left
+        anchors.right: root.right
+        anchors.bottom: root.bottom
+        width: root.width
         anchors.topMargin: 20
+        frameVisible: true
 
         Controls1_4.Tab {
             id: tab1
             title: qsTr("报警历史查询")
             anchors.topMargin: 20
-
             AlarmInfoTableItem {
                 id: alarmInfo
                 Connections {
@@ -82,6 +83,7 @@ Item {
         Controls1_4.Tab {
             title: qsTr("设备信息查询")
             anchors.topMargin: 20
+
             DeviceStateTableItem {
                 id: deviceState
                 Connections {
@@ -116,10 +118,10 @@ Item {
         Controls1_4.Tab {
             title: qsTr("维保信息查询")
             anchors.topMargin: 20
+
             MaintInfoTableItem {
                 anchors.topMargin: 20
                 id: maintInfo
-
                 Connections {
                     target: printBtn
                     onClicked: {

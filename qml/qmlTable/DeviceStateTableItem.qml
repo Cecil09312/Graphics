@@ -5,11 +5,7 @@ import qmlTableModel 1.0
 import architePlanView 1.0
 
 Item {
-    // id: deviceStateItem
-    // title: qsTr("设备及设施状态查询")
-    // anchors.fill: parent
-    anchors.bottomMargin: 40
-    anchors.topMargin: 40
+
     Row {
         id: deviceStateQuery
         spacing: 5
@@ -23,7 +19,7 @@ Item {
 
         TextField {
             id: extNumTextField
-            width: 100
+            width: 80
             height: 30
         }
 
@@ -37,7 +33,7 @@ Item {
 
         TextField {
             id: loopNumTextField
-            width: 100
+            width: 80
             height: 30
         }
 
@@ -51,6 +47,32 @@ Item {
 
         TextField {
             id: addressNumTextField
+            width: 80
+            height: 30
+        }
+
+        Text {
+            text: qsTr("设备编码")
+            height: 30
+            horizontalAlignment: TextEdit.AlignHCenter
+            verticalAlignment: TextEdit.AlignVCenter
+        }
+
+        TextField {
+            id: deviceNumTextField
+            width: 100
+            height: 30
+        }
+
+        Text {
+            text: qsTr("设备")
+            height: 30
+            horizontalAlignment: TextEdit.AlignHCenter
+            verticalAlignment: TextEdit.AlignVCenter
+        }
+
+        TextField {
+            id: deviceTextField
             width: 100
             height: 30
         }
@@ -59,7 +81,7 @@ Item {
             id: stateQueryBtn
             text: qsTr("查询")
             height: 30
-
+            width: 80
             onClicked: {
                 deviceStateModel.sqlCommit(
                             String(
@@ -72,7 +94,7 @@ Item {
             id: stateQueryAllBtn
             text: qsTr("查询所有")
             height: 30
-
+            width: 80
             onClicked: {
                 deviceStateModel.sqlCommit(
                             "select extNum ,loopNum,addrNum ,manufacturers,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo")
@@ -109,42 +131,42 @@ Item {
         Controls1_4.TableViewColumn {
             role: qsTr("manufacturers")
             title: qsTr("制造商")
-            width: 120
+            width: 150
             //resizable: true
         }
 
         Controls1_4.TableViewColumn {
             role: qsTr("periodOfValidity")
             title: qsTr("有效期")
-            width: 120
+            width: 100
             //resizable: true
         }
 
         Controls1_4.TableViewColumn {
             role: qsTr("deviceNum")
             title: qsTr("设备编码")
-            width: 120
+            width: 100
             // resizable: true
         }
 
         Controls1_4.TableViewColumn {
             role: qsTr("deviceName")
             title: qsTr("设备")
-            width: 60
+            width: 100
             // resizable: true
         }
 
         Controls1_4.TableViewColumn {
             role: qsTr("alarmState")
             title: qsTr("报警状态")
-            width: 60
+            width: 100
             // resizable: true
         }
 
         Controls1_4.TableViewColumn {
             role: qsTr("operator")
             title: qsTr("操作员")
-            width: 60
+            width: 100
             //resizable: true
         }
         model: deviceStateModel
@@ -178,21 +200,35 @@ Item {
     function selectInfo() {
         var info = new String
         if (loopNumTextField.text.length > 0) {
-            info += (qsTr("loopNum=") + "'"+loopNumTextField.text+"'")
+            info += (qsTr("loopNum=") + "'" + loopNumTextField.text + "'")
         }
 
         if (addressNumTextField.text.length > 0) {
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("addrNum=") + "'"+addressNumTextField.text+"'")
+            info += (qsTr("addrNum=") + "'" + addressNumTextField.text + "'")
         }
 
         if (extNumTextField.text.length > 0) {
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("extNum=") + "'"+extNumTextField.text+"'")
+            info += (qsTr("extNum=") + "'" + extNumTextField.text + "'")
+        }
+
+        if (deviceNumTextField.text.length > 0) {
+            if (info.length > 0) {
+                info += " and "
+            }
+            info += (qsTr("deviceNum=") + "'" + deviceNumTextField.text + "'")
+        }
+
+        if (deviceTextField.text.length > 0) {
+            if (info.length > 0) {
+                info += " and "
+            }
+            info += (qsTr("equipmentModel=") + "'" + deviceTextField.text + "'")
         }
         return info
     }

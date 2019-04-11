@@ -7,93 +7,126 @@ import QtQuick.Dialogs 1.2
 import architePlanView 1.0
 
 Item {
-    //id: alarmInfoItem
-    //title: qsTr("报警记录查询")
-    // anchors.fill: parent
-    anchors.bottomMargin: 40
-    anchors.topMargin: 20
-    Row {
+
+    Column {
         id: alarmInfoQuery
         spacing: 5
-        Text {
-            id: alarmInfoExtNum
-            text: qsTr("分机号")
-            height: 30
-            horizontalAlignment: TextEdit.AlignHCenter
-            verticalAlignment: TextEdit.AlignVCenter
-        }
-        TextField {
-            id: alarmInfoExtNumTextField
-            width: 100
-            height: 30
-        }
+        Row {
+            spacing: 5
+            Text {
+                id: alarmInfoExtNum
+                text: qsTr("分机号")
+                height: 30
+                horizontalAlignment: TextEdit.AlignLeft
+                verticalAlignment: TextEdit.AlignVCenter
+            }
+            TextField {
+                id: alarmInfoExtNumTextField
+                width: 100
+                height: 30
+            }
 
-        Text {
-            id: alarmInfoLoopNum
-            text: qsTr("回路号")
-            height: 30
-            horizontalAlignment: TextEdit.AlignHCenter
-            verticalAlignment: TextEdit.AlignVCenter
-        }
-        TextField {
-            id: alarmInfoLoopNumTextField
-            width: 100
-            height: 30
-        }
+            Text {
+                id: alarmInfoLoopNum
+                text: qsTr("回路号")
+                height: 30
+                horizontalAlignment: TextEdit.AlignLeft
+                verticalAlignment: TextEdit.AlignVCenter
+            }
+            TextField {
+                id: alarmInfoLoopNumTextField
+                width: 100
+                height: 30
+            }
 
-        Text {
-            id: alarmInfoAddNum
-            text: qsTr("地址号")
-            height: 30
-            horizontalAlignment: TextEdit.AlignHCenter
-            verticalAlignment: TextEdit.AlignVCenter
-        }
-        TextField {
-            id: alarmInfoAddNumTextField
-            width: 100
-            height: 30
-        }
+            Text {
+                id: alarmInfoAddNum
+                text: qsTr("地址号")
+                height: 30
+                horizontalAlignment: TextEdit.AlignLeft
+                verticalAlignment: TextEdit.AlignVCenter
+            }
+            TextField {
+                id: alarmInfoAddNumTextField
+                width: 100
+                height: 30
+            }
 
-        Text {
-            id: alarmInfoAlarmType
-            text: qsTr("报警类型")
-            height: 30
-            horizontalAlignment: TextEdit.AlignHCenter
-            verticalAlignment: TextEdit.AlignVCenter
-        }
-        TextField {
-            id: alarmInfoAlarmTypeTextField
-            height: 30
-            width: 100
-        }
-        Button {
-            id: alarmInfoQueryBtn
-            text: qsTr("查询")
-            height: 30
-            onClicked: {
-                alarmInfoListModel.sqlCommit(
-                            String(
-                                "select 分机号,回路号,地址号,系统,设备编码,设备,报警类型,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo where %1").arg(
-                                selectInfo()))
+            Text {
+                id: alarmInfoAlarmType
+                text: qsTr("报警类型")
+                height: 30
+                horizontalAlignment: TextEdit.AlignLeft
+                verticalAlignment: TextEdit.AlignVCenter
+            }
+            TextField {
+                id: alarmInfoAlarmTypeTextField
+                height: 30
+                width: 100
             }
         }
+        Row {
 
-        Button {
-            id: alarmInfoQueryAllBtn
-            text: qsTr("查询所有")
-            height: 30
-            onClicked: {
-                alarmInfoListModel.sqlCommit(
-                            "select 分机号,回路号,地址号,系统,设备编码,设备,报警类型,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo")
+            spacing: 5
+            Text {
+
+                text: qsTr("报警时间")
+                height: 30
+                horizontalAlignment: TextEdit.AlignLeft
+                verticalAlignment: TextEdit.AlignVCenter
             }
-        }
+            TextField {
+                id: alarmStartTimeTextField
+                height: 30
+                width: 150
+                placeholderText: qsTr("如:2019/01/01 00:00:00")
+            }
 
-        Button {
-            id: alarmInfoClearBtn
-            text: qsTr("清空")
-            height: 30
-            onClicked: {
-                messageDialog.open()
+            Text {
+
+                text: qsTr("到")
+                height: 30
+                horizontalAlignment: TextEdit.AlignLeft
+                verticalAlignment: TextEdit.AlignVCenter
+            }
+            TextField {
+                id: alarmEndTimeTextField
+                height: 30
+                width: 150
+                placeholderText: qsTr("如:2050/01/01 00:00:00")
+            }
+            Button {
+                id: alarmInfoQueryBtn
+                text: qsTr("查询")
+                height: 30
+                width: 80
+                onClicked: {
+                    alarmInfoListModel.sqlCommit(
+                                String(
+                                    "select 分机号,回路号,地址号,系统,设备编码,设备,报警类型,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo where %1").arg(
+                                    selectInfo()))
+                }
+            }
+
+            Button {
+                id: alarmInfoQueryAllBtn
+                text: qsTr("查询所有")
+                height: 30
+                width: 80
+                onClicked: {
+                    alarmInfoListModel.sqlCommit(
+                                "select 分机号,回路号,地址号,系统,设备编码,设备,报警类型,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo")
+                }
+            }
+
+            Button {
+                id: alarmInfoClearBtn
+                text: qsTr("清空")
+                height: 30
+                width: 80
+                onClicked: {
+                    messageDialog.open()
+                }
             }
         }
     }
@@ -157,13 +190,13 @@ Item {
         Controls1_4.TableViewColumn {
             role: "alarmTime"
             title: qsTr("报警时间")
-            width: 100
+            width: 150
         }
 
         Controls1_4.TableViewColumn {
             role: "rebackAlarmTime"
             title: qsTr("报警恢复时间")
-            width: 100
+            width: 150
         }
 
         Controls1_4.TableViewColumn {
@@ -237,6 +270,20 @@ Item {
             }
             info += (qsTr("报警类型=") + "'" + alarmInfoAlarmTypeTextField.text + "'")
         }
+
+        if (alarmStartTimeTextField.text.length > 0) {
+            if (info.length > 0) {
+                info += " and "
+            }
+            info += (qsTr("报警时间 >=") + "'" + alarmStartTimeTextField.text + "'")
+        }
+
+        if (alarmEndTimeTextField.text.length > 0) {
+            if (info.length > 0) {
+                info += " and "
+            }
+            info += (qsTr("报警时间 <=") + "'" + alarmEndTimeTextField.text + "'")
+        }
         return info
     }
 
@@ -252,6 +299,8 @@ Item {
 
     Component.onCompleted: {
 
+        alarmInfoTableView.positionViewAtRow(alarmInfoTableView.rowCount - 1,
+                                             ListView.Contain)
         alarmInfoListModel.setDbOpen(true)
         alarmInfoListModel.sqlCommit(
                     "select 分机号,回路号,地址号,系统,设备编码,设备,报警类型,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo")

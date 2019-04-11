@@ -73,7 +73,7 @@ void OperatorInfo::insertEvent(const QString &eventName,const QString &result)
     QString userName=  Controller::instance()->getUserManager()->userName();
     UserManager::UserRight userRight = Controller::instance()->getUserRight();
     QString userRightStr;
-    QString currentTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+    QString currentTime = QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss");
     switch (userRight)
     {
     case UserManager::Employee:

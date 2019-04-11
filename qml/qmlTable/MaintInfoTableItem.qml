@@ -5,9 +5,7 @@ import qmlTableModel 1.0
 import operatorInfo 1.0
 
 Item {
-    // id: operaEventItem
-    anchors.bottomMargin: 40
-    anchors.topMargin: 40
+
     Row {
         id: operaEventQuery
         spacing: 5
@@ -22,7 +20,19 @@ Item {
         }
         TextField {
             id: equipmentNumTextField
-            width: 100
+            width: 80
+            height: 30
+        }
+
+        Text {
+            text: qsTr("维保员")
+            height: 30
+            horizontalAlignment: TextEdit.AlignHCenter
+            verticalAlignment: TextEdit.AlignVCenter
+        }
+        TextField {
+            id: maintEngineerTextField
+            width: 80
             height: 30
         }
 
@@ -34,15 +44,30 @@ Item {
             verticalAlignment: TextEdit.AlignVCenter
         }
         TextField {
-            id: maintTimeTextField
-            width: 100
+            id: maintStartTimeTextField
+            width: 150
             height: 30
+            placeholderText: qsTr("如:2019/01/01 00:00:00")
+        }
+
+        Text {
+            text: qsTr("到")
+            height: 30
+            horizontalAlignment: TextEdit.AlignHCenter
+            verticalAlignment: TextEdit.AlignVCenter
+        }
+        TextField {
+            id: maintEndTimeTextField
+            width: 150
+            height: 30
+            placeholderText: qsTr("如:2050/01/01 00:00:00")
         }
 
         Button {
             id: operaEventQueryBtn
             text: qsTr("查询")
             height: 30
+            width: 80
             onClicked: {
                 maintInfoQueryModel.sqlCommit(
                             String("select * from maintenance where %1").arg(
@@ -54,6 +79,7 @@ Item {
             id: operaEventQueryAllBtn
             text: qsTr("查询所有")
             height: 30
+            width: 80
             onClicked: {
                 maintInfoQueryModel.sqlCommit("select * from maintenance")
             }
@@ -63,6 +89,7 @@ Item {
             id: operaEventQueryClearBtn
             text: qsTr("清空")
             height: 30
+            width: 80
             onClicked: {
                 maintInfoQueryModel.sqlCommit("delete from maintenance")
             }
@@ -182,11 +209,25 @@ Item {
             info += (qsTr("设备编码=") + "'" + equipmentNumTextField.text + "'")
         }
 
-        if (maintTimeTextField.text.length > 0) {
+        if (maintEngineerTextField.text.length > 0) {
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("维保日期=") + "'" + maintTimeTextField.text + "'")
+            info += (qsTr("维保员 =") + "'" + maintEngineerTextField.text + "'")
+        }
+
+        if (maintStartTimeTextField.text.length > 0) {
+            if (info.length > 0) {
+                info += " and "
+            }
+            info += (qsTr("维保时间 >=") + "'" + maintStartTimeTextField.text + "'")
+        }
+
+        if (maintEndTimeTextField.text.length > 0) {
+            if (info.length > 0) {
+                info += " and "
+            }
+            info += (qsTr("维保时间 <=") + "'" + maintEndTimeTextField.text + "'")
         }
         return info
     }

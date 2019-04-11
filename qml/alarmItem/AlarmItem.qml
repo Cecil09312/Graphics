@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
 import QtQuick.Controls.Styles 1.4
 import operatorInfo 1.0
+import speechObj 1.0
 
 Rectangle {
     width: 150
@@ -327,6 +328,7 @@ Rectangle {
             text: qsTr("消音")
             onClicked: {
                 OperatorInfo.insertEvent(qsTr("消音"))
+                SpeechObj.stopSpeech()
             }
 
             onPressed: {

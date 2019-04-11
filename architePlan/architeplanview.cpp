@@ -157,7 +157,10 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item)
     item->stopColorAnimation();
     item->setColorEffectValue(0.0);
     item->restoreSize();
+    int currentPos=m_speechTextPosFromItemHash[item];
+    Controller::instance()->getSpeechObj()->removeAlarmText(currentPos);
     DataStore::deleteTypeItem(item);
+
     emit  eliminateAlarmFromTable(item);
     if(oldState!=tr("正常"))
     {
@@ -200,6 +203,7 @@ void ArchitePlanView::eliminateAlarm(const QString &extNum, const QString &loopN
 void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *item,GraphicsView *view, bool isAnalog)
 {
     static GraphicsView * firstFireAlarmView = nullptr,*firstLinkAlarmView= nullptr;
+    QString speechText="";
     if(item!=nullptr)
     {
         if(item->currentState()!=tr("正常"))
@@ -230,7 +234,6 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
             }
             else if(alarmTypeName==tr("反馈"))
             {
-
                 item->setColorEndValue(QColor("blue"));
             }
             else if(alarmTypeName==tr("故障"))
@@ -247,13 +250,13 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
 
             }
 
-
             if(gItem==item)
             {
                 if(alarmTypeName==tr("火警"))
                 {
                     item->startAnimations();
                     firstFireAlarmView = view;
+                    speechText = tr("首火警");
                 }
                 else
                 {   if(alarmTypeName==tr("联动"))
@@ -261,13 +264,18 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
                         firstLinkAlarmView = view;
                     }
                     item->startColorAnimation();
+                    speechText = alarmTypeName;
                 }
             }
             else
             {
-
+                speechText = alarmTypeName;
                 item->startColorAnimation();
             }
+
+            speechText += ","+item->buildingName()+","+item->floorOfDevice()+","+item->deviceLocation();
+            Controller::instance()->getSpeechObj()->insertAlarmText(speechText);
+            m_speechTextPosFromItemHash[item] = Controller::instance()->getSpeechObj()->currentAlarmPos();
 
             if(view!=nullptr)
             {
@@ -380,7 +388,6 @@ void ArchitePlanView::initWidget()
     m_sysArchitePlanView = new SysArchitePlanView(this);
     m_autoSwitchTimer = new QTimer(this);
 
-
     m_treeView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     m_treeView->setMaximumWidth(180);
     m_stackedWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
@@ -428,7 +435,6 @@ void ArchitePlanView::initWidget()
 
         if(!tableNameList.contains("GlobalArchite"))
         {
-
             m_sqliteManager->executeQuery(QString("create table GlobalArchite(%1)").arg(globalArchiteList.join(",")));
         }
     }
@@ -1091,8 +1097,9 @@ void ArchitePlanView::clearAlarm(bool alarmColorRedu)
                 item->setColorEffectValue(0.0);
                 item->restoreSize();
                 item->getItemInfo().m_currentState = tr("正常");
+                int currentPos=m_speechTextPosFromItemHash[item];
+                Controller::instance()->getSpeechObj()->removeAlarmText(currentPos);
             }
-
 
             DataStore::clearTypeItem();
             clearAlarmWidget();
@@ -1114,6 +1121,7 @@ void ArchitePlanView::clearAlarm(bool alarmColorRedu)
             }
         }
     }
+    Controller::instance()->getSpeechObj()->clearAlarmText();
     emit clearAlarmFromTable();
 }
 

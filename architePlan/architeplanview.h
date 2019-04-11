@@ -120,6 +120,7 @@ private:
     SqlManager *m_sqliteManager;
     QString m_architeInfoDbName;
     int m_itemInfoTableSize,m_globalArchiteTableSize;
+    QHash<GraphicsItem*,int>m_speechTextPosFromItemHash;
 
 };
 

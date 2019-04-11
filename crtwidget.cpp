@@ -523,12 +523,12 @@ void CrtWidget::initWidget()
         return Controller::instance()->getTcpObj();
     });
 
-    //    qmlRegisterSingletonType<Controller>("speechObj", 1, 0, "SpeechObj",
-    //                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
-    //        Q_UNUSED(engine)
-    //        Q_UNUSED(scriptEngine)
-    //        return Controller::instance()->getSpeechObj();
-    //    });
+        qmlRegisterSingletonType<Controller>("speechObj", 1, 0, "SpeechObj",
+                                             [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+            Q_UNUSED(engine)
+            Q_UNUSED(scriptEngine)
+            return Controller::instance()->getSpeechObj();
+        });
 
     m_serialDataProtocol = new SerialDataProtocol;
     m_monitoringProtocol = new MonitoringProtocol;

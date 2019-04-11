@@ -5,14 +5,22 @@ import qmlTableModel 1.0
 import operatorInfo 1.0
 
 Item {
-    // id: operaEventItem
-    anchors.bottomMargin: 40
-    anchors.topMargin: 40
     Row {
         id: operaEventQuery
         spacing: 5
         anchors.topMargin: 20
 
+        Text {
+            text: qsTr("用户名")
+            height: 30
+            horizontalAlignment: TextEdit.AlignHCenter
+            verticalAlignment: TextEdit.AlignVCenter
+        }
+        TextField {
+            id: userNameTextField
+            width: 80
+            height: 30
+        }
         Text {
             id: event
             text: qsTr("事件")
@@ -22,27 +30,43 @@ Item {
         }
         TextField {
             id: eventTextField
-            width: 100
+            width: 80
             height: 30
         }
 
         Text {
-            id: time
+            id: startTime
             text: qsTr("时间")
             height: 30
             horizontalAlignment: TextEdit.AlignHCenter
             verticalAlignment: TextEdit.AlignVCenter
         }
         TextField {
-            id: timeTextField
-            width: 100
+            id: startTimeTextField
+            width: 150
             height: 30
+            placeholderText: qsTr("如:2019/01/01 00:00:00")
+        }
+
+        Text {
+
+            text: qsTr("到")
+            height: 30
+            horizontalAlignment: TextEdit.AlignHCenter
+            verticalAlignment: TextEdit.AlignVCenter
+        }
+        TextField {
+            id: endTimeTextField
+            width: 150
+            height: 30
+            placeholderText: qsTr("如:2050/01/01 00:00:00")
         }
 
         Button {
             id: operaEventQueryBtn
             text: qsTr("查询")
             height: 30
+            width: 80
             onClicked: {
                 operaEventQueryModel.sqlCommit(
                             String("select * from operator where %1").arg(
@@ -56,6 +80,7 @@ Item {
             id: operaEventQueryAllBtn
             text: qsTr("查询所有")
             height: 30
+            width: 80
             onClicked: {
                 operaEventQueryModel.sqlCommit("select * from operator")
             }
@@ -65,6 +90,7 @@ Item {
             id: operaEventQueryClearBtn
             text: qsTr("清空")
             height: 30
+            width: 80
             onClicked: {
                 operaEventQueryModel.sqlCommit("delete from operator")
             }
@@ -134,15 +160,30 @@ Item {
 
     function selectInfo() {
         var info = new String
-        if (eventTextField.text.length > 0) {
-            info += (qsTr("事件=") + "'" + eventTextField.text + "'")
+
+        if (userNameTextField.text.length > 0) {
+            info += (qsTr("用户名=") + "'" + userNameTextField.text + "'")
         }
 
-        if (timeTextField.text.length > 0) {
+        if (eventTextField.text.length > 0) {
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("时间=") + "'" + timeTextField.text + "'")
+            info += (qsTr("事件=") + "'" + eventTextField.text + "'")
+        }
+
+        if (startTimeTextField.text.length > 0) {
+            if (info.length > 0) {
+                info += " and "
+            }
+            info += (qsTr("时间 >=") + "'" + startTimeTextField.text + "'")
+        }
+
+        if (endTimeTextField.text.length > 0) {
+            if (info.length > 0) {
+                info += " and "
+            }
+            info += (qsTr("时间 <=") + "'" + endTimeTextField.text + "'")
         }
         return info
     }

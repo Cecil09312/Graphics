@@ -157,7 +157,7 @@ Controller::Controller()
     m_tcpObj = QSharedPointer<AbstractLink>(new TcpLink(),&QObject::deleteLater);
     m_IndicatorObj = QSharedPointer<AbstractLink>(new IndicatorLightCom,&QObject::deleteLater);
     m_userManager =new UserManager(this);
-    m_speechObj = QSharedPointer<SpeechObj>(new SpeechObj/*,&QObject::deleteLater*/);
+    m_speechObj = QSharedPointer<SpeechObj>(new SpeechObj,&QObject::deleteLater);
     m_udpObj =new UdpLink;
     m_serialConfigurationManager =QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new SerialConfiguration),this)) ;
     m_tcpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new TcpConfiguration),this)) ;
