@@ -12,7 +12,9 @@
 #include "qmlTableModel/qmltablemodel.h"
 #include "jsonEdit/qmlforjson.h"
 #include "jsonEdit/itemiconinfotojson.h"
-#include "communication/TcpLink.h"
+
+#include "communication/tcplink.h"
+
 #include "database/sqlitemanager.h"
 #include "database/sqlmanager.h"
 #include "dataStore/abstractdataprotocol.h"
@@ -21,7 +23,7 @@
 #include "dataStore/monitoringprotocol.h"
 #include "dataStore/indicatordataprotocol.h"
 #include "communication/ftpmanager.h"
-
+#include <QDesktopServices>
 class CrtWidget : public QOpenGLWidget
 {
     Q_OBJECT
@@ -46,6 +48,7 @@ public slots:
     void communicationStatus(const QString &status,bool isOK);
     void serialDataProcessing(const QByteArray&arrayValue);
     void tcpDataProcessing(const QByteArray&arrayValue);
+    void openHelpFile();
 private:
     void initWidget();
     void alarmDataOnTable();
@@ -64,6 +67,7 @@ private:
     QString m_alarmInfoDbName;
     AbstractDataProtocol *m_serialDataProtocol;
     AbstractDataProtocol *m_monitoringProtocol;
+    AbstractDataProtocol *m_indicatorProtocol;
     int m_monitoringPackageNum;
     FtpManager *m_ftpManager;
 

@@ -214,8 +214,6 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
         if(isAnalog)
         {
             item->alarmType() = tr("模拟")+alarmTypeName;
-            //            QString alarmHappendTime = QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss");
-            //            item->getItemInfo().m_alarmTime = alarmHappendTime;
         }
         else
         {
@@ -247,7 +245,6 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
             else
             {
                 item->setColorEndValue(QColor("red"));
-
             }
 
             if(gItem==item)
@@ -264,12 +261,20 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
                         firstLinkAlarmView = view;
                     }
                     item->startColorAnimation();
-                    speechText = alarmTypeName;
+                    speechText = alarmTypeName+tr("报警");
                 }
             }
             else
             {
-                speechText = alarmTypeName;
+                if(alarmTypeName!=tr("火警"))
+                {
+                   speechText = alarmTypeName+tr("报警");
+                }
+                else
+                {
+                   speechText = alarmTypeName;
+                }
+
                 item->startColorAnimation();
             }
 

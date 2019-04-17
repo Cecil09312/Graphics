@@ -47,8 +47,6 @@ void StyledItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
             painter->drawPath(path);
         }
         else{
-
-
             painter->setPen(QPen(Qt::blue));
             painter->setBrush(QColor(229, 241, 255));
             painter->drawPath(path);
@@ -67,7 +65,6 @@ void StyledItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         {
             painter->setPen(QPen(Qt::yellow));
             painter->setBrush(Qt::yellow);
-
         }
         else
         {

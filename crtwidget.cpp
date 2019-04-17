@@ -6,14 +6,14 @@
 #include <QQmlContext>
 #include <QSplitter>
 #include <QQuickItem>
-#include "communication/SerialLink.h"
+#include "communication/seriallink.h"
 #include "control/usermanager.h"
 #include "control/controller.h"
 #include <QHostAddress>
 #include "communication/configurationmanager.h"
 #include "database/sqlitemanager.h"
 #include "database/sqlmanager.h"
-
+#include <QProcess>
 
 CrtWidget::CrtWidget(QWidget *parent) :
     QOpenGLWidget(parent),
@@ -113,6 +113,56 @@ CrtWidget::CrtWidget(QWidget *parent) :
 
     connect(Controller::instance()->getTcpObj(),&AbstractLink::getData,this,&CrtWidget::tcpDataProcessing);
 
+    connect(m_ftpManager,&FtpManager::sendFileSuccess,this,[=](bool isOk)
+    {
+        QList<QByteArray> arrayList;
+        if(isOk)
+        {
+            arrayList.push_back(QString::number(0x04).toLocal8Bit());
+            arrayList.push_back(QString::number(0x00).toLocal8Bit());
+        }
+        else
+        {
+            arrayList.push_back(QString::number(0x04).toLocal8Bit());
+            arrayList.push_back(QString::number(0x01).toLocal8Bit());
+        }
+
+        Controller::instance()->getIndicatorObj()->writeData(m_indicatorProtocol->dataPackage(arrayList));
+    });
+
+    connect(m_ftpManager,&FtpManager::ftpError,this,[=](const QString&error)
+    {
+        Q_UNUSED(error)
+        QList<QByteArray> arrayList;
+        arrayList.push_back(QString::number(0x03).toLocal8Bit());
+        arrayList.push_back(QString::number(0x00).toLocal8Bit());
+        Controller::instance()->getIndicatorObj()->writeData(m_indicatorProtocol->dataPackage(arrayList));
+    });
+
+
+    connect(m_ftpManager,&FtpManager::uploadProgress,this,[=](qint64 bytesSent, qint64 bytesTotal)
+    {
+        QList<QByteArray> arrayList;
+        static int num=0;
+        if(bytesSent>=bytesTotal)
+        {
+            num = 0;
+        }
+        if(num>0 && num%10==0)
+        {
+            arrayList.push_back(QString::number(0x02).toLocal8Bit());
+            arrayList.push_back(QString::number(0x00).toLocal8Bit());
+        }
+        else
+        {
+            arrayList.push_back(QString::number(0x02).toLocal8Bit());
+            arrayList.push_back(QString::number(0x01).toLocal8Bit());
+        }
+        num++;
+
+        Controller::instance()->getIndicatorObj()->writeData(m_indicatorProtocol->dataPackage(arrayList));
+    });
+
     Q_ASSERT(m_alarmObj);
 
     if(m_architePlanView->totalPage()>0)
@@ -167,10 +217,18 @@ CrtWidget::CrtWidget(QWidget *parent) :
         if(connected)
         {
             QMetaObject::invokeMethod(m_alarmObj,"setEquiComColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));//设备通信
+            if(Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("设备通信故障")))
+            {
+                Controller::instance()->getSpeechObj()->removeAlarmText(tr("设备通信故障"));
+            }
         }
         else
         {
             QMetaObject::invokeMethod(m_alarmObj,"setEquiComColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+            if(!Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("设备通信故障")))
+            {
+                Controller::instance()->getSpeechObj()->insertAlarmText(tr("设备通信故障"));
+            }
         }
     });
 
@@ -179,11 +237,20 @@ CrtWidget::CrtWidget(QWidget *parent) :
         if(connected)
         {
             QMetaObject::invokeMethod(m_alarmObj,"setCenterComColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));//中心通信
+            if(Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("中心通信故障")))
+            {
+                Controller::instance()->getSpeechObj()->removeAlarmText(tr("中心通信故障"));
+            }
         }
         else
         {
             QMetaObject::invokeMethod(m_alarmObj,"setCenterComColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+            if(!Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("中心通信故障")))
+            {
+                Controller::instance()->getSpeechObj()->insertAlarmText(tr("中心通信故障"));
+            }
         }
+
     });
 
 
@@ -204,6 +271,8 @@ CrtWidget::~CrtWidget()
     m_settingView->deleteLater();
     delete m_serialDataProtocol ;
     delete m_monitoringProtocol;
+    delete m_indicatorProtocol;
+    m_ftpManager->deleteLater();
 }
 
 QString CrtWidget::alarmInfoDbName()
@@ -220,6 +289,10 @@ void CrtWidget::queryViewShow()
 
 void CrtWidget::closeEvent(QCloseEvent *event)
 {
+
+    Controller::instance()->getSerialConfigurationManager()->saveConfiguration();
+    Controller::instance()->getTcpConfigurationManager()->saveConfiguration();
+
     m_loginQuickView->close();
     m_settingView->close();
     event->accept();
@@ -230,6 +303,17 @@ void CrtWidget::widgetExit()
 {
     if(!m_architePlanView->havingAlarms())
     {
+        /*
+        QProcess process;
+#ifdef Q_OS_WIN
+
+            process.start("shutdown -s -t 0");
+#elif Q_OS_LINUX
+     process.start("poweroff");
+#endif
+        process.waitForStarted();
+        process.waitForFinished();
+*/
         close();
     }
     else
@@ -400,11 +484,21 @@ void CrtWidget::communicationStatus(const QString &status, bool isOK)
     {
         if(isOK)
         {
+            if(Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("主电故障")))
+            {
+                Controller::instance()->getSpeechObj()->removeAlarmText(tr("主电故障"));
+            }
+
             QMetaObject::invokeMethod(m_alarmObj,"setMainConnunicationColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
         }
         else
         {
             QMetaObject::invokeMethod(m_alarmObj,"setMainConnunicationColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));//主电故障
+            if(!Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("主电故障")))
+            {
+                Controller::instance()->getSpeechObj()->insertAlarmText(tr("主电故障"));
+            }
+
         }
 
     }
@@ -412,11 +506,20 @@ void CrtWidget::communicationStatus(const QString &status, bool isOK)
     {
         if(isOK)
         {
+            if(Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("备电故障")))
+            {
+                Controller::instance()->getSpeechObj()->removeAlarmText(tr("备电故障"));
+            }
+
             QMetaObject::invokeMethod(m_alarmObj,"setStandbyPowerColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
         }
         else
         {
             QMetaObject::invokeMethod(m_alarmObj,"setStandbyPowerColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));//备电故障
+            if(!Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("备电故障")))
+            {
+                Controller::instance()->getSpeechObj()->insertAlarmText(tr("备电故障"));
+            }
         }
     }
 }
@@ -523,16 +626,17 @@ void CrtWidget::initWidget()
         return Controller::instance()->getTcpObj();
     });
 
-        qmlRegisterSingletonType<Controller>("speechObj", 1, 0, "SpeechObj",
-                                             [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
-            Q_UNUSED(engine)
-            Q_UNUSED(scriptEngine)
-            return Controller::instance()->getSpeechObj();
-        });
+    qmlRegisterSingletonType<Controller>("speechObj", 1, 0, "SpeechObj",
+                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+        Q_UNUSED(engine)
+        Q_UNUSED(scriptEngine)
+        return Controller::instance()->getSpeechObj();
+    });
 
     m_serialDataProtocol = new SerialDataProtocol;
     m_monitoringProtocol = new MonitoringProtocol;
-    m_ftpManager = new FtpManager(this);
+    m_indicatorProtocol = new IndicatorDataProtocol;
+    m_ftpManager = new FtpManager();
     qmlRegisterType<QmlTableModel>("qmlTableModel",1,0,"QmlTableModel");
     qmlRegisterType<QmlForJson>("qmlForJson",1,0,"QmlForJson");
     qmlRegisterType<ItemIconInfoToJson>("itemIconInfoToJson",1,0,"ItemIconInfoToJson");
@@ -732,10 +836,19 @@ void CrtWidget::tcpDataProcessing(const QByteArray &arrayValue)
             QString infoPath=  Controller::instance()->getTransportInfo()->transportInfo(typeInfoHash[typeArray.toInt()]);
             if(!infoPath.isEmpty())
             {
-               m_ftpManager->uploadFile(infoPath);
+                m_ftpManager->uploadFile(infoPath);
             }
 
         }
+    }
+}
+
+void CrtWidget::openHelpFile()
+{
+    QUrl url =   QUrl(QCoreApplication::applicationDirPath()+"/help/help.html");
+    if(!url.isEmpty())
+    {
+        QDesktopServices::openUrl(url);
     }
 }
 

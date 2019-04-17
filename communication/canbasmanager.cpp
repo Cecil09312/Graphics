@@ -15,8 +15,6 @@ CanbasManager::CanbasManager(QObject *parent)
     qRegisterMetaType<QCanBusDevice::CanBusDeviceState>("QCanBusDevice::CanBusDeviceState");
     setCanConfigure();
     createDevice();
-
-
 }
 
 CanbasManager::~CanbasManager()

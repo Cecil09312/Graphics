@@ -3,14 +3,15 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
 
 Item {
-    width: 420
-    height: 320
+    width: 560
+    height: 420
     signal createAlarm(string extNum, string loopNum, string addrNum, string alarmState)
     signal clearAlarm
     signal alramRestore(string extNum, string loopNum, string addrNum)
     GridLayout {
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
+
         Text {
             text: qsTr("分机号")
             Layout.row: 0

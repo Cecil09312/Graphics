@@ -103,7 +103,6 @@ void ConfigurationManager::setConfigurationValue(const QString &key, const QVari
 
 void ConfigurationManager::saveConfiguration()
 {
-
     QmlForJson qmlForJson;
     qmlForJson.writeFile(m_configuration.data()->m_configurationHash,m_configuration.data()->c_configurationPath);
 }

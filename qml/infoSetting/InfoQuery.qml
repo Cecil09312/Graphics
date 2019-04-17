@@ -20,9 +20,6 @@ Item {
             id: saveToPdfBtn
             text: qsTr("保存成pdf")
             height: 30
-            onClicked: {
-                tabView.saveToPdf()
-            }
         }
         Button {
             id: printPreviewBtn

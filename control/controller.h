@@ -4,7 +4,7 @@
 #include <QDebug>
 #include "dataStore/datastore.h"
 #include <QTextToSpeech>
-#include "communication/SerialLink.h"
+#include "communication/seriallink.h"
 #include "architePlan/sysarchiteplanview.h"
 #include "architePlan/architeplanview.h"
 #include "usermanager.h"
@@ -63,7 +63,7 @@ private:
     UserManager*m_userManager;
     CrtWidget *m_crtWidget;
 
-    QSharedPointer<SpeechObj>m_speechObj;
+    SpeechObj*m_speechObj;
     AbstractLink*m_udpObj;
     QSharedPointer<ConfigurationManager> m_serialConfigurationManager;
     QSharedPointer<ConfigurationManager> m_tcpConfigurationManager;

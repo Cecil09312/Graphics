@@ -13,10 +13,10 @@ Controller *Controller::instance()
 Controller::~Controller()
 {
     m_commObj.clear();
-    m_serialConfigurationManager.data()->saveConfiguration();
-    m_tcpConfigurationManager.data()->saveConfiguration();
-    m_udpConfigurationManager.data()->saveConfiguration();
-    m_speechObj.clear();
+//    m_serialConfigurationManager.data()->saveConfiguration();
+//    m_tcpConfigurationManager.data()->saveConfiguration();
+//    m_udpConfigurationManager.data()->saveConfiguration();
+    m_speechObj->deleteLater();
     m_tcpObj.clear();
     m_IndicatorObj.clear();
     m_udpObj->deleteLater();
@@ -38,7 +38,11 @@ QString Controller::fileNameFromQml(const QString &name)
         }
     }
 #ifdef Q_OS_LINUX
-    fileName = "/"+fileName;
+    if(!QDir::isAbsolutePath(fileName))
+    {
+        fileName = "/"+fileName;
+    }
+
 #endif
     return fileName;
 }
@@ -102,7 +106,7 @@ UserManager::UserRight Controller::getUserRight()
 
 SpeechObj *Controller::getSpeechObj()
 {
-    return m_speechObj.data();
+    return m_speechObj;
 }
 
 AbstractLink *Controller::getUdpObj()
@@ -157,7 +161,7 @@ Controller::Controller()
     m_tcpObj = QSharedPointer<AbstractLink>(new TcpLink(),&QObject::deleteLater);
     m_IndicatorObj = QSharedPointer<AbstractLink>(new IndicatorLightCom,&QObject::deleteLater);
     m_userManager =new UserManager(this);
-    m_speechObj = QSharedPointer<SpeechObj>(new SpeechObj,&QObject::deleteLater);
+    m_speechObj = new SpeechObj;
     m_udpObj =new UdpLink;
     m_serialConfigurationManager =QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new SerialConfiguration),this)) ;
     m_tcpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new TcpConfiguration),this)) ;

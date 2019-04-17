@@ -20,21 +20,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
-release
-{
-   OBJECTS_DIR =./obj/release
-   MOC_DIR =./moc/release
-   RCC_DIR = ./rcc/release
-   DESTDIR = ./bin/release
-}
 
-debug
-{
-   OBJECTS_DIR =./obj/debug
-   MOC_DIR =./moc/debug
-   RCC_DIR = ./rcc/debug
-   DESTDIR = ./bin/debug
-}
+ CONFIG -= debug_and_release
+ OBJECTS_DIR =./obj
+ MOC_DIR =./moc
+ RCC_DIR = ./rcc
+ DESTDIR = ./bin
 
 SOURCES += \
         main.cpp \
@@ -84,6 +75,7 @@ SOURCES += \
     jsonEdit/transportinfo.cpp \
     communication/indicatorlightcom.cpp \
     communication/indicatorlightconfiguration.cpp
+
 
 HEADERS += \
         crtwidget.h \

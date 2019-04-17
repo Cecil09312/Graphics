@@ -52,6 +52,8 @@ public:
     QStandardItem*getItemFromView(GraphicsView*view);
     GraphicsView* currentGraphicsView();
     bool havingAlarms();
+    void saveArchiteInfo();
+    void saveOtherArchiteInfo();
     Q_INVOKABLE QString architeInfoDbName();
     Q_INVOKABLE void setGlobalArchitePixmap(const QString &pixmapName);
     Q_INVOKABLE void clearAlarm(bool alarmColorRedu=false);
@@ -88,13 +90,13 @@ public slots:
     void startAutoSwitch(bool isAuto);
 private:
     void initWidget();
-    void saveArchiteInfo();
+
     QHash<QString, QVariant> saveViewInfo(QStandardItem *item);
     void initFromJsonFile();
     void initFromDataBase(GraphicsView *view, const QString &buildingName, const QString &floor);
     GraphicsView* setViewFromJson(const QHash<QString, QVariant> &hash, QStandardItem *treeItem);
     void findFireAlarm(int pos);
-    void saveOtherArchiteInfo();
+
     void setGlobalArchiteFromJson();
     void updateAlarmWidget(GraphicsView *currentView);
     void deleteAlarmWidget(GraphicsView *currentView);

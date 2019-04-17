@@ -3,7 +3,20 @@
 #include <QFile>
 #include <QDebug>
 #include "control/controller.h"
+#include <QProcess>
 //#include <QWindowsWindowFunctions>
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+void hideTaskBar()
+{
+    //隐藏任务栏
+#ifdef Q_OS_WIN
+  HWND hWnd = ::FindWindow(TEXT("Shell_traywnd"),TEXT(""));
+  ::SetWindowPos(hWnd,0,0,0,0,0,SWP_HIDEWINDOW);
+#endif
+
+}
 int main(int argc, char *argv[])
 {
     //qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
@@ -23,3 +36,5 @@ int main(int argc, char *argv[])
 
     return a.exec();
 }
+
+

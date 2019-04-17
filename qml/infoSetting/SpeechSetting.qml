@@ -1,8 +1,7 @@
 ﻿import QtQuick 2.9
 import QtQuick.Controls 2.2
 import QtQuick.Controls 1.4 as Controls1_4
-
-//import speechObj 1.0
+import speechObj 1.0
 Item {
 
     ListModel {

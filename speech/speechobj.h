@@ -17,7 +17,7 @@ public:
    // Q_INVOKABLE QString voiceName(int index);
     //Q_INVOKABLE QString currentVoiceName();
     int currentAlarmPos();
-
+    QList<QString> &alarmTextList();
 public slots:
     void stopSpeech();
     void startSpeech();

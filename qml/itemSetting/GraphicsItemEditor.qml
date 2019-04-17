@@ -57,7 +57,7 @@ Item {
                 }
                 ComboBox {
                     id: equipmentModelComboBox
-                    width: 150
+                    width: 180
                     height: 40
                     model: deviceTypeModel
                     onCurrentTextChanged: {
@@ -88,7 +88,7 @@ Item {
                 }
                 TextField {
                     id: extNumTextField
-                    width: 150
+                    width: 180
                     height: 40
                     onTextEdited: {
                         emit: setItemInfo("extNum", extNumTextField.text)
@@ -102,7 +102,7 @@ Item {
                 }
                 TextField {
                     id: loopNumTextField
-                    width: 150
+                    width: 180
                     height: 40
                     onTextEdited: {
                         emit: setItemInfo("loopNum", loopNumTextField.text)
@@ -116,7 +116,7 @@ Item {
                 }
                 TextField {
                     id: addrNumTextField
-                    width: 150
+                    width: 180
                     height: 40
                     onTextEdited: {
                         emit: setItemInfo("addrNum", addrNumTextField.text)
@@ -132,7 +132,7 @@ Item {
                 TextField {
                     id: deviceNumTextField
                     Layout.fillWidth: true
-                    width: 150
+                    width: 180
                     height: 40
                     onTextEdited: {
                         emit: setItemInfo("deviceNum", deviceNumTextField.text)
@@ -144,14 +144,15 @@ Item {
                     height: 40
                     verticalAlignment: Text.AlignVCenter
                 }
-                TextField {
-                    id: deviceSysTextField
+                ComboBox {
+                    id: deviceSysComBox
                     Layout.fillWidth: true
-                    width: 150
+                    width: 180
                     height: 40
-                    onTextEdited: {
-                        emit: setItemInfo("sysOfDevice",
-                                          deviceSysTextField.text)
+                    currentIndex: -1
+                    model: ["火灾探测报警系统", "消防联动系统", "自动喷水灭火系统", "水喷雾灭火系统", "消火栓系统", "气体灭火系统", "泡沫灭火系统", "干粉灭火系统", "防烟排烟系统", "防火及卷帘系统", "电梯系统", "消防电话系统", "消防应急广播系统", "消防应急照明和疏散指示系统", "消防电源系统"]
+                    onCurrentTextChanged: {
+                        emit: setItemInfo("sysOfDevice", currentText)
                     }
                 }
 
@@ -164,7 +165,7 @@ Item {
                 TextField {
                     id: deviceLocationTextField
                     Layout.fillWidth: true
-                    width: 150
+                    width: 180
                     height: 40
                     onTextEdited: {
                         emit: setItemInfo("deviceLocation",
@@ -181,7 +182,7 @@ Item {
                 Text {
                     id: periodOfValidityText
                     Layout.fillWidth: true
-                    width: 150
+                    width: 180
                     height: 40
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -195,7 +196,7 @@ Item {
                 Text {
                     id: manufacturersText
                     Layout.fillWidth: true
-                    width: 150
+                    width: 180
                     height: 40
                     verticalAlignment: Text.AlignVCenter
                     text: qsTr("北京利达华信电子有限公司")
@@ -210,7 +211,7 @@ Item {
                 TextField {
                     id: operatorTextField
                     Layout.fillWidth: true
-                    width: 150
+                    width: 180
                     height: 40
                     verticalAlignment: Text.AlignVCenter
                     onTextEdited: {
@@ -227,7 +228,7 @@ Item {
                 SpinBox {
                     id: sizeSpinBox
                     Layout.fillWidth: true
-                    width: 150
+                    width: 180
                     height: 40
                     from: 5
                     to: 100
@@ -336,7 +337,7 @@ Item {
     }
 
     function setSysOfDevice(sysOfDevice) {
-        deviceSysTextField.text = sysOfDevice
+        deviceSysComBox.currentIndex = deviceSysComBox.find(sysOfDevice)
     }
 
     function setDeviceLocation(deviceLocation) {
@@ -363,7 +364,7 @@ Item {
         loopNumTextField.clear()
         addrNumTextField.clear()
         deviceNumTextField.clear()
-        deviceSysTextField.clear()
+        deviceSysComBox.currentIndex = -1
         deviceLocationTextField.clear()
         operatorTextField.clear()
     }
@@ -376,7 +377,7 @@ Item {
     function manufacturersValue(pos) {
         var itemIconInfoStr = new String
         itemIconInfoStr = itemIconInfo.readFileFromJson()
-        if (itemIconInfoStr.length === 0) {
+        if (itemIconInfoStr.length <= 4) {
             return ""
         } else {
             if (pos < itemIconInfo.sizeOfHash()) {
@@ -393,7 +394,7 @@ Item {
     function periodOfvalidityValue(pos) {
         var itemIconInfoStr = new String
         itemIconInfoStr = itemIconInfo.readFileFromJson()
-        if (itemIconInfoStr.length === 0) {
+        if (itemIconInfoStr.length <= 4) {
             return ""
         } else {
             if (pos < itemIconInfo.sizeOfHash()) {

@@ -1,17 +1,19 @@
-﻿#include "indicatorlightcom.h"
-#include "indicatorlightconfiguration.h"
-IndicatorLightCom::IndicatorLightCom()
+﻿#include "seriallink.h"
+#include <QtAlgorithms>
+#include <QDebug>
+SerialLink::SerialLink( QObject *parent)
+    : AbstractLink(parent)
 {
     m_thread = new QThread();
     m_serialPort = new QSerialPort();
-    m_indicatorConfiguration = Configuration(new IndicatorLightConfiguration);
+    m_serialConfiguration = Configuration(new SerialConfiguration);
     m_serialPort->moveToThread(m_thread);
     moveToThread(m_thread);
     m_thread->start();
     qRegisterMetaType<QList<QString> >("QList<QString>");
     qRegisterMetaType<QList<qint32> >("QList <qint32>");
-    connect(m_serialPort,&QSerialPort::readyRead,this,&IndicatorLightCom::readData);
-    connect(this,&IndicatorLightCom::writeData,this,[=](const QByteArray &array)
+    connect(m_serialPort,&QSerialPort::readyRead,this,&SerialLink::readData);
+    connect(this,&SerialLink::writeData,this,[=](const QByteArray &array)
     {
         m_serialPort->write(array);
     });
@@ -21,9 +23,9 @@ IndicatorLightCom::IndicatorLightCom()
     });
 
 
-    connect(this,&IndicatorLightCom::startConnect,this,[=]()
+    connect(this,&SerialLink::startConnect,this,[=]()
     {
-        QHash <QString,QVariant>valueHash=  m_indicatorConfiguration.data()->getConfiguration().toHash();
+        QHash <QString,QVariant>valueHash=  m_serialConfiguration.data()->getConfiguration().toHash();
         QString portName = valueHash["portName"].toString();
         if(m_serialPort->portName()!=portName)
         {
@@ -47,7 +49,7 @@ IndicatorLightCom::IndicatorLightCom()
 
     });
 
-    connect(this,&IndicatorLightCom::stopConnect,this,[=]()
+    connect(this,&SerialLink::stopConnect,this,[=]()
     {
         m_serialPort->close();
         m_isOpen = false;
@@ -56,7 +58,7 @@ IndicatorLightCom::IndicatorLightCom()
 
 }
 
-IndicatorLightCom::~IndicatorLightCom()
+SerialLink::~SerialLink()
 {
     disconnectLink();
     m_serialPort->deleteLater();
@@ -64,16 +66,16 @@ IndicatorLightCom::~IndicatorLightCom()
     m_thread->deleteLater();
 }
 
-void IndicatorLightCom::readData()
+void SerialLink::readData()
 {
     QByteArray array = m_serialPort->readAll();
     emit getData(array);
 }
 
 
-void IndicatorLightCom::setConfiguration()
+void SerialLink::setConfiguration()
 {
-    QHash <QString,QVariant>valueHash=  m_indicatorConfiguration.data()->getConfiguration().toHash();
+    QHash <QString,QVariant>valueHash=  m_serialConfiguration.data()->getConfiguration().toHash();
     m_serialPort->setBaudRate(valueHash["baudRate"].toInt());
     m_serialPort->setDataBits(QSerialPort::DataBits(valueHash["dataBits"].toInt()));
     m_serialPort->setStopBits(QSerialPort::StopBits(valueHash["stopBits"].toInt()));
@@ -97,3 +99,6 @@ void IndicatorLightCom::setConfiguration()
         m_serialPort->setFlowControl(QSerialPort::NoFlowControl);
     }
 }
+
+
+

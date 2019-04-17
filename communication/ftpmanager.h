@@ -21,10 +21,16 @@ public:
 
 signals:
     void sendFileSuccess(bool isOk);
+    void sendData(const QUrl &url,const QByteArray &array);
+    void ftpError(const QString&error);
+    void uploadProgress(qint64 bytesSent, qint64 bytesTotal);
 public slots:
     void uploadFile(const QString &fileName);
 private:
     Configuration m_ftpConfiguration;
+    QNetworkReply*m_reply;
+    QNetworkAccessManager *m_manager;
+    QThread *m_thread;
 
 };
 

@@ -195,6 +195,9 @@ ToolBar {
                 }
                 bottomMargin: 30
             }
+            onClicked: {
+                CrtWidget.openHelpFile()
+            }
         }
         ToolButton {
             id: quitBtn

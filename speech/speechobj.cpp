@@ -8,9 +8,9 @@ SpeechObj::SpeechObj(QObject *parent):
     m_currentAlarmPos(0)
 {
     m_alarmPos =0;
-    m_thread = new QThread;
-    this->moveToThread(m_thread);
-    m_thread->start();
+     m_thread = new QThread;
+      this->moveToThread(m_thread);
+     m_thread->start();
     // m_voiceVec = availableVoices();
     connect(this,&SpeechObj::stateChanged,this,[=](QTextToSpeech::State state)
     {
@@ -39,12 +39,18 @@ SpeechObj::~SpeechObj()
 {
     stopSpeech();
     m_thread->quit();
+    m_thread->wait();
     m_thread->deleteLater();
 }
 
 int SpeechObj::currentAlarmPos()
 {
     return m_currentAlarmPos;
+}
+
+QList<QString> &SpeechObj::alarmTextList()
+{
+    return m_alarmTextList;
 }
 
 //void SpeechObj::setSelectVoice(int index)
@@ -85,9 +91,12 @@ int SpeechObj::currentAlarmPos()
 
 void SpeechObj::stopSpeech()
 {
-    disconnect(this,&SpeechObj::stateChanged,0,0);
-    stop();
-    m_isStoped = false;
+    //disconnect(this,&SpeechObj::stateChanged,0,0);
+    if(m_isStoped)
+    {
+        stop();
+        m_isStoped = false;
+    }
 }
 
 void SpeechObj::startSpeech()
@@ -139,6 +148,7 @@ void SpeechObj::insertAlarmText(const QString &alarmText)
         }
 
     });
+    //qDebug() << m_alarmTextList;
     future.waitForFinished();
     startSpeech();
 }

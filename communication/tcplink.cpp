@@ -1,4 +1,5 @@
-﻿#include "TcpLink.h"
+﻿#include "tcplink.h"
+
 #include <QDebug>
 #include <QHostAddress>
 TcpLink::TcpLink(QObject *parent)

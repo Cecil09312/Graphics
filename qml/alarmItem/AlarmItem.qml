@@ -327,8 +327,8 @@ Rectangle {
             font.family: qsTr("Times New Roman")
             text: qsTr("消音")
             onClicked: {
-                OperatorInfo.insertEvent(qsTr("消音"))
-                SpeechObj.stopSpeech()
+               OperatorInfo.insertEvent(qsTr("消音"))
+               SpeechObj.stopSpeech()
             }
 
             onPressed: {
