@@ -17,6 +17,7 @@ struct ItemInfo
     QString m_extNum;//分机号
     QString m_loopNum;//回路号
     QString m_addrNum;//地址号
+    QString m_networkNum;//网络号
     QString m_deviceNum;//设备编码
     QString m_equipmentModel;//设备
     QString m_alarmType;//报警类型
@@ -71,6 +72,8 @@ public:
     void setIconName(const QString &iconName);
     QHash<QString,QVariant> itemInfo();
     void setItemInfo(const ItemInfo &itemInfo);
+    void setAnlogValue(const QString &name,const QVariant &value);
+    QHash<QString,QVariant>anlogValueHah();
     ItemInfo &getItemInfo();
     int iconIndex();
     void setInfoFromIconIndex(int itemIconIndex);
@@ -79,6 +82,7 @@ public:
     Q_INVOKABLE QString &extNum();
     Q_INVOKABLE QString &loopNum();
     Q_INVOKABLE QString &addrNum();
+    Q_INVOKABLE QString &networkNum();
     Q_INVOKABLE QString &currentState();
     Q_INVOKABLE QString &deviceNum();
     Q_INVOKABLE QString &equipmentModel();
@@ -114,6 +118,7 @@ private:
     ItemIconInfoToJson m_itemIconInfoToJson;
     QGraphicsColorizeEffect *m_colorEffect;
     int m_iconIndex;
+    QHash<QString,QVariant>m_analogValueHash;
 
 };
 

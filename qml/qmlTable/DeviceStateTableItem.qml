@@ -6,9 +6,10 @@ import architePlanView 1.0
 
 Item {
 
-    Row {
+    Grid {
         id: deviceStateQuery
         spacing: 5
+        columns: 8
         Text {
             id: extNum
             text: qsTr("分机号")
@@ -19,7 +20,7 @@ Item {
 
         TextField {
             id: extNumTextField
-            width: 80
+            width: 100
             height: 30
         }
 
@@ -33,7 +34,7 @@ Item {
 
         TextField {
             id: loopNumTextField
-            width: 80
+            width: 100
             height: 30
         }
 
@@ -47,6 +48,19 @@ Item {
 
         TextField {
             id: addressNumTextField
+            width: 80
+            height: 30
+        }
+
+        Text {
+            text: qsTr("网络号")
+            height: 30
+            horizontalAlignment: TextEdit.AlignHCenter
+            verticalAlignment: TextEdit.AlignVCenter
+        }
+
+        TextField {
+            id: networkNumTextField
             width: 80
             height: 30
         }
@@ -85,7 +99,7 @@ Item {
             onClicked: {
                 deviceStateModel.sqlCommit(
                             String(
-                                "select extNum ,loopNum,addrNum ,manufacturers,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo where %1").arg(
+                                "select extNum ,loopNum,addrNum,networkNum,manufacturers,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo where %1").arg(
                                 selectInfo()))
             }
         }
@@ -97,7 +111,7 @@ Item {
             width: 80
             onClicked: {
                 deviceStateModel.sqlCommit(
-                            "select extNum ,loopNum,addrNum ,manufacturers,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo")
+                            "select extNum ,loopNum,addrNum,networkNum,manufacturers,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo")
             }
         }
     }
@@ -124,6 +138,13 @@ Item {
         Controls1_4.TableViewColumn {
             role: qsTr("addrNum")
             title: qsTr("地址号")
+            width: 60
+            //resizable: true
+        }
+
+        Controls1_4.TableViewColumn {
+            role: qsTr("networkNum")
+            title: qsTr("网络号")
             width: 60
             //resizable: true
         }
@@ -174,10 +195,13 @@ Item {
             var curExtNum = new String
             var curLoopNum = new String
             var curAddrNum = new String
+            var curNetworkNum = new String
             curExtNum = deviceStateModel.getValue(row, "extNum")
             curLoopNum = deviceStateModel.getValue(row, "loopNum")
             curAddrNum = deviceStateModel.getValue(row, "addrNum")
-            ArchitePlanView.toArchitePlan(curExtNum, curLoopNum, curAddrNum)
+            curNetworkNum = deviceStateModel.getValue(row, "networkNum")
+            ArchitePlanView.toArchitePlan(curExtNum, curLoopNum, curAddrNum,
+                                          curNetworkNum)
         }
     }
     QmlTableModel {
@@ -186,15 +210,15 @@ Item {
         dbName: ArchitePlanView.architeInfoDbName()
         dbConnectionName: "deviceState"
         dbPort: 8888
-        roleNameList: ["extNum", "loopNum", "addrNum", "manufacturers", "periodOfValidity", "deviceNum", "deviceName", "alarmState", "operator"]
-        titleList: ["分机号", "回路号", "地址号", "制造商", "有效期", "设备编码", "设备", "报警状态", "操作员"]
+        roleNameList: ["extNum", "loopNum", "addrNum", "networkNum", "manufacturers", "periodOfValidity", "deviceNum", "deviceName", "alarmState", "operator"]
+        titleList: ["分机号", "回路号", "地址号", "网络号", "制造商", "有效期", "设备编码", "设备", "报警状态", "操作员"]
     }
 
     Component.onCompleted: {
 
         deviceStateModel.setDbOpen(true)
         deviceStateModel.sqlCommit(
-                    "select extNum ,loopNum,addrNum ,manufacturers,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo")
+                    "select extNum ,loopNum,addrNum,networkNum,manufacturers,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo")
     }
 
     function selectInfo() {
@@ -215,6 +239,13 @@ Item {
                 info += " and "
             }
             info += (qsTr("extNum=") + "'" + extNumTextField.text + "'")
+        }
+
+        if (networkNumTextField.text.length > 0) {
+            if (info.length > 0) {
+                info += " and "
+            }
+            info += (qsTr("networkNum=") + "'" + networkNumTextField.text + "'")
         }
 
         if (deviceNumTextField.text.length > 0) {

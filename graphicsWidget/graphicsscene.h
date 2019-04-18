@@ -39,13 +39,13 @@ private slots:
     void setItemSize(qreal size);
     void setItemIcon(QString iconName);
     void setItemInfoFromType(const QString &type,const QString &info);
-    void getAlarm(QString extNum,QString loopNum, QString addrNum,QString alarmState);
+    void getAlarm(QString extNum, QString loopNum, QString addrNum,QString networkNum, QString alarmState);
     void clearAlarms();
     void setItemsIcon(int index,QString iconName);
     void setItemsEquipmentModel(int index,QString device);
     void setItemsManufacturers(int index,QString manufacturers);
     void setItemsPeriodOfValidity(int index,QString periodOfValidity);
-    void restoreAlarm(QString extNum,QString loopNum, QString addrNum);
+    void restoreAlarm(QString extNum,QString loopNum, QString addrNum,QString networkNum);
 private:
     void init();
 

@@ -52,6 +52,9 @@ public slots:
 private:
     void initWidget();
     void alarmDataOnTable();
+    bool setSysTime(const QDateTime &dateTime);
+    void sendFireInfo(quint8 extNum, quint8 loopNum, quint8 addrNum, const QString &dateTimeStr);
+   // void processAlarmHostInfo(quint8 type, QString &extNum, quint8 loopNum, quint8 addrNum, const QString &timeStr);
 
 private:
     QWidget *m_alarmContainer;

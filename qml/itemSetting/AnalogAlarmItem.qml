@@ -5,9 +5,9 @@ import QtQuick.Controls 2.2
 Item {
     width: 560
     height: 420
-    signal createAlarm(string extNum, string loopNum, string addrNum, string alarmState)
+    signal createAlarm(string extNum, string loopNum, string addrNum, string networkNum,string alarmState)
     signal clearAlarm
-    signal alramRestore(string extNum, string loopNum, string addrNum)
+    signal alramRestore(string extNum, string loopNum, string addrNum,string networkNum)
     GridLayout {
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
@@ -47,14 +47,26 @@ Item {
         }
 
         Text {
-            text: qsTr("报警状态")
+            text: qsTr("网络号")
             Layout.row: 3
+            Layout.column: 0
+        }
+        TextField {
+            id: networkNumTextField
+            Layout.fillWidth: true
+            Layout.row: 3
+            Layout.column: 1
+        }
+
+        Text {
+            text: qsTr("报警状态")
+            Layout.row: 4
             Layout.column: 0
         }
         ComboBox {
             id: alarmStateComboBox
             Layout.fillWidth: true
-            Layout.row: 3
+            Layout.row: 4
             Layout.column: 1
             model: ["火警", "联动", "故障", "监管", "反馈", "屏蔽"]
         }
@@ -62,18 +74,18 @@ Item {
         Button {
 
             id: creatAlarmBtn
-            Layout.row: 4
+            Layout.row: 5
             Layout.column: 0
             text: qsTr("报警开始")
             onClicked: {
                 emit: createAlarm(extNumTextField.text, loopNumTextField.text,
-                                  addrNumTextField.text,
+                                  addrNumTextField.text,networkNumTextField.text,
                                   alarmStateComboBox.currentText)
             }
         }
 
         Grid {
-            Layout.row: 4
+            Layout.row: 5
             Layout.column: 1
             spacing: 10
             columns: 2
@@ -86,7 +98,7 @@ Item {
                 onClicked: {
                     emit: alramRestore(extNumTextField.text,
                                        loopNumTextField.text,
-                                       addrNumTextField.text)
+                                       addrNumTextField.text,networkNumTextField.text)
                 }
             }
 
@@ -102,7 +114,7 @@ Item {
         }
 
         Text {
-            Layout.row: 5
+            Layout.row: 6
             Layout.column: 1
             text: qsTr("注意：请在没有任何正常报警发生的情况\n
 下进行模拟；\"报警消除\"按键必须在模拟\n

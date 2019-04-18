@@ -27,6 +27,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
  RCC_DIR = ./rcc
  DESTDIR = ./bin
 
+
+
 SOURCES += \
         main.cpp \
         crtwidget.cpp \

@@ -124,6 +124,21 @@ Item {
                 }
 
                 Text {
+                    text: qsTr("网络号:")
+                    height: 40
+                    verticalAlignment: Text.AlignVCenter
+                }
+                TextField {
+                    id: networkNumTextField
+                    width: 180
+                    height: 40
+                    onTextEdited: {
+                        emit: setItemInfo("networkNum", addrNumTextField.text)
+                    }
+                }
+
+
+                Text {
                     id: deviceNumTxt
                     text: qsTr("设备编码:")
                     height: 40
@@ -325,6 +340,10 @@ Item {
 
     function setAddrNum(addrNum) {
         addrNumTextField.text = addrNum
+    }
+
+    function setNetworkNum(networkNum) {
+        networkNumTextField.text = networkNum
     }
 
     function setDeviceNum(deviceNum) {

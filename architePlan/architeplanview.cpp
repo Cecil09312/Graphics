@@ -116,7 +116,7 @@ ArchitePlanView::~ArchitePlanView()
 }
 
 
-void ArchitePlanView::createAlarm(const QString&extNum,const QString&loopNum,const QString&addressNum,const QString &alarmTypeName,bool isAnalog,const QString &alarmTime)
+void ArchitePlanView::createAlarm(const QString&extNum,const QString&loopNum,const QString&addressNum,const QString&networkNum,const QString &alarmTypeName,bool isAnalog,const QString &alarmTime)
 {
     foreach (GraphicsView *view, m_widgetMap.values())
     {
@@ -128,7 +128,7 @@ void ArchitePlanView::createAlarm(const QString&extNum,const QString&loopNum,con
                 GraphicsItem *currentItem = dynamic_cast<GraphicsItem *>(item);
                 if(currentItem!=nullptr)
                 {
-                    if(currentItem->extNum()==extNum&&currentItem->loopNum()==loopNum&&currentItem->addrNum()==addressNum)
+                    if(currentItem->extNum()==extNum&&currentItem->loopNum()==loopNum&&currentItem->addrNum()==addressNum&&currentItem->networkNum()==networkNum)
                     {
                         if(!DataStore::getTypeItemList(alarmTypeName).contains(currentItem))
                         {
@@ -169,7 +169,7 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item)
 
 }
 
-void ArchitePlanView::eliminateAlarm(const QString &extNum, const QString &loopNum, const QString &addrNum)
+void ArchitePlanView::eliminateAlarm(const QString &extNum, const QString &loopNum, const QString &addrNum,const QString &networkNum)
 {
     foreach (GraphicsView *view, m_widgetMap.values())
     {
@@ -181,7 +181,7 @@ void ArchitePlanView::eliminateAlarm(const QString &extNum, const QString &loopN
                 GraphicsItem *currentItem = dynamic_cast<GraphicsItem *>(item);
                 if(currentItem!=nullptr)
                 {
-                    if(currentItem->extNum()==extNum&&currentItem->loopNum()==loopNum&&currentItem->addrNum()==addrNum)
+                    if(currentItem->extNum()==extNum&&currentItem->loopNum()==loopNum&&currentItem->addrNum()==addrNum&&currentItem->networkNum()==networkNum)
                     {
                         eliminateAlarm(currentItem);
                         currentItem->getItemInfo().m_alarmReplyTime = QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss");
@@ -268,11 +268,11 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
             {
                 if(alarmTypeName!=tr("火警"))
                 {
-                   speechText = alarmTypeName+tr("报警");
+                    speechText = alarmTypeName+tr("报警");
                 }
                 else
                 {
-                   speechText = alarmTypeName;
+                    speechText = alarmTypeName;
                 }
 
                 item->startColorAnimation();
@@ -424,7 +424,7 @@ void ArchitePlanView::initWidget()
     {
         QStringList tableNameList = m_sqliteManager->getTables();
         QStringList itemInfoTableList;
-        itemInfoTableList<<"extNum text" << "addrNum text" << "loopNum text" << "buildingName text" << "currentState text"
+        itemInfoTableList<<"extNum text" << "addrNum text" << "loopNum text" << "networkNum text"<< "buildingName text" << "currentState text"
                         << "deviceLocation text" << "deviceNum text" << "equipmentModel text" << "floorOfDevice text"
                         << "iconName text"<<"manufacturers text"<<"periodOfValidity text"<<"pos text"<<"size double"
                         << "sysOfDevice text"<<"operator text";
@@ -691,7 +691,7 @@ void ArchitePlanView::saveArchiteInfoToDb()
         GraphicsView *view=  m_widgetMap.value(value);
         if(view!=nullptr)
         {
-            QList<QVariant>valueList,extNumList,addrNumList,loopNumList,buildingNameList,
+            QList<QVariant>valueList,extNumList,addrNumList,loopNumList,networkNumList,buildingNameList,
                     currentStateList,deviceLocationList,deviceNumList,equipmentModelList,floorOfDeviceList,
                     iconNameList,manufacturersList,periodOfValidityList,posList,sizeList,sysOfDeviceList,operatorList;
             QList<QGraphicsItem *> itemList= view->getItemList();
@@ -703,6 +703,7 @@ void ArchitePlanView::saveArchiteInfoToDb()
                     extNumList.push_back( currentItem->extNum());
                     addrNumList.push_back(currentItem->addrNum());
                     loopNumList.push_back(currentItem->loopNum());
+                    networkNumList.push_back(currentItem->networkNum());
                     buildingNameList.push_back(currentItem->buildingName());
                     currentStateList.push_back(currentItem->currentState());
                     deviceLocationList.push_back(currentItem->deviceLocation());
@@ -722,6 +723,7 @@ void ArchitePlanView::saveArchiteInfoToDb()
             valueList.push_back(extNumList);
             valueList.push_back(addrNumList);
             valueList.push_back(loopNumList);
+            valueList.push_back(networkNumList);
             valueList.push_back(buildingNameList);
             valueList.push_back(currentStateList);
             valueList.push_back(deviceLocationList);
@@ -854,27 +856,28 @@ void ArchitePlanView::initFromDataBase(GraphicsView *view,const QString &buildin
             {
                 QGraphicsScene *scene = view->scene();
                 GraphicsScene *graphicsScene = dynamic_cast<GraphicsScene*>(scene);
-                if(valueList.size()>j+15)
+                if(valueList.size()>j+16)
                 {
                     GraphicsItem *item = new GraphicsItem(graphicsScene);
                     item->extNum() =valueList.at(j);
                     item->addrNum() = valueList.at(j+1);
                     item->loopNum() =valueList.at(j+2);
-                    item->buildingName() = valueList.at(j+3);
-                    item->currentState() =valueList.at(j+4);
-                    item->deviceLocation() = valueList.at(j+5);
-                    item->deviceNum() =valueList.at(j+6);
-                    item->equipmentModel() = valueList.at(j+7);
-                    item->floorOfDevice() =valueList.at(j+8);
-                    item->setIconName( valueList.at(j+9));
-                    item->manufacturers() =valueList.at(j+10);
-                    item->periodOfValidity() = valueList.at(j+11);
-                    QString posStr = valueList.at(j+12);
+                    item->networkNum() =valueList.at(j+3);
+                    item->buildingName() = valueList.at(j+4);
+                    item->currentState() =valueList.at(j+5);
+                    item->deviceLocation() = valueList.at(j+6);
+                    item->deviceNum() =valueList.at(j+7);
+                    item->equipmentModel() = valueList.at(j+8);
+                    item->floorOfDevice() =valueList.at(j+9);
+                    item->setIconName( valueList.at(j+10));
+                    item->manufacturers() =valueList.at(j+11);
+                    item->periodOfValidity() = valueList.at(j+12);
+                    QString posStr = valueList.at(j+13);
                     item->setPos(QPointF(posStr.section(",",0,0).toDouble(),posStr.section(",",1,1).toDouble()));
-                    QString sizeStr = valueList.at(j+13);
+                    QString sizeStr = valueList.at(j+14);
                     item->setRadius(sizeStr.toDouble());
-                    item->sysOfDevice() =valueList.at(j+14);
-                    item->deviceOperator() = valueList.at(j+15);
+                    item->sysOfDevice() =valueList.at(j+15);
+                    item->deviceOperator() = valueList.at(j+16);
                     if(graphicsScene!=nullptr)
                     {
                         graphicsScene->addItem(item);
@@ -979,6 +982,35 @@ void ArchitePlanView::saveOtherArchiteInfo()
     architePlanHash["grobalPlanPicture"] =m_globalArchitePlanPixmapName;
     QmlForJson qmlForJson;
     qmlForJson.writeFile(architePlanHash);
+}
+
+GraphicsItem *ArchitePlanView::itemFormInfo(const QString &extNum, const QString &loopNum, const QString &addressNum, const QString &networkNum)
+{
+    GraphicsItem *graphicsItem = nullptr;
+    bool isFind = false;
+    QList<GraphicsView *>viewList = m_widgetMap.values();
+
+    foreach (GraphicsView *currentView, viewList)
+    {
+
+        QList<QGraphicsItem*> itemList= currentView->getItemList();
+        foreach (QGraphicsItem*item, itemList)
+        {
+            GraphicsItem *curItem = dynamic_cast<GraphicsItem *>(item);
+            if(curItem->extNum()==extNum&&curItem->loopNum()==loopNum&&curItem->addrNum()==addressNum&&curItem->networkNum()==networkNum)
+            {
+                graphicsItem = curItem;
+                isFind = true;
+                break;
+            }
+        }
+        if(isFind)
+        {
+            break;
+        }
+
+    }
+    return graphicsItem;
 }
 
 void ArchitePlanView::setGlobalArchiteFromJson()
@@ -1195,7 +1227,7 @@ void ArchitePlanView::setCurrentAlarmType(const QString &type)
     m_currentAlarmType = type;
 }
 
-void ArchitePlanView::toArchitePlan(const QString &extNum, const QString &loopNum, const QString &addressNum)
+void ArchitePlanView::toArchitePlan(const QString &extNum, const QString &loopNum, const QString &addressNum,const QString &networkNum)
 {
     foreach (GraphicsView *view, m_widgetMap.values())
     {
@@ -1207,7 +1239,7 @@ void ArchitePlanView::toArchitePlan(const QString &extNum, const QString &loopNu
                 GraphicsItem *currentItem = dynamic_cast<GraphicsItem *>(item);
                 if(currentItem!=nullptr)
                 {
-                    if(currentItem->extNum()==extNum && currentItem->loopNum()==loopNum && currentItem->addrNum()==addressNum)
+                    if(currentItem->extNum()==extNum && currentItem->loopNum()==loopNum && currentItem->addrNum()==addressNum&&currentItem->networkNum()==networkNum)
                     {
                         if(m_tabWidget->count()>=2)
                         {

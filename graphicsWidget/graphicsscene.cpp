@@ -31,6 +31,7 @@ GraphicsScene::GraphicsScene(QObject *parent):
             QMetaObject::invokeMethod(m_itemSettingObj,"setExtNum",Q_ARG(QVariant,currentItem->extNum()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setLoopNum",Q_ARG(QVariant,currentItem->loopNum()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setAddrNum",Q_ARG(QVariant,currentItem->addrNum()));
+            QMetaObject::invokeMethod(m_itemSettingObj,"setNetworkNum",Q_ARG(QVariant,currentItem->networkNum()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setEquipmentModel",Q_ARG(QVariant,currentItem->equipmentModel()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setSysOfDevice",Q_ARG(QVariant,currentItem->sysOfDevice()));
             //QMetaObject::invokeMethod(m_itemSettingObj,"setBuildingName",Q_ARG(QVariant,currentItem->buildingName()));
@@ -147,9 +148,9 @@ GraphicsScene::GraphicsScene(QObject *parent):
 
     m_analogAlarmObj = m_analogAlarmView->rootObject();
     Q_ASSERT(m_analogAlarmObj);
-    connect(m_analogAlarmObj,SIGNAL(createAlarm(QString, QString, QString, QString)),this,SLOT(getAlarm(QString,QString, QString,QString)));
+    connect(m_analogAlarmObj,SIGNAL(createAlarm(QString, QString, QString, QString,QString)),this,SLOT(getAlarm(QString,QString, QString,QString,QString)));
     connect(m_analogAlarmObj,SIGNAL(clearAlarm()),this,SLOT(clearAlarms()));
-    connect(m_analogAlarmObj,SIGNAL(alramRestore(QString, QString, QString)),this,SLOT(restoreAlarm(QString, QString, QString)));
+    connect(m_analogAlarmObj,SIGNAL(alramRestore(QString, QString, QString,QString)),this,SLOT(restoreAlarm(QString, QString, QString,QString)));
 
 }
 
@@ -347,6 +348,11 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
         {
             currentItem->addrNum() = info;
         }
+
+        else if(type =="networkNum")
+        {
+            currentItem->networkNum()= info;
+        }
         else if(type =="deviceNum")
         {
             currentItem->deviceNum() = info;
@@ -391,12 +397,12 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
 
 }
 
-void GraphicsScene::getAlarm(QString extNum, QString loopNum, QString addrNum, QString alarmState)
+void GraphicsScene::getAlarm(QString extNum, QString loopNum, QString addrNum,QString networkNum, QString alarmState)
 {
     ArchitePlanView*architePlanView=   Controller::instance()->getArchitePlanView();
     if(architePlanView!=nullptr)
     {
-        architePlanView->createAlarm(extNum,loopNum,addrNum,alarmState,true);
+        architePlanView->createAlarm(extNum,loopNum,addrNum,networkNum,alarmState,true);
     }
 }
 
@@ -477,12 +483,12 @@ void GraphicsScene::setItemsPeriodOfValidity(int index, QString periodOfValidity
     }
 }
 
-void GraphicsScene::restoreAlarm(QString extNum, QString loopNum, QString addrNum)
+void GraphicsScene::restoreAlarm(QString extNum, QString loopNum, QString addrNum, QString networkNum)
 {
     ArchitePlanView*architePlanView=   Controller::instance()->getArchitePlanView();
     if(architePlanView!=nullptr)
     {
-        architePlanView->eliminateAlarm(extNum,loopNum,addrNum);
+        architePlanView->eliminateAlarm(extNum,loopNum,addrNum,networkNum);
     }
 }
 
@@ -552,6 +558,7 @@ void GraphicsScene::setItemInfo(GraphicsItem *item, const QHash<QString, QVarian
         itemInfo.m_extNum= itemHash["extNum"].toString();
         itemInfo.m_loopNum= itemHash["loopNum"].toString();
         itemInfo.m_addrNum= itemHash["addrNum"].toString();
+        itemInfo.m_networkNum= itemHash["networkNum"].toString();
         itemInfo.m_deviceNum= itemHash["deviceNum"].toString();
         itemInfo.m_equipmentModel= itemHash["equipmentModel"].toString();
         itemInfo.m_currentState= itemHash["currentState"].toString();

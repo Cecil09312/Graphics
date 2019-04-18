@@ -53,6 +53,18 @@ Item {
             }
 
             Text {
+                text: qsTr("网络号")
+                height: 30
+                horizontalAlignment: TextEdit.AlignLeft
+                verticalAlignment: TextEdit.AlignVCenter
+            }
+            TextField {
+                id: networkNumTextField
+                width: 100
+                height: 30
+            }
+
+            Text {
                 id: alarmInfoAlarmType
                 text: qsTr("报警类型")
                 height: 30
@@ -103,7 +115,7 @@ Item {
                 onClicked: {
                     alarmInfoListModel.sqlCommit(
                                 String(
-                                    "select 分机号,回路号,地址号,系统,设备编码,设备,报警类型,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo where %1").arg(
+                                    "select 分机号,回路号,地址号,网络号,系统,设备编码,设备,报警类型,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo where %1").arg(
                                     selectInfo()))
                 }
             }
@@ -115,7 +127,7 @@ Item {
                 width: 80
                 onClicked: {
                     alarmInfoListModel.sqlCommit(
-                                "select 分机号,回路号,地址号,系统,设备编码,设备,报警类型,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo")
+                                "select 分机号,回路号,地址号,网络号,系统,设备编码,设备,报警类型,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo")
                 }
             }
 
@@ -155,6 +167,12 @@ Item {
         Controls1_4.TableViewColumn {
             role: "addrNum"
             title: qsTr("地址号")
+            width: 60
+        }
+
+        Controls1_4.TableViewColumn {
+            role: "networkNum"
+            title: qsTr("网络号")
             width: 60
         }
         Controls1_4.TableViewColumn {
@@ -228,10 +246,14 @@ Item {
             var curExtNum = new String
             var curLoopNum = new String
             var curAddrNum = new String
+            var curNetworkNum = new String
             curExtNum = alarmInfoListModel.getValue(row, "extNum")
             curLoopNum = alarmInfoListModel.getValue(row, "loopNum")
             curAddrNum = alarmInfoListModel.getValue(row, "addrNum")
-            ArchitePlanView.toArchitePlan(curExtNum, curLoopNum, curAddrNum)
+            curAddrNum = alarmInfoListModel.getValue(row, "addrNum")
+            curNetworkNum = alarmInfoListModel.getValue(row, "networkNum")
+            ArchitePlanView.toArchitePlan(curExtNum, curLoopNum, curAddrNum,
+                                          curNetworkNum)
         }
     }
     QmlTableModel {
@@ -240,8 +262,8 @@ Item {
         dbName: Crt.alarmInfoDbName()
         dbConnectionName: "alarmInfoDb"
         dbPort: 888
-        roleNameList: ["extNum", "loopNum", "addrNum", "deviceSys", "productNum", "deviceType", "alarmType", "currentAlarmState", "alarmTime", "rebackAlarmTime", "buildName", "floor", "deviceLocation", "operator"]
-        titleList: ["分机号", "回路号", "地址号", "系统", "设备编码", "设备", "报警类型", "报警状态", "报警时间", "报警恢复时间", "建筑名称", "楼层", "位置", "操作员"]
+        roleNameList: ["extNum", "loopNum", "addrNum", "networkNum", "deviceSys", "productNum", "deviceType", "alarmType", "currentAlarmState", "alarmTime", "rebackAlarmTime", "buildName", "floor", "deviceLocation", "operator"]
+        titleList: ["分机号", "回路号", "地址号", "网络号", "系统", "设备编码", "设备", "报警类型", "报警状态", "报警时间", "报警恢复时间", "建筑名称", "楼层", "位置", "操作员"]
     }
     function selectInfo() {
         var info = new String
@@ -264,6 +286,13 @@ Item {
             info += (qsTr("地址号=") + "'" + alarmInfoAddNumTextField.text + "'")
         }
 
+        if (networkNumTextField.text.length > 0) {
+
+            if (info.length > 0) {
+                info += " and "
+            }
+            info += (qsTr("网络号=") + "'" + networkNumTextField.text + "'")
+        }
         if (alarmInfoAlarmTypeTextField.text.length > 0) {
             if (info.length > 0) {
                 info += " and "
@@ -303,7 +332,7 @@ Item {
                                              ListView.Contain)
         alarmInfoListModel.setDbOpen(true)
         alarmInfoListModel.sqlCommit(
-                    "select 分机号,回路号,地址号,系统,设备编码,设备,报警类型,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo")
+                    "select 分机号,回路号,地址号,网络号,系统,设备编码,设备,报警类型,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo")
     }
 
     MessageDialog {

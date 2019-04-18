@@ -15,6 +15,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_graphicsScene = scene;
     m_itemInfo.m_currentState = tr("正常");
     m_itemInfo.m_manufacturers = tr("北京利达华信电子有限公司");
+    m_itemInfo.m_networkNum = "0";
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);
     m_colorEffect = new QGraphicsColorizeEffect(this);
@@ -301,6 +302,7 @@ QHash<QString, QVariant> GraphicsItem::itemInfo()
     itemHash["extNum"] = m_itemInfo.m_extNum;
     itemHash["loopNum"] = m_itemInfo.m_loopNum;
     itemHash["addrNum"] = m_itemInfo.m_addrNum;
+    itemHash["networkNum"]=m_itemInfo.m_networkNum;
     itemHash["deviceNum"] = m_itemInfo.m_deviceNum;
     itemHash["equipmentModel"] = m_itemInfo.m_equipmentModel;
     itemHash["currentState"] = m_itemInfo.m_currentState;
@@ -320,6 +322,16 @@ QHash<QString, QVariant> GraphicsItem::itemInfo()
 void GraphicsItem::setItemInfo(const ItemInfo &itemInfo)
 {
     m_itemInfo = itemInfo;
+}
+
+void GraphicsItem::setAnlogValue(const QString &name, const QVariant &value)
+{
+    m_analogValueHash[name] =value;
+}
+
+QHash<QString, QVariant> GraphicsItem::anlogValueHah()
+{
+    return m_analogValueHash;
 }
 
 ItemInfo &GraphicsItem::getItemInfo()
@@ -389,6 +401,11 @@ QString &GraphicsItem::loopNum()
 QString &GraphicsItem::addrNum()
 {
     return m_itemInfo.m_addrNum;
+}
+
+QString &GraphicsItem::networkNum()
+{
+    return m_itemInfo.m_networkNum;
 }
 
 QString &GraphicsItem::currentState()
@@ -476,17 +493,18 @@ void GraphicsItem::updateHoverText()
     QString hoverText = QString("分机号:%1\n"
                                 "回路号:%2\n"
                                 "地址号:%3\n"
-                                "设备编码:%4\n"
-                                "设备:%5\n"
-                                "报警状态:%6\n"
-                                "报警时间:%7\n"
-                                "系统:%8\n"
-                                "建筑名称:%9\n"
-                                "楼层:%10\n"
-                                "位置:%11\n"
-                                "制造商:%12\n"
-                                "有效期:%13\n"
-                                "操作员:%14").arg(m_itemInfo.m_extNum).arg(m_itemInfo.m_loopNum).arg(m_itemInfo.m_addrNum)
+                                "网络号:%4\n"
+                                "设备编码:%5\n"
+                                "设备:%6\n"
+                                "报警状态:%7\n"
+                                "报警时间:%8\n"
+                                "系统:%9\n"
+                                "建筑名称:%10\n"
+                                "楼层:%11\n"
+                                "位置:%12\n"
+                                "制造商:%13\n"
+                                "有效期:%14\n"
+                                "操作员:%15").arg(m_itemInfo.m_extNum).arg(m_itemInfo.m_loopNum).arg(m_itemInfo.m_addrNum).arg(m_itemInfo.m_networkNum)
             .arg(m_itemInfo.m_deviceNum).arg(m_itemInfo.m_equipmentModel).arg(m_itemInfo.m_currentState)
             .arg(m_itemInfo.m_alarmTime).arg(m_itemInfo.m_sysOfDevice).arg(m_itemInfo.m_buildingName)
             .arg(m_itemInfo.m_floorOfDevice).arg(m_itemInfo.m_deviceLocation).arg(m_itemInfo.m_manufacturers)
