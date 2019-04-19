@@ -1013,6 +1013,19 @@ GraphicsItem *ArchitePlanView::itemFormInfo(const QString &extNum, const QString
     return graphicsItem;
 }
 
+void ArchitePlanView::updteAlarmState(const QString &extNum, const QString &loopNum, const QString &addressNum, const QString &networkNum, const QString &curAlarmState)
+{
+    GraphicsItem *item = itemFormInfo(extNum,loopNum,addressNum,networkNum);
+    if(item!=nullptr)
+    {
+        if(item->currentState() != curAlarmState)
+        {
+            item->currentState() = curAlarmState;
+            emit alarmStateUpdate(extNum,loopNum,addressNum,networkNum,curAlarmState);
+        }
+    }
+}
+
 void ArchitePlanView::setGlobalArchiteFromJson()
 {
     QmlForJson qmlForJson;

@@ -137,7 +137,6 @@ Item {
                     }
                 }
 
-
                 Text {
                     id: deviceNumTxt
                     text: qsTr("设备编码:")
@@ -185,6 +184,48 @@ Item {
                     onTextEdited: {
                         emit: setItemInfo("deviceLocation",
                                           deviceLocationTextField.text)
+                    }
+                }
+
+                Text {
+
+                    text: qsTr("通道数:")
+                    height: 40
+                    verticalAlignment: Text.AlignVCenter
+                }
+                TextField {
+                    id: channelNumTextField
+                    Layout.fillWidth: true
+                    width: 180
+                    height: 40
+                    onTextEdited: {
+                        emit: setItemInfo("channelNum",
+                                          channelNumTextField.text)
+                    }
+                }
+
+                Text {
+
+                    text: qsTr("模拟量类型:")
+                    height: 40
+                    verticalAlignment: Text.AlignVCenter
+                }
+                ComboBox {
+                    id: analogTypeField
+                    Layout.fillWidth: true
+                    width: 180
+                    height: 40
+                    model: [qsTr("无"), qsTr("高度(m)"), qsTr(
+                            "温度(℃)"), qsTr("压力(Mpa)"), qsTr(
+                            "压力(Kpa)"), qsTr("气体浓度(%LEL)"), qsTr(
+                            "气体浓度(PPM)"), qsTr("气体浓度(%V/V)"), qsTr(
+                            "气体浓度(KPPM)"), qsTr("气体浓度(Mg/m^3)"), qsTr(
+                            "时间(s)"), qsTr("电压(V)"), qsTr(
+                            "电流(A)"), qsTr("流量(L/s)"), qsTr(
+                            "风量(m^3/min)"), qsTr("风速(m/s)"), qsTr(
+                            "剩余电流(mA)"), qsTr("烟参量"), qsTr("距离(m)")]
+                    onCurrentTextChanged: {
+                        emit: setItemInfo("analogType", currentText)
                     }
                 }
 

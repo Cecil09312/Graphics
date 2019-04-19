@@ -9,7 +9,9 @@
 #include <QGraphicsView>
 int GraphicsItem::m_num =1;
 GraphicsItem::GraphicsItem(GraphicsScene *scene):
-    m_radius(20.0)
+    m_radius(20.0),
+    m_channelNum(0),
+    m_analogType(tr("无"))
 
 {
     m_graphicsScene = scene;
@@ -388,6 +390,16 @@ void GraphicsItem::setPeriodOfValidity(const QString &period)
     update();
 }
 
+void GraphicsItem::setChannelNum(int num)
+{
+    m_channelNum = num;
+}
+
+int &GraphicsItem::channelNum()
+{
+    return m_channelNum;
+}
+
 QString &GraphicsItem::extNum()
 {
     return m_itemInfo.m_extNum;
@@ -468,7 +480,10 @@ QString &GraphicsItem::alarmType()
     return m_itemInfo.m_alarmType;
 }
 
-
+QString &GraphicsItem::analogType()
+{
+    return m_analogType;
+}
 
 void GraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {

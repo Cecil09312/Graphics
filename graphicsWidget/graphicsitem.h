@@ -78,6 +78,9 @@ public:
     int iconIndex();
     void setInfoFromIconIndex(int itemIconIndex);
     Q_INVOKABLE void setPeriodOfValidity(const QString &period);
+    Q_INVOKABLE void setChannelNum(int num);
+    Q_INVOKABLE int &channelNum();
+
 
     Q_INVOKABLE QString &extNum();
     Q_INVOKABLE QString &loopNum();
@@ -94,6 +97,8 @@ public:
     Q_INVOKABLE QString &periodOfValidity();
     Q_INVOKABLE QString &deviceOperator();
     Q_INVOKABLE QString &alarmType();
+    Q_INVOKABLE QString &analogType();
+
 
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *);
@@ -118,8 +123,9 @@ private:
     ItemIconInfoToJson m_itemIconInfoToJson;
     QGraphicsColorizeEffect *m_colorEffect;
     int m_iconIndex;
-    QHash<QString,QVariant>m_analogValueHash;
-
+    QHash<QString,QVariant>m_analogValueHash;//模拟量
+    int m_channelNum;//通道号
+    QString m_analogType;
 };
 
 #endif // GRAPHICSITEM_H

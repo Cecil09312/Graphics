@@ -52,7 +52,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
     m_infoTableView->tableModel()->setDbOpen(true);
     QStringList alarmInfoList,valueList;
     alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"网络号"<<"设备编码"
-                  << "设备"<<"报警类型"<<"报警状态"<<"报警时间"<<"报警恢复时间"<<"系统"<< "建筑名称"<<"楼层"<<"位置"<< "制造商" << "有效期" <<"操作员";
+                  << "设备" <<"报警类型"<<"报警状态"<<"报警时间"<<"报警恢复时间"<<"系统"<< "建筑名称"<<"楼层"<<"位置"<< "制造商" << "有效期" <<"操作员";
 
     for(int i=0;i<alarmInfoList.size();i++)
     {
@@ -171,6 +171,14 @@ CrtWidget::CrtWidget(QWidget *parent) :
         num++;
 
         Controller::instance()->getIndicatorObj()->writeData(m_indicatorProtocol->dataPackage(arrayList));
+    });
+
+    connect(m_architePlanView,&ArchitePlanView::alarmStateUpdate,this,[=]
+            (const QString &extNum, const QString &loopNum,
+            const QString &addressNum, const QString &networkNum,const QString &curAlarmState)
+    {
+        m_sqliteManager->executeQuery(QString("update AlarmInfo set 报警状态 ='%1' where 分机号= '%2' and 回路号= '%3' and 地址号= '%4' and 网络号= '%5'").arg(curAlarmState).arg(extNum).arg(loopNum).arg(addressNum).arg(networkNum));
+        alarmDataOnTable();
     });
 
     Q_ASSERT(m_alarmObj);
@@ -802,7 +810,7 @@ void CrtWidget::sendFireInfo(quint8 extNum, quint8 loopNum, quint8 addrNum,const
 
 void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
 {
-    QHash<quint8,QString>alarmTypeHash,eliminateAlarmHash,commuStatusHash;
+    QHash<quint8,QString>alarmTypeHash,commuStatusHash,faultStateHash;
     alarmTypeHash[0x01] = tr("火警");
     alarmTypeHash[0x03] = tr("故障");
     alarmTypeHash[0x05] = tr("联动");
@@ -811,17 +819,21 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
     alarmTypeHash[0x0d] = tr("反馈");
     commuStatusHash[0x12] = tr("主电");
     commuStatusHash[0x13] = tr("备电");
-    commuStatusHash[0x23] = tr("消音");
-    commuStatusHash[0x20] = tr("复位");
     commuStatusHash[0x31] = tr("手自动设置");
     commuStatusHash[0x32] = tr("手自动确认");
-    eliminateAlarmHash[0x02] = tr("反馈消除");
-    eliminateAlarmHash[0x04] = tr("故障恢复");
-    eliminateAlarmHash[0x06] = tr("停止");
-    eliminateAlarmHash[0x0c] = tr("屏蔽解除");
+    faultStateHash[0x01] = tr("过压");
+    faultStateHash[0x03] = tr("欠压");
+    faultStateHash[0x05] = tr("缺相");
+    faultStateHash[0x07] = tr("错相");
+
+    faultStateHash[0x09] = tr("过流");
+    faultStateHash[11] = tr("霍尔故障");
+    faultStateHash[13] = tr("断电");
+    faultStateHash[15] = tr("模块故障");
+    faultStateHash[17] = tr("回路故障");
+
     QString networkNum="0";
     QString timeStr;
-    QString extNum;
     QList<QByteArray>dataArrayList=  m_serialDataProtocol->frameData(arrayValue);
     foreach (QByteArray array, dataArrayList)
     {
@@ -837,12 +849,21 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
         quint8 minute= minuteValue&0x7f;
         quint8 second= m_serialDataProtocol->dataByte(array,9);
 
+        QString extNum = QString("%1").arg((type>>2)&0x3f);
+        GraphicsItem*item =m_architePlanView->itemFormInfo(extNum,QString::number(loopNum),QString::number(addrNum),networkNum);
         //报警主机
         if((minuteValue&0x80)==0)
         {
-            timeStr= QString("%1/%2/%3 %4:%5:%6").arg((int)year+2000).arg((ushort)month,2,10,QChar('0'))
-                    .arg((ushort)date,2,10,QChar('0')).arg((ushort)hour,2,10,QChar('0')).arg((ushort)minute,2,10,QChar('0'))
-                    .arg((ushort)second,2,10,QChar('0'));
+            if(second<=60)
+            {
+                timeStr= QString("%1/%2/%3 %4:%5:%6").arg((int)year+2000).arg((ushort)month,2,10,QChar('0'))
+                        .arg((ushort)date,2,10,QChar('0')).arg((ushort)hour,2,10,QChar('0')).arg((ushort)minute,2,10,QChar('0'))
+                        .arg((ushort)second,2,10,QChar('0'));
+            }
+            else
+            {
+                timeStr = QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss");
+            }
         }
         else
         {
@@ -851,106 +872,165 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
         }
 
 
-
-        if(commuStatusHash.keys().contains(eventNum))
+        switch (eventNum)
         {
-            if(commuStatusHash[eventNum]==tr("主电")||commuStatusHash[eventNum]==tr("备电"))
+        case 0x01:
+        case 0x03:
+        case 0x05:
+        case 0x0b:
+        case 0x0d:
+        {
+            m_architePlanView->createAlarm(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,alarmTypeHash[eventNum],false,timeStr);
+            QString currentState;
+            if(eventNum==0x03)
             {
-                if(loopNum==0)
+                switch ((type&0x03))
                 {
-                    communicationStatus(commuStatusHash[eventNum],true);
-                }
-                else if(loopNum==1)
-                {
-                    communicationStatus(commuStatusHash[eventNum],false);
-                }
-            }
-            else if(commuStatusHash[eventNum]==tr("复位"))
-            {
-                if(type==0x00)
-                {
-                    Controller::instance()->getOperatorInfo()->insertEvent(tr("本机复位"));
-                }
-                else if(type==0x11)
-                {
-                    Controller::instance()->getOperatorInfo()->insertEvent(tr("网络复位"));
-                }
-            }
-            else if(commuStatusHash[eventNum]==tr("消音"))
-            {
-                Controller::instance()->getSpeechObj()->stopSpeech();
-                Controller::instance()->getOperatorInfo()->insertEvent(tr("消音"));
-            }
-            else
-            {
-                switch (type) {
-                case 0:
-                    Controller::instance()->getOperatorInfo()->insertEvent(commuStatusHash[eventNum],tr("默认"));
-                    break;
                 case 1:
-                    Controller::instance()->getOperatorInfo()->insertEvent(commuStatusHash[eventNum],tr("手动"));
+                    currentState = tr("常开门故障");
                     break;
                 case 2:
-                    Controller::instance()->getOperatorInfo()->insertEvent(commuStatusHash[eventNum],tr("自动"));
+                    currentState = tr("常闭门打开");
                     break;
                 default:
+                    currentState = tr("故障");
                     break;
                 }
+                m_architePlanView->updteAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,currentState);
+            }
+            else if(eventNum==0x0d)
+            {
+                if((type&0x03)==0x01)
+                {
+                    m_architePlanView->updteAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,tr("常开门关闭"));
+                }
+
+            }
+            else if(eventNum==0x01)
+            {
+                QString dateTimeStr= QString("%1%2%3%4%5%6").arg((int)year+2000).arg((ushort)month,2,10,QChar('0'))
+                        .arg((ushort)date,2,10,QChar('0')).arg((ushort)hour,2,10,QChar('0')).arg((ushort)minute,2,10,QChar('0'))
+                        .arg((ushort)second,2,10,QChar('0'));
+                sendFireInfo(extNum.toShort(),loopNum,addrNum,dateTimeStr);
+            }
+
+
+            if(second==0xa0)
+            {
+                if(faultStateHash.keys().contains(month))
+                {
+                    if(year==0xa0)
+                    {
+                        m_architePlanView->updteAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,tr("A0模块")+ faultStateHash[month]);
+                    }
+                    else if(year==0xa1)
+                    {
+                        m_architePlanView->updteAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,tr("A1通道")+ faultStateHash[month]);
+                    }
+                    else if(year==0xa2)
+                    {
+                        m_architePlanView->updteAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,tr("A2通道")+ faultStateHash[month]);
+                    }
+                    else if(year==0xa3)
+                    {
+                        m_architePlanView->updteAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,tr("A3通道")+ faultStateHash[month]);
+                    }
+
+                }
+
             }
         }
-
-        if(alarmTypeHash.keys().contains(eventNum))
+            break;
+        case 0x0a:
         {
-
-            if(alarmTypeHash[eventNum]==tr("监管"))
+            switch((type&0x03))
             {
-                if((type&0x03)==0)
+            case 0:
+                m_architePlanView->createAlarm(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,alarmTypeHash[eventNum],false,timeStr);
+                break;
+            case 1:
+                if(item!=nullptr)
                 {
-                    extNum = QString("%1").arg(type>>2&0x3f);
+                    item->setAnlogValue(tr("漏电"),year*256+second);
                 }
-                else if((type&0x03)==1)//漏电
+                break;
+            case 2:
+                if(item!=nullptr)
                 {
-
-
+                    item->setAnlogValue(tr("温度"),year*256+second);
                 }
-                else if((type&0x03)==2)//温度
-                {
+                break;
+            default:
+                break;
 
-                }
             }
-            else if(alarmTypeHash[eventNum]==tr("屏蔽")||alarmTypeHash[eventNum]==tr("反馈"))
-            {
-                extNum = QString::number(type);
-            }
-            else
-            {
-                extNum = QString("%1").arg((type>>2)&0x3f);
-                if(alarmTypeHash[eventNum]==tr("火警"))
-                {
-                    QString dateTimeStr= QString("%1%2%3%4%5%6").arg((int)year+2000).arg((ushort)month,2,10,QChar('0'))
-                           .arg((ushort)date,2,10,QChar('0')).arg((ushort)hour,2,10,QChar('0')).arg((ushort)minute,2,10,QChar('0'))
-                           .arg((ushort)second,2,10,QChar('0'));
-                    sendFireInfo(extNum.toShort(),loopNum,addrNum,dateTimeStr);
-                }
-            }
-
-            m_architePlanView->createAlarm(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,alarmTypeHash[eventNum],false,timeStr);
         }
-
-        if(eliminateAlarmHash.keys().contains(eventNum))
+            break;
+        case 0x02:
+        case 0x04:
+        case 0x06:
+        case 0x0c:
         {
-            if(eliminateAlarmHash[eventNum]==tr("屏蔽解除"))
-            {
-                extNum = QString::number(type);
-            }
-            else
-            {
-                extNum = QString("%1").arg((type>>2)&0x3f);
-            }
             m_architePlanView->eliminateAlarm(extNum,QString::number(loopNum),QString::number(addrNum),networkNum);
         }
+            break;
+        case 0x12:
+        case 0x13:
+        {
+            if(loopNum==0)
+            {
+                communicationStatus(commuStatusHash[eventNum],true);
+            }
+            else if(loopNum==1)
+            {
+                communicationStatus(commuStatusHash[eventNum],false);
+            }
+        }
+            break;
+        case 0x20:
+        {
+            if((loopNum|addrNum)==0x00)
+            {
+                Controller::instance()->getOperatorInfo()->insertEvent(tr("本机复位"));
+            }
+            else if((loopNum&addrNum)==0x01)
+            {
+                Controller::instance()->getOperatorInfo()->insertEvent(tr("网络复位"));
+            }
+        }
+            break;
+        case 0x23:
+        {
+            Controller::instance()->getSpeechObj()->stopSpeech();
+            Controller::instance()->getOperatorInfo()->insertEvent(tr("消音"));
+        }
+            break;
+        case 0x31:
+        case 0x32:
+        {
+            switch (type)
+            {
+            case 0:
+                Controller::instance()->getOperatorInfo()->insertEvent(commuStatusHash[eventNum],tr("默认"));
+                break;
+            case 1:
+                Controller::instance()->getOperatorInfo()->insertEvent(commuStatusHash[eventNum],tr("手动"));
+                break;
+            case 2:
+                Controller::instance()->getOperatorInfo()->insertEvent(commuStatusHash[eventNum],tr("自动"));
+                break;
+            default:
+                break;
+            }
+        }
+            break;
+        case 0x35:
 
-        if(eventNum==0xaa)
+            break;
+        case 0xdd://重传应答
+
+            break;
+        case 0xaa:
         {
             bool isSuccess = setSysTime(QDateTime::fromString(timeStr,"yyyy/MM/dd hh:mm:ss"));
             if(isSuccess)
@@ -961,33 +1041,93 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
             {
                 Controller::instance()->getOperatorInfo()->insertEvent(tr("校时"),tr("失败"));
             }
-
         }
-        else if(eventNum==0xbb)
+            break;
+        case 0xbb://模拟量
         {
-            GraphicsItem*item =m_architePlanView->itemFormInfo(extNum,QString::number(loopNum),QString::number(addrNum),networkNum);
+
             switch (type)
             {
             case 1:
                 if(item!=nullptr)
                 {
-                  item->setAnlogValue(tr("剩余电流"),year*256+date);
+                    item->setAnlogValue(tr("剩余电流"),year*256+date);
                 }
                 break;
             case 2:
 
                 if(item!=nullptr)
                 {
-                  item->setAnlogValue(tr("温度"),year*256+date);
+                    item->setAnlogValue(tr("温度"),year*256+date);
                 }
                 break;
             default:
                 break;
             }
-
-
+            if(second==0xa0)
+            {
+                QString name =QString("%1通道").arg((year>>5)&0x07);
+                switch(hour)
+                {
+                case 1:
+                    name+=tr("A项");
+                    break;
+                case 2:
+                    name+=tr("B项");
+                    break;
+                case 3:
+                    name+=tr("C项");
+                    break;
+                default:
+                    break;
+                }
+                switch(type&0x03)
+                {
+               case 0://交流电流
+                {
+                    name += tr("交流电流");
+                    if(item!=nullptr)
+                    {
+                        item->setAnlogValue(name,date*256+month);
+                    }
+                }
+                    break;
+                case 1://直流电流
+                {
+                    name += tr("直流电流");
+                    if(item!=nullptr)
+                    {
+                        item->setAnlogValue(name,(date*256+month)*10);
+                    }
+                }
+                    break;
+                case 2://交流电压
+                {
+                    name += tr("交流电压");
+                    if(item!=nullptr)
+                    {
+                        item->setAnlogValue(name,date*256+month);
+                    }
+                }
+                    break;
+                case 3://直流电压
+                {
+                    name += tr("直流电压");
+                    if(item!=nullptr)
+                    {
+                        item->setAnlogValue(name,(date*256+month)*0.1);
+                    }
+                }
+                    break;
+                default:
+                    break;
+                }
+            }
         }
-
+            break;
+        default:
+            break;
+        }
     }
 }
 

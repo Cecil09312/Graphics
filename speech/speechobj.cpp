@@ -8,9 +8,9 @@ SpeechObj::SpeechObj(QObject *parent):
     m_currentAlarmPos(0)
 {
     m_alarmPos =0;
-     m_thread = new QThread;
-      this->moveToThread(m_thread);
-     m_thread->start();
+    m_thread = new QThread;
+    this->moveToThread(m_thread);
+    m_thread->start();
     // m_voiceVec = availableVoices();
     connect(this,&SpeechObj::stateChanged,this,[=](QTextToSpeech::State state)
     {

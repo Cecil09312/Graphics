@@ -53,18 +53,21 @@ public:
     void saveOtherArchiteInfo();
     GraphicsItem *itemFormInfo(const QString &extNum, const QString &loopNum,
                                const QString &addressNum, const QString &networkNum);
+    void updteAlarmState(const QString &extNum, const QString &loopNum,
+                         const QString &addressNum, const QString &networkNum,const QString &curAlarmState);
     Q_INVOKABLE QString architeInfoDbName();
     Q_INVOKABLE void setGlobalArchitePixmap(const QString &pixmapName);
     Q_INVOKABLE void clearAlarm(bool alarmColorRedu=false);
     Q_INVOKABLE void createAlarm(const QString &extNum, const QString &loopNum,
                                  const QString &addressNum, const QString &networkNum, const QString &alarmTypeName,
                                  bool isAnalog=false, const QString &alarmTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
-            Q_INVOKABLE void eliminateAlarm(const QString &extNum, const QString &loopNum,
-                        const QString &addrNum, const QString &networkNum);//消除报警
+    Q_INVOKABLE void eliminateAlarm(const QString &extNum, const QString &loopNum,
+                                    const QString &addrNum, const QString &networkNum);//消除报警
     Q_INVOKABLE void toAlarmView();
     Q_INVOKABLE void setCurrentAlarmType(const QString &type);
     Q_INVOKABLE void toArchitePlan(const QString &extNum, const QString &loopNum,
                                    const QString &addressNum,const QString &networkNum);
+
 signals:
     void alarmHappend(const QString &alarmType);
     void toLastPage();
@@ -77,6 +80,8 @@ signals:
     void editGlobalItem();
     void reduInstruction(bool alarmColorRedu);
     void tabIndex(int index);
+    void alarmStateUpdate(const QString &extNum, const QString &loopNum,
+                          const QString &addressNum, const QString &networkNum,const QString &curAlarmState);
 
 public slots:
     void firstFireAlarm();
