@@ -49,7 +49,9 @@ public slots:
     void serialDataProcessing(const QByteArray&arrayValue);
     void tcpDataProcessing(const QByteArray&arrayValue);
     void openHelpFile();
+    void sendAnalogCommand(quint8 networkNum, quint8 extNum, quint8 loopNum, quint8 addrNum, quint8 channelNum, const QString &analogType);
 private:
+    void closeSys();
     void initWidget();
     void alarmDataOnTable();
     bool setSysTime(const QDateTime &dateTime);

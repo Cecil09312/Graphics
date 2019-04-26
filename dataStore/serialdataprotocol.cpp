@@ -80,6 +80,7 @@ QList<QByteArray> SerialDataProtocol::frameData(const QByteArray &array)
                             while(dataArray.size()>=10)
                             {
                                 arrayList.push_back(dataArray.left(10));
+                                m_dataHash[dataArray.left(10)]=dataByte(frameArray,1);
                                 dataArray.remove(0,10);
                             }
 
@@ -104,5 +105,18 @@ QList<QByteArray> SerialDataProtocol::frameData(const QByteArray &array)
     future.waitForFinished();
 
     return arrayList;
+}
+
+int SerialDataProtocol::dataPackageNum(const QByteArray &dataArray)
+{
+    if(m_dataHash.contains(dataArray))
+    {
+        return m_dataHash[dataArray];
+    }
+    else
+    {
+        return 0;
+    }
+
 }
 

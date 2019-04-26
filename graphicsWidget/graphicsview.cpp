@@ -17,7 +17,7 @@ GraphicsView::GraphicsView(QWidget *parent, int type):
     setDragMode(QGraphicsView::ScrollHandDrag);
     setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers),this));
     setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-    m_alarmStringList << "火警"<<"联动" << "监管" << "故障"<<"反馈" <<"屏蔽";
+    m_alarmStringList << "火警"<<"启动" << "监管" << "故障"<<"反馈" <<"屏蔽";
     if(m_viewType==ArthitePlan)
     {
         setContextMenuPolicy(Qt::CustomContextMenu);

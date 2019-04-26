@@ -28,7 +28,7 @@ Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
         spacing: 50
         GroupBox {
-            title: qsTr("设备通信")
+            title: qsTr("主机通信")
             GridLayout {
 
                 anchors.fill: parent

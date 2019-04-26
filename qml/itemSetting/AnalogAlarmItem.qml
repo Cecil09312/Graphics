@@ -68,7 +68,7 @@ Item {
             Layout.fillWidth: true
             Layout.row: 4
             Layout.column: 1
-            model: ["火警", "联动", "故障", "监管", "反馈", "屏蔽"]
+            model: ["火警", "启动", "故障", "监管", "反馈", "屏蔽"]
         }
 
         Button {

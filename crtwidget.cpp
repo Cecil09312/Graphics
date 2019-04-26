@@ -14,13 +14,14 @@
 #include "database/sqlitemanager.h"
 #include "database/sqlmanager.h"
 #include <QProcess>
-#include<time.h>
+#include <time.h>
 #ifdef Q_OS_WIN
 #include <windows.h>
-
-#elif Q_OS_LINUX
+#endif
+#ifdef Q_OS_LINUX
 #define _SVID_SOURCE
 #endif
+
 
 CrtWidget::CrtWidget(QWidget *parent) :
     QOpenGLWidget(parent),
@@ -42,6 +43,10 @@ CrtWidget::CrtWidget(QWidget *parent) :
         {
             m_sqliteManager->executeQuery("create table AlarmInfo(分机号 text, 回路号 text,地址号 text,网络号 text,设备编码 text ,设备 text,报警类型 text,报警状态 text,报警时间 text,报警恢复时间 text,系统 text,建筑名称 text,楼层 text,位置 text,制造商 text,有效期 text,操作员 text)");
         }
+        if(!tableNameList.contains("AnalogInfo"))
+        {
+            m_sqliteManager->executeQuery("create table AnalogInfo(分机号 text, 回路号 text,地址号 text,网络号 text,当前通道 int, 模拟量类型 text ,结果 text)");
+        }
     }
 
 
@@ -51,8 +56,8 @@ CrtWidget::CrtWidget(QWidget *parent) :
     m_infoTableView->tableModel()->setDbPort(888);
     m_infoTableView->tableModel()->setDbOpen(true);
     QStringList alarmInfoList,valueList;
-    alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"网络号"<<"设备编码"
-                  << "设备" <<"报警类型"<<"报警状态"<<"报警时间"<<"报警恢复时间"<<"系统"<< "建筑名称"<<"楼层"<<"位置"<< "制造商" << "有效期" <<"操作员";
+    alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"网络号"<<"设备编码" << "设备" <<"报警类型"<<"报警状态"<<"报警时间"
+                  <<"报警恢复时间"<<"系统"<< "建筑名称"<<"楼层"<<"位置"<< "制造商" << "有效期" <<"操作员";
 
     for(int i=0;i<alarmInfoList.size();i++)
     {
@@ -128,11 +133,15 @@ CrtWidget::CrtWidget(QWidget *parent) :
         QList<QByteArray> arrayList;
         if(isOk)
         {
+            QMetaObject::invokeMethod(m_alarmObj,"startTransformAnimation",Q_ARG(QVariant,false));
+            QMetaObject::invokeMethod(m_alarmObj,"setTransformColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
             arrayList.push_back(QString::number(0x04).toLocal8Bit());
             arrayList.push_back(QString::number(0x00).toLocal8Bit());
         }
         else
         {
+            QMetaObject::invokeMethod(m_alarmObj,"startTransformAnimation",Q_ARG(QVariant,false));
+            QMetaObject::invokeMethod(m_alarmObj,"setTransformColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
             arrayList.push_back(QString::number(0x04).toLocal8Bit());
             arrayList.push_back(QString::number(0x01).toLocal8Bit());
         }
@@ -146,7 +155,10 @@ CrtWidget::CrtWidget(QWidget *parent) :
         QList<QByteArray> arrayList;
         arrayList.push_back(QString::number(0x03).toLocal8Bit());
         arrayList.push_back(QString::number(0x00).toLocal8Bit());
+        Controller::instance()->getSpeechObj()->insertAlarmText(tr("传输故障"));
         Controller::instance()->getIndicatorObj()->writeData(m_indicatorProtocol->dataPackage(arrayList));
+        QMetaObject::invokeMethod(m_alarmObj,"startTransformAnimation",Q_ARG(QVariant,false));
+        QMetaObject::invokeMethod(m_alarmObj,"setTransformColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
     });
 
 
@@ -158,8 +170,9 @@ CrtWidget::CrtWidget(QWidget *parent) :
         {
             num = 0;
         }
-        if(num>0 && num%10==0)
+        if(num>0 && num%20==0)
         {
+            QMetaObject::invokeMethod(m_alarmObj,"startTransformAnimation",Q_ARG(QVariant,true));
             arrayList.push_back(QString::number(0x02).toLocal8Bit());
             arrayList.push_back(QString::number(0x00).toLocal8Bit());
         }
@@ -234,18 +247,18 @@ CrtWidget::CrtWidget(QWidget *parent) :
     {
         if(connected)
         {
-            QMetaObject::invokeMethod(m_alarmObj,"setEquiComColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));//设备通信
-            if(Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("设备通信故障")))
+            QMetaObject::invokeMethod(m_alarmObj,"setEquiComColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));//主机通信
+            if(Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("主机通信故障")))
             {
-                Controller::instance()->getSpeechObj()->removeAlarmText(tr("设备通信故障"));
+                Controller::instance()->getSpeechObj()->removeAlarmText(tr("主机通信故障"));
             }
         }
         else
         {
             QMetaObject::invokeMethod(m_alarmObj,"setEquiComColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
-            if(!Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("设备通信故障")))
+            if(!Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("主机通信故障")))
             {
-                Controller::instance()->getSpeechObj()->insertAlarmText(tr("设备通信故障"));
+                Controller::instance()->getSpeechObj()->insertAlarmText(tr("主机通信故障"));
             }
         }
     });
@@ -270,12 +283,12 @@ CrtWidget::CrtWidget(QWidget *parent) :
         }
 
     });
+
 }
 
 CrtWidget::~CrtWidget()
 {
-    Controller::instance()->getTransportInfo()->saveTransportInfoToJson();
-    Controller::instance()->getOperatorInfo()->insertEvent(tr("系统关机"));
+
     m_sqliteManager->close();
     m_sqliteManager->deleteLater();
     m_infoQueryView->close();
@@ -288,6 +301,8 @@ CrtWidget::~CrtWidget()
     delete m_monitoringProtocol;
     delete m_indicatorProtocol;
     m_ftpManager->deleteLater();
+    // closeSys();
+
 }
 
 QString CrtWidget::alarmInfoDbName()
@@ -308,9 +323,12 @@ void CrtWidget::closeEvent(QCloseEvent *event)
 
     Controller::instance()->getSerialConfigurationManager()->saveConfiguration();
     Controller::instance()->getTcpConfigurationManager()->saveConfiguration();
-
+    Controller::instance()->getTransportInfo()->saveTransportInfoToJson();
+    Controller::instance()->getOperatorInfo()->insertEvent(tr("系统关机"));
+    m_architePlanView->saveInfo();
     m_loginQuickView->close();
     m_settingView->close();
+
     event->accept();
 }
 
@@ -319,17 +337,6 @@ void CrtWidget::widgetExit()
 {
     if(!m_architePlanView->havingAlarms())
     {
-        /*
-        QProcess process;
-#ifdef Q_OS_WIN
-
-            process.start("shutdown -s -t 0");
-#elif Q_OS_LINUX
-     process.start("poweroff");
-#endif
-        process.waitForStarted();
-        process.waitForFinished();
-*/
         close();
     }
     else
@@ -446,7 +453,7 @@ void CrtWidget::alarmStatistics(const QString &type)
 
         QMetaObject::invokeMethod(m_alarmObj,"setFireAlarmText",Q_ARG(QVariant,typeNum));
     }
-    else if(type==tr("联动"))
+    else if(type==tr("启动"))
     {
         if(typeNum>0)
         {
@@ -512,13 +519,13 @@ void CrtWidget::alarmStatistics(const QString &type)
 void CrtWidget::communicationStatus(const QString &status, bool isOK)
 {
     Q_ASSERT(m_alarmObj);
-    if(status==tr("主电"))
+    if(status.endsWith(tr("主电")))
     {
         if(isOK)
         {
-            if(Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("主电故障")))
+            if(Controller::instance()->getSpeechObj()->alarmTextList().contains(status+tr("故障")))
             {
-                Controller::instance()->getSpeechObj()->removeAlarmText(tr("主电故障"));
+                Controller::instance()->getSpeechObj()->removeAlarmText(status+tr("故障"));
             }
 
             QMetaObject::invokeMethod(m_alarmObj,"setMainConnunicationColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
@@ -526,21 +533,21 @@ void CrtWidget::communicationStatus(const QString &status, bool isOK)
         else
         {
             QMetaObject::invokeMethod(m_alarmObj,"setMainConnunicationColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));//主电故障
-            if(!Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("主电故障")))
+            if(!Controller::instance()->getSpeechObj()->alarmTextList().contains(status+tr("故障")))
             {
-                Controller::instance()->getSpeechObj()->insertAlarmText(tr("主电故障"));
+                Controller::instance()->getSpeechObj()->insertAlarmText(status+tr("故障"));
             }
 
         }
 
     }
-    else if(status==tr("备电"))
+    else if(status.endsWith(tr("备电")))
     {
         if(isOK)
         {
-            if(Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("备电故障")))
+            if(Controller::instance()->getSpeechObj()->alarmTextList().contains(status+tr("故障")))
             {
-                Controller::instance()->getSpeechObj()->removeAlarmText(tr("备电故障"));
+                Controller::instance()->getSpeechObj()->removeAlarmText(status+tr("故障"));
             }
 
             QMetaObject::invokeMethod(m_alarmObj,"setStandbyPowerColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
@@ -548,9 +555,9 @@ void CrtWidget::communicationStatus(const QString &status, bool isOK)
         else
         {
             QMetaObject::invokeMethod(m_alarmObj,"setStandbyPowerColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));//备电故障
-            if(!Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("备电故障")))
+            if(!Controller::instance()->getSpeechObj()->alarmTextList().contains(status+tr("故障")))
             {
-                Controller::instance()->getSpeechObj()->insertAlarmText(tr("备电故障"));
+                Controller::instance()->getSpeechObj()->insertAlarmText(status+tr("故障"));
             }
         }
     }
@@ -712,12 +719,15 @@ void CrtWidget::initWidget()
     m_loginQuickView->setSource(QUrl("qrc:/qml/logInWindow/LoginWindow.qml"));
     m_loginQuickView->setGeometry(500,50,m_loginQuickView->width(),m_loginQuickView->height());
     m_loginQuickView->rootContext()->setContextProperty("CrtWidget",this);
-
+    m_loginQuickView->setTitle(tr("用户登陆界面"));
     m_settingView = new QQuickView;
     m_settingView->setSource(QUrl("qrc:/qml/infoSetting/SettingWindow.qml"));
-
+    m_settingView->setGeometry(300,50,m_settingView->width(),m_settingView->height());
+    m_settingView->setTitle(tr("信息设置界面"));
     m_infoQueryView = new QQuickView;
     m_infoQueryView->setSource(QUrl("qrc:/qml/infoSetting/InfoQuery.qml"));
+    m_infoQueryView->setGeometry(300,50,m_infoQueryView->width(),m_infoQueryView->height());
+    m_infoQueryView->setTitle(tr("信息查询界面"));
     QHBoxLayout *globalHLayout = new QHBoxLayout;
     globalHLayout->addWidget(m_alarmContainer);
     QSplitter *splitter = new QSplitter(Qt::Vertical,this);
@@ -732,6 +742,8 @@ void CrtWidget::initWidget()
     globalVLayout->setContentsMargins(QMargins(0,0,0,0));
     setLayout(globalVLayout);
 
+
+
 }
 
 void CrtWidget::alarmDataOnTable()
@@ -741,7 +753,7 @@ void CrtWidget::alarmDataOnTable()
     alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"网络号"<<"设备编码"
                   << "设备"<<"报警类型"<<"报警状态"<<"报警时间"<<"系统"
                   << "建筑名称"<<"楼层"<<"位置";
-    if(m_architePlanView->currentAlarmType()=="全部")
+    if(m_architePlanView->currentAlarmType()==tr("全部"))
     {
         m_infoTableView->tableModel()->sqlCommit(QString("select %1 from AlarmInfo where 报警状态 != '正常'").arg(alarmInfoList.join(",")));
     }
@@ -775,7 +787,8 @@ bool CrtWidget::setSysTime(const QDateTime &dateTime)
     {
         isSuccess = true;
     }
-#elif Q_OS_LINUX
+#endif
+#ifdef Q_OS_LINUX
     QDateTime curDateTime = QDateTime::currentDateTime();
     curDateTime.setDate(dateTime.date());
     curDateTime.setTime(dateTime.time());
@@ -813,7 +826,7 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
     QHash<quint8,QString>alarmTypeHash,commuStatusHash,faultStateHash;
     alarmTypeHash[0x01] = tr("火警");
     alarmTypeHash[0x03] = tr("故障");
-    alarmTypeHash[0x05] = tr("联动");
+    alarmTypeHash[0x05] = tr("启动");
     alarmTypeHash[0x0a] = tr("监管");
     alarmTypeHash[0x0b] = tr("屏蔽");
     alarmTypeHash[0x0d] = tr("反馈");
@@ -833,6 +846,7 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
     faultStateHash[17] = tr("回路故障");
 
     QString networkNum="0";
+    int packageNum=0;
     QString timeStr;
     QList<QByteArray>dataArrayList=  m_serialDataProtocol->frameData(arrayValue);
     foreach (QByteArray array, dataArrayList)
@@ -851,6 +865,16 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
 
         QString extNum = QString("%1").arg((type>>2)&0x3f);
         GraphicsItem*item =m_architePlanView->itemFormInfo(extNum,QString::number(loopNum),QString::number(addrNum),networkNum);
+
+        if(packageNum!=m_serialDataProtocol->dataPackageNum(array))
+        {
+            packageNum = m_serialDataProtocol->dataPackageNum(array);
+            QList<QByteArray> sendDataArrayList;
+            sendDataArrayList.push_back(QString::number(packageNum).toLocal8Bit());
+            sendDataArrayList.push_back(QString::number(0x03).toLocal8Bit());
+            Controller::instance()->getCommObj()->writeData(m_serialDataProtocol->dataPackage(sendDataArrayList));
+        }
+
         //报警主机
         if((minuteValue&0x80)==0)
         {
@@ -896,13 +920,13 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
                     currentState = tr("故障");
                     break;
                 }
-                m_architePlanView->updteAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,currentState);
+                m_architePlanView->updateAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,currentState);
             }
             else if(eventNum==0x0d)
             {
                 if((type&0x03)==0x01)
                 {
-                    m_architePlanView->updteAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,tr("常开门关闭"));
+                    m_architePlanView->updateAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,tr("常开门关闭"));
                 }
 
             }
@@ -921,19 +945,19 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
                 {
                     if(year==0xa0)
                     {
-                        m_architePlanView->updteAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,tr("A0模块")+ faultStateHash[month]);
+                        m_architePlanView->updateAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,tr("A0模块")+ faultStateHash[month]);
                     }
                     else if(year==0xa1)
                     {
-                        m_architePlanView->updteAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,tr("A1通道")+ faultStateHash[month]);
+                        m_architePlanView->updateAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,tr("A1通道")+ faultStateHash[month]);
                     }
                     else if(year==0xa2)
                     {
-                        m_architePlanView->updteAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,tr("A2通道")+ faultStateHash[month]);
+                        m_architePlanView->updateAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,tr("A2通道")+ faultStateHash[month]);
                     }
                     else if(year==0xa3)
                     {
-                        m_architePlanView->updteAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,tr("A3通道")+ faultStateHash[month]);
+                        m_architePlanView->updateAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,tr("A3通道")+ faultStateHash[month]);
                     }
 
                 }
@@ -951,13 +975,17 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
             case 1:
                 if(item!=nullptr)
                 {
-                    item->setAnlogValue(tr("漏电"),year*256+second);
+                    item->analogType() = tr("电流(A)");
+                    item->setAnlogValue(0,year*256+second);
+                    m_sqliteManager->executeQuery(QString("insert into AnalogInfo values('%1','%2','%3','%4','%5','%6','%7')").arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->networkNum()).arg(0).arg(item->analogType()).arg(item->anlogValueHah().value(0).toString()));
                 }
                 break;
             case 2:
                 if(item!=nullptr)
                 {
-                    item->setAnlogValue(tr("温度"),year*256+second);
+                    item->analogType() = tr("温度(℃)");
+                    item->setAnlogValue(0,year*256+second);
+                    m_sqliteManager->executeQuery(QString("insert into AnalogInfo values('%1','%2','%3','%4','%5','%6','%7')").arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->networkNum()).arg(0).arg(item->analogType()).arg(item->anlogValueHah().value(0).toString()));
                 }
                 break;
             default:
@@ -1025,7 +1053,70 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
         }
             break;
         case 0x35:
+        {
+            GraphicsItem*currentItem  = m_architePlanView->itemFormInfo(QString::number(date),QString::number(loopNum),QString::number(addrNum),QString::number(month));
+            switch (loopNum) {
+            case 0x01:
+            {
+                if(currentItem!=nullptr)
+                {
+                    currentItem->currentState()= tr("火警");
+                    currentItem->alarmType()= tr("光纤火警");
+                    currentItem->deviceLocation() = QString::number(type*256+year)+tr("米");
+                    m_architePlanView->createAlarm(currentItem);
+                }
 
+
+            }
+
+                break;
+            case 0x02:
+            {
+                if(currentItem!=nullptr)
+                {
+                    currentItem->currentState()= tr("故障");
+                    currentItem->alarmType()= tr("光纤故障");
+                    currentItem->deviceLocation() = QString::number(type*256+year)+tr("米");
+                    m_architePlanView->createAlarm(currentItem);
+                }
+
+
+            }
+                break;
+            case 0x03:
+            {
+                m_architePlanView->eliminateAlarm(QString::number(date),QString::number(loopNum),QString::number(addrNum),QString::number(month));
+
+            }
+                break;
+            case 0x04:
+            {
+                if(addrNum==0)
+                {
+                    communicationStatus(tr("光纤主电"),true);
+                }
+                else if(addrNum==1)
+                {
+                    communicationStatus(tr("光纤主电"),false);
+                }
+            }
+                break;
+            case 0x05:
+            {
+                if(addrNum==0)
+                {
+                    communicationStatus(tr("光纤备电"),true);
+                }
+                else if(addrNum==1)
+                {
+                    communicationStatus(tr("光纤备电"),false);
+                }
+            }
+                break;
+            default:
+                break;
+            }
+        }
             break;
         case 0xdd://重传应答
 
@@ -1046,27 +1137,11 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
         case 0xbb://模拟量
         {
 
-            switch (type)
-            {
-            case 1:
-                if(item!=nullptr)
-                {
-                    item->setAnlogValue(tr("剩余电流"),year*256+date);
-                }
-                break;
-            case 2:
-
-                if(item!=nullptr)
-                {
-                    item->setAnlogValue(tr("温度"),year*256+date);
-                }
-                break;
-            default:
-                break;
-            }
+            int curChannel=0;
             if(second==0xa0)
             {
-                QString name =QString("%1通道").arg((year>>5)&0x07);
+                curChannel = (year>>5)&0x07;
+                QString name =QString("%1通道").arg(curChannel);
                 switch(hour)
                 {
                 case 1:
@@ -1083,45 +1158,79 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
                 }
                 switch(type&0x03)
                 {
-               case 0://交流电流
+                case 0://交流电流
                 {
-                    name += tr("交流电流");
                     if(item!=nullptr)
                     {
-                        item->setAnlogValue(name,date*256+month);
+                        item->analogType() = tr("交流电流(mA)");
+                        item->setAnlogValue(curChannel,date*256+month);
                     }
                 }
                     break;
                 case 1://直流电流
                 {
-                    name += tr("直流电流");
+                    // name += ;
                     if(item!=nullptr)
                     {
-                        item->setAnlogValue(name,(date*256+month)*10);
+                        item->analogType() = tr("直流电流(mA)");
+                        item->setAnlogValue(curChannel,(date*256+month)*10);
                     }
                 }
                     break;
                 case 2://交流电压
                 {
-                    name += tr("交流电压");
+                    // name += tr("交流电压(V)");
                     if(item!=nullptr)
                     {
-                        item->setAnlogValue(name,date*256+month);
+                        item->analogType() = tr("交流电压(V)");
+                        item->setAnlogValue(curChannel,date*256+month);
                     }
                 }
                     break;
                 case 3://直流电压
                 {
-                    name += tr("直流电压");
+                    //name += tr("直流电压(V)");
                     if(item!=nullptr)
                     {
-                        item->setAnlogValue(name,(date*256+month)*0.1);
+                        item->analogType() = tr("直流电压(V)");
+                        item->setAnlogValue(curChannel,(date*256+month)*0.1);
                     }
                 }
                     break;
                 default:
                     break;
                 }
+
+
+            }
+            else
+            {
+                switch (type)
+                {
+                case 1:
+                    if(item!=nullptr)
+                    {
+                        item->analogType() = tr("剩余电流(mA)");
+                        item->setAnlogValue(0,year*256+date);
+                    }
+                    break;
+                case 2:
+
+                    if(item!=nullptr)
+                    {
+                        item->analogType() = tr("温度(℃)");
+                        item->setAnlogValue(0,year*256+date);
+                    }
+                    break;
+                default:
+                    break;
+                }
+
+            }
+
+            if(item!=nullptr)
+            {
+                m_sqliteManager->executeQuery(QString("insert into AnalogInfo values('%1','%2','%3','%4','%5','%6','%7')").arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->networkNum()).arg(curChannel).arg(item->analogType()).arg(item->anlogValueHah().value(curChannel).toString()));
             }
         }
             break;
@@ -1183,5 +1292,51 @@ void CrtWidget::openHelpFile()
     {
         QDesktopServices::openUrl(url);
     }
+}
+
+void CrtWidget::sendAnalogCommand(quint8 networkNum,quint8 extNum,quint8 loopNum,quint8 addrNum,quint8 channelNum,const QString& analogType)
+{
+    QHash<int,QString>analogTypeHash;
+    analogTypeHash[0] = tr("无"), analogTypeHash[1] = tr("高度(m)");
+    analogTypeHash[2] = tr("温度(℃)"),analogTypeHash[3] = tr("压力(Mpa)");
+    analogTypeHash[4] = tr("压力(Kpa)"),analogTypeHash[5] = tr("气体浓度(%LEL)");
+    analogTypeHash[6] = tr("气体浓度(PPM)"),analogTypeHash[7] = tr("气体浓度(%V/V)");
+    analogTypeHash[8] = tr("气体浓度(KPPM)"),analogTypeHash[9] = tr("气体浓度(Mg/m^3)");
+    analogTypeHash[10] = tr("时间(s)"),analogTypeHash[11] = tr("电压(V)");
+    analogTypeHash[12] = tr("电流(A)"),analogTypeHash[13] = tr("流量(L/s)");
+    analogTypeHash[14] = tr("风量(m^3/min)"), analogTypeHash[15] = tr("风速(m/s)");
+    analogTypeHash[16] = tr("剩余电流(mA)"),analogTypeHash[17]=tr("烟参量");
+    analogTypeHash[18] = tr("距离(m)"), analogTypeHash[24] = tr("交流电流(mA)");
+    analogTypeHash[25] = tr("直流电流(mA)"),analogTypeHash[26] = tr("交流电压(V)");
+    analogTypeHash[27] = tr("直流电压(V)");
+    static quint8 num =0;
+    num++;
+    num = num%256;
+    QList<QByteArray>dataArrayList;
+    dataArrayList.push_back(QString::number(num).toLocal8Bit());
+    dataArrayList.push_back(QString::number(0x08).toLocal8Bit());
+    dataArrayList.push_back(QString::number(0xbc).toLocal8Bit());
+    dataArrayList.push_back(QString::number(networkNum).toLocal8Bit());
+    dataArrayList.push_back(QString::number(extNum).toLocal8Bit());
+    dataArrayList.push_back(QString::number(loopNum).toLocal8Bit());
+    dataArrayList.push_back(QString::number(addrNum).toLocal8Bit());
+    quint8 curChannel= ((channelNum&0xe0)|(analogTypeHash.key(analogType)&0x1f));
+    dataArrayList.push_back(QString::number(curChannel).toLocal8Bit());
+    QByteArray array= m_serialDataProtocol->dataPackage(dataArrayList);
+    Controller::instance()->getCommObj()->sendData(array);
+}
+
+void CrtWidget::closeSys()
+{
+    QProcess process;
+#ifdef Q_OS_WIN
+
+    process.start("shutdown -s -t 0");
+#endif
+#ifdef Q_OS_LINUX
+    process.start("poweroff");
+#endif
+    process.waitForStarted();
+    process.waitForFinished();
 }
 

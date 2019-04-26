@@ -105,14 +105,9 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
 
 ArchitePlanView::~ArchitePlanView()
 {
-    m_treeView->saveTreeItem();
     m_autoSwitchTimer->stop();
-    saveArchiteInfo();
-    saveOtherArchiteInfo();
-
     m_sqliteManager->close();
     m_sqliteManager->deleteLater();
-
 }
 
 
@@ -256,7 +251,7 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
                     speechText = tr("首火警");
                 }
                 else
-                {   if(alarmTypeName==tr("联动"))
+                {   if(alarmTypeName==tr("启动"))
                     {
                         firstLinkAlarmView = view;
                     }
@@ -427,7 +422,7 @@ void ArchitePlanView::initWidget()
         itemInfoTableList<<"extNum text" << "addrNum text" << "loopNum text" << "networkNum text"<< "buildingName text" << "currentState text"
                         << "deviceLocation text" << "deviceNum text" << "equipmentModel text" << "floorOfDevice text"
                         << "iconName text"<<"manufacturers text"<<"periodOfValidity text"<<"pos text"<<"size double"
-                        << "sysOfDevice text"<<"operator text";
+                        << "sysOfDevice text"<<"operator text"<<"analogType text"<<"channelNum int";
         m_itemInfoTableSize = itemInfoTableList.size();
         QStringList globalArchiteList;
         globalArchiteList << "buildingName text"<<"personOnDuty text"<< "pos text"<<"size double"<<"iconName text";
@@ -643,7 +638,7 @@ void ArchitePlanView::toAlarmView()
     {
         if(view!=nullptr)
         {
-            if(view->haveAlarmType(tr("火警"))||view->haveAlarmType(tr("联动")))
+            if(view->haveAlarmType(tr("火警"))||view->haveAlarmType(tr("启动")))
             {
                 if(m_tabWidget->count()>=2)
                 {
@@ -693,7 +688,7 @@ void ArchitePlanView::saveArchiteInfoToDb()
         {
             QList<QVariant>valueList,extNumList,addrNumList,loopNumList,networkNumList,buildingNameList,
                     currentStateList,deviceLocationList,deviceNumList,equipmentModelList,floorOfDeviceList,
-                    iconNameList,manufacturersList,periodOfValidityList,posList,sizeList,sysOfDeviceList,operatorList;
+                    iconNameList,manufacturersList,periodOfValidityList,posList,sizeList,sysOfDeviceList,operatorList,analogTypeList,channelNumList;
             QList<QGraphicsItem *> itemList= view->getItemList();
             foreach (QGraphicsItem *item, itemList)
             {
@@ -717,6 +712,8 @@ void ArchitePlanView::saveArchiteInfoToDb()
                     sizeList.push_back(currentItem->radius());
                     sysOfDeviceList.push_back(currentItem->sysOfDevice());
                     operatorList.push_back(currentItem->deviceOperator());
+                    analogTypeList.push_back(currentItem->analogType());
+                    channelNumList.push_back(currentItem->channelNum());
                 }
             }
 
@@ -737,6 +734,8 @@ void ArchitePlanView::saveArchiteInfoToDb()
             valueList.push_back(sizeList);
             valueList.push_back(sysOfDeviceList);
             valueList.push_back(operatorList);
+            valueList.push_back(analogTypeList);
+            valueList.push_back(channelNumList);
             m_sqliteManager->insertBatch("ItemInfo",valueList);
 
         }
@@ -794,54 +793,77 @@ QHash<QString,QVariant> ArchitePlanView::saveViewInfo(QStandardItem *item)
 
 void ArchitePlanView::initFromJsonFile()
 {
-    m_jsonValueList=JsonEdit::instance()->readFile(c_jsonFilePath).toList();
-    for(int i=0;i<m_jsonValueList.size();i++)
+    if(m_globalGraphicsView==nullptr)
     {
-        QHash<QString,QVariant> parentHash=  m_jsonValueList.at(i).toHash();
-        if(!parentHash.isEmpty())
+        return;
+    }
+
+    GlobalGraphicsScene *globalScene=  m_globalGraphicsView->currentScene();
+    if(globalScene==nullptr)
+    {
+        return;
+    }
+    bool isHave = false;
+    foreach (QGraphicsItem*item, globalScene->items()) {
+        GlobalGraphicsItem*gItem = dynamic_cast<GlobalGraphicsItem*>(item);
+        if(gItem!=nullptr)
         {
-            QStandardItem *parentItem= m_treeView->addRootItem(parentHash["name"].toString());
-            QList<QGraphicsItem*>  globalItemList=     m_globalGraphicsView->currentScene()->items();
-            foreach (QGraphicsItem*curItem, globalItemList)
-            {
-                GlobalGraphicsItem *globalGraphicsItem = dynamic_cast<GlobalGraphicsItem *>(curItem);
-                if(globalGraphicsItem!=nullptr)
-                {
-                    if(globalGraphicsItem->buildName() ==parentItem->text())
-                    {
-                        m_globalToArchitePlanHash[globalGraphicsItem] = parentItem;
-                        break;
-                    }
-                }
-            }
-
-            //  QHash<QString,QVariant> parentPixmapHash = parentHash["image"].toHash();
-            // setViewFromJson(parentPixmapHash,parentItem);
-
-            QList<QVariant> childList =  parentHash["child"].toList();
-
-            for(int j=0;j<childList.size();j++)
-            {
-                QHash<QString,QVariant> childHash=  childList.at(j).toHash();
-                QModelIndex parentIndex= parentItem->index();
-
-                if(parentIndex.isValid())
-                {
-                    QStandardItem *childItem= m_treeView->addChildItem(parentIndex);
-                    if(childItem)
-                    {
-                        childItem->setText(childHash["name"].toString());
-                        QHash<QString,QVariant> childPixmapHash = childHash["image"].toHash();
-                        GraphicsView*view=  setViewFromJson(childPixmapHash,childItem);
-                        initFromDataBase(view,parentItem->text(),childItem->text());
-                    }
-                }
-
-            }
-
+            isHave= true;
+            break;
         }
     }
-    m_jsonValueList.clear();
+
+    if(isHave)
+    {
+        m_jsonValueList=JsonEdit::instance()->readFile(c_jsonFilePath).toList();
+        for(int i=0;i<m_jsonValueList.size();i++)
+        {
+            QHash<QString,QVariant> parentHash=  m_jsonValueList.at(i).toHash();
+            if(!parentHash.isEmpty())
+            {
+                QStandardItem *parentItem= m_treeView->addRootItem(parentHash["name"].toString());
+                QList<QGraphicsItem*>  globalItemList=     m_globalGraphicsView->currentScene()->items();
+                foreach (QGraphicsItem*curItem, globalItemList)
+                {
+                    GlobalGraphicsItem *globalGraphicsItem = dynamic_cast<GlobalGraphicsItem *>(curItem);
+                    if(globalGraphicsItem!=nullptr)
+                    {
+                        if(globalGraphicsItem->buildName() ==parentItem->text())
+                        {
+                            m_globalToArchitePlanHash[globalGraphicsItem] = parentItem;
+                            break;
+                        }
+                    }
+                }
+
+                //  QHash<QString,QVariant> parentPixmapHash = parentHash["image"].toHash();
+                // setViewFromJson(parentPixmapHash,parentItem);
+
+                QList<QVariant> childList =  parentHash["child"].toList();
+
+                for(int j=0;j<childList.size();j++)
+                {
+                    QHash<QString,QVariant> childHash=  childList.at(j).toHash();
+                    QModelIndex parentIndex= parentItem->index();
+
+                    if(parentIndex.isValid())
+                    {
+                        QStandardItem *childItem= m_treeView->addChildItem(parentIndex);
+                        if(childItem)
+                        {
+                            childItem->setText(childHash["name"].toString());
+                            QHash<QString,QVariant> childPixmapHash = childHash["image"].toHash();
+                            GraphicsView*view=  setViewFromJson(childPixmapHash,childItem);
+                            initFromDataBase(view,parentItem->text(),childItem->text());
+                        }
+                    }
+
+                }
+
+            }
+        }
+        m_jsonValueList.clear();
+    }
 }
 
 void ArchitePlanView::initFromDataBase(GraphicsView *view,const QString &buildingName,const QString &floor)
@@ -856,7 +878,7 @@ void ArchitePlanView::initFromDataBase(GraphicsView *view,const QString &buildin
             {
                 QGraphicsScene *scene = view->scene();
                 GraphicsScene *graphicsScene = dynamic_cast<GraphicsScene*>(scene);
-                if(valueList.size()>j+16)
+                if(valueList.size()>j+18)
                 {
                     GraphicsItem *item = new GraphicsItem(graphicsScene);
                     item->extNum() =valueList.at(j);
@@ -878,6 +900,9 @@ void ArchitePlanView::initFromDataBase(GraphicsView *view,const QString &buildin
                     item->setRadius(sizeStr.toDouble());
                     item->sysOfDevice() =valueList.at(j+15);
                     item->deviceOperator() = valueList.at(j+16);
+                    item->analogType() = valueList.at(j+17);
+                    QString channelNumStr = valueList.at(j+18);
+                    item->channelNum() = channelNumStr.toInt();
                     if(graphicsScene!=nullptr)
                     {
                         graphicsScene->addItem(item);
@@ -984,6 +1009,142 @@ void ArchitePlanView::saveOtherArchiteInfo()
     qmlForJson.writeFile(architePlanHash);
 }
 
+void ArchitePlanView::saveInfo()
+{
+    m_treeView->saveTreeItem();
+    saveArchiteInfo();
+    saveOtherArchiteInfo();
+}
+
+void ArchitePlanView::createAlarm(GraphicsItem *item, const QString &alarmTime)
+{
+    static GraphicsView * firstFireAlarmView = nullptr,*firstLinkAlarmView= nullptr;
+    QString speechText;
+    GraphicsView *view = nullptr;
+    foreach (QGraphicsView*curView, item->scene()->views() ) {
+        GraphicsView*graphicsView = dynamic_cast<GraphicsView*>(curView);
+        view =graphicsView;
+    }
+    if(item!=nullptr)
+    {
+        item->getItemInfo().m_alarmTime  = alarmTime;
+        QString alarmTypeName = item->currentState();
+        DataStore::insertTypeItem(alarmTypeName,item);
+        QList<QGraphicsItem *> graphicsItemList=   DataStore::getTypeItemList(item->currentState());
+
+        if(graphicsItemList.size()>0)
+        {
+            GraphicsItem*gItem =dynamic_cast<GraphicsItem*>(graphicsItemList.at(0));
+
+            if(alarmTypeName==tr("屏蔽"))
+            {
+                item->setColorEndValue(QColor("pink"));
+            }
+            else if(alarmTypeName==tr("反馈"))
+            {
+                item->setColorEndValue(QColor("blue"));
+            }
+            else if(alarmTypeName==tr("故障"))
+            {
+                item->setColorEndValue(QColor("yellow"));
+            }
+            else if(alarmTypeName==tr("监管"))
+            {
+                item->setColorEndValue(QColor("orange"));
+            }
+            else
+            {
+                item->setColorEndValue(QColor("red"));
+            }
+
+            if(gItem==item)
+            {
+                if(alarmTypeName==tr("火警"))
+                {
+                    item->startAnimations();
+                    firstFireAlarmView =view;
+
+                    speechText = tr("首火警");
+                }
+                else
+                {   if(alarmTypeName==tr("启动"))
+                    {
+
+                        firstFireAlarmView =view;
+
+                    }
+                    item->startColorAnimation();
+                }
+            }
+            else
+            {
+                if(alarmTypeName!=tr("火警"))
+                {
+                    speechText = alarmTypeName+tr("报警");
+                }
+                else
+                {
+                    speechText = alarmTypeName;
+                }
+
+                item->startColorAnimation();
+            }
+
+            speechText += ","+item->alarmType()+","+item->floorOfDevice()+","+item->deviceLocation();
+            Controller::instance()->getSpeechObj()->insertAlarmText(speechText);
+            m_speechTextPosFromItemHash[item] = Controller::instance()->getSpeechObj()->currentAlarmPos();
+
+            if(view!=nullptr)
+            {
+                insertAlarmWidget(alarmTypeName,view);
+                insertAlarmWidget("全部",view);
+                updateAlarmWidget(view);
+                if(!m_alarmViewList.contains(view))
+                {
+                    m_alarmViewList.push_back(view);
+                }
+                if(m_tabWidget->count()>=2)
+                {
+                    if(m_tabWidget->currentIndex()!=1)
+                    {
+                        m_tabWidget->setCurrentIndex(1);
+                    }
+                }
+                if(firstFireAlarmView!=nullptr||firstLinkAlarmView!=nullptr)
+                {
+                    if(firstFireAlarmView!=nullptr)
+                    {
+                        autoFitView(firstFireAlarmView);
+                    }
+                    else if(firstFireAlarmView==nullptr && firstLinkAlarmView!=nullptr)
+                    {
+                        autoFitView(firstLinkAlarmView);
+                    }
+                }
+                else
+                {
+                    autoFitView(view);
+                }
+
+            }
+            QStandardItem *parentItem =   getParnentItemFromView(view);
+            if(parentItem!=nullptr)
+            {
+                GlobalGraphicsItem*globalGraphicsItem=  m_globalToArchitePlanHash.key(parentItem);
+                if(globalGraphicsItem!=nullptr)
+                {
+                    if(!globalGraphicsItem->animalIsRunning())
+                    {
+                        globalGraphicsItem->startAnimal(true);
+                    }
+                }
+            }
+            emit alarmHappend(alarmTypeName);
+            emit alarmItem(item);
+        }
+    }
+}
+
 GraphicsItem *ArchitePlanView::itemFormInfo(const QString &extNum, const QString &loopNum, const QString &addressNum, const QString &networkNum)
 {
     GraphicsItem *graphicsItem = nullptr;
@@ -1013,7 +1174,7 @@ GraphicsItem *ArchitePlanView::itemFormInfo(const QString &extNum, const QString
     return graphicsItem;
 }
 
-void ArchitePlanView::updteAlarmState(const QString &extNum, const QString &loopNum, const QString &addressNum, const QString &networkNum, const QString &curAlarmState)
+void ArchitePlanView::updateAlarmState(const QString &extNum, const QString &loopNum, const QString &addressNum, const QString &networkNum, const QString &curAlarmState)
 {
     GraphicsItem *item = itemFormInfo(extNum,loopNum,addressNum,networkNum);
     if(item!=nullptr)

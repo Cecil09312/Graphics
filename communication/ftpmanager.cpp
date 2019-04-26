@@ -13,7 +13,7 @@ FtpManager::FtpManager(QObject *parent) : QObject(parent)
     {
         if(reply!=nullptr)
         {
-            emit sendFileSuccess(true);
+            //emit sendFileSuccess(true);
             reply->close();
             reply->deleteLater();
         }
@@ -35,7 +35,19 @@ FtpManager::FtpManager(QObject *parent) : QObject(parent)
 
         connect(m_reply,&QNetworkReply::uploadProgress,this,[&](qint64 bytesSent, qint64 bytesTotal)
         {
-            emit uploadProgress(bytesSent, bytesTotal);
+            if(bytesTotal<=0)
+            {
+                emit sendFileSuccess(false);
+            }
+            else
+            {
+                emit uploadProgress(bytesSent, bytesTotal);
+                if(bytesSent>=bytesTotal)
+                {
+                    emit sendFileSuccess(true);
+                }
+            }
+
         });
 
     });

@@ -5,7 +5,7 @@
 #include <QThread>
 #include <QVoice>
 #include <QVector>
-class SpeechObj : public QTextToSpeech
+class SpeechObj : public QObject
 {
     Q_OBJECT
 public:
@@ -28,9 +28,9 @@ public slots:
 private:
     QList<QString>m_alarmTextList;
     int m_alarmPos;
-    QThread *m_thread;
     bool m_isStoped;
     int m_currentAlarmPos;
+    QTextToSpeech *m_textToSpeech;
    // QVector<QVoice>m_voiceVec;
 //    QList<QString>m_voiceNameList;
    // QVoice m_voice;

@@ -23,8 +23,8 @@ UdpLink::UdpLink(QObject *parent) :
     });
     connect(this,&UdpLink::startConnect,this,[=]()
     {
-        QHostAddress readAddress = QHostAddress(m_readAddress);
-        m_udpSocket->bind(readAddress,m_readPort);
+        QHostAddress sendHostAddr = QHostAddress(m_sendAddress);
+        m_udpSocket->bind(sendHostAddr,m_sendPort);
         // qDebug() << m_udpSocket->state();
 
     });

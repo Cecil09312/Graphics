@@ -44,7 +44,9 @@ QList<QByteArray> MonitoringProtocol::frameData(const QByteArray &array)
 
                     if(frameArray.right(3)==QByteArray(end))
                     {
-                        arrayList.push_back(dataBytes(frameArray,5,packageLen-4));
+                        QByteArray curArray = dataBytes(frameArray,5,packageLen-4);
+                        arrayList.push_back(curArray);
+                        m_dataHash[curArray] = dataBytes(frameArray,9,12).toInt();
                         m_receiveDataArray.remove(startIndex,packageLen);
                     }
                     else
@@ -87,4 +89,16 @@ QByteArray MonitoringProtocol::dataPackage(const QList<QByteArray> &arrayList)
     futute.waitForFinished();
 
     return array;
+}
+
+int MonitoringProtocol::dataPackageNum(const QByteArray &dataArray)
+{
+    if(m_dataHash.contains(dataArray))
+    {
+        return m_dataHash[dataArray];
+    }
+    else
+    {
+        return 0;
+    }
 }

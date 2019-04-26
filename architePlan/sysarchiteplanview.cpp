@@ -6,7 +6,8 @@ SysArchitePlanView::SysArchitePlanView(QWidget *parent)
 {
     init();
     setSysArchitePlanInfo();
-    connect(m_listView,&QListView::clicked,this,[=](const QModelIndex &index){
+    connect(m_listView,&QListView::clicked,this,[=](const QModelIndex &index)
+    {
         QString value =m_itemModel->data(index,Qt::UserRole+1).toString();
         m_stackedWidget->setCurrentWidget(m_graphicsViewHash[value]);
     });

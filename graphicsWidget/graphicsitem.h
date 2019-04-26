@@ -72,8 +72,8 @@ public:
     void setIconName(const QString &iconName);
     QHash<QString,QVariant> itemInfo();
     void setItemInfo(const ItemInfo &itemInfo);
-    void setAnlogValue(const QString &name,const QVariant &value);
-    QHash<QString,QVariant>anlogValueHah();
+    void setAnlogValue(int curChannel,const QVariant &value);
+    QHash<int, QVariant >anlogValueHah();
     ItemInfo &getItemInfo();
     int iconIndex();
     void setInfoFromIconIndex(int itemIconIndex);
@@ -123,7 +123,7 @@ private:
     ItemIconInfoToJson m_itemIconInfoToJson;
     QGraphicsColorizeEffect *m_colorEffect;
     int m_iconIndex;
-    QHash<QString,QVariant>m_analogValueHash;//模拟量
+    QHash<int, QVariant >m_analogValueHash;//模拟量
     int m_channelNum;//通道号
     QString m_analogType;
 };

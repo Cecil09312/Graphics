@@ -326,12 +326,16 @@ void GraphicsItem::setItemInfo(const ItemInfo &itemInfo)
     m_itemInfo = itemInfo;
 }
 
-void GraphicsItem::setAnlogValue(const QString &name, const QVariant &value)
+void GraphicsItem::setAnlogValue(int curChannel, const QVariant &value)
 {
-    m_analogValueHash[name] =value;
+    if(curChannel<=m_channelNum)
+    {
+        m_analogValueHash[curChannel] =value;
+    }
+
 }
 
-QHash<QString, QVariant> GraphicsItem::anlogValueHah()
+QHash<int, QVariant> GraphicsItem::anlogValueHah()
 {
     return m_analogValueHash;
 }

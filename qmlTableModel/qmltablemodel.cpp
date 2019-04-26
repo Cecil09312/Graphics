@@ -89,7 +89,6 @@ void QmlTableModel::setDbDriver(const QString &driver)
         {
            m_sqlManager = new SqliteManager;
         }
-
     }
 }
 

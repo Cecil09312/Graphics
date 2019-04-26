@@ -24,5 +24,6 @@
         <file>qml/infoSetting/NetworkSetting.qml</file>
         <file>qml/qmlTable/MaintInfoTableItem.qml</file>
         <file>qml/itemSetting/AnalogAlarmItem.qml</file>
+        <file>qml/qmlTable/AnalogTableItem.qml</file>
     </qresource>
 </RCC>

@@ -375,7 +375,7 @@ void TreeView::initWidget()
     m_architeSettingView->setSource(QUrl("qrc:/qml/treeViewSetting/TreeViewSetting.qml"));
     m_architeSettingView->setGeometry(500,50,m_architeSettingView->width(),m_architeSettingView->height());
     m_architeSettingView->rootContext()->setContextProperty("TreeView",this);
-
+    m_architeSettingView->setTitle(tr("建筑平面设置界面"));
     header()->hide();
     setModel(m_stdModel);
 }

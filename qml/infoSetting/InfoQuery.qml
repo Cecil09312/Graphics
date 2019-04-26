@@ -184,6 +184,42 @@ Item {
             }
         }
 
+        Controls1_4.Tab {
+            title: qsTr("模拟量查询")
+            anchors.topMargin: 20
+            AnalogTableItem {
+                anchors.topMargin: 20
+
+                id: analogTable
+                Connections {
+                    target: printBtn
+                    onClicked: {
+                        if (tabView.currentIndex == 4) {
+                            analogTable.startPrint()
+                        }
+                    }
+                }
+
+                Connections {
+                    target: printPreviewBtn
+                    onClicked: {
+                        if (tabView.currentIndex == 4) {
+                            analogTable.printPreview()
+                        }
+                    }
+                }
+
+                Connections {
+                    target: saveToPdfBtn
+                    onClicked: {
+                        if (tabView.currentIndex == 4) {
+                            analogTable.saveToPdf()
+                        }
+                    }
+                }
+            }
+        }
+
         style: TabViewStyle {
             frameOverlap: 1
             tab: Rectangle {

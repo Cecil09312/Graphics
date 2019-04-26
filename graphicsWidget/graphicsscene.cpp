@@ -34,8 +34,9 @@ GraphicsScene::GraphicsScene(QObject *parent):
             QMetaObject::invokeMethod(m_itemSettingObj,"setNetworkNum",Q_ARG(QVariant,currentItem->networkNum()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setEquipmentModel",Q_ARG(QVariant,currentItem->equipmentModel()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setSysOfDevice",Q_ARG(QVariant,currentItem->sysOfDevice()));
-            //QMetaObject::invokeMethod(m_itemSettingObj,"setBuildingName",Q_ARG(QVariant,currentItem->buildingName()));
-            //QMetaObject::invokeMethod(m_itemSettingObj,"setFloorOfDevice",Q_ARG(QVariant,currentItem->floorOfDevice()));
+
+            QMetaObject::invokeMethod(m_itemSettingObj,"setChannelNum",Q_ARG(QVariant,QString::number(currentItem->channelNum())));
+            QMetaObject::invokeMethod(m_itemSettingObj,"setAnalogType",Q_ARG(QVariant,currentItem->analogType()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setDeviceLocation",Q_ARG(QVariant,currentItem->deviceLocation()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setPeriodOfValidity",Q_ARG(QVariant,currentItem->periodOfValidity()));
             QMetaObject::invokeMethod(m_itemSettingObj,"setManufacturers",Q_ARG(QVariant,currentItem->manufacturers()));
@@ -135,6 +136,24 @@ GraphicsScene::GraphicsScene(QObject *parent):
         m_analogAlarmView->close();
         m_analogAlarmView->show();
     });
+
+    connect(m_maintenanceAction,&QAction::triggered,this,[=](){
+
+        GraphicsItem *item= dynamic_cast<GraphicsItem *> (itemAt(m_currentPointF,QTransform()));
+        if(item!=nullptr)
+        {
+            QObject *maintObj = m_maintenanceView->rootObject();
+            Q_ASSERT(maintObj);
+            QMetaObject::invokeMethod(maintObj,"setEquipmentCode",Q_ARG(QVariant,item->deviceNum()));
+            QMetaObject::invokeMethod(maintObj,"setMaintTime",Q_ARG(QVariant,QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss")));
+            QMetaObject::invokeMethod(maintObj,"setBuildingName",Q_ARG(QVariant,item->buildingName()));
+            QMetaObject::invokeMethod(maintObj,"setFloor",Q_ARG(QVariant,item->floorOfDevice()));
+            QMetaObject::invokeMethod(maintObj,"setLocation",Q_ARG(QVariant,item->deviceLocation()));
+            QMetaObject::invokeMethod(maintObj,"setSysOfDevice",Q_ARG(QVariant,item->sysOfDevice()));
+        }
+        m_maintenanceView->close();
+        m_maintenanceView->show();
+    });
     Q_ASSERT(m_itemSettingObj);
     connect(m_itemSettingObj,SIGNAL(setSize(qreal)),this,SLOT(setItemSize(qreal)));
     connect(m_itemSettingObj,SIGNAL(setIcon(QString)),this,SLOT(setItemIcon(QString)));
@@ -160,6 +179,7 @@ GraphicsScene::~GraphicsScene()
     delete m_graphicsItemSettingMenu;
     m_itemSettingView->deleteLater();
     m_analogAlarmView->deleteLater();
+    m_maintenanceView->deleteLater();
 }
 
 void GraphicsScene::addGraphicsItem(qreal ax, qreal ay)
@@ -357,7 +377,7 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
         {
             currentItem->deviceNum() = info;
             currentItem->update();
-           // update();
+            // update();
         }
 
         else if(type =="sysOfDevice")
@@ -393,6 +413,15 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
         {
             currentItem->deviceOperator() = info;
         }
+
+        else if(type == "channelNum")
+        {
+            currentItem->setChannelNum(info.toInt());
+        }
+        else if(type == "analogType")
+        {
+            currentItem->analogType()= info;
+        }
     }
 
 }
@@ -418,18 +447,18 @@ void GraphicsScene::clearAlarms()
 
 void GraphicsScene::setItemsIcon(int index, QString iconName)
 {
-  QList<QGraphicsItem*>itemList =  getItemList();
-  foreach (QGraphicsItem*item, itemList)
-  {
-      GraphicsItem*graphicsItem = dynamic_cast<GraphicsItem*>(item);
-      if(graphicsItem!=nullptr)
-      {
-          if(graphicsItem->iconIndex()==index)
-          {
-              graphicsItem->setIconName(iconName);
-          }
-      }
-  }
+    QList<QGraphicsItem*>itemList =  getItemList();
+    foreach (QGraphicsItem*item, itemList)
+    {
+        GraphicsItem*graphicsItem = dynamic_cast<GraphicsItem*>(item);
+        if(graphicsItem!=nullptr)
+        {
+            if(graphicsItem->iconIndex()==index)
+            {
+                graphicsItem->setIconName(iconName);
+            }
+        }
+    }
 }
 
 void GraphicsScene::setItemsEquipmentModel(int index, QString device)
@@ -502,6 +531,7 @@ void GraphicsScene::init()
     m_deleteSelectedAction = new QAction(tr("删除选中"),m_graphicsItemSettingMenu);
     m_closeAction= new QAction(tr("关闭"),m_graphicsItemSettingMenu);
     m_analogAlarmAction = new QAction(tr("报警模拟"),m_graphicsItemSettingMenu);
+    m_maintenanceAction = new QAction(tr("设备维保"),m_graphicsItemSettingMenu);
     m_handDragAction = new QAction(tr("手动拖拽模式"),modeSelectMenu);
     m_rubberBandDragAction = new QAction(tr("橡皮筋模式"),modeSelectMenu);
     m_modeActionGroup = new QActionGroup(this);
@@ -517,15 +547,20 @@ void GraphicsScene::init()
     m_graphicsItemSettingMenu->addMenu(modeSelectMenu);
     m_itemSettingView = new QQuickView;
     m_itemSettingView->setSource(QUrl("qrc:/qml/itemSetting/GraphicsItemEditor.qml"));
-
+    m_itemSettingView->setTitle(tr("设备信息设置界面"));
     m_analogAlarmView = new QQuickView;
     m_analogAlarmView->setSource(QUrl("qrc:/qml/itemSetting/AnalogAlarmItem.qml"));
+    m_analogAlarmView->setTitle(tr("报警模拟界面"));
+    m_maintenanceView = new QQuickView;
+    m_maintenanceView->setSource(QUrl("qrc:/qml/infoSetting/MaintenanceInfo.qml"));
+    m_maintenanceView->setTitle(tr("设备维保"));
     m_itemSettingObj= m_itemSettingView->rootObject();
     m_graphicsItemSettingMenu->addAction(m_deleteAction);
     m_graphicsItemSettingMenu->addAction(m_editAction);
     m_graphicsItemSettingMenu->addAction(m_clearAction);
     m_graphicsItemSettingMenu->addAction(m_deleteSelectedAction);
     m_graphicsItemSettingMenu->addAction(m_analogAlarmAction);
+    m_graphicsItemSettingMenu->addAction(m_maintenanceAction);
     m_graphicsItemSettingMenu->addAction(m_closeAction);
 
 }

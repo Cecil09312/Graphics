@@ -38,3 +38,9 @@ QList<QByteArray> IndicatorDataProtocol::frameData(const QByteArray &array)
 
     return dataArrayList;
 }
+
+int IndicatorDataProtocol::dataPackageNum(const QByteArray &dataArray)
+{
+    Q_UNUSED(dataArray);
+    return 0;
+}

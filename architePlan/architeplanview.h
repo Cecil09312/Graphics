@@ -51,10 +51,12 @@ public:
     bool havingAlarms();
     void saveArchiteInfo();
     void saveOtherArchiteInfo();
+    void saveInfo();
+    void createAlarm(GraphicsItem *item,const QString &alarmTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
     GraphicsItem *itemFormInfo(const QString &extNum, const QString &loopNum,
                                const QString &addressNum, const QString &networkNum);
-    void updteAlarmState(const QString &extNum, const QString &loopNum,
-                         const QString &addressNum, const QString &networkNum,const QString &curAlarmState);
+    void updateAlarmState(const QString &extNum, const QString &loopNum,
+                          const QString &addressNum, const QString &networkNum,const QString &curAlarmState);
     Q_INVOKABLE QString architeInfoDbName();
     Q_INVOKABLE void setGlobalArchitePixmap(const QString &pixmapName);
     Q_INVOKABLE void clearAlarm(bool alarmColorRedu=false);

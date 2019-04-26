@@ -61,9 +61,11 @@ private:
     QAction *m_handDragAction;
     QAction *m_rubberBandDragAction;
     QAction *m_analogAlarmAction;
+    QAction *m_maintenanceAction;
     QPointF m_currentPointF;
     QQuickView *m_itemSettingView;
     QQuickView *m_analogAlarmView;
+    QQuickView *m_maintenanceView;
     QObject *m_itemSettingObj;
     QObject *m_analogAlarmObj;
 };

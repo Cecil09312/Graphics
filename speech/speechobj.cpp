@@ -3,16 +3,14 @@
 #include <QtConcurrent>
 #include <QFuture>
 SpeechObj::SpeechObj(QObject *parent):
-    QTextToSpeech(parent),
+    QObject(parent),
     m_isStoped(false),
     m_currentAlarmPos(0)
 {
     m_alarmPos =0;
-    m_thread = new QThread;
-    this->moveToThread(m_thread);
-    m_thread->start();
+    m_textToSpeech = new QTextToSpeech(this);
     // m_voiceVec = availableVoices();
-    connect(this,&SpeechObj::stateChanged,this,[=](QTextToSpeech::State state)
+    connect(m_textToSpeech,&QTextToSpeech::stateChanged,this,[=](QTextToSpeech::State state)
     {
         if(state==QTextToSpeech::Ready)
         {
@@ -21,7 +19,7 @@ SpeechObj::SpeechObj(QObject *parent):
             {
                 if(m_alarmPos<alarmTestListSize)
                 {
-                    say(m_alarmTextList.at(m_alarmPos));
+                    m_textToSpeech->say(m_alarmTextList.at(m_alarmPos));
                 }
                 if(m_alarmTextList.at(m_alarmPos).startsWith("首火警")||m_alarmTextList.at(m_alarmPos).startsWith("火警"))
                 {
@@ -38,9 +36,6 @@ SpeechObj::SpeechObj(QObject *parent):
 SpeechObj::~SpeechObj()
 {
     stopSpeech();
-    m_thread->quit();
-    m_thread->wait();
-    m_thread->deleteLater();
 }
 
 int SpeechObj::currentAlarmPos()
@@ -91,12 +86,15 @@ QList<QString> &SpeechObj::alarmTextList()
 
 void SpeechObj::stopSpeech()
 {
+
     //disconnect(this,&SpeechObj::stateChanged,0,0);
     if(m_isStoped)
     {
-        stop();
+       m_textToSpeech->stop();
+       // disconnect(m_textToSpeech,&QTextToSpeech::stateChanged,0,0);
         m_isStoped = false;
     }
+
 }
 
 void SpeechObj::startSpeech()
@@ -105,7 +103,7 @@ void SpeechObj::startSpeech()
     {
         if(m_alarmTextList.size()>0)
         {
-            say(m_alarmTextList.at(0));
+           m_textToSpeech->say(m_alarmTextList.at(0));
             m_isStoped = true;
         }
     }

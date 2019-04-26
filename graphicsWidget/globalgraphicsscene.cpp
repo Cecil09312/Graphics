@@ -20,7 +20,7 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
     m_globalItemSettingView = new QQuickView;
     m_globalItemSettingView->setSource(QUrl("qrc:/qml/itemSetting/GlobalItemSetting.qml"));
     m_globalItemSettingView->rootContext()->setContextProperty("GlobalItemSettingView",this);
-
+    m_globalItemSettingView->setTitle(tr("建筑物信息设置界面"));
     m_globalItemObj = m_globalItemSettingView->rootObject();
 
     m_menu->addAction(m_removeItemAction);
@@ -206,6 +206,8 @@ void GlobalGraphicsScene::clearGraphicsItem()
         }
     }
 }
+
+
 
 QString GlobalGraphicsScene::currentBuildName()
 {

@@ -250,7 +250,6 @@ Item {
             curExtNum = alarmInfoListModel.getValue(row, "extNum")
             curLoopNum = alarmInfoListModel.getValue(row, "loopNum")
             curAddrNum = alarmInfoListModel.getValue(row, "addrNum")
-            curAddrNum = alarmInfoListModel.getValue(row, "addrNum")
             curNetworkNum = alarmInfoListModel.getValue(row, "networkNum")
             ArchitePlanView.toArchitePlan(curExtNum, curLoopNum, curAddrNum,
                                           curNetworkNum)

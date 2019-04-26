@@ -36,17 +36,19 @@ Item {
 
         anchors.leftMargin: 20
         anchors.bottomMargin: 20
-        anchors.topMargin: 40
+        anchors.topMargin: 80
         anchors.bottom: parent.bottom
 
         interactive: false
         Item {
 
             antialiasing: true
+
             Grid {
-                anchors.fill: parent
+                id: grid
+                // anchors.fill: parent
                 anchors.bottomMargin: 40
-                anchors.topMargin: 40
+                anchors.topMargin: 60
                 columnSpacing: 5
                 rowSpacing: 5
                 columns: 4
@@ -211,7 +213,7 @@ Item {
                     verticalAlignment: Text.AlignVCenter
                 }
                 ComboBox {
-                    id: analogTypeField
+                    id: analogComboBox
                     Layout.fillWidth: true
                     width: 180
                     height: 40
@@ -223,7 +225,9 @@ Item {
                             "时间(s)"), qsTr("电压(V)"), qsTr(
                             "电流(A)"), qsTr("流量(L/s)"), qsTr(
                             "风量(m^3/min)"), qsTr("风速(m/s)"), qsTr(
-                            "剩余电流(mA)"), qsTr("烟参量"), qsTr("距离(m)")]
+                            "剩余电流(mA)"), qsTr("烟参量"), qsTr(
+                            "距离(m)"), qsTr("交流电流(mA)"), qsTr(
+                            "直流电流(mA)"), qsTr("交流电压(V)"), qsTr("直流电压(V)")]
                     onCurrentTextChanged: {
                         emit: setItemInfo("analogType", currentText)
                     }
@@ -294,6 +298,14 @@ Item {
                     }
                 }
             }
+
+            Text {
+                anchors.top: grid.bottom
+                anchors.topMargin: 10
+                color: "red"
+                font.pointSize: 12
+                text: qsTr("注意:当设备为光纤时，源地址对应分机号、通道号对应地址号、分区号对应网络号，距离对应位置。")
+            }
         }
 
         ItemIconSetting {
@@ -341,6 +353,10 @@ Item {
     Row {
         anchors.bottom: swipView.top
         anchors.top: parent.top
+        anchors.topMargin: 20
+        anchors.bottomMargin: 10
+        anchors.leftMargin: 20
+        anchors.left: parent.left
         spacing: 10
         Button {
             id: iconSettingBtn
@@ -419,6 +435,14 @@ Item {
     function setItemSize(size) {
         sizeSpinBox.value = size
     }
+
+    function setChannelNum(channelNum) {
+        channelNumTextField.text = channelNum
+    }
+
+    function setAnalogType(analogType) {
+        analogComboBox.currentIndex = analogComboBox.find(analogType)
+    }
     function clearItemInfo() {
         extNumTextField.clear()
         loopNumTextField.clear()
@@ -443,8 +467,13 @@ Item {
             if (pos < itemIconInfo.sizeOfHash()) {
                 var currentObj = new Object
                 var currentIndex = String("%1").arg(pos)
-                currentObj = JSON.parse(itemIconInfoStr)[currentIndex]
-                return currentObj["manufacturers"]
+                currentObj = JSON.parse(JSON.stringify(
+                                            itemIconInfoStr))[currentIndex]
+                if (currentObj.hasOwnProperty("manufacturers")) {
+                    return currentObj["manufacturers"]
+                } else {
+                    return ""
+                }
             } else {
                 return ""
             }
@@ -460,8 +489,13 @@ Item {
             if (pos < itemIconInfo.sizeOfHash()) {
                 var currentObj = new Object
                 var currentIndex = String("%1").arg(pos)
-                currentObj = JSON.parse(itemIconInfoStr)[currentIndex]
-                return currentObj["periodOfvalidity"]
+                currentObj = JSON.parse(JSON.stringify(
+                                            itemIconInfoStr))[currentIndex]
+                if (currentObj.hasOwnProperty("periodOfvalidity")) {
+                    return currentObj["periodOfvalidity"]
+                } else {
+                    return ""
+                }
             } else {
                 return ""
             }
@@ -479,7 +513,7 @@ Item {
 
         var itemIconInfoStr = new String
         itemIconInfoStr = itemIconInfo.readFileFromJson()
-        if (itemIconInfoStr.length === 0)
+        if (itemIconInfoStr.length <= 4)
             return
 
         if (size > 0) {

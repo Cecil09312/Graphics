@@ -2,11 +2,9 @@
 import QtQuick.Controls 2.2
 import operatorInfo 1.0
 
-Item {
-    anchors.fill: parent
-    anchors.leftMargin: 5
-    anchors.rightMargin: 5
-    anchors.topMargin: 10
+Rectangle {
+    width: 900
+    height: 560
     Row {
         id: maintenanceRow
         anchors.top: parent.top
@@ -123,9 +121,11 @@ Item {
             text: qsTr("系统")
         }
 
-        TextField {
-            id: sysTextField
+        ComboBox {
+            id: sysComboBox
+            currentIndex: -1
             width: 150
+            model: ["火灾探测报警系统", "消防联动系统", "自动喷水灭火系统", "水喷雾灭火系统", "消火栓系统", "气体灭火系统", "泡沫灭火系统", "干粉灭火系统", "防烟排烟系统", "防火及卷帘系统", "电梯系统", "消防电话系统", "消防应急广播系统", "消防应急照明和疏散指示系统", "消防电源系统"]
         }
 
         Text {
@@ -168,7 +168,7 @@ Item {
             OperatorInfo.setMaintInfoValue(qsTr("楼层"), floorTextField.text)
 
             OperatorInfo.setMaintInfoValue(qsTr("部位"), locationTextField.text)
-            OperatorInfo.setMaintInfoValue(qsTr("系统"), sysTextField.text)
+            OperatorInfo.setMaintInfoValue(qsTr("系统"), sysComboBox.currentText)
 
             OperatorInfo.setMaintInfoValue(qsTr("值班人员"),
                                            personOnDutyTextField.text)
@@ -209,6 +209,30 @@ Item {
     }
 
     function sysOfDevice() {
-        return sysTextField.text
+        return sysComboBox.currentText
+    }
+
+    function setEquipmentCode(code) {
+        codeTextField.text = code
+    }
+
+    function setMaintTime(dateTime) {
+        timeTextField.text = dateTime
+    }
+
+    function setBuildingName(buildingName) {
+        buildingNameTextField.text = buildingName
+    }
+
+    function setFloor(floor) {
+        floorTextField.text = floor
+    }
+
+    function setLocation(location) {
+        locationTextField.text = location
+    }
+
+    function setSysOfDevice(sys) {
+        sysComboBox.currentIndex = sysComboBox.find(sys)
     }
 }

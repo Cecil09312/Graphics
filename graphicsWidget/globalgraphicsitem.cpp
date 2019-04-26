@@ -56,7 +56,6 @@ void GlobalGraphicsItem::setItemSize(qreal radius)
 {
     m_radius = radius;
     m_scene->update();
-
 }
 
 void GlobalGraphicsItem::setHoverText(const QString &hoverText)

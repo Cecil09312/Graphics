@@ -40,18 +40,18 @@ Rectangle {
             id: resetBtn
             // anchors.leftMargin: 20
             Layout.alignment: Qt.AlignRight
-            text: qsTr("复位")
+
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.topMargin: 10
             font.pointSize: 14
             font.family: qsTr("Times New Roman")
+            text: qsTr("消音")
             onClicked: {
-                ArchitePlanView.clearAlarm(true)
-                // allAlarmClear()
-                autoSwitchCheckBox.checked = false
-                OperatorInfo.insertEvent(qsTr("复位"))
+                OperatorInfo.insertEvent(qsTr("消音"))
+                SpeechObj.stopSpeech()
             }
+
             onPressed: {
                 highlighted = true
             }
@@ -65,7 +65,7 @@ Rectangle {
         anchors.top: alarmBtnLayout.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         Layout.fillWidth: true
-        anchors.topMargin: 10
+        anchors.topMargin: 5
         StatusIndicator {
             id: fireAlarmStatusIndicator
             Layout.column: 0
@@ -95,7 +95,7 @@ Rectangle {
             id: linkageStatusIndicator
             Layout.column: 0
             Layout.row: 1
-            color: "green" //联动:绿色:正常,红色:报警
+            color: "green" //启动:绿色:正常,红色:报警
             active: true
             ColorAnimation on color {
                 id: linkageAnimation
@@ -110,7 +110,7 @@ Rectangle {
             id: linkageNum
             Layout.column: 1
             Layout.row: 1
-            text: qsTr("联动 0")
+            text: qsTr("启动 0")
             font.pointSize: 12
             font.family: qsTr("Times New Roman")
         }
@@ -261,9 +261,33 @@ Rectangle {
         }
 
         StatusIndicator {
-            id: equiComIndicator
+            id: transformIndicator //传输指示，传输正常：绿色；异常：红色；传输过程中闪烁。
             Layout.column: 0
             Layout.row: 8
+            color: "green"
+            active: false
+            ColorAnimation on color {
+                id: transformAnimation
+                from: "green"
+                to: "black"
+                duration: 200
+                loops: Animation.Infinite
+                running: false
+            }
+        }
+
+        Text {
+            Layout.column: 1
+            Layout.row: 8
+            text: qsTr("传输")
+            font.pointSize: 12
+            font.family: qsTr("Times New Roman")
+        }
+
+        StatusIndicator {
+            id: equiComIndicator
+            Layout.column: 0
+            Layout.row: 9
             color: "green"
             active: false
             ColorAnimation on color {
@@ -275,11 +299,12 @@ Rectangle {
                 running: false
             }
         }
+
         Text {
             id: equiComTxt
             Layout.column: 1
-            Layout.row: 8
-            text: qsTr("设备通信")
+            Layout.row: 9
+            text: qsTr("主机通信")
             font.pointSize: 12
             font.family: qsTr("Times New Roman")
         }
@@ -287,7 +312,7 @@ Rectangle {
         StatusIndicator {
             id: centerComIndictor
             Layout.column: 0
-            Layout.row: 9
+            Layout.row: 10
             color: "green"
             active: false
             ColorAnimation on color {
@@ -302,7 +327,7 @@ Rectangle {
         Text {
             id: centerComTxt
             Layout.column: 1
-            Layout.row: 9
+            Layout.row: 10
             text: qsTr("中心通信")
             font.pointSize: 12
             font.family: qsTr("Times New Roman")
@@ -316,7 +341,7 @@ Rectangle {
         anchors.left: parent.left
         anchors.leftMargin: 20
         anchors.rightMargin: 20
-        anchors.topMargin: 10
+        anchors.topMargin: 5
         anchors.verticalCenter: parent.verticalCenter
 
         Button {
@@ -325,10 +350,12 @@ Rectangle {
             // Layout.fillHeight: true
             font.pointSize: 14
             font.family: qsTr("Times New Roman")
-            text: qsTr("消音")
+            text: qsTr("复位")
             onClicked: {
-               OperatorInfo.insertEvent(qsTr("消音"))
-               SpeechObj.stopSpeech()
+                ArchitePlanView.clearAlarm(true)
+                // allAlarmClear()
+                autoSwitchCheckBox.checked = false
+                OperatorInfo.insertEvent(qsTr("复位"))
             }
 
             onPressed: {
@@ -363,7 +390,7 @@ Rectangle {
             font.pointSize: 14
             font.family: qsTr("Times New Roman")
             width: parent.width
-            model: ["全部", "火警", "联动", "监管", "故障", "反馈", "屏蔽"]
+            model: ["全部", "火警", "启动", "监管", "故障", "反馈", "屏蔽"]
             onCurrentTextChanged: {
                 emit: currentAlarmType(currentText)
             }
@@ -493,6 +520,11 @@ Rectangle {
         centerComIndictor.active = isActived
     }
 
+    function setTransformColor(isActived, currentColor) {
+        transformIndicator.color = currentColor
+        transformIndicator.active = isActived
+    }
+
     function startFireAnimation(isRunning) {
         if (isRunning) {
             if (!fireAlarmAnimation.running)
@@ -556,13 +588,22 @@ Rectangle {
         }
     }
 
+    function startTransformAnimation(isRunning) {
+        if (isRunning) {
+            if (!transformAnimation.running)
+                transformAnimation.start()
+        } else {
+            transformAnimation.stop()
+        }
+    }
+
     function setFireAlarmText(value) {
         var txt = qsTr("火警 ") + value
         fireAlarmNum.text = txt
     }
 
     function setLinkageText(value) {
-        var txt = qsTr("联动 ") + value
+        var txt = qsTr("启动 ") + value
         linkageNum.text = txt
     }
 

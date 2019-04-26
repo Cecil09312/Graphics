@@ -16,6 +16,19 @@ void hideTaskBar()
   ::SetWindowPos(hWnd,0,0,0,0,0,SWP_HIDEWINDOW);
 #endif
 
+#ifdef Q_OS_LINUX
+
+//  system(/*"gsettings set org.gnome.shell.extensions.dash-to-dock autohide false"
+//         "gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed false"*/
+//         "gnome-terminal -x bash -c  'gsettings set org.gnome.shell.extensions.dash-to-dock intellihide false'");
+//  QProcess process;
+ // process.execute(/*"gnome-terminal -x'gsettings set org.gnome.shell.extensions.dash-to-dock autohide false'"*/
+//            "gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed false"
+ //           "gsettings set org.gnome.shell.extensions.dash-to-dock intellihide false");
+//  process.waitForStarted();
+//  process.waitForFinished();
+#endif
+
 }
 int main(int argc, char *argv[])
 {
@@ -31,6 +44,7 @@ int main(int argc, char *argv[])
     }
     a.setStyleSheet(QString(array));
 
+   // hideTaskBar();
     CrtWidget w;
     w.showMaximized();
 
