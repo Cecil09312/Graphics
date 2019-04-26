@@ -17,10 +17,7 @@ SerialLink::SerialLink( QObject *parent)
     {
         m_serialPort->write(array);
     });
-    connect(m_serialPort,&QSerialPort::errorOccurred,this,[=](QSerialPort::SerialPortError/* error*/)
-    {
-        emit errorInfo(m_serialPort->errorString());
-    });
+
 
 
     connect(this,&SerialLink::startConnect,this,[=]()
@@ -55,6 +52,13 @@ SerialLink::SerialLink( QObject *parent)
         m_isOpen = false;
         emit isConnected(m_isOpen);
     });
+
+//    connect(m_serialPort,QOverload<QSerialPort::SerialPortError>::of(&QSerialPort::error),this,[=](QSerialPort::SerialPortError serialPortError)
+//    {
+//        Q_UNUSED(serialPortError);
+//        emit errorInfo(m_serialPort->errorString());
+//        disconnectLink();
+//    });
 
 }
 

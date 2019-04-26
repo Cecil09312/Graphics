@@ -51,6 +51,12 @@ TcpLink::TcpLink(QObject *parent)
     {
         emit isConnected(false);
     });
+    connect(m_tcpSocket,QOverload<QAbstractSocket::SocketError>::of(&QTcpSocket::error),this,[=](QAbstractSocket::SocketError socketError)
+    {
+        Q_UNUSED(socketError);
+        emit errorInfo(m_tcpSocket->errorString());
+        m_tcpSocket->disconnected();
+    });
 
 }
 

@@ -75,6 +75,8 @@ private:
     AbstractDataProtocol *m_indicatorProtocol;
     int m_monitoringPackageNum;
     FtpManager *m_ftpManager;
+    QTimer *m_controlCenterHeartbeatTimer;
+    int m_heartbeatIndex;
 
 //    QHash<QString,int>m_packageNumHash;
 };

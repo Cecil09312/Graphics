@@ -25,7 +25,8 @@
 
 CrtWidget::CrtWidget(QWidget *parent) :
     QOpenGLWidget(parent),
-    m_monitoringPackageNum(0)
+    m_monitoringPackageNum(0),
+    m_heartbeatIndex(0)
 {
 
     setWindowFlags(Qt::FramelessWindowHint|Qt::Window);
@@ -194,6 +195,34 @@ CrtWidget::CrtWidget(QWidget *parent) :
         alarmDataOnTable();
     });
 
+
+    connect(m_controlCenterHeartbeatTimer,&QTimer::timeout,this,[=]()
+    {
+
+        static int index =0;
+        if(m_heartbeatIndex>0 && m_heartbeatIndex==index)
+        {
+            QList<QByteArray>dataArrayList;
+            dataArrayList.push_back(QString("%1").arg(19,4,10,QChar('0')).toLocal8Bit());
+            dataArrayList.push_back(QString("%1").arg(index,4,10,QChar('0')).toLocal8Bit());
+            dataArrayList.push_back(QString("%1").arg(999).toLocal8Bit());
+            QByteArray sendArray=  m_monitoringProtocol->dataPackage(dataArrayList);
+            Controller::instance()->getTcpObj()->writeData(sendArray);
+            index++;
+        }
+        else
+        {
+            QMetaObject::invokeMethod(m_alarmObj,"setCenterComColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+            if(!Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("中心通信故障")))
+            {
+                Controller::instance()->getSpeechObj()->insertAlarmText(tr("中心通信故障"));
+            }
+            m_controlCenterHeartbeatTimer->stop();
+            Controller::instance()->getTcpObj()->connectLink();
+        }
+    });
+
+
     Q_ASSERT(m_alarmObj);
 
     if(m_architePlanView->totalPage()>0)
@@ -272,6 +301,10 @@ CrtWidget::CrtWidget(QWidget *parent) :
             {
                 Controller::instance()->getSpeechObj()->removeAlarmText(tr("中心通信故障"));
             }
+            if(!m_controlCenterHeartbeatTimer->isActive())
+            {
+                m_controlCenterHeartbeatTimer->start(5000);
+            }
         }
         else
         {
@@ -280,6 +313,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
             {
                 Controller::instance()->getSpeechObj()->insertAlarmText(tr("中心通信故障"));
             }
+            m_controlCenterHeartbeatTimer->stop();
         }
 
     });
@@ -289,6 +323,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
 CrtWidget::~CrtWidget()
 {
 
+    m_controlCenterHeartbeatTimer->stop();
     m_sqliteManager->close();
     m_sqliteManager->deleteLater();
     m_infoQueryView->close();
@@ -700,6 +735,8 @@ void CrtWidget::initWidget()
         return Controller::instance()->getArchitePlanView();
     });
 
+    m_controlCenterHeartbeatTimer = new QTimer(this);
+
     m_infoTableView = new InfoTableView(this);
     m_infoTableView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     m_sqliteManager = SqlManager::fromDriver("QSQLITE");
@@ -741,9 +778,6 @@ void CrtWidget::initWidget()
     globalVLayout->setSpacing(0);
     globalVLayout->setContentsMargins(QMargins(0,0,0,0));
     setLayout(globalVLayout);
-
-
-
 }
 
 void CrtWidget::alarmDataOnTable()
@@ -880,9 +914,15 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
         {
             if(second<=60)
             {
-                timeStr= QString("%1/%2/%3 %4:%5:%6").arg((int)year+2000).arg((ushort)month,2,10,QChar('0'))
-                        .arg((ushort)date,2,10,QChar('0')).arg((ushort)hour,2,10,QChar('0')).arg((ushort)minute,2,10,QChar('0'))
-                        .arg((ushort)second,2,10,QChar('0'));
+                int bcd_year = m_serialDataProtocol->dataBytes(array,4,4).toHex().toInt();
+                int bcd_month = m_serialDataProtocol->dataBytes(array,5,5).toHex().toInt();
+                int bcd_date = m_serialDataProtocol->dataBytes(array,6,6).toHex().toInt();
+                int bcd_hour = m_serialDataProtocol->dataBytes(array,7,7).toHex().toInt();
+                int bcd_minute = m_serialDataProtocol->dataBytes(array,8,8).toHex().toInt();
+                int bcd_second = m_serialDataProtocol->dataBytes(array,9,9).toHex().toInt();
+                timeStr= QString("%1/%2/%3 %4:%5:%6").arg(bcd_year+2000).arg(bcd_month,2,10,QChar('0'))
+                        .arg(bcd_date,2,10,QChar('0')).arg(bcd_hour,2,10,QChar('0')).arg(bcd_minute,2,10,QChar('0'))
+                        .arg(bcd_second,2,10,QChar('0'));
             }
             else
             {
@@ -1256,7 +1296,7 @@ void CrtWidget::tcpDataProcessing(const QByteArray &arrayValue)
     foreach (QByteArray dataArray, dataArrayList)
     {
         int dataSize = dataArray.size();
-        QByteArray indexArray=m_monitoringProtocol->dataBytes(dataArray,4,dataSize-1);
+        QByteArray indexArray=m_monitoringProtocol->dataBytes(dataArray,4,7);
         int indexNum = indexArray.toInt();
         if(dataSize==8)
         {
@@ -1267,7 +1307,7 @@ void CrtWidget::tcpDataProcessing(const QByteArray &arrayValue)
             }
 
         }
-        else if(dataSize>8)
+        else if(dataSize==14)
         {
             QList<QByteArray> sendArrayList;
             sendArrayList.push_back(QString("%1").arg(16,4,10,QChar('0')).toLocal8Bit());
@@ -1280,6 +1320,23 @@ void CrtWidget::tcpDataProcessing(const QByteArray &arrayValue)
             {
                 m_ftpManager->uploadFile(infoPath);
             }
+
+        }
+        else if(dataSize==11)
+        {
+
+            m_heartbeatIndex = indexNum;
+            //            QList<QByteArray> sendArrayList;
+            //            sendArrayList.push_back(QString("%1").arg(16,4,10,QChar('0')).toLocal8Bit());
+            //            sendArrayList.push_back(indexArray);
+            //            Controller::instance()->getTcpObj()->writeData(m_monitoringProtocol->dataPackage(sendArrayList));
+            //            QByteArray typeArray=   dataArray.right(3);
+
+            //            QString infoPath=  Controller::instance()->getTransportInfo()->transportInfo(typeInfoHash[typeArray.toInt()]);
+            //            if(!infoPath.isEmpty())
+            //            {
+            //                m_ftpManager->uploadFile(infoPath);
+            //            }
 
         }
     }

@@ -75,7 +75,7 @@ void FtpManager::uploadFile(const QString &fileName )
         int port = configurationHash["port"].toInt();
         url.setScheme("ftp");
         url.setHost(hostStr);
-        url.setPath(pathStr);
+        url.setPath(QUrl(pathStr).fileName());
         url.setUserName(userStr);
         url.setPassword(password);
         url.setPort(port);
