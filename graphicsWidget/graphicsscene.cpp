@@ -150,6 +150,8 @@ GraphicsScene::GraphicsScene(QObject *parent):
             QMetaObject::invokeMethod(maintObj,"setFloor",Q_ARG(QVariant,item->floorOfDevice()));
             QMetaObject::invokeMethod(maintObj,"setLocation",Q_ARG(QVariant,item->deviceLocation()));
             QMetaObject::invokeMethod(maintObj,"setSysOfDevice",Q_ARG(QVariant,item->sysOfDevice()));
+            QMetaObject::invokeMethod(maintObj,"setOperator",Q_ARG(QVariant,item->deviceOperator()));
+
         }
         m_maintenanceView->close();
         m_maintenanceView->show();
@@ -179,7 +181,7 @@ GraphicsScene::~GraphicsScene()
     delete m_graphicsItemSettingMenu;
     m_itemSettingView->deleteLater();
     m_analogAlarmView->deleteLater();
-    m_maintenanceView->deleteLater();
+    //m_maintenanceView->deleteLater();
 }
 
 void GraphicsScene::addGraphicsItem(qreal ax, qreal ay)
@@ -194,7 +196,6 @@ void GraphicsScene::addGraphicsItem(const QPointF &pointF)
     this->addItem(item);
     m_itemList.push_back(item);
     emit createItem(item);
-    //DataStore::insertTypeItem(tr("火警"),item);
 }
 
 void GraphicsScene::removeGraphicsItem(qreal ax, qreal ay)
@@ -555,12 +556,13 @@ void GraphicsScene::init()
     m_maintenanceView->setSource(QUrl("qrc:/qml/infoSetting/MaintenanceInfo.qml"));
     m_maintenanceView->setTitle(tr("设备维保"));
     m_itemSettingObj= m_itemSettingView->rootObject();
-    m_graphicsItemSettingMenu->addAction(m_deleteAction);
+
     m_graphicsItemSettingMenu->addAction(m_editAction);
-    m_graphicsItemSettingMenu->addAction(m_clearAction);
-    m_graphicsItemSettingMenu->addAction(m_deleteSelectedAction);
     m_graphicsItemSettingMenu->addAction(m_analogAlarmAction);
     m_graphicsItemSettingMenu->addAction(m_maintenanceAction);
+    m_graphicsItemSettingMenu->addAction(m_deleteAction);
+    m_graphicsItemSettingMenu->addAction(m_deleteSelectedAction);
+    m_graphicsItemSettingMenu->addAction(m_clearAction);
     m_graphicsItemSettingMenu->addAction(m_closeAction);
 
 }

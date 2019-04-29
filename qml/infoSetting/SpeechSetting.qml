@@ -32,16 +32,12 @@ Item {
                 text: volumeSlider.value.toFixed(1)
             }
 
-            //            onMoved: {
-            //                SpeechObj.volume = value
-            //            }
+            onMoved: {
+                SpeechObj.volume = value
+            }
         }
 
-        //        Text {
-        //            id:volumeValue
-        //            height: 40
-        //            verticalAlignment: Text.AlignVCenter
-        //        }
+
         Text {
             text: qsTr("频率")
             height: 40
@@ -62,7 +58,7 @@ Item {
 
             onMoved: {
 
-                //SpeechObj.rate = value
+                SpeechObj.rate = value
             }
         }
 
@@ -89,22 +85,12 @@ Item {
             }
         }
 
-        //            Text {
-        //                text: qsTr("声音")
-        //                height: 40
-        //                verticalAlignment: Text.AlignVCenter
-        //            }
-        //            ComboBox {
-        //                id: voiceComboBox
-        //                width: 340
-        //                model: voiceNameModel
-        //            }
     }
 
     Component.onCompleted: {
 
-        //        volumeSlider.value = SpeechObj.volume
-        //        rateSlider.value = SpeechObj.rate
-        //        pitchSlider.value = SpeechObj.pitch
+        volumeSlider.value = SpeechObj.volume
+        rateSlider.value = SpeechObj.rate
+        pitchSlider.value = SpeechObj.pitch
     }
 }

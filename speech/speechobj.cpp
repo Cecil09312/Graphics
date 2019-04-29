@@ -8,8 +8,13 @@ SpeechObj::SpeechObj(QObject *parent):
     m_currentAlarmPos(0)
 {
     m_alarmPos =0;
-    m_textToSpeech = new QTextToSpeech(this);
-    // m_voiceVec = availableVoices();
+
+    m_thread = new QThread;
+    m_textToSpeech = new QTextToSpeech();
+    m_textToSpeech->moveToThread(m_thread);
+    this->moveToThread(m_thread);
+    m_thread->start();
+
     connect(m_textToSpeech,&QTextToSpeech::stateChanged,this,[=](QTextToSpeech::State state)
     {
         if(state==QTextToSpeech::Ready)
@@ -21,11 +26,27 @@ SpeechObj::SpeechObj(QObject *parent):
                 {
                     m_textToSpeech->say(m_alarmTextList.at(m_alarmPos));
                 }
-                if(m_alarmTextList.at(m_alarmPos).startsWith("首火警")||m_alarmTextList.at(m_alarmPos).startsWith("火警"))
+
+                foreach (QString alarmText, m_alarmTextList)
+                {
+                    if(alarmText.startsWith("首火警")||alarmText.startsWith("火警"))
+                    {
+                        m_alarmPos=0;
+                        return;
+                    }
+                }
+                if(!m_alarmTextList.at(m_alarmPos).startsWith("首火警")||!m_alarmTextList.at(m_alarmPos).startsWith("火警"))
                 {
                     m_alarmPos++;
                     m_alarmPos = m_alarmPos%alarmTestListSize;
                 }
+                else
+                {
+                    m_alarmPos =0;
+                }
+            }
+            else {
+                stopSpeech();
             }
         }
     });
@@ -36,6 +57,10 @@ SpeechObj::SpeechObj(QObject *parent):
 SpeechObj::~SpeechObj()
 {
     stopSpeech();
+    disconnect(m_textToSpeech,&QTextToSpeech::stateChanged,0,0);
+    m_thread->quit();
+    m_thread->deleteLater();
+    m_textToSpeech->deleteLater();
 }
 
 int SpeechObj::currentAlarmPos()
@@ -48,63 +73,55 @@ QList<QString> &SpeechObj::alarmTextList()
     return m_alarmTextList;
 }
 
-//void SpeechObj::setSelectVoice(int index)
-//{
-//    if(m_voiceVec.size()>index)
-//    {
-//        setVoice(m_voiceVec.at(index));
-//    }
+double SpeechObj::rate()
+{
+    return m_textToSpeech->rate();
+}
 
-//}
+double SpeechObj::volume()
+{
+    return m_textToSpeech->volume();
+}
 
-//QList<QString> SpeechObj::voiceNameList()
-//{
-//    return m_voiceNameList;
-//}
+double SpeechObj::pitch()
+{
+    return m_textToSpeech->pitch();
+}
 
-//int SpeechObj::numOfVoice()
-//{
-//    return availableVoices().size();
-//}
+void SpeechObj::setRate(double rate)
+{
+    m_textToSpeech->setRate(rate);
+}
 
-//QString SpeechObj::voiceName(int index)
-//{
-//    if(m_voiceNameList.size()>index)
-//    {
-//        return m_voiceNameList.at(index);
-//    }
-//    else
-//    {
-//        return QString();
-//    }
-//}
+void SpeechObj::setVolume(double volume)
+{
+    m_textToSpeech->setVolume(volume);
+}
 
-//QString SpeechObj::currentVoiceName()
-//{
-//   return (voice().name()+"-年龄:"+QVoice::ageName(voice().age())+"-性别:"+QVoice::genderName(voice().gender()));
-//}
+void SpeechObj::setPitch(double pitch)
+{
+    m_textToSpeech->setPitch(pitch);
+}
+
+bool SpeechObj::alarmTextExist(const QString &alarmText)
+{
+    return m_alarmTextList.contains(alarmText);
+}
+
 
 void SpeechObj::stopSpeech()
 {
-
-    //disconnect(this,&SpeechObj::stateChanged,0,0);
-    if(m_isStoped)
-    {
-       m_textToSpeech->stop();
-       // disconnect(m_textToSpeech,&QTextToSpeech::stateChanged,0,0);
-        m_isStoped = false;
-    }
-
+    m_textToSpeech->pause();
 }
 
 void SpeechObj::startSpeech()
 {
-    if(!m_isStoped)
+
+    if(m_textToSpeech->state()!=QTextToSpeech::Speaking)
     {
         if(m_alarmTextList.size()>0)
         {
-           m_textToSpeech->say(m_alarmTextList.at(0));
-            m_isStoped = true;
+            m_textToSpeech->say(m_alarmTextList.at(0));
         }
     }
 }
@@ -146,7 +163,6 @@ void SpeechObj::insertAlarmText(const QString &alarmText)
         }
 
     });
-    //qDebug() << m_alarmTextList;
     future.waitForFinished();
     startSpeech();
 }
@@ -158,7 +174,11 @@ void SpeechObj::clearAlarmText()
 
 void SpeechObj::removeAlarmText(const QString &alarmText)
 {
-    m_alarmTextList.removeOne(alarmText);
+    if(m_alarmTextList.contains(alarmText))
+    {
+        m_alarmTextList.removeOne(alarmText);
+    }
+
 }
 
 void SpeechObj::removeAlarmText(int pos)

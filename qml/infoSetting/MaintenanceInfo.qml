@@ -13,6 +13,7 @@ Rectangle {
         Text {
             text: qsTr("设备编码:")
             verticalAlignment: Text.AlignVCenter
+            height: 30
         }
         TextField {
             id: codeTextField
@@ -20,6 +21,8 @@ Rectangle {
 
         Text {
             text: qsTr("维保时间:")
+            verticalAlignment: Text.AlignVCenter
+            height: 30
         }
 
         TextField {
@@ -29,6 +32,8 @@ Rectangle {
 
         Text {
             text: qsTr("维保员:")
+            verticalAlignment: Text.AlignVCenter
+            height: 30
         }
 
         TextField {
@@ -44,6 +49,8 @@ Rectangle {
 
         Text {
             text: qsTr("状态现象")
+            verticalAlignment: Text.AlignVCenter
+            height: 30
         }
 
         TextArea {
@@ -59,6 +66,8 @@ Rectangle {
 
         Text {
             text: qsTr("维保方法")
+            verticalAlignment: Text.AlignVCenter
+            height: 30
         }
         TextArea {
             id: methodsTextArea
@@ -72,6 +81,8 @@ Rectangle {
 
         Text {
             text: qsTr("内容描述")
+            verticalAlignment: Text.AlignVCenter
+            height: 30
         }
 
         TextArea {
@@ -93,6 +104,8 @@ Rectangle {
         anchors.topMargin: 5
         Text {
             text: qsTr("建筑名称")
+            verticalAlignment: Text.AlignVCenter
+            height: 30
         }
 
         TextField {
@@ -101,6 +114,8 @@ Rectangle {
         }
         Text {
             text: qsTr("楼层")
+            verticalAlignment: Text.AlignVCenter
+            height: 30
         }
 
         TextField {
@@ -110,6 +125,8 @@ Rectangle {
 
         Text {
             text: qsTr("部位")
+            verticalAlignment: Text.AlignVCenter
+            height: 30
         }
 
         TextField {
@@ -119,6 +136,8 @@ Rectangle {
 
         Text {
             text: qsTr("系统")
+            verticalAlignment: Text.AlignVCenter
+            height: 30
         }
 
         ComboBox {
@@ -130,6 +149,8 @@ Rectangle {
 
         Text {
             text: qsTr("值班人员")
+            verticalAlignment: Text.AlignVCenter
+            height: 30
         }
 
         TextField {
@@ -139,6 +160,8 @@ Rectangle {
 
         Text {
             text: qsTr("操作人员")
+            verticalAlignment: Text.AlignVCenter
+            height: 30
         }
 
         TextField {
@@ -234,5 +257,11 @@ Rectangle {
 
     function setSysOfDevice(sys) {
         sysComboBox.currentIndex = sysComboBox.find(sys)
+    }
+    function setOperator(operator) {
+        operatorTextField.text = operator
+    }
+    function setPersonOnDuty(person) {
+        personOnDutyTextField.text = person
     }
 }

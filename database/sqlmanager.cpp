@@ -39,17 +39,17 @@ QStringList SqlManager::getTables()
 }
 
 
-void SqlManager::setDataBase(const QString &driver, const QString &conectionName, const QString &host,
+void SqlManager::setDataBase(const QString &driver, const QString &connectionName, const QString &host,
                              const QString &user, const QString &password, const QString &dataBase, const int &port)
 {
     QString defaultName = d->m_database.connectionName();
 
-    if(defaultName!=conectionName && !conectionName.isEmpty())
+    if(defaultName!=connectionName && !connectionName.isEmpty())
     {
-        d->m_database.removeDatabase(conectionName);
-        d->m_database = QSqlDatabase::addDatabase(driver,conectionName);
+        d->m_database.removeDatabase(connectionName);
+        d->m_database = QSqlDatabase::addDatabase(driver,connectionName);
     }
-    else if(defaultName==conectionName && defaultName.isEmpty())
+    else if(defaultName==connectionName && defaultName.isEmpty())
     {
         d->m_database.removeDatabase("defaultName");
         d->m_database = QSqlDatabase::addDatabase(driver,"defaultName");
@@ -158,6 +158,11 @@ void SqlManager::close()
     d->m_database.close();
 }
 
+bool SqlManager::tableIsExist(const QString &tableName)
+{
+    return getTables().contains(tableName);
+}
+
 QSqlDatabase &SqlManager::getDatabase()
 {
     return d->m_database;
@@ -172,4 +177,61 @@ QString SqlManager::dbName() const
 {
     return d->m_database.databaseName();
 }
+
+QString SqlManager::hostName()
+{
+    return d->m_database.hostName();
+}
+
+void SqlManager::setHostName(const QString &host)
+{
+    d->m_database.setHostName(host);
+}
+
+QString SqlManager::userName()
+{
+    return d->m_database.userName();
+}
+
+void SqlManager::setUserName(const QString &user)
+{
+    d->m_database.setUserName(user);
+}
+
+QString SqlManager::password()
+{
+    return d->m_database.password();
+}
+
+void SqlManager::setPassword(const QString &passwordStr)
+{
+    d->m_database.setPassword(passwordStr);
+}
+
+QString SqlManager::databaseName()
+{
+    return d->m_database.databaseName();
+}
+
+void SqlManager::setDatabaseName(const QString &name)
+{
+    d->m_database.setDatabaseName(name);
+}
+
+int SqlManager::port()
+{
+    return d->m_database.port();
+}
+
+void SqlManager::setPort(int p)
+{
+    d->m_database.setPort(p);
+}
+
+QString SqlManager::connectionName()
+{
+    return d->m_database.connectionName();
+}
+
+
 

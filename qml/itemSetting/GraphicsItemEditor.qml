@@ -469,6 +469,11 @@ Item {
                 var currentIndex = String("%1").arg(pos)
                 currentObj = JSON.parse(JSON.stringify(
                                             itemIconInfoStr))[currentIndex]
+                if(currentObj==undefined)
+                {
+                     return ""
+                }
+
                 if (currentObj.hasOwnProperty("manufacturers")) {
                     return currentObj["manufacturers"]
                 } else {
@@ -491,6 +496,10 @@ Item {
                 var currentIndex = String("%1").arg(pos)
                 currentObj = JSON.parse(JSON.stringify(
                                             itemIconInfoStr))[currentIndex]
+                if(currentObj==undefined)
+                {
+                     return ""
+                }
                 if (currentObj.hasOwnProperty("periodOfvalidity")) {
                     return currentObj["periodOfvalidity"]
                 } else {

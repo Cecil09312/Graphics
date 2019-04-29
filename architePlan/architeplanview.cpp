@@ -1332,7 +1332,7 @@ void ArchitePlanView::clearAlarm(bool alarmColorRedu)
             }
         }
     }
-    Controller::instance()->getSpeechObj()->clearAlarmText();
+   // Controller::instance()->getSpeechObj()->clearAlarmText();
     emit clearAlarmFromTable();
 }
 
@@ -1606,4 +1606,47 @@ QList<GraphicsView *> ArchitePlanView::haveAlarms(const QString &alarm)
         }
     }
     return viewList;
+}
+
+void ArchitePlanView::saveMySqlInfo(const QString &hostName, const QString &userName, const QString &password, const QString &databaseName, int port)
+{
+    QHash<QString,QVariant> mySqlInfoHash;
+    mySqlInfoHash["hostName"] = hostName;
+    mySqlInfoHash["userName"] = userName;
+    mySqlInfoHash["password"] = password;
+    mySqlInfoHash["databaseName"] = databaseName;
+    mySqlInfoHash["port"] = port;
+    QString mySqlInfoPath=  QCoreApplication::applicationDirPath()+"/mySqlInfo.json";
+    QmlForJson qmlForJson;
+    qmlForJson.writeFile(mySqlInfoHash,mySqlInfoPath);
+}
+
+QString ArchitePlanView::deviceSysName(const QString &extNum)
+{
+    QString sysName = "";
+    sysName.clear();
+    foreach (GraphicsView *view, m_widgetMap.values())
+    {
+        if(view!=nullptr)
+        {
+            QList<QGraphicsItem *>itemList =   view->getItemList();
+            foreach(QGraphicsItem *item,itemList)
+            {
+                GraphicsItem *currentItem = dynamic_cast<GraphicsItem *>(item);
+                if(currentItem!=nullptr)
+                {
+                    if(currentItem->extNum()==extNum)
+                    {
+                        sysName = currentItem->sysOfDevice();
+                        break;
+                    }
+                }
+            }
+        }
+        if(!sysName.isEmpty())
+        {
+            break;
+        }
+    }
+    return sysName;
 }

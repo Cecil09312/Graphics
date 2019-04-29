@@ -14,6 +14,7 @@ Item {
         Text {
             text: qsTr("消防控制室的管理机构")
             verticalAlignment: Text.AlignVCenter
+            height: 30
         }
         TextField {
             id: managInstitutionsTextField
@@ -30,6 +31,7 @@ Item {
         Text {
             text: qsTr("系统竣工图纸")
             verticalAlignment: Text.AlignVCenter
+            height: 30
         }
         TextField {
             id: sysAsbuiltDrawingsTextField
@@ -46,6 +48,7 @@ Item {
         Text {
             text: qsTr("各分系统控制逻辑关系说明")
             verticalAlignment: Text.AlignVCenter
+            height: 30
         }
         TextField {
             id: logicalThatTextField
@@ -62,6 +65,7 @@ Item {
         Text {
             text: qsTr("设备使用说明书")
             verticalAlignment: Text.AlignVCenter
+            height: 30
         }
         TextField {
             id: equipmentInstTextField
@@ -78,6 +82,7 @@ Item {
         Text {
             text: qsTr("系统操作规程")
             verticalAlignment: Text.AlignVCenter
+            height: 30
         }
         TextField {
             id: sysProceduresTextField
@@ -94,6 +99,7 @@ Item {
         Text {
             text: qsTr("应急预案")
             verticalAlignment: Text.AlignVCenter
+            height: 30
         }
         TextField {
             id: emergencyPlanTextField
@@ -110,6 +116,7 @@ Item {
         Text {
             text: qsTr("值班制度")
             verticalAlignment: Text.AlignVCenter
+            height: 30
         }
         TextField {
             id: onDutySysTextField
@@ -126,6 +133,7 @@ Item {
         Text {
             text: qsTr("维护保养制度")
             verticalAlignment: Text.AlignVCenter
+            height: 30
         }
         TextField {
             id: maintainSysTextField
@@ -144,6 +152,7 @@ Item {
         Text {
             text: qsTr("维护保养记录")
             verticalAlignment: Text.AlignVCenter
+            height: 30
         }
         TextField {
             id: maintainRecordTextField

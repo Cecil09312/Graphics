@@ -17,6 +17,7 @@
 
 #include "database/sqlitemanager.h"
 #include "database/sqlmanager.h"
+#include "database/mysqlmanager.h"
 #include "dataStore/abstractdataprotocol.h"
 #include "dataStore/serialdataprotocol.h"
 #include <QCloseEvent>
@@ -24,6 +25,7 @@
 #include "dataStore/indicatordataprotocol.h"
 #include "communication/ftpmanager.h"
 #include <QDesktopServices>
+
 class CrtWidget : public QOpenGLWidget
 {
     Q_OBJECT
@@ -50,12 +52,14 @@ public slots:
     void tcpDataProcessing(const QByteArray&arrayValue);
     void openHelpFile();
     void sendAnalogCommand(quint8 networkNum, quint8 extNum, quint8 loopNum, quint8 addrNum, quint8 channelNum, const QString &analogType);
+
 private:
     void closeSys();
     void initWidget();
     void alarmDataOnTable();
     bool setSysTime(const QDateTime &dateTime);
     void sendFireInfo(quint8 extNum, quint8 loopNum, quint8 addrNum, const QString &dateTimeStr);
+    void setMySqlInfo();
    // void processAlarmHostInfo(quint8 type, QString &extNum, quint8 loopNum, quint8 addrNum, const QString &timeStr);
 
 private:

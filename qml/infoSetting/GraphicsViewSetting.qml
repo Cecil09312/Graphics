@@ -28,6 +28,8 @@ Item {
                 Text {
                     id: zoomSettingTxt
                     text: qsTr("缩放系数:")
+                    verticalAlignment: Text.AlignVCenter
+                    height: 30
                     Layout.row: 0
                     Layout.column: 0
                 }
@@ -36,6 +38,7 @@ Item {
                     Layout.row: 0
                     Layout.column: 1
                     Layout.fillWidth: true
+                    width: 200
                     from: 10
                     to: 1000
                     value: 15
@@ -65,6 +68,8 @@ Item {
                 Text {
                     id: zoomTxt
                     text: qsTr("缩放:")
+                    verticalAlignment: Text.AlignVCenter
+                    height: 30
                     Layout.row: 1
                     Layout.column: 0
                 }
@@ -73,6 +78,7 @@ Item {
                     Layout.row: 1
                     Layout.column: 1
                     Layout.fillWidth: true
+                    width: 200
                     from: 0
                     to: 10
                     stepSize: 0.5
@@ -101,6 +107,8 @@ Item {
                 Text {
                     id: globalBackground
                     text: qsTr("背景图")
+                    verticalAlignment: Text.AlignVCenter
+                    height: 30
                 }
                 TextField {
                     id: globalArchitePlanTextFiled

@@ -142,6 +142,11 @@ ConfigurationManager *Controller::getIndicatorConfigurationManager()
     return m_indicatorConfigurationManager.data();
 }
 
+SqlManager *Controller::getMySqlManager()
+{
+    return m_mysqlManager;
+}
+
 OperatorInfo *Controller::getOperatorInfo()
 {
     return m_operatorInfo;
@@ -169,6 +174,7 @@ Controller::Controller()
 
     m_operatorInfo = new OperatorInfo;
     m_transportInfo = QSharedPointer<TransportInfo>(new TransportInfo,&QObject::deleteLater);
+    m_mysqlManager = SqlManager::fromDriver("QMYSQL");
    // m_tcpObj.data()->connectLink();
    // m_commObj.data()->connectLink();
     // m_modbusManager = QSharedPointer<ModbusManager>(new ModbusManager(Configuration(new TcpConfiguration)),&QObject::deleteLater);

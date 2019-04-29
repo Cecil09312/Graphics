@@ -69,6 +69,9 @@ public:
     Q_INVOKABLE void setCurrentAlarmType(const QString &type);
     Q_INVOKABLE void toArchitePlan(const QString &extNum, const QString &loopNum,
                                    const QString &addressNum,const QString &networkNum);
+    Q_INVOKABLE  void saveMySqlInfo(const QString &hostName,const QString &userName,
+                                    const QString &password,const QString &databaseName,int port);
+    QString deviceSysName(const QString &extNum);
 
 signals:
     void alarmHappend(const QString &alarmType);

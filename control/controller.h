@@ -23,6 +23,7 @@
 #include "jsonEdit/transportinfo.h"
 #include "communication/indicatorlightconfiguration.h"
 #include "communication/indicatorlightcom.h"
+#include "database/mysqlmanager.h"
 class Controller:public QObject
 {
     Q_OBJECT
@@ -48,6 +49,7 @@ public:
     ConfigurationManager *getFtpConfigurationManager();
     ConfigurationManager *getTcpConfigurationManager();
     ConfigurationManager *getIndicatorConfigurationManager();
+    SqlManager *getMySqlManager();
     OperatorInfo *getOperatorInfo();
     TransportInfo *getTransportInfo();
 private:
@@ -72,6 +74,7 @@ private:
      QSharedPointer<ConfigurationManager> m_indicatorConfigurationManager;
     OperatorInfo*m_operatorInfo;
     QSharedPointer<TransportInfo>m_transportInfo;
+    SqlManager *m_mysqlManager;
     // QSharedPointer<ModbusManager>m_modbusManager;
 
 };

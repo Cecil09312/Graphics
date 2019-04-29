@@ -2,7 +2,9 @@
 import QtQuick.Controls 2.2
 import QtQuick.Controls 1.4 as Controls1_4
 import "qrc:/qml/infoSetting"
+import "qrc:/qml/databaseSetting"
 import QtQuick.Controls.Styles 1.4
+
 
 Controls1_4.TabView {
 
@@ -69,6 +71,14 @@ Controls1_4.TabView {
         title: qsTr("网络设置")
         NetworkSetting {
             id: networkSetting
+        }
+    }
+
+    Controls1_4.Tab {
+        title: qsTr("数据库设置")
+        MySqlSetting
+        {
+            id: mySqlSettinng
         }
     }
     style: TabViewStyle {

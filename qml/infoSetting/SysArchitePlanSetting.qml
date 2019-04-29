@@ -19,6 +19,8 @@ Item {
         Text {
             id: fireAlarmTxt
             text: qsTr("火灾自动报警系统")
+            height: 30
+            verticalAlignment: Text.AlignVCenter
         }
 
         TextField {
@@ -37,6 +39,8 @@ Item {
         Text {
             id: linkageTxt
             text: qsTr("消防联动控制系统")
+            height: 30
+            verticalAlignment: Text.AlignVCenter
         }
 
         TextField {
@@ -55,6 +59,8 @@ Item {
         Text {
             id: autoSprayWaterTxt
             text: qsTr("自动喷水灭火系统")
+            height: 30
+            verticalAlignment: Text.AlignVCenter
         }
 
         TextField {
@@ -73,6 +79,8 @@ Item {
         Text {
             id: fireCockTxt
             text: qsTr("消火栓系统")
+            height: 30
+            verticalAlignment: Text.AlignVCenter
         }
 
         TextField {
@@ -91,6 +99,8 @@ Item {
         Text {
             id: gasFireTxt
             text: qsTr("气体灭火系统")
+            height: 30
+            verticalAlignment: Text.AlignVCenter
         }
 
         TextField {
@@ -109,6 +119,8 @@ Item {
         Text {
             id: waterSprayTxt
             text: qsTr("水喷雾灭火系统")
+            height: 30
+            verticalAlignment: Text.AlignVCenter
         }
 
         TextField {
@@ -127,6 +139,8 @@ Item {
         Text {
             id: foamAndDryTxt
             text: qsTr("泡沫和干粉灭火系统")
+            height: 30
+            verticalAlignment: Text.AlignVCenter
         }
 
         TextField {
@@ -145,6 +159,8 @@ Item {
         Text {
             id: smokeControlTxt
             text: qsTr("防烟排烟系统")
+            height: 30
+            verticalAlignment: Text.AlignVCenter
         }
 
         TextField {
@@ -163,6 +179,8 @@ Item {
         Text {
             id: fireEmergencyLightingTxt
             text: qsTr("消防应急照明系统")
+            height: 30
+            verticalAlignment: Text.AlignVCenter
         }
 
         TextField {
@@ -181,6 +199,8 @@ Item {
         Text {
             id: evacuationTxt
             text: qsTr("疏散指示系统")
+            height: 30
+            verticalAlignment: Text.AlignVCenter
         }
 
         TextField {

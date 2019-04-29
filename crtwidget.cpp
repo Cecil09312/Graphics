@@ -277,10 +277,8 @@ CrtWidget::CrtWidget(QWidget *parent) :
         if(connected)
         {
             QMetaObject::invokeMethod(m_alarmObj,"setEquiComColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));//主机通信
-            if(Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("主机通信故障")))
-            {
-                Controller::instance()->getSpeechObj()->removeAlarmText(tr("主机通信故障"));
-            }
+            Controller::instance()->getSpeechObj()->removeAlarmText(tr("主机通信故障"));
+
         }
         else
         {
@@ -297,10 +295,8 @@ CrtWidget::CrtWidget(QWidget *parent) :
         if(connected)
         {
             QMetaObject::invokeMethod(m_alarmObj,"setCenterComColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));//中心通信
-            if(Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("中心通信故障")))
-            {
-                Controller::instance()->getSpeechObj()->removeAlarmText(tr("中心通信故障"));
-            }
+            Controller::instance()->getSpeechObj()->removeAlarmText(tr("中心通信故障"));
+
             if(!m_controlCenterHeartbeatTimer->isActive())
             {
                 m_controlCenterHeartbeatTimer->start(5000);
@@ -317,6 +313,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
         }
 
     });
+
 
 }
 
@@ -336,6 +333,7 @@ CrtWidget::~CrtWidget()
     delete m_monitoringProtocol;
     delete m_indicatorProtocol;
     m_ftpManager->deleteLater();
+
     // closeSys();
 
 }
@@ -360,10 +358,12 @@ void CrtWidget::closeEvent(QCloseEvent *event)
     Controller::instance()->getTcpConfigurationManager()->saveConfiguration();
     Controller::instance()->getTransportInfo()->saveTransportInfoToJson();
     Controller::instance()->getOperatorInfo()->insertEvent(tr("系统关机"));
+
     m_architePlanView->saveInfo();
     m_loginQuickView->close();
     m_settingView->close();
-
+    Controller::instance()->getMySqlManager()->close();
+    Controller::instance()->getMySqlManager()->deleteLater();
     event->accept();
 }
 
@@ -707,6 +707,19 @@ void CrtWidget::initWidget()
         return Controller::instance()->getSpeechObj();
     });
 
+
+
+
+    qmlRegisterSingletonType<Controller>("mySqlManager", 1, 0, "MySqlManager",
+                                         [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+        Q_UNUSED(engine)
+        Q_UNUSED(scriptEngine)
+        return Controller::instance()->getMySqlManager();
+    });
+
+    setMySqlInfo();
+
+
     m_serialDataProtocol = new SerialDataProtocol;
     m_monitoringProtocol = new MonitoringProtocol;
     m_indicatorProtocol = new IndicatorDataProtocol;
@@ -740,6 +753,9 @@ void CrtWidget::initWidget()
     m_infoTableView = new InfoTableView(this);
     m_infoTableView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     m_sqliteManager = SqlManager::fromDriver("QSQLITE");
+
+
+
     m_alarmQuickView = new QQuickView;
     m_alarmQuickView->setSource(QUrl("qrc:/qml/alarmItem/AlarmItem.qml"));
     m_alarmQuickView->rootContext()->setContextProperty("CrtWidget",this);
@@ -855,6 +871,57 @@ void CrtWidget::sendFireInfo(quint8 extNum, quint8 loopNum, quint8 addrNum,const
     Controller::instance()->getTcpObj()->writeData(m_monitoringProtocol->dataPackage(valueList));
 }
 
+void CrtWidget::setMySqlInfo()
+{
+    SqlManager*sqlManager=   Controller::instance()->getMySqlManager();
+    Q_ASSERT(sqlManager);
+    QString mySqlInfoPath=  QCoreApplication::applicationDirPath()+"/mySqlInfo.json";
+    QmlForJson qmlForJson;
+    QHash<QString,QVariant> mySqlInfoHash=  qmlForJson.readFile(mySqlInfoPath).toHash();
+    QString hostName="127.0.0.1", userName = "root",password="song",databaseName= "monitoring_center_db";
+    int port =3306;
+    if(!mySqlInfoHash.isEmpty())
+    {
+        hostName =  mySqlInfoHash["hostName"].toString();
+        userName =   mySqlInfoHash["userName"] .toString();
+        password=   mySqlInfoHash["password"].toString();
+        databaseName =  mySqlInfoHash["databaseName"].toString();
+        port = mySqlInfoHash["port"].toInt();
+    }
+
+    sqlManager->setDataBase("QMYSQL","mySqlConnect",hostName,userName,password,databaseName,port);
+
+    bool mySqlOpen = sqlManager->open();
+    if(!mySqlOpen)
+    {
+        if(!Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("MySql数据库连接失败")))
+        {
+            Controller::instance()->getSpeechObj()->insertAlarmText(tr("MySql数据库连接失败"));
+        }
+    }
+    else
+    {
+
+        Controller::instance()->getSpeechObj()->removeAlarmText(tr("MySql数据库连接失败"));
+        if(!sqlManager->tableIsExist("sys_status"))
+        {
+            sqlManager->executeQuery("create table sys_status ( sys_name text,main_power text,prepare_power text,hand_auto_state text,run_state text);");
+        }
+
+        if(!sqlManager->tableIsExist("alarm_info"))
+        {
+            sqlManager->executeQuery("create table alarm_info ( sys_name text,device_num text,alarm_type text,current_state text,alarm_time text);");
+        }
+
+        if(!sqlManager->tableIsExist("fault_state"))
+        {
+            sqlManager->executeQuery("create table fault_state ( sys_name text,fault_type text,fault_state text,run_state text);");
+        }
+
+      //   Controller::instance()->getMySqlManager()->executeQuery(QString("insert into alarm_info values ('%1','%2','%3','%4','%5')").arg("自动报警系统").arg(tr("故障")).arg("常开门关闭").arg("正常").arg(tr("正常运行")));
+    }
+}
+
 void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
 {
     QHash<quint8,QString>alarmTypeHash,commuStatusHash,faultStateHash;
@@ -898,7 +965,7 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
         quint8 second= m_serialDataProtocol->dataByte(array,9);
 
         QString extNum = QString("%1").arg((type>>2)&0x3f);
-        GraphicsItem*item =m_architePlanView->itemFormInfo(extNum,QString::number(loopNum),QString::number(addrNum),networkNum);
+
 
         if(packageNum!=m_serialDataProtocol->dataPackageNum(array))
         {
@@ -935,7 +1002,10 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
             networkNum = QString::number(minute);
         }
 
-
+        GraphicsItem*item =m_architePlanView->itemFormInfo(extNum,QString::number(loopNum),QString::number(addrNum),networkNum);
+        QString sysName = m_architePlanView->deviceSysName(extNum);
+        QStringList faultInfoList =  Controller::instance()->getMySqlManager()->executeQuery("select sys_name,fault_type from fault_state");
+        QStringList sysStateList =  Controller::instance()->getMySqlManager()->executeQuery("select sys_name,fault_type from sys_status");
         switch (eventNum)
         {
         case 0x01:
@@ -945,6 +1015,11 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
         case 0x0d:
         {
             m_architePlanView->createAlarm(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,alarmTypeHash[eventNum],false,timeStr);
+            if(item!=nullptr)
+            {
+               Controller::instance()->getMySqlManager()->executeQuery(QString("insert into alarm_info values ('%1','%2','%3','%4','%5')").arg(item->sysOfDevice()).arg(item->deviceNum()).arg(item->alarmType()).arg(item->currentState()).arg(timeStr));
+            }
+
             QString currentState;
             if(eventNum==0x03)
             {
@@ -961,12 +1036,31 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
                     break;
                 }
                 m_architePlanView->updateAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,currentState);
+
+
+                if(!faultInfoList.contains(sysName)&&!faultInfoList.contains(tr("故障")))
+                {
+                    Controller::instance()->getMySqlManager()->executeQuery(QString("insert into fault_state values ('%1','%2','%3','%4')").arg(sysName).arg(tr("故障")).arg(currentState).arg(tr("正常运行")));
+                }
+                else
+                {
+                    Controller::instance()->getMySqlManager()->executeQuery(QString("update fault_state set fault_state='%1' where sys_name ='%2' and fault_type = '%3' )").arg(currentState).arg(sysName).arg(tr("故障")));
+                }
+
             }
             else if(eventNum==0x0d)
             {
                 if((type&0x03)==0x01)
                 {
                     m_architePlanView->updateAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,tr("常开门关闭"));
+                    if(!faultInfoList.contains(sysName)&&!faultInfoList.contains(tr("反馈")))
+                    {
+                        Controller::instance()->getMySqlManager()->executeQuery(QString("insert into fault_state values ('%1','%2','%3','%4')").arg(sysName).arg(tr("常开门关闭")).arg(currentState).arg(tr("正常运行")));
+                    }
+                    else
+                    {
+                        Controller::instance()->getMySqlManager()->executeQuery(QString("update fault_state set fault_state='%1' where sys_name ='%2' and fault_type = '%3' )").arg(currentState).arg(sysName).arg(tr("反馈")));
+                    }
                 }
 
             }
@@ -1040,18 +1134,85 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
         case 0x0c:
         {
             m_architePlanView->eliminateAlarm(extNum,QString::number(loopNum),QString::number(addrNum),networkNum);
+            if(item!=nullptr)
+            {
+               Controller::instance()->getMySqlManager()->executeQuery(QString("delete from alarm_info where sys_name = '%1' and device_num = '%2'").arg(item->sysOfDevice()).arg(item->deviceNum()));
+            }
+            if(eventNum==0x04)
+            {
+                QString currentState;
+                switch ((type&0x03))
+                {
+                case 0:
+                {
+                    currentState = tr("故障恢复");
+                }
+                    break;
+                case 1:
+                {
+                    currentState = tr("常开门故障恢复");
+                }
+                    break;
+
+                case 2:
+                {
+                    currentState = tr("常开门关闭");
+                }
+
+                    break;
+                default:
+                    break;
+                }
+                Controller::instance()->getMySqlManager()->executeQuery(QString("update fault_state set fault_state='%1' where sys_name ='%2' and fault_type = '%3' )").arg(currentState).arg(sysName).arg(tr("故障")));
+            }
+            else if(eventNum==0x02)
+            {
+                if((type&0x03)==0x01)
+                {
+                    Controller::instance()->getMySqlManager()->executeQuery(QString("update fault_state set fault_state='%1' where sys_name ='%2' and fault_type = '%3' )").arg(tr("常开门打开")).arg(sysName).arg(tr("反馈")));
+                }
+
+            }
         }
             break;
         case 0x12:
         case 0x13:
         {
+            QString powerState = "";
             if(loopNum==0)
             {
                 communicationStatus(commuStatusHash[eventNum],true);
+                powerState = tr("正常");
             }
             else if(loopNum==1)
             {
                 communicationStatus(commuStatusHash[eventNum],false);
+                powerState = tr("故障");
+            }
+
+            if(!sysStateList.contains(sysName))
+            {
+                if(eventNum== 0x12)
+                {
+                    Controller::instance()->getMySqlManager()->executeQuery(QString("insert into sys_status values ('%1','%2','%3','%4','%5')").arg(sysName).arg(powerState).arg("").arg("").arg(tr("正常运行")));
+                }
+                else if(eventNum==0x13)
+                {
+                    Controller::instance()->getMySqlManager()->executeQuery(QString("insert into sys_status values ('%1','%2','%3','%4','%5')").arg(sysName).arg("").arg(powerState).arg("").arg(tr("正常运行")));
+                }
+
+            }
+            else
+            {
+                if(eventNum== 0x12)
+                {
+                    Controller::instance()->getMySqlManager()->executeQuery(QString("update sys_status set main_power='%1' where sys_name ='%2')").arg(powerState).arg(sysName));
+                }
+                else if(eventNum==0x13)
+                {
+                    Controller::instance()->getMySqlManager()->executeQuery(QString("update sys_status set prepare_power='%1' where sys_name ='%2')").arg(powerState).arg(sysName));
+                }
+
             }
         }
             break;
@@ -1076,19 +1237,45 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
         case 0x31:
         case 0x32:
         {
+            QString handOrAutoState = "";
             switch (type)
             {
             case 0:
+            {
                 Controller::instance()->getOperatorInfo()->insertEvent(commuStatusHash[eventNum],tr("默认"));
+                handOrAutoState = tr("默认");
+            }
                 break;
             case 1:
+            {
                 Controller::instance()->getOperatorInfo()->insertEvent(commuStatusHash[eventNum],tr("手动"));
+                handOrAutoState = tr("手动");
+            }
                 break;
             case 2:
+            {
                 Controller::instance()->getOperatorInfo()->insertEvent(commuStatusHash[eventNum],tr("自动"));
+                handOrAutoState = tr("自动");
+            }
                 break;
             default:
                 break;
+            }
+
+            if(!sysStateList.contains(sysName))
+            {
+                if(eventNum==0x32)
+                {
+                    Controller::instance()->getMySqlManager()->executeQuery(QString("insert into sys_status values ('%1','%2','%3','%4','%5')").arg(sysName).arg("").arg("").arg(handOrAutoState).arg(tr("正常运行")));
+                }
+
+            }
+            else
+            {
+                if(eventNum==0x32)
+                {
+                    Controller::instance()->getMySqlManager()->executeQuery(QString("update sys_status set hand_auto_state='%1' where sys_name ='%2')").arg(handOrAutoState).arg(sysName));
+                }
             }
         }
             break;
@@ -1104,11 +1291,10 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
                     currentItem->alarmType()= tr("光纤火警");
                     currentItem->deviceLocation() = QString::number(type*256+year)+tr("米");
                     m_architePlanView->createAlarm(currentItem);
+                    Controller::instance()->getMySqlManager()->executeQuery(QString("insert into alarm_info values ('%1','%2','%3','%4','%5')").arg(currentItem->sysOfDevice()).arg(currentItem->deviceNum()).arg(currentItem->alarmType()).arg(currentItem->currentState()).arg(currentItem->getItemInfo().m_alarmTime));
+
                 }
-
-
             }
-
                 break;
             case 0x02:
             {
@@ -1118,14 +1304,17 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
                     currentItem->alarmType()= tr("光纤故障");
                     currentItem->deviceLocation() = QString::number(type*256+year)+tr("米");
                     m_architePlanView->createAlarm(currentItem);
+                    Controller::instance()->getMySqlManager()->executeQuery(QString("insert into alarm_info values ('%1','%2','%3','%4','%5')").arg(currentItem->sysOfDevice()).arg(currentItem->deviceNum()).arg(currentItem->alarmType()).arg(currentItem->currentState()).arg(currentItem->getItemInfo().m_alarmTime));
                 }
-
-
             }
                 break;
             case 0x03:
             {
                 m_architePlanView->eliminateAlarm(QString::number(date),QString::number(loopNum),QString::number(addrNum),QString::number(month));
+                if(currentItem!=nullptr)
+                {
+                    Controller::instance()->getMySqlManager()->executeQuery(QString("delete from alarm_info where sys_name='%1' and device_num='%2'").arg(currentItem->sysOfDevice()).arg(currentItem->deviceNum()));
+                }
 
             }
                 break;
@@ -1382,6 +1571,8 @@ void CrtWidget::sendAnalogCommand(quint8 networkNum,quint8 extNum,quint8 loopNum
     QByteArray array= m_serialDataProtocol->dataPackage(dataArrayList);
     Controller::instance()->getCommObj()->sendData(array);
 }
+
+
 
 void CrtWidget::closeSys()
 {

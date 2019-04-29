@@ -25,5 +25,6 @@
         <file>qml/qmlTable/MaintInfoTableItem.qml</file>
         <file>qml/itemSetting/AnalogAlarmItem.qml</file>
         <file>qml/qmlTable/AnalogTableItem.qml</file>
+        <file>qml/databaseSetting/MySqlSetting.qml</file>
     </qresource>
 </RCC>
