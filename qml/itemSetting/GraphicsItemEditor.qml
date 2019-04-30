@@ -304,7 +304,7 @@ Item {
                 anchors.topMargin: 10
                 color: "red"
                 font.pointSize: 12
-                text: qsTr("注意:当设备为光纤时，源地址对应分机号、通道号对应地址号、分区号对应网络号，距离对应位置。")
+                text: qsTr("注意:当设备为光纤时，源地址对应分机号、通道号对应地址号、分区号对应网络号,\n距离对应位置。")
             }
         }
 
@@ -469,9 +469,8 @@ Item {
                 var currentIndex = String("%1").arg(pos)
                 currentObj = JSON.parse(JSON.stringify(
                                             itemIconInfoStr))[currentIndex]
-                if(currentObj==undefined)
-                {
-                     return ""
+                if (currentObj == undefined) {
+                    return ""
                 }
 
                 if (currentObj.hasOwnProperty("manufacturers")) {
@@ -496,9 +495,8 @@ Item {
                 var currentIndex = String("%1").arg(pos)
                 currentObj = JSON.parse(JSON.stringify(
                                             itemIconInfoStr))[currentIndex]
-                if(currentObj==undefined)
-                {
-                     return ""
+                if (currentObj == undefined) {
+                    return ""
                 }
                 if (currentObj.hasOwnProperty("periodOfvalidity")) {
                     return currentObj["periodOfvalidity"]
