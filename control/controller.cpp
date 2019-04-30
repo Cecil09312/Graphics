@@ -16,9 +16,7 @@ Controller::~Controller()
     m_speechObj->deleteLater();
     m_tcpObj.clear();
     m_IndicatorObj.clear();
-    m_udpObj->deleteLater();
     m_operatorInfo->deleteLater();
-    //m_userManager.clear();
 }
 
 QString Controller::fileNameFromQml(const QString &name)
@@ -43,11 +41,6 @@ QString Controller::fileNameFromQml(const QString &name)
 #endif
     return fileName;
 }
-
-//QList<QString> Controller::portNameList()
-//{
-//    return SerialLink::portName();
-//}
 
 AbstractLink*Controller::getCommObj()
 {
@@ -106,11 +99,6 @@ SpeechObj *Controller::getSpeechObj()
     return m_speechObj;
 }
 
-AbstractLink *Controller::getUdpObj()
-{
-    return m_udpObj;
-}
-
 AbstractLink *Controller::getTcpObj()
 {
     return m_tcpObj.data();
@@ -164,22 +152,13 @@ Controller::Controller()
     m_IndicatorObj = QSharedPointer<AbstractLink>(new IndicatorLightCom,&QObject::deleteLater);
     m_userManager =new UserManager(this);
     m_speechObj = new SpeechObj();
-    m_udpObj =new UdpLink;
-    m_serialConfigurationManager =QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new SerialConfiguration),this)) ;
-    m_tcpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new TcpConfiguration),this)) ;
-    m_udpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new UdpConfiguration),this)) ;
+    m_serialConfigurationManager =QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new SerialConfiguration),this));
+    m_tcpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new TcpConfiguration),this));
     m_ftpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new FtpConfiguration),this));
-
     m_indicatorConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new IndicatorLightConfiguration),this));
-
     m_operatorInfo = new OperatorInfo;
     m_transportInfo = QSharedPointer<TransportInfo>(new TransportInfo,&QObject::deleteLater);
     m_mysqlManager = SqlManager::fromDriver("QMYSQL");
-   // m_tcpObj.data()->connectLink();
-   // m_commObj.data()->connectLink();
-    // m_modbusManager = QSharedPointer<ModbusManager>(new ModbusManager(Configuration(new TcpConfiguration)),&QObject::deleteLater);
-   // m_udpObj->connectLink();
-    // m_modbusManager.data()->connectDevice(ModbusManager::Connected);
 }
 
 

@@ -24,11 +24,11 @@
 #include "communication/indicatorlightconfiguration.h"
 #include "communication/indicatorlightcom.h"
 #include "database/mysqlmanager.h"
+
 class Controller:public QObject
 {
     Q_OBJECT
 public:
-
     static Controller *instance();
     ~Controller();
     Q_INVOKABLE QString fileNameFromQml(const QString &name);
@@ -42,7 +42,6 @@ public:
     UserManager *getUserManager() const;
     UserManager::UserRight getUserRight();
     SpeechObj *getSpeechObj();
-    AbstractLink *getUdpObj();
     AbstractLink *getTcpObj();
     AbstractLink *getIndicatorObj();
     ConfigurationManager *getSerialConfigurationManager();
@@ -55,7 +54,6 @@ public:
 private:
     Controller();
 private:
-    //static Controller*m_controller;
     static QSharedPointer<Controller>m_controller;
     QSharedPointer<AbstractLink>m_commObj;
     QSharedPointer<AbstractLink>m_tcpObj;
@@ -64,19 +62,14 @@ private:
     ArchitePlanView *m_architePlanView;
     UserManager*m_userManager;
     CrtWidget *m_crtWidget;
-
     SpeechObj*m_speechObj;
-    AbstractLink*m_udpObj;
     QSharedPointer<ConfigurationManager> m_serialConfigurationManager;
     QSharedPointer<ConfigurationManager> m_tcpConfigurationManager;
-    QSharedPointer<ConfigurationManager> m_udpConfigurationManager;
     QSharedPointer<ConfigurationManager> m_ftpConfigurationManager;
-     QSharedPointer<ConfigurationManager> m_indicatorConfigurationManager;
+    QSharedPointer<ConfigurationManager> m_indicatorConfigurationManager;
     OperatorInfo*m_operatorInfo;
     QSharedPointer<TransportInfo>m_transportInfo;
     SqlManager *m_mysqlManager;
-    // QSharedPointer<ModbusManager>m_modbusManager;
-
 };
 
 #endif // CONTROLLER_H

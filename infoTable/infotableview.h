@@ -21,9 +21,7 @@ public slots:
 private:
     void initWidget();
 private:
-   // QTableView *m_tableView;
     QmlTableModel  *m_tableModel;
-    //QItemSelectionModel *m_selectionModel;
 };
 
 #endif // INFOTABLEVIEW_H

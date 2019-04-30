@@ -68,29 +68,6 @@ TcpLink::~TcpLink()
     m_thread->deleteLater();
 }
 
-//void TcpLink::openTcp(const QString &address, quint16 port)
-//{
-//   // emit connectTcp(address ,port);
-//}
-
-//void TcpLink::close()
-//{
-//  //  emit closeTcp();
-//}
-
-//bool TcpLink::isConnected()
-//{
-//    if(m_tcpSocket->state()==QAbstractSocket::ConnectedState)
-//    {
-//        return true;
-//    }
-//    else
-//    {
-//      return false;
-//    }
-
-//}
-
 
 void TcpLink::readData()
 {

@@ -15,14 +15,6 @@ class TcpLink : public AbstractLink
 public:
     explicit TcpLink(QObject *parent = nullptr);
     ~TcpLink();
-    //    Q_INVOKABLE  void openTcp(const QString &address, quint16 port);
-    //    Q_INVOKABLE  bool isConnected();
-    //    void close();
-
-    //signals:
-    //    void connectTcp(const QString&address, quint16 port);
-    //    void closeTcp();
-    //    void send(const QByteArray &arry);
 
 public slots:
     void readData();
