@@ -152,10 +152,10 @@ Controller::Controller()
     m_IndicatorObj = QSharedPointer<AbstractLink>(new IndicatorLightCom,&QObject::deleteLater);
     m_userManager =new UserManager(this);
     m_speechObj = new SpeechObj();
-    m_serialConfigurationManager =QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new SerialConfiguration),this));
-    m_tcpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new TcpConfiguration),this));
-    m_ftpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new FtpConfiguration),this));
-    m_indicatorConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new IndicatorLightConfiguration),this));
+    m_serialConfigurationManager =QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new SerialConfiguration)),&QObject::deleteLater);
+    m_tcpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new TcpConfiguration)),&QObject::deleteLater);
+    m_ftpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new FtpConfiguration)),&QObject::deleteLater);
+    m_indicatorConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new IndicatorLightConfiguration)),&QObject::deleteLater);
     m_operatorInfo = new OperatorInfo;
     m_transportInfo = QSharedPointer<TransportInfo>(new TransportInfo,&QObject::deleteLater);
     m_mysqlManager = SqlManager::fromDriver("QMYSQL");

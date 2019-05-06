@@ -21,12 +21,12 @@ void hideTaskBar()
 //  system(/*"gsettings set org.gnome.shell.extensions.dash-to-dock autohide false"
 //         "gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed false"*/
 //         "gnome-terminal -x bash -c  'gsettings set org.gnome.shell.extensions.dash-to-dock intellihide false'");
-//  QProcess process;
- // process.execute(/*"gnome-terminal -x'gsettings set org.gnome.shell.extensions.dash-to-dock autohide false'"*/
-//            "gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed false"
- //           "gsettings set org.gnome.shell.extensions.dash-to-dock intellihide false");
-//  process.waitForStarted();
-//  process.waitForFinished();
+  QProcess process;
+  process.execute("gsettings set org.gnome.shell.extensions.dash-to-dock autohide false");
+  process.execute("gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed false");
+  process.execute("gsettings set org.gnome.shell.extensions.dash-to-dock intellihide false");
+  process.waitForStarted();
+  process.waitForFinished();
 #endif
 
 }

@@ -6,6 +6,7 @@
 #include "database/sqlitemanager.h"
 #include "database/sqlmanager.h"
 #include "print/print.h"
+#include "database/mysqlmanager.h"
 
 class QmlTableModel : public QSqlQueryModel
 {

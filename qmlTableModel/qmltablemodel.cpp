@@ -89,6 +89,10 @@ void QmlTableModel::setDbDriver(const QString &driver)
         {
            m_sqlManager = new SqliteManager;
         }
+        else if(m_dbDriver.contains("MYSQL",Qt::CaseInsensitive))
+        {
+            m_sqlManager = new MySqlManager;
+        }
     }
 }
 
