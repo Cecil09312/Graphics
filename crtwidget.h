@@ -61,7 +61,7 @@ private:
     void sendFireInfo(quint8 extNum, quint8 loopNum, quint8 addrNum, const QString &dateTimeStr);
     void setMySqlInfo();
    // void processAlarmHostInfo(quint8 type, QString &extNum, quint8 loopNum, quint8 addrNum, const QString &timeStr);
-
+    void hideTaskBar(bool isHidden);
 private:
     QWidget *m_alarmContainer;
     QWidget *m_toolBarContainer;

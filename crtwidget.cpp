@@ -17,6 +17,7 @@
 #include <time.h>
 #ifdef Q_OS_WIN
 #include <windows.h>
+#include <tchar.h>
 #endif
 #ifdef Q_OS_LINUX
 #define _SVID_SOURCE
@@ -314,7 +315,19 @@ CrtWidget::CrtWidget(QWidget *parent) :
 
     });
 
+    //   hideTaskBar(false);
+    //        connect(Controller::instance()->getUserManager(),&UserManager::userRightChanged,this,[=](const UserManager::UserRight& right)
+    //        {
+    //            if(right==UserManager::Super)
+    //            {
+    //                hideTaskBar(false);
+    //            }
+    //            else
+    //            {
+    //                hideTaskBar(true);
+    //            }
 
+    //        });
 }
 
 CrtWidget::~CrtWidget()
@@ -918,8 +931,8 @@ void CrtWidget::setMySqlInfo()
             sqlManager->executeQuery("create table fault_state ( sys_name text,fault_type text,fault_state text,run_state text);");
         }
 
-      //  qDebug() <<   Controller::instance()->getMySqlManager()->executeQuery("select *from alarm_info");
-      Controller::instance()->getMySqlManager()->executeQuery(QString("insert into sys_status values ('%1','%2','%3','%4','%5')").arg("自动报警系统").arg(tr("故障")).arg("常开门关闭").arg("正常").arg(tr("正常运行")));
+        //  qDebug() <<   Controller::instance()->getMySqlManager()->executeQuery("select *from alarm_info");
+        Controller::instance()->getMySqlManager()->executeQuery(QString("insert into sys_status values ('%1','%2','%3','%4','%5')").arg("自动报警系统").arg(tr("故障")).arg("常开门关闭").arg("正常").arg(tr("正常运行")));
     }
 }
 
@@ -1018,7 +1031,7 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
             m_architePlanView->createAlarm(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,alarmTypeHash[eventNum],false,timeStr);
             if(item!=nullptr)
             {
-               Controller::instance()->getMySqlManager()->executeQuery(QString("insert into alarm_info values ('%1','%2','%3','%4','%5')").arg(item->sysOfDevice()).arg(item->deviceNum()).arg(item->alarmType()).arg(item->currentState()).arg(timeStr));
+                Controller::instance()->getMySqlManager()->executeQuery(QString("insert into alarm_info values ('%1','%2','%3','%4','%5')").arg(item->sysOfDevice()).arg(item->deviceNum()).arg(item->alarmType()).arg(item->currentState()).arg(timeStr));
             }
 
             QString currentState;
@@ -1137,7 +1150,7 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
             m_architePlanView->eliminateAlarm(extNum,QString::number(loopNum),QString::number(addrNum),networkNum);
             if(item!=nullptr)
             {
-               Controller::instance()->getMySqlManager()->executeQuery(QString("delete from alarm_info where sys_name = '%1' and device_num = '%2'").arg(item->sysOfDevice()).arg(item->deviceNum()));
+                Controller::instance()->getMySqlManager()->executeQuery(QString("delete from alarm_info where sys_name = '%1' and device_num = '%2'").arg(item->sysOfDevice()).arg(item->deviceNum()));
             }
             if(eventNum==0x04)
             {
@@ -1589,3 +1602,71 @@ void CrtWidget::closeSys()
     process.waitForFinished();
 }
 
+void CrtWidget::hideTaskBar(bool isHidden)
+{
+    //隐藏任务栏
+#ifdef Q_OS_WIN
+
+    //#ifndef   ABM_SETSTATE
+    //#define   ABM_SETSTATE             0x0000000a
+    //#endif
+
+    //    LPARAM lParam;
+    //    if(isHidden)
+    //    {
+    //        lParam = ABS_AUTOHIDE;//自动隐藏
+    //    }
+    //    else
+    //    {
+    //        lParam = ABS_ALWAYSONTOP;//取消自动隐藏
+    //    }
+
+    //    APPBARDATA apBar;
+    //    memset(&apBar,0,sizeof(apBar));
+    //    apBar.cbSize = sizeof(apBar);
+    //    apBar.hWnd = FindWindow(_T("Shell_TrayWnd"), NULL);
+    //    if(apBar.hWnd != NULL)
+    //    {
+    //        apBar.lParam   =   lParam;
+    //        SHAppBarMessage(ABM_SETSTATE,&apBar); //设置任务栏自动隐藏
+    //    }
+    HWND hWnd = ::FindWindow(TEXT("Shell_traywnd"),TEXT(""));
+    if(!isHidden)
+    {
+
+        //::SHAppBarMessage
+        ::SetWindowPos(hWnd,0,0,0,0,0,SWP_SHOWWINDOW);
+    }
+    else
+    {
+        ::SetWindowPos(hWnd,0,0,0,0,0,SWP_HIDEWINDOW);
+    }
+
+#endif
+
+#ifdef Q_OS_LINUX
+    QProcess process;
+    if(!isHidden)
+    {
+        process.execute("gsettings set org.gnome.shell.extensions.dash-to-dock autohide true");
+        process.execute("gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed true");
+        process.execute("gsettings set org.gnome.shell.extensions.dash-to-dock intellihide true");
+    }
+    else
+    {
+        process.execute("gsettings set org.gnome.shell.extensions.dash-to-dock autohide false");
+        process.execute("gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed false");
+        process.execute("gsettings set org.gnome.shell.extensions.dash-to-dock intellihide false");
+    }
+
+    process.waitForStarted();
+    process.waitForFinished();
+#endif
+
+}
+
+//void AutoHideTaskBar(BOOL bHide)
+//{
+//      //这三句视情况加于不加
+
+//}
