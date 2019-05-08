@@ -218,7 +218,7 @@ QList<QSerialPortInfo> ConfigurationManager::getSerialPortInfo()
 QList<QString> ConfigurationManager::portName()
 {
     QList <QSerialPortInfo> portInfoList = getSerialPortInfo();
-    static  QList <QString> portNameList;
+   QList <QString> portNameList;
     foreach (QSerialPortInfo portInfo, portInfoList)
     {
         portNameList.push_back(portInfo.portName());

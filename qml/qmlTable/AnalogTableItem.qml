@@ -82,7 +82,7 @@ Item {
         ComboBox {
             id: analogComboBox
             height: 30
-            width: 100
+            width: 150
             model: [qsTr("高度(m)"), qsTr("温度(℃)"), qsTr(
                     "压力(Mpa)"), qsTr("压力(Kpa)"), qsTr(
                     "气体浓度(%LEL)"), qsTr("气体浓度(PPM)"), qsTr(
@@ -191,6 +191,12 @@ Item {
             width: 100
         }
 
+        Controls1_4.TableViewColumn {
+            role: "time"
+            title: qsTr("时间")
+            width: 150
+        }
+
         model: infoListModel
         onDoubleClicked: {
             var curExtNum = new String
@@ -211,13 +217,13 @@ Item {
         dbName: Crt.alarmInfoDbName()
         dbConnectionName: "analogInfoDb"
         dbPort: 9876
-        roleNameList: ["extNum", "loopNum", "addrNum", "networkNum", "curChannel", "analogType", "result"]
-        titleList: ["分机号", "回路号", "地址号", "网络号", "当前通道", "模拟量类型", "结果"]
+        roleNameList: ["extNum", "loopNum", "addrNum", "networkNum", "curChannel", "analogType", "result", "time"]
+        titleList: ["分机号", "回路号", "地址号", "网络号", "当前通道", "模拟量类型", "结果", "时间"]
     }
     function selectInfo() {
         var info = new String
         if (extNumTextField.text.length > 0) {
-            info += (qsTr("分机号=") + "'" + alarmInfoExtNumTextField.text + "'")
+            info += (qsTr("分机号=") + "'" + extNumTextField.text + "'")
         }
 
         if (loopNumTextField.text.length > 0) {
@@ -225,14 +231,14 @@ Item {
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("回路号=") + "'" + alarmInfoLoopNumTextField.text + "'")
+            info += (qsTr("回路号=") + "'" + loopNumTextField.text + "'")
         }
         if (addrNumTextField.text.length > 0) {
 
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("地址号=") + "'" + alarmInfoAddNumTextField.text + "'")
+            info += (qsTr("地址号=") + "'" + addrNumTextField.text + "'")
         }
 
         if (networkNumTextField.text.length > 0) {

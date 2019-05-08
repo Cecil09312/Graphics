@@ -10,6 +10,7 @@ IndicatorLightCom::IndicatorLightCom()
     m_thread->start();
     qRegisterMetaType<QList<QString> >("QList<QString>");
     qRegisterMetaType<QList<qint32> >("QList <qint32>");
+
     connect(m_serialPort,&QSerialPort::readyRead,this,&IndicatorLightCom::readData);
     connect(this,&IndicatorLightCom::writeData,this,[=](const QByteArray &array)
     {
@@ -19,6 +20,7 @@ IndicatorLightCom::IndicatorLightCom()
     {
         emit errorInfo(m_serialPort->errorString());
     });
+
 
 
     connect(this,&IndicatorLightCom::startConnect,this,[=]()

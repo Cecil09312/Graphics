@@ -47,7 +47,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
         }
         if(!tableNameList.contains("AnalogInfo"))
         {
-            m_sqliteManager->executeQuery("create table AnalogInfo(分机号 text, 回路号 text,地址号 text,网络号 text,当前通道 int, 模拟量类型 text ,结果 text)");
+            m_sqliteManager->executeQuery("create table AnalogInfo(分机号 text, 回路号 text,地址号 text,网络号 text,当前通道 int, 模拟量类型 text ,结果 text,时间 text)");
         }
     }
 
@@ -132,22 +132,25 @@ CrtWidget::CrtWidget(QWidget *parent) :
 
     connect(m_ftpManager,&FtpManager::sendFileSuccess,this,[=](bool isOk)
     {
+        QByteArray array;
+        array.resize(2);
         QList<QByteArray> arrayList;
         if(isOk)
         {
             QMetaObject::invokeMethod(m_alarmObj,"startTransformAnimation",Q_ARG(QVariant,false));
             QMetaObject::invokeMethod(m_alarmObj,"setTransformColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
-            arrayList.push_back(QString::number(0x04).toLocal8Bit());
-            arrayList.push_back(QString::number(0x00).toLocal8Bit());
+            array[0] = 0x04;
+            array[1] = 0x00;
         }
         else
         {
             QMetaObject::invokeMethod(m_alarmObj,"startTransformAnimation",Q_ARG(QVariant,false));
             QMetaObject::invokeMethod(m_alarmObj,"setTransformColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
-            arrayList.push_back(QString::number(0x04).toLocal8Bit());
-            arrayList.push_back(QString::number(0x01).toLocal8Bit());
+            array[0] = 0x04;
+            array[1] = 0x01;
         }
-
+        arrayList.push_back(array.left(1));
+        arrayList.push_back(array.right(1));
         Controller::instance()->getIndicatorObj()->writeData(m_indicatorProtocol->dataPackage(arrayList));
     });
 
@@ -155,8 +158,13 @@ CrtWidget::CrtWidget(QWidget *parent) :
     {
         Q_UNUSED(error)
         QList<QByteArray> arrayList;
-        arrayList.push_back(QString::number(0x03).toLocal8Bit());
-        arrayList.push_back(QString::number(0x00).toLocal8Bit());
+        QByteArray array;
+        array.resize(2);
+        array[0] = 0x03;
+        array[1] = 0x00;
+        arrayList.push_back(array.left(1));
+        arrayList.push_back(array.right(1));
+
         Controller::instance()->getSpeechObj()->insertAlarmText(tr("传输故障"));
         Controller::instance()->getIndicatorObj()->writeData(m_indicatorProtocol->dataPackage(arrayList));
         QMetaObject::invokeMethod(m_alarmObj,"startTransformAnimation",Q_ARG(QVariant,false));
@@ -167,6 +175,8 @@ CrtWidget::CrtWidget(QWidget *parent) :
     connect(m_ftpManager,&FtpManager::uploadProgress,this,[=](qint64 bytesSent, qint64 bytesTotal)
     {
         QList<QByteArray> arrayList;
+        QByteArray array;
+        array.resize(2);
         static int num=0;
         if(bytesSent>=bytesTotal)
         {
@@ -175,16 +185,17 @@ CrtWidget::CrtWidget(QWidget *parent) :
         if(num>0 && num%20==0)
         {
             QMetaObject::invokeMethod(m_alarmObj,"startTransformAnimation",Q_ARG(QVariant,true));
-            arrayList.push_back(QString::number(0x02).toLocal8Bit());
-            arrayList.push_back(QString::number(0x00).toLocal8Bit());
+            array[0]= 0x02;
+            array[1]= 0x00;
         }
         else
         {
-            arrayList.push_back(QString::number(0x02).toLocal8Bit());
-            arrayList.push_back(QString::number(0x01).toLocal8Bit());
+            array[0]= 0x02;
+            array[1]= 0x01;
         }
         num++;
-
+        arrayList.push_back(array.left(1));
+        arrayList.push_back(array.right(1));
         Controller::instance()->getIndicatorObj()->writeData(m_indicatorProtocol->dataPackage(arrayList));
     });
 
@@ -315,7 +326,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
 
     });
 
-    //   hideTaskBar(false);
+    //   hideTaskBar(true);
     //        connect(Controller::instance()->getUserManager(),&UserManager::userRightChanged,this,[=](const UserManager::UserRight& right)
     //        {
     //            if(right==UserManager::Super)
@@ -790,6 +801,7 @@ void CrtWidget::initWidget()
     m_settingView->setSource(QUrl("qrc:/qml/infoSetting/SettingWindow.qml"));
     m_settingView->setGeometry(300,50,m_settingView->width(),m_settingView->height());
     m_settingView->setTitle(tr("信息设置界面"));
+
     m_infoQueryView = new QQuickView;
     m_infoQueryView->setSource(QUrl("qrc:/qml/infoSetting/InfoQuery.qml"));
     m_infoQueryView->setGeometry(300,50,m_infoQueryView->width(),m_infoQueryView->height());
@@ -978,6 +990,7 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
         quint8 minute= minuteValue&0x7f;
         quint8 second= m_serialDataProtocol->dataByte(array,9);
 
+        // qDebug() <<"eventNum" <<eventNum;
         QString extNum = QString("%1").arg((type>>2)&0x3f);
 
 
@@ -985,8 +998,14 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
         {
             packageNum = m_serialDataProtocol->dataPackageNum(array);
             QList<QByteArray> sendDataArrayList;
-            sendDataArrayList.push_back(QString::number(packageNum).toLocal8Bit());
-            sendDataArrayList.push_back(QString::number(0x03).toLocal8Bit());
+            QByteArray array;
+            array.resize(3);
+            array[0] = packageNum;
+            array[1] = 0x03;
+            array[2] = 0x7e;
+            sendDataArrayList.push_back(array.left(1));
+            sendDataArrayList.push_back(array.mid(1,1));
+            sendDataArrayList.push_back(array.right(1));
             Controller::instance()->getCommObj()->writeData(m_serialDataProtocol->dataPackage(sendDataArrayList));
         }
 
@@ -1028,13 +1047,7 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
         case 0x0b:
         case 0x0d:
         {
-            m_architePlanView->createAlarm(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,alarmTypeHash[eventNum],false,timeStr);
-            if(item!=nullptr)
-            {
-                Controller::instance()->getMySqlManager()->executeQuery(QString("insert into alarm_info values ('%1','%2','%3','%4','%5')").arg(item->sysOfDevice()).arg(item->deviceNum()).arg(item->alarmType()).arg(item->currentState()).arg(timeStr));
-            }
-
-            QString currentState;
+            QString currentState = alarmTypeHash[eventNum];
             if(eventNum==0x03)
             {
                 switch ((type&0x03))
@@ -1049,8 +1062,6 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
                     currentState = tr("故障");
                     break;
                 }
-                m_architePlanView->updateAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,currentState);
-
 
                 if(!faultInfoList.contains(sysName)&&!faultInfoList.contains(tr("故障")))
                 {
@@ -1066,7 +1077,7 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
             {
                 if((type&0x03)==0x01)
                 {
-                    m_architePlanView->updateAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,tr("常开门关闭"));
+                    currentState = tr("常开门关闭");
                     if(!faultInfoList.contains(sysName)&&!faultInfoList.contains(tr("反馈")))
                     {
                         Controller::instance()->getMySqlManager()->executeQuery(QString("insert into fault_state values ('%1','%2','%3','%4')").arg(sysName).arg(tr("常开门关闭")).arg(currentState).arg(tr("正常运行")));
@@ -1093,23 +1104,31 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
                 {
                     if(year==0xa0)
                     {
-                        m_architePlanView->updateAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,tr("A0模块")+ faultStateHash[month]);
+                        currentState = tr("A0模块")+ faultStateHash[month];
                     }
                     else if(year==0xa1)
                     {
-                        m_architePlanView->updateAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,tr("A1通道")+ faultStateHash[month]);
+                        currentState = tr("A1通道")+ faultStateHash[month];
                     }
                     else if(year==0xa2)
                     {
-                        m_architePlanView->updateAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,tr("A2通道")+ faultStateHash[month]);
+                        currentState = tr("A2通道")+ faultStateHash[month];
                     }
                     else if(year==0xa3)
                     {
-                        m_architePlanView->updateAlarmState(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,tr("A3通道")+ faultStateHash[month]);
+                        currentState =tr("A3通道")+ faultStateHash[month];
                     }
 
                 }
 
+            }
+
+            if(item!=nullptr)
+            {
+                item->currentState()= currentState;
+                item->alarmType() = alarmTypeHash[eventNum];
+                m_architePlanView->createAlarm(item,timeStr);
+                Controller::instance()->getMySqlManager()->executeQuery(QString("insert into alarm_info values ('%1','%2','%3','%4','%5')").arg(item->sysOfDevice()).arg(item->deviceNum()).arg(item->alarmType()).arg(item->currentState()).arg(timeStr));
             }
         }
             break;
@@ -1379,7 +1398,6 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
             break;
         case 0xbb://模拟量
         {
-
             int curChannel=0;
             if(second==0xa0)
             {
@@ -1473,7 +1491,7 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
 
             if(item!=nullptr)
             {
-                m_sqliteManager->executeQuery(QString("insert into AnalogInfo values('%1','%2','%3','%4','%5','%6','%7')").arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->networkNum()).arg(curChannel).arg(item->analogType()).arg(item->anlogValueHah().value(curChannel).toString()));
+                m_sqliteManager->executeQuery(QString("insert into AnalogInfo values('%1','%2','%3','%4','%5','%6','%7','%8')").arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->networkNum()).arg(curChannel).arg(item->analogType()).arg(item->anlogValueHah().value(curChannel).toString()).arg(QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss")));
             }
         }
             break;
@@ -1572,18 +1590,58 @@ void CrtWidget::sendAnalogCommand(quint8 networkNum,quint8 extNum,quint8 loopNum
     static quint8 num =0;
     num++;
     num = num%256;
-    QList<QByteArray>dataArrayList;
-    dataArrayList.push_back(QString::number(num).toLocal8Bit());
-    dataArrayList.push_back(QString::number(0x08).toLocal8Bit());
-    dataArrayList.push_back(QString::number(0xbc).toLocal8Bit());
-    dataArrayList.push_back(QString::number(networkNum).toLocal8Bit());
-    dataArrayList.push_back(QString::number(extNum).toLocal8Bit());
-    dataArrayList.push_back(QString::number(loopNum).toLocal8Bit());
-    dataArrayList.push_back(QString::number(addrNum).toLocal8Bit());
     quint8 curChannel= ((channelNum&0xe0)|(analogTypeHash.key(analogType)&0x1f));
-    dataArrayList.push_back(QString::number(curChannel).toLocal8Bit());
-    QByteArray array= m_serialDataProtocol->dataPackage(dataArrayList);
+
+    QByteArray packageArray;
+    packageArray.resize(8);
+    QList<QByteArray>dataArrayList;
+    packageArray[0] = num;
+    packageArray[1] = 0x08;
+    packageArray[2] = 0xbc;
+    packageArray[3] = networkNum;
+    packageArray[4] = extNum;
+    packageArray[5] = loopNum;
+    packageArray[6] = addrNum;
+    packageArray[7] = curChannel;
+
+    dataArrayList.push_back(packageArray.mid(0,1));
+    dataArrayList.push_back(packageArray.mid(1,1));
+    dataArrayList.push_back(packageArray.mid(2,1));
+    dataArrayList.push_back(packageArray.mid(3,1));
+    dataArrayList.push_back(packageArray.mid(4,1));
+    dataArrayList.push_back(packageArray.mid(5,1));
+    dataArrayList.push_back(packageArray.mid(6,1));
+    dataArrayList.push_back(packageArray.mid(7,1));
+
+    QByteArray sendDataArray= m_serialDataProtocol->dataPackage(dataArrayList);
+    Controller::instance()->getCommObj()->sendData(sendDataArray);
+}
+
+void CrtWidget::sendSeralData()
+{
+    QByteArray array;
+    array.resize(15);
+
+    array[0] =0x7e;
+    array[1] =0x29;
+    array[2] =0x0a;
+    array[3] =0xbb;
+    array[4] =0x01;
+
+    array[5] =0x01;
+    array[6] =0x08;
+    array[7] =0x01;
+    array[8] =0xc0;
+    array[9] =0xd5;
+    array[10] =0x02;
+
+    array[11] =0x09;
+    array[12] =0xa0;
+    array[13] =0x06;
+    array[14] =0x7e;
+
     Controller::instance()->getCommObj()->sendData(array);
+
 }
 
 

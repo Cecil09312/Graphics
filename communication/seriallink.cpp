@@ -12,10 +12,12 @@ SerialLink::SerialLink( QObject *parent)
     m_thread->start();
     qRegisterMetaType<QList<QString> >("QList<QString>");
     qRegisterMetaType<QList<qint32> >("QList <qint32>");
+
     connect(m_serialPort,&QSerialPort::readyRead,this,&SerialLink::readData);
     connect(this,&SerialLink::writeData,this,[=](const QByteArray &array)
     {
         m_serialPort->write(array);
+        qDebug() << array.toHex();
     });
 
 
@@ -46,6 +48,8 @@ SerialLink::SerialLink( QObject *parent)
 
     });
 
+
+
     connect(this,&SerialLink::stopConnect,this,[=]()
     {
         m_serialPort->close();
@@ -74,6 +78,7 @@ void SerialLink::readData()
 {
     QByteArray array = m_serialPort->readAll();
     emit getData(array);
+    qDebug() << "************";
 }
 
 

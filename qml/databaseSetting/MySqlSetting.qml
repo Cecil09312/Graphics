@@ -78,7 +78,11 @@ Item {
                 TextField {
                     id: databaseNameTextField
                 }
+            }
 
+            Row {
+
+                spacing: 5
                 Button {
                     id: saveBtn
                     text: qsTr("保存")
@@ -137,6 +141,19 @@ Item {
                             connectStateText.text = qsTr("数据库连接:成功")
                             connectStateText.color = "green"
                         }
+                    }
+                }
+
+                Button {
+                    id: closeBtn
+                    text: qsTr("关闭")
+                    onClicked: {
+                        MySqlManager.close()
+                        if (!SpeechObj.alarmTextExist(qsTr("MySql数据库连接失败"))) {
+                            SpeechObj.insertAlarmText(qsTr("MySql数据库连接失败"))
+                        }
+                        connectStateText.text = qsTr("数据库连接:失败")
+                        connectStateText.color = "red"
                     }
                 }
             }

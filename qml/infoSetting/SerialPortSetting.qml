@@ -115,9 +115,21 @@ Rectangle {
                 }
 
                 Button {
-                    id: saveBtn
-                    text: qsTr("保存")
+                    id: flushBtn
+                    text: qsTr("刷新")
                     Layout.row: 6
+                    Layout.column: 1
+
+                    Layout.fillWidth: true
+                    onClicked: {
+                        setPortName()
+                    }
+                }
+
+                Button {
+                    id: saveBtn
+                    text: qsTr("保存并打开")
+                    Layout.row: 7
                     Layout.column: 1
 
                     Layout.fillWidth: true
@@ -143,6 +155,17 @@ Rectangle {
                         SerialPortInfo.setConfiguration()
                         SerialPortInfo.saveConfiguration()
                         SerialLink.connectLink()
+                    }
+                }
+
+                Button {
+                    id: closeBtn
+                    text: "关闭"
+                    Layout.row: 8
+                    Layout.column: 1
+                    Layout.fillWidth: true
+                    onClicked: {
+                        SerialLink.disconnectLink()
                     }
                 }
             }
@@ -236,9 +259,21 @@ Rectangle {
                 }
 
                 Button {
-                    id: saveBtn1
-                    text: qsTr("保存")
+                    id: flushBtn1
+                    text: qsTr("刷新")
                     Layout.row: 6
+                    Layout.column: 1
+
+                    Layout.fillWidth: true
+                    onClicked: {
+                        setPortName1()
+                    }
+                }
+
+                Button {
+                    id: saveBtn1
+                    text: qsTr("保存并打开")
+                    Layout.row: 7
                     Layout.column: 1
 
                     Layout.fillWidth: true
@@ -267,6 +302,18 @@ Rectangle {
                         IndicatorLightCom.connectLink()
                     }
                 }
+
+                Button {
+                    id: closeBtn1
+                    text: qsTr("关闭")
+                    Layout.row: 8
+                    Layout.column: 1
+
+                    Layout.fillWidth: true
+                    onClicked: {
+                        IndicatorLightCom.disconnectLink()
+                    }
+                }
             }
         }
     }
@@ -274,6 +321,7 @@ Rectangle {
     Component.onCompleted: {
         setBaudRatesValue()
         setPortName()
+        setPortName1()
         setDataBits()
         setStopBits()
         setParity()
@@ -302,15 +350,20 @@ Rectangle {
                     String("%1").arg(IndicatorConfiguration.currentBaudRate()))
     }
     function setPortName() {
-        for (var i = 0; i < SerialPortInfo.portNameNum(); i++) {
+        portListModel.clear()
 
+        for (var i = 0; i < SerialPortInfo.portNameNum(); i++) {
             portListModel.insert(i, {
                                      value: SerialPortInfo.portNameValue(i)
                                  })
         }
         portComboBox.currentIndex = portComboBox.find(
                     SerialPortInfo.currentPortName())
+    }
 
+    function setPortName1() {
+
+        portListModel1.clear()
         for (var j = 0; j < IndicatorConfiguration.portNameNum(); j++) {
 
             portListModel1.insert(j, {
@@ -321,6 +374,7 @@ Rectangle {
         portComboBox1.currentIndex = portComboBox1.find(
                     IndicatorConfiguration.currentPortName())
     }
+
     function setDataBits() {
         dataBitsComboBox.currentIndex = dataBitsComboBox.find(
                     String("%1").arg(SerialPortInfo.currentDataBits()))

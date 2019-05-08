@@ -5,6 +5,7 @@ import QtQuick.Controls 2.2
 import QtQuick.Controls.Styles 1.4
 import operatorInfo 1.0
 import speechObj 1.0
+import crtWidget 1.0
 
 Rectangle {
     width: 150
@@ -375,6 +376,9 @@ Rectangle {
             text: qsTr("报警平面")
             onClicked: {
                 ArchitePlanView.toAlarmView()
+
+                /*测试*/
+                CrtWidget.sendSeralData()
                 // ArchitePlanView.createAlarm("0", "0", "2", qsTr("故障"))
             }
             onPressed: {
@@ -649,8 +653,8 @@ Rectangle {
         setShieldAlarmColor(true, "green")
         setMainConnunicationColor(true, "green")
         setStandbyPowerColor(true, "green")
-//        setEquiComColor(true, "green")
-//        setCenterComColor(true, "green")
+        //        setEquiComColor(true, "green")
+        //        setCenterComColor(true, "green")
         setFireAlarmText("0")
         setLinkageText("0")
         setSuperviseText("0")

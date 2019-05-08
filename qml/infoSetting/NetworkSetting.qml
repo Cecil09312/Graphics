@@ -41,20 +41,33 @@ Item {
                     Layout.column: 1
                 }
 
-                Button {
-                    id: saveTcpInfoBtn
-                    text: qsTr("保存")
+                Row {
+                    spacing: 5
                     Layout.row: 2
                     Layout.column: 1
+                    Button {
+                        id: saveTcpInfoBtn
+                        text: qsTr("保存并连接")
 
-                    onClicked: {
-                        TcpInfo.setConfigurationValue("hostAddr",
-                                                      tcpAddrTextField.text)
-                        TcpInfo.setConfigurationValue(
-                                    "port", parseInt(tcpPortTextField.text))
-                        TcpInfo.setConfiguration()
-                        TcpInfo.saveConfiguration()
-                        TcpLink.connectLink()
+                        onClicked: {
+                            TcpInfo.setConfigurationValue("hostAddr",
+                                                          tcpAddrTextField.text)
+                            TcpInfo.setConfigurationValue(
+                                        "port", parseInt(tcpPortTextField.text))
+                            TcpInfo.setConfiguration()
+                            TcpInfo.saveConfiguration()
+                            TcpLink.connectLink()
+                        }
+                    }
+
+                    Button {
+                        id: closeTcpInfoBtn
+                        text: qsTr("关闭")
+
+                        onClicked: {
+
+                            TcpLink.disconnectLink()
+                        }
                     }
                 }
             }

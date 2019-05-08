@@ -24,12 +24,12 @@ QByteArray SerialDataProtocol::dataPackage(const QList<QByteArray> &arrayList)
         {
             array.push_back(customArray);//包括包序号、包长、数据。
         }
-        if(arrayList.size()>2)
+        if(arrayList.size()>1)
         {
             quint32 sum=0;
-            for(int i=2;i<arrayList.size();i++)
+            for(int i=1;i<arrayList.size();i++)
             {
-                sum +=dataByte(arrayList.at(i),i);
+                sum +=dataByte(arrayList.at(i),0);
             }
             verifyData = sum&0xff;
         }
