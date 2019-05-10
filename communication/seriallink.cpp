@@ -78,7 +78,6 @@ void SerialLink::readData()
 {
     QByteArray array = m_serialPort->readAll();
     emit getData(array);
-    qDebug() << "************";
 }
 
 

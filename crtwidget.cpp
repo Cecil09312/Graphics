@@ -27,7 +27,8 @@
 CrtWidget::CrtWidget(QWidget *parent) :
     QOpenGLWidget(parent),
     m_monitoringPackageNum(0),
-    m_heartbeatIndex(0)
+    m_heartbeatIndex(0),
+    m_tcpIsConnected(true)
 {
 
     setWindowFlags(Qt::FramelessWindowHint|Qt::Window);
@@ -45,10 +46,12 @@ CrtWidget::CrtWidget(QWidget *parent) :
         {
             m_sqliteManager->executeQuery("create table AlarmInfo(分机号 text, 回路号 text,地址号 text,网络号 text,设备编码 text ,设备 text,报警类型 text,报警状态 text,报警时间 text,报警恢复时间 text,系统 text,建筑名称 text,楼层 text,位置 text,制造商 text,有效期 text,操作员 text)");
         }
+
         if(!tableNameList.contains("AnalogInfo"))
         {
             m_sqliteManager->executeQuery("create table AnalogInfo(分机号 text, 回路号 text,地址号 text,网络号 text,当前通道 int, 模拟量类型 text ,结果 text,时间 text)");
         }
+
     }
 
 
@@ -177,12 +180,8 @@ CrtWidget::CrtWidget(QWidget *parent) :
         QList<QByteArray> arrayList;
         QByteArray array;
         array.resize(2);
-        static int num=0;
-        if(bytesSent>=bytesTotal)
-        {
-            num = 0;
-        }
-        if(num>0 && num%20==0)
+
+        if(bytesSent<bytesTotal)
         {
             QMetaObject::invokeMethod(m_alarmObj,"startTransformAnimation",Q_ARG(QVariant,true));
             array[0]= 0x02;
@@ -193,7 +192,6 @@ CrtWidget::CrtWidget(QWidget *parent) :
             array[0]= 0x02;
             array[1]= 0x01;
         }
-        num++;
         arrayList.push_back(array.left(1));
         arrayList.push_back(array.right(1));
         Controller::instance()->getIndicatorObj()->writeData(m_indicatorProtocol->dataPackage(arrayList));
@@ -210,17 +208,15 @@ CrtWidget::CrtWidget(QWidget *parent) :
 
     connect(m_controlCenterHeartbeatTimer,&QTimer::timeout,this,[=]()
     {
-
-        static int index =0;
-        if(m_heartbeatIndex>0 && m_heartbeatIndex==index)
+        if(m_tcpIsConnected)
         {
             QList<QByteArray>dataArrayList;
             dataArrayList.push_back(QString("%1").arg(19,4,10,QChar('0')).toLocal8Bit());
-            dataArrayList.push_back(QString("%1").arg(index,4,10,QChar('0')).toLocal8Bit());
+            dataArrayList.push_back(QString("%1").arg(m_heartbeatIndex,4,10,QChar('0')).toLocal8Bit());
             dataArrayList.push_back(QString("%1").arg(999).toLocal8Bit());
             QByteArray sendArray=  m_monitoringProtocol->dataPackage(dataArrayList);
             Controller::instance()->getTcpObj()->writeData(sendArray);
-            index++;
+            m_tcpIsConnected = false;
         }
         else
         {
@@ -290,7 +286,6 @@ CrtWidget::CrtWidget(QWidget *parent) :
         {
             QMetaObject::invokeMethod(m_alarmObj,"setEquiComColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));//主机通信
             Controller::instance()->getSpeechObj()->removeAlarmText(tr("主机通信故障"));
-
         }
         else
         {
@@ -339,6 +334,10 @@ CrtWidget::CrtWidget(QWidget *parent) :
     //            }
 
     //        });
+
+    //    QDateTime dateTime = QDateTime::currentDateTime();
+    //   dateTime= dateTime.addMonths(-3);
+    //    qDebug() << dateTime.toString("yyyy/MM/dd hh:mm:ss");
 }
 
 CrtWidget::~CrtWidget()
@@ -852,8 +851,6 @@ bool CrtWidget::setSysTime(const QDateTime &dateTime)
     system_time.wHour = dateTime.time().hour();
     system_time.wMinute = dateTime.time().minute();
     system_time.wSecond = dateTime.time().second();
-
-
     if(SetLocalTime(&system_time)==0)
     {
         isSuccess= false;
@@ -942,8 +939,6 @@ void CrtWidget::setMySqlInfo()
         {
             sqlManager->executeQuery("create table fault_state ( sys_name text,fault_type text,fault_state text,run_state text);");
         }
-
-        //  qDebug() <<   Controller::instance()->getMySqlManager()->executeQuery("select *from alarm_info");
         Controller::instance()->getMySqlManager()->executeQuery(QString("insert into sys_status values ('%1','%2','%3','%4','%5')").arg("自动报警系统").arg(tr("故障")).arg("常开门关闭").arg("正常").arg(tr("正常运行")));
     }
 }
@@ -989,11 +984,7 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
         quint8 hour = m_serialDataProtocol->dataByte(array,7);
         quint8 minute= minuteValue&0x7f;
         quint8 second= m_serialDataProtocol->dataByte(array,9);
-
-        // qDebug() <<"eventNum" <<eventNum;
         QString extNum = QString("%1").arg((type>>2)&0x3f);
-
-
         if(packageNum!=m_serialDataProtocol->dataPackageNum(array))
         {
             packageNum = m_serialDataProtocol->dataPackageNum(array);
@@ -1521,7 +1512,6 @@ void CrtWidget::tcpDataProcessing(const QByteArray &arrayValue)
         int indexNum = indexArray.toInt();
         if(dataSize==8)
         {
-
             if(indexNum==m_monitoringPackageNum)
             {
                 //火警信息接收成功
@@ -1535,7 +1525,6 @@ void CrtWidget::tcpDataProcessing(const QByteArray &arrayValue)
             sendArrayList.push_back(indexArray);
             Controller::instance()->getTcpObj()->writeData(m_monitoringProtocol->dataPackage(sendArrayList));
             QByteArray typeArray=   dataArray.right(3);
-
             QString infoPath=  Controller::instance()->getTransportInfo()->transportInfo(typeInfoHash[typeArray.toInt()]);
             if(!infoPath.isEmpty())
             {
@@ -1545,20 +1534,11 @@ void CrtWidget::tcpDataProcessing(const QByteArray &arrayValue)
         }
         else if(dataSize==11)
         {
-
-            m_heartbeatIndex = indexNum;
-            //            QList<QByteArray> sendArrayList;
-            //            sendArrayList.push_back(QString("%1").arg(16,4,10,QChar('0')).toLocal8Bit());
-            //            sendArrayList.push_back(indexArray);
-            //            Controller::instance()->getTcpObj()->writeData(m_monitoringProtocol->dataPackage(sendArrayList));
-            //            QByteArray typeArray=   dataArray.right(3);
-
-            //            QString infoPath=  Controller::instance()->getTransportInfo()->transportInfo(typeInfoHash[typeArray.toInt()]);
-            //            if(!infoPath.isEmpty())
-            //            {
-            //                m_ftpManager->uploadFile(infoPath);
-            //            }
-
+            if(m_heartbeatIndex == indexNum)
+            {
+                m_heartbeatIndex++;
+                m_tcpIsConnected = true;
+            }
         }
     }
 }
@@ -1621,20 +1601,17 @@ void CrtWidget::sendSeralData()
 {
     QByteArray array;
     array.resize(15);
-
     array[0] =0x7e;
     array[1] =0x29;
     array[2] =0x0a;
     array[3] =0xbb;
     array[4] =0x01;
-
     array[5] =0x01;
     array[6] =0x08;
     array[7] =0x01;
     array[8] =0xc0;
     array[9] =0xd5;
     array[10] =0x02;
-
     array[11] =0x09;
     array[12] =0xa0;
     array[13] =0x06;

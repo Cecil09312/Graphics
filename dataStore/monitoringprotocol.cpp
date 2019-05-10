@@ -24,8 +24,8 @@ QList<QByteArray> MonitoringProtocol::frameData(const QByteArray &array)
         while (m_receiveDataArray.contains(start))
         {
             int startIndex = m_receiveDataArray.indexOf("START");
-            int endIndex = m_receiveDataArray.indexOf("END");
-            qDebug() << startIndex << endIndex;
+           // int endIndex = m_receiveDataArray.indexOf("END");
+            //qDebug() << startIndex << endIndex;
             int arraySize = m_receiveDataArray.size();
 
 
@@ -38,9 +38,11 @@ QList<QByteArray> MonitoringProtocol::frameData(const QByteArray &array)
             {
                 QByteArray packageLenArray= dataBytes(m_receiveDataArray,5,8);
                 int packageLen= packageLenArray.toInt();
+                qDebug() << "packageLen" << packageLen;
                 if(m_receiveDataArray.size()>=packageLen)
                 {
                     QByteArray frameArray = m_receiveDataArray.mid(startIndex,packageLen);
+                    qDebug() << frameArray;
 
                     if(frameArray.right(3)==QByteArray(end))
                     {
@@ -66,6 +68,7 @@ QList<QByteArray> MonitoringProtocol::frameData(const QByteArray &array)
         }
     });
     futute.waitForFinished();
+
 
     return arrayList;
 }

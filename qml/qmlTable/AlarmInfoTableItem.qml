@@ -131,6 +131,21 @@ Item {
                 }
             }
 
+
+            Button {
+                id: alarmInfoDeleteBtn
+                text: qsTr("删除")
+                height: 30
+                width: 80
+                onClicked: {
+                    var info =  new String
+                    info= selectInfo();
+                    if(info.length>0)
+                    {
+                        alarmInfoListModel.sqlCommit( String("delete  from AlarmInfo where %1").arg(selectInfo()))
+                    }
+                }
+            }
             Button {
                 id: alarmInfoClearBtn
                 text: qsTr("清空")

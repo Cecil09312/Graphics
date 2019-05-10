@@ -13,6 +13,9 @@ OperatorInfo::OperatorInfo(QObject *parent)
     m_sqlManager->open();
     if(m_sqlManager->isOpen())
     {
+        QDateTime curDateTime = QDateTime::currentDateTime();
+        curDateTime = curDateTime.addMonths(-6);
+        QString curDateTimeStr = curDateTime.toString("yyyy/MM/dd hh:mm:ss");
         QStringList maintenanceList;
         maintenanceList << "设备编码 text primary key not null"<<"维保时间 text not null"<<"状态现象 text"<<"维保方法 text"<<"内容描述 text"<<"维保员 text"<<"楼层 text" <<"部位 text"<<"系统 text" <<"建筑名称 text"<<"值班人员 text" <<"操作人员 text";
         m_maintInfoTableSize= maintenanceList.size();
@@ -21,10 +24,19 @@ OperatorInfo::OperatorInfo(QObject *parent)
         {
             m_sqlManager->executeQuery("create table operator(用户名 text,用户权限 text,事件 text,结果 text,时间 text)");
         }
+        else
+        {
+            m_sqlManager->executeQuery(QString("delete from operator where 时间 <='%1'").arg(curDateTimeStr));
+
+        }
 
         if(!tableList.contains("maintenance"))
         {
             m_sqlManager->executeQuery(QString("create table maintenance(%1)").arg(maintenanceList.join(",")));
+        }
+        else
+        {
+            m_sqlManager->executeQuery(QString("delete from maintenance where 维保时间<='%1'").arg(curDateTimeStr));
         }
     }
 }

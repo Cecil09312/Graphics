@@ -131,6 +131,23 @@ Item {
         }
 
         Button {
+            id: infoDeleteBtn
+            text: qsTr("删除")
+            height: 30
+            width: 80
+
+            onClicked: {
+                var info = new String
+                info = selectInfo()
+                if (info.length > 0) {
+                    infoListModel.sqlCommit(
+                                String("delete  from AnalogInfo where %1").arg(
+                                    info))
+                }
+            }
+        }
+
+        Button {
             id: infoClearBtn
             text: qsTr("清空")
             height: 30
@@ -263,7 +280,8 @@ Item {
                 if (info.length > 0) {
                     info += " and "
                 }
-                info += (qsTr("当前通道=") + "'" + analogComboBox.currentText + "'")
+                info += (qsTr(
+                             "模拟量类型=") + "'" + analogComboBox.currentText + "'")
             }
         }
 

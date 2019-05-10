@@ -83,6 +83,7 @@ private:
     FtpManager *m_ftpManager;
     QTimer *m_controlCenterHeartbeatTimer;
     int m_heartbeatIndex;
+    bool m_tcpIsConnected;
 
 //    QHash<QString,int>m_packageNumHash;
 };

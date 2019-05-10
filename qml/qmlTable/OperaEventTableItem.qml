@@ -87,6 +87,22 @@ Item {
         }
 
         Button {
+            id: operaEventQueryDeleteBtn
+            text: qsTr("删除")
+            height: 30
+            width: 80
+            onClicked: {
+                var info = new String
+                info = selectInfo()
+                if (info.length > 0) {
+                    operaEventQueryModel.sqlCommit(
+                                String("delete from operator where %1").arg(
+                                    info))
+                }
+            }
+        }
+
+        Button {
             id: operaEventQueryClearBtn
             text: qsTr("清空")
             height: 30

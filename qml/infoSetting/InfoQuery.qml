@@ -8,7 +8,7 @@ import QtQuick.Controls.Styles 1.4
 Item {
 
     id: root
-    width: 900
+    width: 980
     height: 680
     Row {
 
