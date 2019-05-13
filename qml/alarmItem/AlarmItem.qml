@@ -124,7 +124,7 @@ Rectangle {
             active: true
             ColorAnimation on color {
                 id: superviseAnimation
-                from: "red"
+                from: "orange"
                 to: "black"
                 duration: 1000
                 loops: Animation.Infinite
@@ -173,7 +173,7 @@ Rectangle {
             ColorAnimation on color {
 
                 id: feedbackAnimation
-                from: "red"
+                from: "blue"
                 to: "black"
                 duration: 1000
                 loops: Animation.Infinite
@@ -197,7 +197,7 @@ Rectangle {
             active: true
             ColorAnimation on color {
                 id: shieldAnimation
-                from: "red"
+                from: "pink"
                 to: "black"
                 duration: 1000
                 loops: Animation.Infinite
@@ -218,7 +218,7 @@ Rectangle {
             Layout.column: 0
             Layout.row: 6
             color: "green"
-            active: false
+            active: true
             ColorAnimation on color {
                 id: mainPowerAnimation
                 from: "red"
@@ -242,7 +242,7 @@ Rectangle {
             Layout.column: 0
             Layout.row: 7
             color: "green"
-            active: false
+            active: true
             ColorAnimation on color {
                 id: standbyPowerAnimation
                 from: "red"
@@ -265,8 +265,8 @@ Rectangle {
             id: transformIndicator //传输指示，传输正常：绿色；异常：红色；传输过程中闪烁。
             Layout.column: 0
             Layout.row: 8
-            color: "green"
-            active: false
+            color: "gray"
+            active: true
             ColorAnimation on color {
                 id: transformAnimation
                 from: "green"
@@ -290,7 +290,7 @@ Rectangle {
             Layout.column: 0
             Layout.row: 9
             color: "green"
-            active: false
+            active: true
             ColorAnimation on color {
                 id: equiComAnimation
                 from: "red"
@@ -315,7 +315,7 @@ Rectangle {
             Layout.column: 0
             Layout.row: 10
             color: "green"
-            active: false
+            active: true
             ColorAnimation on color {
                 id: centerComAnimation
                 from: "red"
@@ -378,8 +378,7 @@ Rectangle {
                 ArchitePlanView.toAlarmView()
 
                 /*测试*/
-                CrtWidget.sendSeralData()
-                // ArchitePlanView.createAlarm("0", "0", "2", qsTr("故障"))
+                //CrtWidget.sendSeralData()
             }
             onPressed: {
                 highlighted = true
@@ -504,7 +503,7 @@ Rectangle {
         shieldStatusIndicator.active = isActived
     }
 
-    function setMainConnunicationColor(isActived, currentColor) {
+    function setMainPowerColor(isActived, currentColor) {
         mainPowerIndicator.color = currentColor
         mainPowerIndicator.active = isActived
     }
@@ -583,12 +582,21 @@ Rectangle {
         }
     }
 
-    function startMainConnunicationAnimation(isRunning) {
+    function startMainPowerAnimation(isRunning) {
         if (isRunning) {
             if (!mainPowerAnimation.running)
                 mainPowerAnimation.start()
         } else {
             mainPowerAnimation.stop()
+        }
+    }
+
+    function startStandbyPowerAnimation(isRunning) {
+        if (isRunning) {
+            if (!standbyPowerAnimation.running)
+                standbyPowerAnimation.start()
+        } else {
+            standbyPowerAnimation.stop()
         }
     }
 
@@ -637,7 +645,8 @@ Rectangle {
         startFaultAnimation(false)
         startFeedbackAnimation(false)
         startShieldAnimation(false)
-        startMainConnunicationAnimation(false)
+        startMainPowerAnimation(false)
+        startStandbyPowerAnimation(false)
 
         if (alarmColorRedu) {
             setFireAlarmColor(true, "green")
@@ -651,7 +660,7 @@ Rectangle {
         setfaultAlarmColor(true, "green")
         setFeedbackColor(true, "green")
         setShieldAlarmColor(true, "green")
-        setMainConnunicationColor(true, "green")
+        setMainPowerColor(true, "green")
         setStandbyPowerColor(true, "green")
         //        setEquiComColor(true, "green")
         //        setCenterComColor(true, "green")

@@ -53,7 +53,7 @@ public slots:
     void openHelpFile();
     void sendAnalogCommand(quint8 networkNum, quint8 extNum, quint8 loopNum, quint8 addrNum, quint8 channelNum, const QString &analogType);
    /*测试*/
-    void sendSeralData();
+  // void sendSeralData();
 
 private:
     void closeSys();

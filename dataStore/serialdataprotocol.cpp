@@ -49,9 +49,9 @@ QList<QByteArray> SerialDataProtocol::frameData(const QByteArray &array)
     {
         m_receiveDataArray.append(array);
 
-        int size = m_receiveDataArray.size();
         while (m_receiveDataArray.contains(0x7e))
         {
+            int size = m_receiveDataArray.size();
             int startIndex=m_receiveDataArray.indexOf(0x7e);
             if(startIndex>0)
             {
@@ -84,6 +84,15 @@ QList<QByteArray> SerialDataProtocol::frameData(const QByteArray &array)
                                 dataArray.remove(0,10);
                             }
 
+                        }
+                        else
+                        {
+                             m_receiveDataArray.remove(0,frameLen+5);
+                             emit errorFrameData(frameArray);
+                             if(m_receiveDataArray.isEmpty())
+                             {
+                                 break;
+                             }
                         }
                     }
                     else

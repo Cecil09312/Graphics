@@ -4,6 +4,7 @@
 
 class IndicatorDataProtocol : public AbstractDataProtocol
 {
+    Q_OBJECT
 public:
     IndicatorDataProtocol();
     ~IndicatorDataProtocol();

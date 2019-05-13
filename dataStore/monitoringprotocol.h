@@ -4,6 +4,7 @@
 #include "abstractdataprotocol.h"
 class MonitoringProtocol : public AbstractDataProtocol
 {
+    Q_OBJECT
 public:
     MonitoringProtocol();
     ~MonitoringProtocol();

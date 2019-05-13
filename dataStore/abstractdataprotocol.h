@@ -2,9 +2,11 @@
 #define ABSTRACTDATAPROTOCOL_H
 #include <QByteArray>
 #include <QDebug>
+#include <QObject>
 
-class AbstractDataProtocol
+class AbstractDataProtocol:public QObject
 {
+    Q_OBJECT
 public:
     AbstractDataProtocol();
     virtual ~AbstractDataProtocol();
@@ -13,6 +15,8 @@ public:
     virtual int dataPackageNum(const QByteArray &dataArray)=0;
     QByteArray dataBytes(QByteArray frameArray,int start,int end);
     virtual QByteArray dataPackage(const QList<QByteArray> &arrayList)=0;
+signals:
+    void errorFrameData(const QByteArray &errorArray);
 };
 
 #endif // ABSTRACTDATAPROTOCOL_H

@@ -4,6 +4,7 @@
 
 class SerialDataProtocol : public AbstractDataProtocol
 {
+    Q_OBJECT
 public:
     SerialDataProtocol();
     ~SerialDataProtocol();

@@ -1312,13 +1312,15 @@ void ArchitePlanView::clearAlarm(bool alarmColorRedu)
                 Controller::instance()->getSpeechObj()->removeAlarmText(currentPos);
             }
 
-            DataStore::clearTypeItem();
-            clearAlarmWidget();
-            m_alarmViewList.clear();
-            emit noPage();
-            emit reduInstruction(alarmColorRedu);
+
         }
     }
+
+    DataStore::clearTypeItem();
+    clearAlarmWidget();
+    m_alarmViewList.clear();
+    emit noPage();
+    emit reduInstruction(alarmColorRedu);
 
     QList<QGraphicsItem*> globalGraphicsItemList= m_globalGraphicsView->currentScene()->items();
     foreach (QGraphicsItem*item, globalGraphicsItemList)

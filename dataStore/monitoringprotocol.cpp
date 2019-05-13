@@ -38,11 +38,11 @@ QList<QByteArray> MonitoringProtocol::frameData(const QByteArray &array)
             {
                 QByteArray packageLenArray= dataBytes(m_receiveDataArray,5,8);
                 int packageLen= packageLenArray.toInt();
-                qDebug() << "packageLen" << packageLen;
+               // qDebug() << "packageLen" << packageLen;
                 if(m_receiveDataArray.size()>=packageLen)
                 {
                     QByteArray frameArray = m_receiveDataArray.mid(startIndex,packageLen);
-                    qDebug() << frameArray;
+                   // qDebug() << frameArray;
 
                     if(frameArray.right(3)==QByteArray(end))
                     {
@@ -54,6 +54,10 @@ QList<QByteArray> MonitoringProtocol::frameData(const QByteArray &array)
                     else
                     {
                         m_receiveDataArray.remove(startIndex,5);//删除START
+                        if(m_receiveDataArray.isEmpty())
+                        {
+                            break;
+                        }
                     }
                 }
                 else
