@@ -10,6 +10,7 @@ Item {
     id: root
     width: 980
     height: 680
+
     Row {
 
         anchors.top: parent.top

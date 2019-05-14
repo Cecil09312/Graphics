@@ -1,7 +1,7 @@
 ﻿#include "qmlforjson.h"
 #include <QJsonDocument>
 #include <QVariant>
-
+#include <QFutureWatcher>
 //QString QmlForJson::s_filePath = QApplication::applicationDirPath()+"/";
 QmlForJson::QmlForJson(QObject *parent)
     : QObject(parent)
@@ -22,7 +22,8 @@ void QmlForJson::writeFile(const QVariant &value,const QString &fileName)
             file.close();
         }
     });
-    future.waitForFinished();
+
+   future.waitForFinished();
 }
 
 QVariant QmlForJson::readFile(const QString &fileName)
