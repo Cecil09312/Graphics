@@ -16,7 +16,11 @@ SerialLink::SerialLink( QObject *parent)
     connect(m_serialPort,&QSerialPort::readyRead,this,&SerialLink::readData);
     connect(this,&SerialLink::writeData,this,[=](const QByteArray &array)
     {
-        m_serialPort->write(array);
+        if(m_serialPort->isOpen())
+        {
+           m_serialPort->write(array);
+        }
+
         qDebug() << array.toHex();
     });
 

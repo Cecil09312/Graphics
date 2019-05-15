@@ -70,28 +70,31 @@ bool SqlManager::insertBatch(const QString &tableName, const QList<QVariant> &va
 
     QFuture<void> future = QtConcurrent::run([&]
     {
-        QString sqlStr = QString("insert into %1 values(").arg(tableName);
-        for(int i=0;i<valueList.size();i++)
+        if(d->m_database.isOpen())
         {
-            sqlStr+="?";
-            if(i<valueList.size()-1)
+            QString sqlStr = QString("insert into %1 values(").arg(tableName);
+            for(int i=0;i<valueList.size();i++)
             {
-                sqlStr+=",";
+                sqlStr+="?";
+                if(i<valueList.size()-1)
+                {
+                    sqlStr+=",";
+                }
             }
-        }
-        sqlStr+=")";
-        QSqlQuery query(d->m_database);
-        d->m_database.transaction();
+            sqlStr+=")";
+            QSqlQuery query(d->m_database);
+            d->m_database.transaction();
 
-        query.prepare(sqlStr);
-        foreach (QVariant value, valueList)
-        {
-            QList<QVariant> currentList= value.toList();
-            query.addBindValue(currentList);
+            query.prepare(sqlStr);
+            foreach (QVariant value, valueList)
+            {
+                QList<QVariant> currentList= value.toList();
+                query.addBindValue(currentList);
+            }
+            success= query.execBatch();
+            d->m_database.commit();
+            query.finish();
         }
-        success= query.execBatch();
-        d->m_database.commit();
-        query.finish();
 
     });
     future.waitForFinished();
@@ -106,20 +109,23 @@ QStringList SqlManager::executeQuery(const QString &sql)
 
     QFuture<void> future = QtConcurrent::run([&]
     {
-        QSqlQuery query(d->m_database);
-        d->m_database.transaction();
-        query.prepare(sql);
-        query.exec();
-        QSqlRecord record = query.record();
-        while (query.next())
+       if(d->m_database.isOpen())
         {
-            for(int i=0;i<record.count();i++)
+            QSqlQuery query(d->m_database);
+            d->m_database.transaction();
+            query.prepare(sql);
+            query.exec();
+            QSqlRecord record = query.record();
+            while (query.next())
             {
-                valueList.push_back(query.value(i).toString());
+                for(int i=0;i<record.count();i++)
+                {
+                    valueList.push_back(query.value(i).toString());
+                }
             }
+            d->m_database.commit();
+            query.finish();
         }
-        d->m_database.commit();
-        query.finish();
     });
     future.waitForFinished();
     return valueList;
