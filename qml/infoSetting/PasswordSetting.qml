@@ -342,7 +342,7 @@ Item {
     MessageDialog {
         id: addNewUserFailureDialog
         icon: StandardIcon.Critical
-        title: qsTr("警告信息")
+        title: qsTr("错误信息提示")
         text: qsTr("添加用户失败,或者用户已经存在")
     }
 

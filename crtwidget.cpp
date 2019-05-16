@@ -417,7 +417,7 @@ void CrtWidget::widgetExit()
     }
     else
     {
-        QMessageBox::critical(this,tr("警告！"),tr("有报警信息存在，清除后才能关闭"));
+        QMessageBox::warning(this,tr("警告！"),tr("有报警信息存在，清除后才能关闭"));
     }
 
 }

@@ -3,9 +3,11 @@ import QtQuick.Extras 1.4
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
 import QtQuick.Controls.Styles 1.4
-import operatorInfo 1.0
+import Qt.labs.platform 1.0
+import QtQuick.Dialogs 1.2
 import speechObj 1.0
 import crtWidget 1.0
+import operatorInfo 1.0
 
 Rectangle {
     width: 150
@@ -353,10 +355,7 @@ Rectangle {
             font.family: qsTr("Times New Roman")
             text: qsTr("复位")
             onClicked: {
-                ArchitePlanView.clearAlarm(true)
-                // allAlarmClear()
-                autoSwitchCheckBox.checked = false
-                OperatorInfo.insertEvent(qsTr("复位"))
+                resetMessageDialog.open()
             }
 
             onPressed: {
@@ -453,6 +452,24 @@ Rectangle {
             onClicked: {
                 ArchitePlanView.startAutoSwitch(checked)
             }
+        }
+    }
+
+    MessageDialog {
+        id: resetMessageDialog
+        title: qsTr("复位操作确认")
+        text: qsTr("确认是否要复位，是点击Yes键,否点击No键")
+        icon: StandardIcon.Question
+
+        standardButtons: StandardButton.Yes | StandardButton.No
+        onYes: {
+            ArchitePlanView.clearAlarm(true)
+            // allAlarmClear()
+            autoSwitchCheckBox.checked = false
+            OperatorInfo.insertEvent(qsTr("复位"))
+        }
+        onNo: {
+            close()
         }
     }
 
@@ -672,3 +689,5 @@ Rectangle {
         setShieldText("0")
     }
 }
+
+
