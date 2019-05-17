@@ -69,7 +69,7 @@ TreeView::TreeView(QWidget *parent):
 
         if(isCanClear)
         {
-            QMessageBox::critical(this,tr("警告"),tr("存在报警信息，消除报警才能清除"));
+            QMessageBox::warning(this,tr("警告"),tr("存在报警信息，消除报警才能清除"));
         }
         else
         {
@@ -225,7 +225,6 @@ QStandardItem * TreeView::addRootItem(const QString &root)
 
 QStandardItem* TreeView::addChildItem(QModelIndex index)
 {
-
     if(!index.parent().isValid())
     {
         if(index.isValid())
@@ -245,6 +244,7 @@ QStandardItem* TreeView::addChildItem(QModelIndex index)
                 QStandardItem*childItem = new QStandardItem(QString("%1层").arg(rowCount+1));
                 standardItem->setChild(size,childItem);
                 m_treeIndexMap[childItem] = totalRowCounts;
+
                 emit treeIndex(childItem);
                 m_childIndexMap[standardItem].push_back(rowCount);
                 return childItem;
@@ -288,7 +288,7 @@ void TreeView::deleteTreeItem(QModelIndex index)
         {
             if(view->haveAnyAlarm())
             {
-                QMessageBox::critical(this,tr("警告"),tr("存在报警，消除报警后才能删除"));
+                QMessageBox::warning(this,tr("警告"),tr("存在报警，消除报警后才能删除"));
                 return;
             }
         }
@@ -402,6 +402,7 @@ int TreeView::getTotalCount()
 {
     int rootCount= m_stdModel->rowCount();
     int totalRowCounts = 0;
+    //qDebug() << "rootCount" << rootCount;
     for(int i=0;i<rootCount;i++)
     {
         if(m_stdModel->item(i)->hasChildren())

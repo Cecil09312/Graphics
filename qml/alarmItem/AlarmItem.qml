@@ -13,6 +13,7 @@ Rectangle {
     width: 150
     signal currentAlarmType(string type)
     signal startAutoSwitch(bool isAuto)
+    signal reset
     RowLayout {
         id: alarmBtnLayout
         height: 50
@@ -355,7 +356,7 @@ Rectangle {
             font.family: qsTr("Times New Roman")
             text: qsTr("复位")
             onClicked: {
-                resetMessageDialog.open()
+                emit: reset()
             }
 
             onPressed: {
@@ -452,24 +453,6 @@ Rectangle {
             onClicked: {
                 ArchitePlanView.startAutoSwitch(checked)
             }
-        }
-    }
-
-    MessageDialog {
-        id: resetMessageDialog
-        title: qsTr("复位操作确认")
-        text: qsTr("确认是否要复位，是点击Yes键,否点击No键")
-        icon: StandardIcon.Question
-
-        standardButtons: StandardButton.Yes | StandardButton.No
-        onYes: {
-            ArchitePlanView.clearAlarm(true)
-            // allAlarmClear()
-            autoSwitchCheckBox.checked = false
-            OperatorInfo.insertEvent(qsTr("复位"))
-        }
-        onNo: {
-            close()
         }
     }
 
@@ -688,6 +671,8 @@ Rectangle {
         setFeedbackText("0")
         setShieldText("0")
     }
+
+    function setAutoSwitchCheckBoxState(isChecked) {
+        autoSwitchCheckBox.checked = isChecked
+    }
 }
-
-

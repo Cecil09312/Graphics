@@ -23,7 +23,7 @@ FtpManager::FtpManager(QObject *parent) : QObject(parent)
         }
     });
 
-    connect(this,&FtpManager::sendData,this,[&](const QUrl&url,const QByteArray&array)
+    connect(this,&FtpManager::sendData,this,[=](const QUrl&url,const QByteArray&array)
     {
         m_reply = m_manager->put(QNetworkRequest(url),array);
         Q_ASSERT(m_reply);
@@ -33,7 +33,7 @@ FtpManager::FtpManager(QObject *parent) : QObject(parent)
             emit ftpError(m_reply->errorString());
         });
 
-        connect(m_reply,&QNetworkReply::uploadProgress,this,[&](qint64 bytesSent, qint64 bytesTotal)
+        connect(m_reply,&QNetworkReply::uploadProgress,this,[=](qint64 bytesSent, qint64 bytesTotal)
         {
             if(bytesTotal<=0)
             {

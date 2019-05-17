@@ -17,10 +17,10 @@ GraphicsView::GraphicsView(QWidget *parent, int type):
     setDragMode(QGraphicsView::ScrollHandDrag);
     setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers),this));
     setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-    m_alarmStringList << "火警"<<"启动" << "监管" << "故障"<<"反馈" <<"屏蔽";
+    //m_alarmStringList << "火警"<<"启动" << "监管" << "故障"<<"反馈" <<"屏蔽";
     if(m_viewType==ArthitePlan)
     {
-        setContextMenuPolicy(Qt::CustomContextMenu);
+       // setContextMenuPolicy(Qt::CustomContextMenu);
         m_scene = new GraphicsScene(this);
         setScene(m_scene);
         m_scene->addItem(m_svgItem);
@@ -58,13 +58,7 @@ GraphicsView::GraphicsView(QWidget *parent, int type):
     }
 
 
-    connect(this,&GraphicsView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)
-    {
-        if(m_scene!=nullptr)
-        {
-            m_scene->showMenu(QCursor::pos());
-        }
-    });
+
 
 
 }
@@ -151,7 +145,9 @@ bool GraphicsView::haveAlarmType(const QString &type)
 bool GraphicsView::haveAnyAlarm()
 {
     bool isHave = false;
-    foreach (QString alarm, m_alarmStringList)
+    QStringList alarmStringList;
+    alarmStringList<< "火警"<<"启动" << "监管" << "故障"<<"反馈" <<"屏蔽";
+    foreach (QString alarm, alarmStringList)
     {
         isHave =haveAlarmType(alarm);
         if(isHave)
@@ -160,6 +156,18 @@ bool GraphicsView::haveAnyAlarm()
         }
     }
     return isHave;
+}
+
+QGraphicsScene *GraphicsView::currentGraphicsScene(int type)
+{
+    if(type==ArthitePlan)
+    {
+        return m_scene;
+    }
+    else
+    {
+        return m_sysViewScene;
+    }
 }
 
 void GraphicsView::loadPixmap(const QString &fileName)

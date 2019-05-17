@@ -52,6 +52,7 @@ public slots:
     void tcpDataProcessing(const QByteArray&arrayValue);
     void openHelpFile();
     void sendAnalogCommand(quint8 networkNum, quint8 extNum, quint8 loopNum, quint8 addrNum, quint8 channelNum, const QString &analogType);
+    void startReset();
    /*测试*/
   // void sendSeralData();
 

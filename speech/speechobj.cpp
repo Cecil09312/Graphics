@@ -128,7 +128,7 @@ void SpeechObj::startSpeech()
 
 void SpeechObj::insertAlarmText(const QString &alarmText)
 {
-    QFuture<void> future = QtConcurrent::run([&]()
+    QFuture<void> future = QtConcurrent::run([=]()
     {
         if(alarmText.startsWith("首火警"))
         {

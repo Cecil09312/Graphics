@@ -10,6 +10,8 @@
 #include <QDebug>
 #include "control/controller.h"
 #include <QModelIndex>
+#include <QQuickItem>
+#include <QQmlContext>
 
 QMap<int,GraphicsView *>ArchitePlanView::m_widgetMap =QMap<int,GraphicsView *>();
 
@@ -22,6 +24,226 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
     initWidget();
     setGlobalArchiteFromJson();
     initFromJsonFile();
+
+    setContextMenuPolicy(Qt::CustomContextMenu);
+
+
+    connect(this,&ArchitePlanView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)
+    {
+        if(m_tabWidget->currentIndex()==1)
+        {
+            showMenu(QCursor::pos());
+        }
+
+    });
+
+
+    connect(m_deleteAction,&QAction::triggered,this,[=]()
+    {
+        GraphicsView *view= currentGraphicsView();
+        if(view!=nullptr)
+        {
+            GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
+            if(scene!=nullptr)
+            {
+                scene->removeGraphicsItem(scene->currentScenePos());
+            }
+        }
+    });
+
+    connect(m_editAction,&QAction::triggered,this,[=]()
+    {
+        GraphicsView *view= currentGraphicsView();
+        if(view!=nullptr)
+        {
+            GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
+            if(scene!=nullptr)
+            {
+                GraphicsItem *currentItem= dynamic_cast<GraphicsItem *> (scene->itemAt(scene->currentScenePos(),QTransform()));
+                Q_ASSERT(m_itemSettingObj);
+                QVariant currentIndex;
+                QMetaObject::invokeMethod(m_itemSettingObj,"currentIconIndex",Q_RETURN_ARG(QVariant,currentIndex));
+                if(currentItem!=nullptr)
+                {
+                    QMetaObject::invokeMethod(m_itemSettingObj,"setDeviceNum",Q_ARG(QVariant,currentItem->deviceNum()));
+                    QMetaObject::invokeMethod(m_itemSettingObj,"setItemSize",Q_ARG(QVariant,currentItem->radius()));
+                    QMetaObject::invokeMethod(m_itemSettingObj,"setExtNum",Q_ARG(QVariant,currentItem->extNum()));
+                    QMetaObject::invokeMethod(m_itemSettingObj,"setLoopNum",Q_ARG(QVariant,currentItem->loopNum()));
+                    QMetaObject::invokeMethod(m_itemSettingObj,"setAddrNum",Q_ARG(QVariant,currentItem->addrNum()));
+                    QMetaObject::invokeMethod(m_itemSettingObj,"setNetworkNum",Q_ARG(QVariant,currentItem->networkNum()));
+                    QMetaObject::invokeMethod(m_itemSettingObj,"setEquipmentModel",Q_ARG(QVariant,currentItem->equipmentModel()));
+                    QMetaObject::invokeMethod(m_itemSettingObj,"setSysOfDevice",Q_ARG(QVariant,currentItem->sysOfDevice()));
+
+                    QMetaObject::invokeMethod(m_itemSettingObj,"setChannelNum",Q_ARG(QVariant,QString::number(currentItem->channelNum())));
+                    QMetaObject::invokeMethod(m_itemSettingObj,"setAnalogType",Q_ARG(QVariant,currentItem->analogType()));
+                    QMetaObject::invokeMethod(m_itemSettingObj,"setDeviceLocation",Q_ARG(QVariant,currentItem->deviceLocation()));
+                    QMetaObject::invokeMethod(m_itemSettingObj,"setPeriodOfValidity",Q_ARG(QVariant,currentItem->periodOfValidity()));
+                    QMetaObject::invokeMethod(m_itemSettingObj,"setManufacturers",Q_ARG(QVariant,currentItem->manufacturers()));
+
+                    QMetaObject::invokeMethod(m_itemSettingObj,"setOperator",Q_ARG(QVariant,currentItem->deviceOperator()));
+
+                }
+                else
+                {
+                    QMetaObject::invokeMethod(m_itemSettingObj,"clearItemInfo");
+                }
+
+                m_itemSettingView->close();
+                m_itemSettingView->show();
+
+            }
+
+
+        }
+    });
+    connect(m_clearAction,&QAction::triggered,this,[=]()
+    {
+        GraphicsView *view= currentGraphicsView();
+        if(view!=nullptr)
+        {
+            GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
+            if(scene!=nullptr)
+            {
+                bool isHavingAlarm = scene->isHavingAlarms();
+                if(!isHavingAlarm)
+                {
+                    foreach (QGraphicsItem*item, scene->getItemList())
+                    {
+                        scene->removeItem(item);
+                    }
+                    scene->getItemList().clear();
+                    DataStore::clearTypeItem();
+                }
+                else
+                {
+                    QMessageBox::warning(nullptr,tr("警告"),tr("存在报警信息，不能被清空"));
+                }
+            }
+        }
+
+
+
+
+    });
+    connect(m_deleteSelectedAction,&QAction::triggered,this,[=]()
+    {
+        GraphicsView *view= currentGraphicsView();
+        if(view!=nullptr)
+        {
+            GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
+            if(scene!=nullptr)
+            {
+                QList<QGraphicsItem*>itemList = scene->selectedItems();
+                bool isHavingAlarm = false;
+                foreach (QGraphicsItem*item,itemList)
+                {
+                    GraphicsItem *graphicsItem = dynamic_cast<GraphicsItem*>(item);
+
+                    if(graphicsItem!=nullptr)
+                    {
+                        if(graphicsItem->currentState()!=tr("正常"))
+                        {
+                            isHavingAlarm = true;
+                            break;
+                        }
+                    }
+                }
+
+                if(!isHavingAlarm)
+                {
+                    foreach (QGraphicsItem*item,itemList)
+                    {
+                        GraphicsItem *graphicsItem = dynamic_cast<GraphicsItem*>(item);
+
+                        if(graphicsItem!=nullptr)
+                        {
+                            scene->removeItem(graphicsItem);
+                            scene->getItemList().removeOne(graphicsItem);
+                            DataStore::deleteTypeItem(graphicsItem);
+                        }
+                    }
+                }
+                else
+                {
+                    QMessageBox::warning(nullptr,tr("警告"),tr("存在报警信息，不能被删除"));
+                }
+            }
+
+
+
+
+        }
+
+
+    });
+    connect(m_closeAction,&QAction::triggered,this,[=]()
+    {
+        m_graphicsItemSettingMenu->close();
+    });
+
+    connect(m_modeActionGroup,&QActionGroup::triggered,this,[=](QAction *action)
+    {
+        GraphicsView *view= currentGraphicsView();
+        if(view!=nullptr)
+        {
+            if(action==m_handDragAction)
+            {
+                view->setDragMode(QGraphicsView::ScrollHandDrag);
+            }
+            else
+            {
+                view->setDragMode(QGraphicsView::RubberBandDrag);
+            }
+        }
+
+    });
+
+
+    connect(m_analogAlarmAction,&QAction::triggered,this,[=]()
+    {
+        m_analogAlarmView->close();
+        m_analogAlarmView->show();
+    });
+
+    connect(m_maintenanceAction,&QAction::triggered,this,[=](){
+
+        GraphicsView *view= currentGraphicsView();
+        if(view!=nullptr)
+        {
+            GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
+            if(scene!=nullptr)
+            {
+                GraphicsItem *item= dynamic_cast<GraphicsItem *> (scene->itemAt(scene->currentScenePos(),QTransform()));
+                if(item!=nullptr)
+                {
+                    QObject *maintObj = m_maintenanceView->rootObject();
+                    Q_ASSERT(maintObj);
+                    QMetaObject::invokeMethod(maintObj,"setEquipmentCode",Q_ARG(QVariant,item->deviceNum()));
+                    QMetaObject::invokeMethod(maintObj,"setMaintTime",Q_ARG(QVariant,QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss")));
+                    QMetaObject::invokeMethod(maintObj,"setBuildingName",Q_ARG(QVariant,item->buildingName()));
+                    QMetaObject::invokeMethod(maintObj,"setFloor",Q_ARG(QVariant,item->floorOfDevice()));
+                    QMetaObject::invokeMethod(maintObj,"setLocation",Q_ARG(QVariant,item->deviceLocation()));
+                    QMetaObject::invokeMethod(maintObj,"setSysOfDevice",Q_ARG(QVariant,item->sysOfDevice()));
+                    QMetaObject::invokeMethod(maintObj,"setOperator",Q_ARG(QVariant,item->deviceOperator()));
+
+                }
+                m_maintenanceView->close();
+                m_maintenanceView->show();
+            }
+        }
+
+
+
+    });
+    Q_ASSERT(m_itemSettingObj);
+    connect(m_itemSettingObj,SIGNAL(setSize(qreal)),this,SLOT(setItemSize(qreal)));
+    connect(m_itemSettingObj,SIGNAL(setIcon(QString)),this,SLOT(setItemIcon(QString)));
+    connect(m_itemSettingObj,SIGNAL(setItemInfo(QString,QString)),this,SLOT(setItemInfoFromType(const QString , const QString &)));
+
+    connect(m_itemSettingObj,SIGNAL(setItemsManufacturers(int,QString)),this,SLOT(setItemsManufacturers(int,QString)));
+    connect(m_itemSettingObj,SIGNAL(setItemsIcon(int,QString)),this,SLOT(setItemsIcon(int,QString)));
+    connect(m_itemSettingObj,SIGNAL(setItemsPeriodOfValidity(int,QString)),this,SLOT(setItemsPeriodOfValidity(int,QString)));
+    connect(m_itemSettingObj,SIGNAL(setItemsDeviceName(int,QString)),this,SLOT(setItemsEquipmentModel(int,QString)));
 
     connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::addGlobalItem,this,[=](GlobalGraphicsItem*item)
     {
@@ -108,6 +330,9 @@ ArchitePlanView::~ArchitePlanView()
     m_autoSwitchTimer->stop();
     m_sqliteManager->close();
     m_sqliteManager->deleteLater();
+    delete m_graphicsItemSettingMenu;
+    m_itemSettingView->deleteLater();
+    m_analogAlarmView->deleteLater();
 }
 
 
@@ -439,6 +664,52 @@ void ArchitePlanView::initWidget()
         }
     }
 
+    m_graphicsItemSettingMenu = new QMenu;
+    QMenu *modeSelectMenu = new QMenu("模式选择",m_graphicsItemSettingMenu);
+    m_deleteAction = new QAction(tr("删除"),m_graphicsItemSettingMenu);
+    m_editAction = new QAction(tr("编辑"),m_graphicsItemSettingMenu);
+    m_clearAction = new QAction(tr("清空"),m_graphicsItemSettingMenu);
+    m_deleteSelectedAction = new QAction(tr("删除选中"),m_graphicsItemSettingMenu);
+    m_closeAction= new QAction(tr("关闭"),m_graphicsItemSettingMenu);
+    m_analogAlarmAction = new QAction(tr("报警模拟"),m_graphicsItemSettingMenu);
+    m_maintenanceAction = new QAction(tr("设备维保"),m_graphicsItemSettingMenu);
+    m_handDragAction = new QAction(tr("手动拖拽模式"),modeSelectMenu);
+    m_rubberBandDragAction = new QAction(tr("橡皮筋模式"),modeSelectMenu);
+    m_modeActionGroup = new QActionGroup(this);
+    modeSelectMenu->addAction(m_handDragAction);
+    modeSelectMenu->addAction(m_rubberBandDragAction);
+    m_modeActionGroup->addAction(m_rubberBandDragAction);
+    m_modeActionGroup->addAction(m_handDragAction);
+
+    m_modeActionGroup->setExclusive(true);
+    m_handDragAction->setCheckable(true);
+    m_rubberBandDragAction->setCheckable(true);
+    m_handDragAction->setChecked(true);
+    m_graphicsItemSettingMenu->addMenu(modeSelectMenu);
+    m_itemSettingView = new QQuickView;
+    m_itemSettingView->setSource(QUrl("qrc:/qml/itemSetting/GraphicsItemEditor.qml"));
+    m_itemSettingView->setTitle(tr("设备信息设置界面"));
+
+    m_itemSettingView->rootContext()->setContextProperty("ArchitePlanView",this);
+    m_analogAlarmView = new QQuickView;
+    m_analogAlarmView->setSource(QUrl("qrc:/qml/itemSetting/AnalogAlarmItem.qml"));
+    m_analogAlarmView->setTitle(tr("报警模拟界面"));
+    m_analogAlarmView->rootContext()->setContextProperty("ArchitePlanView",this);
+    m_maintenanceView = new QQuickView;
+    m_maintenanceView->setSource(QUrl("qrc:/qml/infoSetting/MaintenanceInfo.qml"));
+    m_maintenanceView->setTitle(tr("设备维保"));
+    m_itemSettingObj= m_itemSettingView->rootObject();
+
+    m_graphicsItemSettingMenu->addAction(m_editAction);
+    m_graphicsItemSettingMenu->addAction(m_analogAlarmAction);
+    m_graphicsItemSettingMenu->addAction(m_maintenanceAction);
+    m_graphicsItemSettingMenu->addAction(m_deleteAction);
+    m_graphicsItemSettingMenu->addAction(m_deleteSelectedAction);
+    m_graphicsItemSettingMenu->addAction(m_clearAction);
+    m_graphicsItemSettingMenu->addAction(m_closeAction);
+
+
+
     connect(m_treeView,&TreeView::treeIndex,this,[=](QStandardItem*item)
     {
         QMap<QStandardItem*,int>map= m_treeView->getTreeIndexMap();
@@ -552,6 +823,74 @@ void ArchitePlanView::initWidget()
     connect(m_tabWidget,&QTabWidget::currentChanged,this,&ArchitePlanView::tabIndex);
 
 
+}
+
+void ArchitePlanView::showMenu(const QPoint &point)
+{
+
+
+    GraphicsView *view = currentGraphicsView();
+    if(view!=nullptr)
+    {
+        GraphicsScene *scene=dynamic_cast<GraphicsScene *> (view->currentGraphicsScene());
+        if(scene!=nullptr)
+        {
+            UserManager::UserRight userRight= Controller::instance()->getUserRight();
+
+            QList<QGraphicsItem*>itemList = scene->getItemList();
+
+            if(userRight==UserManager::Super||userRight==UserManager::Engineer)
+            {
+                if(!itemList.isEmpty())
+                {
+                    if(itemList.contains(scene->itemAt(scene->currentScenePos(),QTransform())))
+                    {
+                        m_deleteAction->setEnabled(true);
+                        m_maintenanceAction->setEnabled(true);
+                    }
+                    else
+                    {
+                        m_deleteAction->setEnabled(false);
+                        m_maintenanceAction->setEnabled(false);
+                    }
+                    if(scene->selectedItems().isEmpty())
+                    {
+                        m_deleteSelectedAction->setEnabled(false);
+                    }
+                    else
+                    {
+                        m_deleteSelectedAction->setEnabled(true);
+                    }
+
+                    m_clearAction->setEnabled(true);
+                    m_analogAlarmAction->setEnabled(true);
+
+
+                }
+                else
+                {
+                    m_deleteAction->setEnabled(false);
+                    m_clearAction->setEnabled(false);
+                    m_deleteSelectedAction->setEnabled(false);
+                    m_analogAlarmAction->setEnabled(false);
+                    m_maintenanceAction->setEnabled(false);
+                }
+                m_editAction->setEnabled(true);
+            }
+            else
+            {
+                m_deleteAction->setEnabled(false);
+                m_editAction->setEnabled(false);
+                m_clearAction->setEnabled(false);
+                m_deleteSelectedAction->setEnabled(false);
+                m_analogAlarmAction->setEnabled(false);
+                m_maintenanceAction->setEnabled(false);
+
+            }
+            m_graphicsItemSettingMenu->exec(point);
+        }
+
+    }
 }
 
 void ArchitePlanView::saveArchiteInfo()
@@ -815,10 +1154,10 @@ void ArchitePlanView::initFromJsonFile()
 
     if(isHave)
     {
-        m_jsonValueList=JsonEdit::instance()->readFile(c_jsonFilePath).toList();
-        for(int i=0;i<m_jsonValueList.size();i++)
+        QList<QVariant>   jsonValueList=JsonEdit::instance()->readFile(c_jsonFilePath).toList();
+        for(int i=0;i<jsonValueList.size();i++)
         {
-            QHash<QString,QVariant> parentHash=  m_jsonValueList.at(i).toHash();
+            QHash<QString,QVariant> parentHash=  jsonValueList.at(i).toHash();
             if(!parentHash.isEmpty())
             {
                 QStandardItem *parentItem= m_treeView->addRootItem(parentHash["name"].toString());
@@ -835,9 +1174,6 @@ void ArchitePlanView::initFromJsonFile()
                         }
                     }
                 }
-
-                //  QHash<QString,QVariant> parentPixmapHash = parentHash["image"].toHash();
-                // setViewFromJson(parentPixmapHash,parentItem);
 
                 QList<QVariant> childList =  parentHash["child"].toList();
 
@@ -862,7 +1198,6 @@ void ArchitePlanView::initFromJsonFile()
 
             }
         }
-        m_jsonValueList.clear();
     }
 }
 
@@ -1334,7 +1669,7 @@ void ArchitePlanView::clearAlarm(bool alarmColorRedu)
             }
         }
     }
-   // Controller::instance()->getSpeechObj()->clearAlarmText();
+    // Controller::instance()->getSpeechObj()->clearAlarmText();
     emit clearAlarmFromTable();
 }
 
@@ -1535,6 +1870,101 @@ void ArchitePlanView::startAutoSwitch(bool isAuto)
         m_alarmPos =0;
     }
 }
+
+void ArchitePlanView::setItemSize(qreal size)
+{
+    GraphicsView *view= currentGraphicsView();
+    if(view!=nullptr)
+    {
+        GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
+        if(scene!=nullptr)
+        {
+            scene->setItemSize(size);
+        }
+    }
+}
+
+void ArchitePlanView::setItemIcon(QString iconName)
+{
+    GraphicsView *view= currentGraphicsView();
+    if(view!=nullptr)
+    {
+        GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
+        if(scene!=nullptr)
+        {
+            scene->setItemIcon(iconName);
+        }
+    }
+}
+
+void ArchitePlanView::setItemInfoFromType(const QString &type, const QString &info)
+{
+    GraphicsView *view= currentGraphicsView();
+    if(view!=nullptr)
+    {
+        GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
+        if(scene!=nullptr)
+        {
+            scene->setItemInfoFromType(type,info);
+        }
+    }
+}
+
+
+
+void ArchitePlanView::setItemsIcon(int index, QString iconName)
+{
+    GraphicsView *view= currentGraphicsView();
+    if(view!=nullptr)
+    {
+        GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
+        if(scene!=nullptr)
+        {
+            scene->setItemsIcon(index,iconName);
+        }
+    }
+}
+
+void ArchitePlanView::setItemsEquipmentModel(int index, QString device)
+{
+    GraphicsView *view= currentGraphicsView();
+    if(view!=nullptr)
+    {
+        GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
+        if(scene!=nullptr)
+        {
+            scene->setItemsEquipmentModel(index,device);
+        }
+    }
+}
+
+void ArchitePlanView::setItemsManufacturers(int index, QString manufacturers)
+{
+    GraphicsView *view= currentGraphicsView();
+    if(view!=nullptr)
+    {
+        GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
+        if(scene!=nullptr)
+        {
+            scene->setItemsManufacturers(index,manufacturers);
+        }
+    }
+}
+
+void ArchitePlanView::setItemsPeriodOfValidity(int index, QString periodOfValidity)
+{
+    GraphicsView *view= currentGraphicsView();
+    if(view!=nullptr)
+    {
+        GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
+        if(scene!=nullptr)
+        {
+            scene->setItemsPeriodOfValidity(index,periodOfValidity);
+        }
+    }
+}
+
+
 
 GraphicsView *ArchitePlanView::viewFromChildItem(QStandardItem *childItem)
 {

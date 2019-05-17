@@ -43,7 +43,7 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
             }
             else
             {
-                QMessageBox::critical(nullptr,tr("信息警告"),tr("有报警信息存在，不能被删除"));
+                QMessageBox::warning(nullptr,tr("信息警告"),tr("有报警信息存在，不能被删除"));
             }
         }
     });
@@ -66,7 +66,7 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
                 }
                 else
                 {
-                    QMessageBox::critical(nullptr,tr("信息警告"),tr("有报警信息存在，不能被删除"));
+                    QMessageBox::warning(nullptr,tr("信息警告"),tr("有报警信息存在，不能被删除"));
                 }
             }
         }
@@ -114,7 +114,7 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
         }
         else
         {
-            QMessageBox::critical(nullptr,tr("信息警告"),tr("有报警信息存在，不能被清空"));
+            QMessageBox::warning(nullptr,tr("信息警告"),tr("有报警信息存在，不能被清空"));
         }
     });
     Q_ASSERT(m_globalItemObj);

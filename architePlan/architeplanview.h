@@ -59,12 +59,11 @@ public:
                           const QString &addressNum, const QString &networkNum,const QString &curAlarmState);
     Q_INVOKABLE QString architeInfoDbName();
     Q_INVOKABLE void setGlobalArchitePixmap(const QString &pixmapName);
-    Q_INVOKABLE void clearAlarm(bool alarmColorRedu=false);
+
     Q_INVOKABLE void createAlarm(const QString &extNum, const QString &loopNum,
                                  const QString &addressNum, const QString &networkNum, const QString &alarmTypeName,
                                  bool isAnalog=false, const QString &alarmTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
-    Q_INVOKABLE void eliminateAlarm(const QString &extNum, const QString &loopNum,
-                                    const QString &addrNum, const QString &networkNum);//消除报警
+
     Q_INVOKABLE void toAlarmView();
     Q_INVOKABLE void setCurrentAlarmType(const QString &type);
     Q_INVOKABLE void toArchitePlan(const QString &extNum, const QString &loopNum,
@@ -97,9 +96,21 @@ public slots:
     void deleteViewFromItem(QStandardItem *item);
     void viewsAutoSwitch();
     void startAutoSwitch(bool isAuto);
+    void eliminateAlarm(const QString &extNum, const QString &loopNum,
+                        const QString &addrNum, const QString &networkNum);//消除报警
+
+    void setItemSize(qreal size);
+    void setItemIcon(QString iconName);
+    void setItemInfoFromType(const QString &type,const QString &info);
+    void clearAlarm(bool alarmColorRedu=false);
+    void setItemsIcon(int index,QString iconName);
+    void setItemsEquipmentModel(int index,QString device);
+    void setItemsManufacturers(int index,QString manufacturers);
+    void setItemsPeriodOfValidity(int index,QString periodOfValidity);
+
 private:
     void initWidget();
-
+    void showMenu(const QPoint &point );
     QHash<QString, QVariant> saveViewInfo(QStandardItem *item);
     void initFromJsonFile();
     void initFromDataBase(GraphicsView *view, const QString &buildingName, const QString &floor);
@@ -126,12 +137,28 @@ private:
     int m_alarmPos;
     QHash<QStandardItem*,GraphicsView *>m_itemToViewHash;
 
-    QList<QVariant> m_jsonValueList;
-
     SqlManager *m_sqliteManager;
     QString m_architeInfoDbName;
     int m_itemInfoTableSize,m_globalArchiteTableSize;
     QHash<GraphicsItem*,int>m_speechTextPosFromItemHash;
+
+    QMenu *m_graphicsItemSettingMenu;
+    QActionGroup *m_modeActionGroup;
+    QAction *m_deleteAction;
+    QAction *m_editAction;
+    QAction *m_clearAction;
+    QAction *m_deleteSelectedAction;
+    QAction *m_closeAction;
+    QAction *m_handDragAction;
+    QAction *m_rubberBandDragAction;
+    QAction *m_analogAlarmAction;
+    QAction *m_maintenanceAction;
+    QPointF m_currentPointF;
+    QQuickView *m_itemSettingView;
+    QQuickView *m_analogAlarmView;
+    QQuickView *m_maintenanceView;
+    QObject *m_itemSettingObj;
+    QObject *m_analogAlarmObj;
 
 };
 

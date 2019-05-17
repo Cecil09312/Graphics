@@ -75,10 +75,14 @@ CrtWidget::CrtWidget(QWidget *parent) :
     connect(m_architePlanView,&ArchitePlanView::alarmHappend,this,&CrtWidget::alarmStatistics);
     connect(m_architePlanView,&ArchitePlanView::alarmItem,this,[=](GraphicsItem *item)
     {
-        m_sqliteManager->executeQuery(sqlInfo.arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->networkNum()).arg(item->deviceNum())
-                                      .arg(item->equipmentModel()).arg(item->alarmType()).arg(item->currentState()).arg(item->getItemInfo().m_alarmTime)
-                                      .arg(item->getItemInfo().m_alarmReplyTime).arg(item->sysOfDevice()).arg(item->buildingName())
-                                      .arg(item->floorOfDevice()).arg(item->deviceLocation()).arg(item->manufacturers()).arg(item->periodOfValidity()).arg(item->deviceOperator()));
+        if(item!=nullptr)
+        {
+            m_sqliteManager->executeQuery(sqlInfo.arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->networkNum()).arg(item->deviceNum())
+                                          .arg(item->equipmentModel()).arg(item->alarmType()).arg(item->currentState()).arg(item->getItemInfo().m_alarmTime)
+                                          .arg(item->getItemInfo().m_alarmReplyTime).arg(item->sysOfDevice()).arg(item->buildingName())
+                                          .arg(item->floorOfDevice()).arg(item->deviceLocation()).arg(item->manufacturers()).arg(item->periodOfValidity()).arg(item->deviceOperator()));
+        }
+
         alarmDataOnTable();
     });
 
@@ -265,6 +269,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
 
     QMetaObject::invokeMethod(m_alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()+1));
     connect(m_alarmObj,SIGNAL(currentAlarmType(QString)),this,SLOT(alarmChanged(QString)));
+    connect(m_alarmObj,SIGNAL(reset()),this,SLOT(startReset()));
     connect(m_architePlanView,&ArchitePlanView::toFirstPage,this,[=]()
     {
         QMetaObject::invokeMethod(m_alarmObj,"enableToNextPageBtn",Q_ARG(QVariant,true));
@@ -520,8 +525,8 @@ void CrtWidget::alarmStatistics(const QString &type)
     {
         if(typeNum>0)
         {
-             QMetaObject::invokeMethod(m_alarmObj,"setFireAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
-           // QMetaObject::invokeMethod(m_alarmObj,"startFireAnimation",Q_ARG(QVariant,true));
+            QMetaObject::invokeMethod(m_alarmObj,"setFireAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+            // QMetaObject::invokeMethod(m_alarmObj,"startFireAnimation",Q_ARG(QVariant,true));
         }
         else
         {
@@ -535,7 +540,7 @@ void CrtWidget::alarmStatistics(const QString &type)
     {
         if(typeNum>0)
         {
-             QMetaObject::invokeMethod(m_alarmObj,"setLinkageAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+            QMetaObject::invokeMethod(m_alarmObj,"setLinkageAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
             //QMetaObject::invokeMethod(m_alarmObj,"startLinkageAnimation",Q_ARG(QVariant,true));
         }
         else
@@ -556,7 +561,7 @@ void CrtWidget::alarmStatistics(const QString &type)
         else
         {
             QMetaObject::invokeMethod(m_alarmObj,"setSuperviseAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
-           // QMetaObject::invokeMethod(m_alarmObj,"startSuperviseAnimation",Q_ARG(QVariant,false));
+            // QMetaObject::invokeMethod(m_alarmObj,"startSuperviseAnimation",Q_ARG(QVariant,false));
         }
         QMetaObject::invokeMethod(m_alarmObj,"setSuperviseText",Q_ARG(QVariant,typeNum));
     }
@@ -579,7 +584,7 @@ void CrtWidget::alarmStatistics(const QString &type)
         if(typeNum>0)
         {
             QMetaObject::invokeMethod(m_alarmObj,"setFeedbackColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"blue"));
-           // QMetaObject::invokeMethod(m_alarmObj,"startFeedbackAnimation",Q_ARG(QVariant,true));
+            // QMetaObject::invokeMethod(m_alarmObj,"startFeedbackAnimation",Q_ARG(QVariant,true));
         }
         else
         {
@@ -617,7 +622,7 @@ void CrtWidget::communicationStatus(const QString &status, bool isOK)
             }
 
             QMetaObject::invokeMethod(m_alarmObj,"setMainPowerColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
-           // QMetaObject::invokeMethod(m_alarmObj,"startMainPowerAnimation",Q_ARG(QVariant,false));
+            // QMetaObject::invokeMethod(m_alarmObj,"startMainPowerAnimation",Q_ARG(QVariant,false));
         }
         else
         {
@@ -641,7 +646,7 @@ void CrtWidget::communicationStatus(const QString &status, bool isOK)
             }
 
             QMetaObject::invokeMethod(m_alarmObj,"setStandbyPowerColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
-           // QMetaObject::invokeMethod(m_alarmObj,"startStandbyPowerAnimation",Q_ARG(QVariant,false));
+            // QMetaObject::invokeMethod(m_alarmObj,"startStandbyPowerAnimation",Q_ARG(QVariant,false));
         }
         else
         {
@@ -1636,6 +1641,18 @@ void CrtWidget::sendAnalogCommand(quint8 networkNum,quint8 extNum,quint8 loopNum
 
     QByteArray sendDataArray= m_serialDataProtocol->dataPackage(dataArrayList);
     Controller::instance()->getCommObj()->sendData(sendDataArray);
+}
+
+void CrtWidget::startReset()
+{
+    int value=  QMessageBox::question(nullptr,tr("复位操作确认"),tr("确认是否要复位，是点击Yes键,否点击No键"),QMessageBox::Yes,QMessageBox::No);
+    if(value==QMessageBox::Yes)
+    {
+        m_architePlanView->clearAlarm(true);
+        Controller::instance()->getOperatorInfo()->insertEvent(tr("复位"));
+      QMetaObject::invokeMethod(m_alarmObj,"setAutoSwitchCheckBoxState",Q_ARG(QVariant,false)) ;
+    }
+
 }
 
 //void CrtWidget::sendSeralData()

@@ -5,9 +5,6 @@ import QtQuick.Controls 2.2
 Item {
     width: 560
     height: 420
-    signal createAlarm(string extNum, string loopNum, string addrNum, string networkNum,string alarmState)
-    signal clearAlarm
-    signal alramRestore(string extNum, string loopNum, string addrNum,string networkNum)
     GridLayout {
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
@@ -78,9 +75,16 @@ Item {
             Layout.column: 0
             text: qsTr("报警开始")
             onClicked: {
-                emit: createAlarm(extNumTextField.text, loopNumTextField.text,
-                                  addrNumTextField.text,networkNumTextField.text,
-                                  alarmStateComboBox.currentText)
+
+                ArchitePlanView.createAlarm(extNumTextField.text,
+                                            loopNumTextField.text,
+                                            addrNumTextField.text,
+                                            networkNumTextField.text,
+                                            alarmStateComboBox.currentText,
+                                            true)
+                //                emit: createAlarm(extNumTextField.text, loopNumTextField.text,
+                //                                  addrNumTextField.text,networkNumTextField.text,
+                //                                  alarmStateComboBox.currentText)
             }
         }
 
@@ -96,9 +100,11 @@ Item {
                 id: deleteAlarmBtn
                 text: qsTr("报警恢复")
                 onClicked: {
-                    emit: alramRestore(extNumTextField.text,
-                                       loopNumTextField.text,
-                                       addrNumTextField.text,networkNumTextField.text)
+
+                    ArchitePlanView.eliminateAlarm(extNumTextField.text,
+                                                   loopNumTextField.text,
+                                                   addrNumTextField.text,
+                                                   networkNumTextField.text)
                 }
             }
 
@@ -108,7 +114,8 @@ Item {
 
                 text: qsTr("报警清除")
                 onClicked: {
-                    emit: clearAlarm()
+                    //emit: clearAlarm(true)
+                    ArchitePlanView.clearAlarm(true)
                 }
             }
         }

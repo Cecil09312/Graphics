@@ -12,7 +12,7 @@ QmlForJson::QmlForJson(QObject *parent)
 void QmlForJson::writeFile(const QVariant &value,const QString &fileName)
 {
 
-    QFuture <void > future = QtConcurrent::run([&]()
+    QFuture <void > future = QtConcurrent::run([=]()
     {
         QFile file(fileName);
 
@@ -51,7 +51,7 @@ QVariant QmlForJson::readFile(const QString &fileName)
 QString QmlForJson::readFileToString(const QString &fileName)
 {
     static QString value = QString();
-    QFuture <void > future = QtConcurrent::run([=]()
+    QFuture <void > future = QtConcurrent::run([&]()
     {
         QFile file(fileName);
         if(file.exists())
