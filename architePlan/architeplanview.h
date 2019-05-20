@@ -64,6 +64,7 @@ public:
                                  const QString &addressNum, const QString &networkNum, const QString &alarmTypeName,
                                  bool isAnalog=false, const QString &alarmTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
 
+    Q_INVOKABLE void clearAlarm(bool alarmColorRedu=false);
     Q_INVOKABLE void toAlarmView();
     Q_INVOKABLE void setCurrentAlarmType(const QString &type);
     Q_INVOKABLE void toArchitePlan(const QString &extNum, const QString &loopNum,
@@ -102,7 +103,7 @@ public slots:
     void setItemSize(qreal size);
     void setItemIcon(QString iconName);
     void setItemInfoFromType(const QString &type,const QString &info);
-    void clearAlarm(bool alarmColorRedu=false);
+
     void setItemsIcon(int index,QString iconName);
     void setItemsEquipmentModel(int index,QString device);
     void setItemsManufacturers(int index,QString manufacturers);
