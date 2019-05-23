@@ -112,6 +112,7 @@ Item {
                 }
                 TextField {
                     id: globalArchitePlanTextFiled
+                    readOnly: true
                 }
                 Button {
                     id: globalArchitePlanBtn

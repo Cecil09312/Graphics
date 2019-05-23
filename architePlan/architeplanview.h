@@ -25,10 +25,10 @@ class ArchitePlanView : public QWidget
 public:
     explicit ArchitePlanView(QWidget *parent = nullptr);
     ~ArchitePlanView();
-    int numOfTypeAlarm(const QString &type);
+    int numOfTypeAlarm(const QString &type);//type类型的报警数目
     static QMap<int,GraphicsView *> &getWidgetMap();
-    int totalPage();
-    int currentPage();
+    int totalPage();//总页数
+    int currentPage();//当前页
 
     void eliminateAlarm(GraphicsItem *item);//消除报警
     void generateAlarm(const QString &alarmTypeName, GraphicsItem*item, GraphicsView *view, bool isAnalog=false);
@@ -49,29 +49,29 @@ public:
     QStandardItem*getItemFromView(GraphicsView*view);
     GraphicsView* currentGraphicsView();
     bool havingAlarms();
-    void saveArchiteInfo();
-    void saveOtherArchiteInfo();
-    void saveInfo();
-    void createAlarm(GraphicsItem *item,const QString &alarmTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
+    void saveArchiteInfo();//保存建筑平面信息
+    void saveOtherArchiteInfo();//保存建筑平面信息以外的其它信息(包括系统图和总平面布局图)
+    void saveInfo();//保存信息
+    void createAlarm(GraphicsItem *item,const QString &alarmTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));//生成报警
     GraphicsItem *itemFormInfo(const QString &extNum, const QString &loopNum,
                                const QString &addressNum, const QString &networkNum);
     void updateAlarmState(const QString &extNum, const QString &loopNum,
-                          const QString &addressNum, const QString &networkNum,const QString &curAlarmState);
+                          const QString &addressNum, const QString &networkNum,const QString &curAlarmState);//更新报警状态
     Q_INVOKABLE QString architeInfoDbName();
     Q_INVOKABLE void setGlobalArchitePixmap(const QString &pixmapName);
 
     Q_INVOKABLE void createAlarm(const QString &extNum, const QString &loopNum,
                                  const QString &addressNum, const QString &networkNum, const QString &alarmTypeName,
-                                 bool isAnalog=false, const QString &alarmTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
+                                 bool isAnalog=false, const QString &alarmTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));//生成报警
 
-    Q_INVOKABLE void clearAlarm(bool alarmColorRedu=false);
+    Q_INVOKABLE void clearAlarm(bool alarmColorRedu=false);//清空报警
     Q_INVOKABLE void toAlarmView();
-    Q_INVOKABLE void setCurrentAlarmType(const QString &type);
+    Q_INVOKABLE void setCurrentAlarmType(const QString &type);//设置当前报警类型
     Q_INVOKABLE void toArchitePlan(const QString &extNum, const QString &loopNum,
                                    const QString &addressNum,const QString &networkNum);
-    Q_INVOKABLE  void saveMySqlInfo(const QString &hostName,const QString &userName,
-                                    const QString &password,const QString &databaseName,int port);
-    QString deviceSysName(const QString &extNum);
+    Q_INVOKABLE void saveMySqlInfo(const QString &hostName,const QString &userName,
+                                    const QString &password,const QString &databaseName,int port);//将数据保存到mysql数据库
+    QString deviceSysName(const QString &extNum);//设备系统名
 
 signals:
     void alarmHappend(const QString &alarmType);

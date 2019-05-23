@@ -25,6 +25,7 @@ Item {
 
         TextField {
             id: fireAlarmTextField
+            readOnly: true
         }
         Button {
             id: fireAlarmBtn
@@ -45,6 +46,7 @@ Item {
 
         TextField {
             id: linkageTextField
+            readOnly: true
         }
         Button {
             id: linkageBtn
@@ -65,6 +67,7 @@ Item {
 
         TextField {
             id: autoSprayWaterTextField
+            readOnly: true
         }
         Button {
             id: autoSprayWaterBtn
@@ -85,6 +88,7 @@ Item {
 
         TextField {
             id: fireCockTextField
+            readOnly: true
         }
         Button {
             id: fireCockBtn
@@ -105,6 +109,7 @@ Item {
 
         TextField {
             id: gasFireTextField
+            readOnly: true
         }
         Button {
             id: gasFireBtn
@@ -125,6 +130,7 @@ Item {
 
         TextField {
             id: waterSprayTextField
+            readOnly: true
         }
         Button {
             id: waterSprayBtn
@@ -145,6 +151,7 @@ Item {
 
         TextField {
             id: foamAndDryTextField
+            readOnly: true
         }
         Button {
             id: foamAndDryBtn
@@ -165,6 +172,7 @@ Item {
 
         TextField {
             id: smokeControlTextField
+            readOnly: true
         }
         Button {
             id: smokeControlBtn
@@ -185,6 +193,7 @@ Item {
 
         TextField {
             id: fireEmergencyLightingTextField
+            readOnly: true
         }
         Button {
             id: fireEmergencyLightingBtn
@@ -205,6 +214,7 @@ Item {
 
         TextField {
             id: evacuationTextField
+            readOnly: true
         }
         Button {
             id: evacuationBtn

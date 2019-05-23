@@ -9,7 +9,7 @@ Item {
     Grid {
         id: deviceStateQuery
         spacing: 5
-        columns: 8
+        columns: 14
         Text {
             id: extNum
             text: qsTr("分机号")
@@ -20,7 +20,7 @@ Item {
 
         TextField {
             id: extNumTextField
-            width: 100
+            width: 80
             height: 30
         }
 
@@ -34,7 +34,7 @@ Item {
 
         TextField {
             id: loopNumTextField
-            width: 100
+            width: 80
             height: 30
         }
 

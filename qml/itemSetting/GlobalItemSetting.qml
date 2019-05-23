@@ -84,6 +84,7 @@ Rectangle {
             id: iconTextField
             Layout.row: 2
             Layout.column: 1
+            readOnly: true
         }
 
         Button {

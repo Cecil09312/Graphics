@@ -18,6 +18,7 @@ Item {
         }
         TextField {
             id: managInstitutionsTextField
+            readOnly: true
         }
         Button {
             id: managInstitutionsBtn
@@ -35,6 +36,7 @@ Item {
         }
         TextField {
             id: sysAsbuiltDrawingsTextField
+            readOnly: true
         }
         Button {
             id: sysAsbuiltDrawingsBtn
@@ -52,6 +54,7 @@ Item {
         }
         TextField {
             id: logicalThatTextField
+            readOnly: true
         }
         Button {
             id: logicalThatBtn
@@ -69,6 +72,7 @@ Item {
         }
         TextField {
             id: equipmentInstTextField
+            readOnly: true
         }
         Button {
             id: equipmentInstBtn
@@ -86,6 +90,7 @@ Item {
         }
         TextField {
             id: sysProceduresTextField
+            readOnly: true
         }
         Button {
             id: sysProceduresBtn
@@ -103,6 +108,7 @@ Item {
         }
         TextField {
             id: emergencyPlanTextField
+            readOnly: true
         }
         Button {
             id: emergencyPlanBtn
@@ -120,6 +126,7 @@ Item {
         }
         TextField {
             id: onDutySysTextField
+            readOnly: true
         }
         Button {
             id: onDutySysBtn
@@ -137,6 +144,7 @@ Item {
         }
         TextField {
             id: maintainSysTextField
+            readOnly: true
         }
 
 
@@ -156,6 +164,7 @@ Item {
         }
         TextField {
             id: maintainRecordTextField
+            readOnly: true
         }
 
         Button {
