@@ -2,7 +2,7 @@
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import QtQuick.Window 2.3
-import QtQuick.VirtualKeyboard 2.1
+//import QtQuick.VirtualKeyboard 2.1
 import userManager 1.0
 import QtQuick.Dialogs 1.2
 import operatorInfo 1.0
