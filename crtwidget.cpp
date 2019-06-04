@@ -238,19 +238,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
     connect(m_serialDataProtocol,&AbstractDataProtocol::errorFrameData,this,[=](const QByteArray &errorArray)
     {
         quint8 packageNum=   m_serialDataProtocol->dataByte(errorArray,1);
-        QByteArray sendArray;
-        sendArray.resize(3);
-        sendArray[0]=packageNum;
-        sendArray[1]=0x03;
-        sendArray[2]=0x22;
-        QList<QByteArray> sendArrayList;
-        sendArrayList.push_back(sendArray.mid(0,1));
-        sendArrayList.push_back(sendArray.mid(1,1));
-        sendArrayList.push_back(sendArray.mid(2,1));
-        //qDebug() << packageNum;
-        QByteArray curArray = m_serialDataProtocol->dataPackage(sendArrayList);
-        //qDebug() <<curArray.toHex();
-        Controller::instance()->getCommObj()->writeData(curArray);
+        reSendCmd(packageNum);
     });
 
 
@@ -1034,6 +1022,7 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
         if(packageNum!=m_serialDataProtocol->dataPackageNum(array))
         {
             packageNum = m_serialDataProtocol->dataPackageNum(array);
+            m_packageNumList.push_back(packageNum);
             QList<QByteArray> sendDataArrayList;
             QByteArray array;
             array.resize(3);
@@ -1648,9 +1637,17 @@ void CrtWidget::startReset()
     int value=  QMessageBox::question(nullptr,tr("复位操作确认"),tr("确认是否要复位，是点击Yes键,否点击No键"),QMessageBox::Yes,QMessageBox::No);
     if(value==QMessageBox::Yes)
     {
-        m_architePlanView->clearAlarm(true);
+        m_architePlanView->clearAlarm(false);//为false表示火警或启动的报警颜色不消除,为true时消除。
         Controller::instance()->getOperatorInfo()->insertEvent(tr("复位"));
-      QMetaObject::invokeMethod(m_alarmObj,"setAutoSwitchCheckBoxState",Q_ARG(QVariant,false)) ;
+        QMetaObject::invokeMethod(m_alarmObj,"setAutoSwitchCheckBoxState",Q_ARG(QVariant,false)) ;
+        if(!m_packageNumList.isEmpty())//发送重传指令
+        {
+            foreach (quint8 packageNum, m_packageNumList)
+            {
+                reSendCmd(packageNum);
+            }
+            m_packageNumList.clear();
+        }
     }
 
 }
@@ -1756,6 +1753,24 @@ void CrtWidget::hideTaskBar(bool isHidden)
     process.waitForFinished();
 #endif
 
+}
+
+void CrtWidget::reSendCmd(quint8 packageNum)
+{
+
+    QByteArray sendArray;
+    sendArray.resize(3);
+    sendArray[0]=packageNum;
+    sendArray[1]=0x03;
+    sendArray[2]=0x22;
+    QList<QByteArray> sendArrayList;
+    sendArrayList.push_back(sendArray.mid(0,1));
+    sendArrayList.push_back(sendArray.mid(1,1));
+    sendArrayList.push_back(sendArray.mid(2,1));
+    //qDebug() << packageNum;
+    QByteArray curArray = m_serialDataProtocol->dataPackage(sendArrayList);
+    //qDebug() <<curArray.toHex();
+    Controller::instance()->getCommObj()->writeData(curArray);
 }
 
 

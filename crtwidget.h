@@ -65,6 +65,7 @@ private:
     void setMySqlInfo();
    // void processAlarmHostInfo(quint8 type, QString &extNum, quint8 loopNum, quint8 addrNum, const QString &timeStr);
     void hideTaskBar(bool isHidden);
+    void reSendCmd(quint8 packageNum);//重传指令
 private:
     QWidget *m_alarmContainer;
     QWidget *m_toolBarContainer;
@@ -86,6 +87,7 @@ private:
     int m_heartbeatIndex;
     bool m_tcpIsConnected;
 
+    QList<quint8>m_packageNumList;
 //    QHash<QString,int>m_packageNumHash;
 };
 
