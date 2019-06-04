@@ -448,7 +448,7 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
 
             if(alarmTypeName==tr("屏蔽"))
             {
-                item->setColorEndValue(QColor("pink"));
+                item->setColorEndValue(QColor("#c93756"));
             }
             else if(alarmTypeName==tr("反馈"))
             {
@@ -1373,7 +1373,7 @@ void ArchitePlanView::createAlarm(GraphicsItem *item, const QString &alarmTime)
 
             if(alarmTypeName==tr("屏蔽"))
             {
-                item->setColorEndValue(QColor("pink"));
+                item->setColorEndValue(QColor("#c93756"));
             }
             else if(alarmTypeName==tr("反馈"))
             {

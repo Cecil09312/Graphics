@@ -196,11 +196,11 @@ Rectangle {
             id: shieldStatusIndicator
             Layout.column: 0
             Layout.row: 5
-            color: "green" //屏蔽:绿色:正常,粉色:异常
+            color: "green" //屏蔽:绿色:正常,樱桃红色:异常
             active: true
             ColorAnimation on color {
                 id: shieldAnimation
-                from: "pink"
+                from: "#c93756"
                 to: "black"
                 duration: 1000
                 loops: Animation.Infinite

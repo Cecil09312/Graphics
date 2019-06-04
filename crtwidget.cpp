@@ -301,7 +301,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
         }
         else
         {
-            QMetaObject::invokeMethod(m_alarmObj,"setEquiComColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+            QMetaObject::invokeMethod(m_alarmObj,"setEquiComColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"#9d2933"));//胭脂
             if(!Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("主机通信故障")))
             {
                 Controller::instance()->getSpeechObj()->insertAlarmText(tr("主机通信故障"));
@@ -323,7 +323,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
         }
         else
         {
-            QMetaObject::invokeMethod(m_alarmObj,"setCenterComColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"red"));
+            QMetaObject::invokeMethod(m_alarmObj,"setCenterComColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"#E4007F"));//品红
             if(!Controller::instance()->getSpeechObj()->alarmTextList().contains(tr("中心通信故障")))
             {
                 Controller::instance()->getSpeechObj()->insertAlarmText(tr("中心通信故障"));
@@ -585,7 +585,7 @@ void CrtWidget::alarmStatistics(const QString &type)
     {
         if(typeNum>0)
         {
-            QMetaObject::invokeMethod(m_alarmObj,"setShieldAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"pink"));
+            QMetaObject::invokeMethod(m_alarmObj,"setShieldAlarmColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"#c93756"));//樱桃红
             //QMetaObject::invokeMethod(m_alarmObj,"startShieldAnimation",Q_ARG(QVariant,true));
         }
         else
