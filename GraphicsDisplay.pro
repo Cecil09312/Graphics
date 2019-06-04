@@ -129,6 +129,8 @@ FORMS +=
 
 DISTFILES += \
 
+RC_ICONS = logo_icon.ico
+
 
 RESOURCES += \
     images.qrc \

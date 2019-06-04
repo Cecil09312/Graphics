@@ -20,8 +20,6 @@ SerialLink::SerialLink( QObject *parent)
         {
            m_serialPort->write(array);
         }
-
-        qDebug() << array.toHex();
     });
 
 

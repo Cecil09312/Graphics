@@ -2,7 +2,6 @@
 #include <QDebug>
 #include <QSqlRecord>
 #include <QStringList>
-#include <QDebug>
 
 QmlTableModel::QmlTableModel(QObject *parent)
     : QSqlQueryModel(parent),
