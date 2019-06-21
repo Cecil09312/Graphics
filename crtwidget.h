@@ -26,12 +26,13 @@
 #include "communication/ftpmanager.h"
 #include <QDesktopServices>
 
+
 class CrtWidget : public QOpenGLWidget
 {
     Q_OBJECT
 
 public:
-    explicit CrtWidget(QWidget *parent = 0);
+    explicit CrtWidget(QWidget *parent = nullptr);
     ~CrtWidget();
     Q_INVOKABLE QString alarmInfoDbName();
     Q_INVOKABLE void queryViewShow();

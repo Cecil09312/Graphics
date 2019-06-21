@@ -13,10 +13,12 @@ Controller *Controller::instance()
 Controller::~Controller()
 {
     m_commObj.clear();
-    m_speechObj->deleteLater();
+    //m_speechObj->deleteLater();
     m_tcpObj.clear();
     m_IndicatorObj.clear();
-    m_operatorInfo->deleteLater();
+    m_speechObj.clear();
+   //m_operatorInfo->deleteLater();
+    m_operatorInfo.clear();
 }
 
 QString Controller::fileNameFromQml(const QString &name)
@@ -96,7 +98,7 @@ UserManager::UserRight Controller::getUserRight()
 
 SpeechObj *Controller::getSpeechObj()
 {
-    return m_speechObj;
+    return m_speechObj.data();
 }
 
 AbstractLink *Controller::getTcpObj()
@@ -137,7 +139,7 @@ SqlManager *Controller::getMySqlManager()
 
 OperatorInfo *Controller::getOperatorInfo()
 {
-    return m_operatorInfo;
+    return m_operatorInfo.data();
 }
 
 TransportInfo *Controller::getTransportInfo()
@@ -151,12 +153,12 @@ Controller::Controller()
     m_tcpObj = QSharedPointer<AbstractLink>(new TcpLink(),&QObject::deleteLater);
     m_IndicatorObj = QSharedPointer<AbstractLink>(new IndicatorLightCom,&QObject::deleteLater);
     m_userManager =new UserManager(this);
-    m_speechObj = new SpeechObj();
+    m_speechObj = QSharedPointer<SpeechObj>(new SpeechObj,&QObject::deleteLater);
     m_serialConfigurationManager =QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new SerialConfiguration)),&QObject::deleteLater);
     m_tcpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new TcpConfiguration)),&QObject::deleteLater);
     m_ftpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new FtpConfiguration)),&QObject::deleteLater);
     m_indicatorConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new IndicatorLightConfiguration)),&QObject::deleteLater);
-    m_operatorInfo = new OperatorInfo;
+    m_operatorInfo = QSharedPointer<OperatorInfo>(new OperatorInfo,&QObject::deleteLater);
     m_transportInfo = QSharedPointer<TransportInfo>(new TransportInfo,&QObject::deleteLater);
     m_mysqlManager = SqlManager::fromDriver("QMYSQL");
 }

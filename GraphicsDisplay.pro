@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui quick svg opengl concurrent sql texttospeech serialport serialbus printsupport network
+QT       += core gui quick svg opengl concurrent sql texttospeech serialport  printsupport network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -57,8 +57,6 @@ SOURCES += \
     communication/configurationmanager.cpp \
     communication/udplink.cpp \
     communication/udpconfiguration.cpp \
-    communication/modbusmanager.cpp \
-    communication/canbasmanager.cpp \
     communication/canconfiguration.cpp \
     database/mysqlmanager.cpp \
     dataStore/abstractdataprotocol.cpp \
@@ -106,8 +104,6 @@ HEADERS += \
     communication/configurationmanager.h \
     communication/udplink.h \
     communication/udpconfiguration.h \
-    communication/modbusmanager.h \
-    communication/canbasmanager.h \
     communication/canconfiguration.h \
     database/mysqlmanager.h \
     dataStore/abstractdataprotocol.h \
@@ -128,11 +124,13 @@ HEADERS += \
 FORMS +=
 
 DISTFILES += \
+    package.pri
 
 RC_ICONS = logo_icon.ico
-
 
 RESOURCES += \
     images.qrc \
     qss.qrc \
     qml.qrc
+
+include(package.pri)

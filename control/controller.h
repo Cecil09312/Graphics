@@ -12,7 +12,6 @@
 #include "communication/udplink.h"
 #include "communication/configurationmanager.h"
 #include "communication/tcpconfiguration.h"
-#include "communication/modbusmanager.h"
 #include "communication/udpconfiguration.h"
 #include "graphicsWidget/graphicsitem.h"
 #include "graphicsWidget/graphicsitem.h"
@@ -62,12 +61,12 @@ private:
     ArchitePlanView *m_architePlanView;
     UserManager*m_userManager;
     CrtWidget *m_crtWidget;
-    SpeechObj*m_speechObj;
+    QSharedPointer<SpeechObj>m_speechObj;
     QSharedPointer<ConfigurationManager> m_serialConfigurationManager;
     QSharedPointer<ConfigurationManager> m_tcpConfigurationManager;
     QSharedPointer<ConfigurationManager> m_ftpConfigurationManager;
     QSharedPointer<ConfigurationManager> m_indicatorConfigurationManager;
-    OperatorInfo*m_operatorInfo;
+    QSharedPointer<OperatorInfo>m_operatorInfo;
     QSharedPointer<TransportInfo>m_transportInfo;
     SqlManager *m_mysqlManager;
 };

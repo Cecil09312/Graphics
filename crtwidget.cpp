@@ -781,10 +781,14 @@ void CrtWidget::initWidget()
     QQuickView *toolBarQuickView = new QQuickView;
     toolBarQuickView->setSource(QUrl("qrc:/qml/toolBar/ToolBarWindow.qml"));
     toolBarQuickView->rootContext()->setContextProperty("CrtWidget",this);
+
+    toolBarQuickView->setMinimumWidth(1200);
+   // toolBarQuickView->setWidth(this->width());
     m_toolBarContainer = QWidget::createWindowContainer(toolBarQuickView, this);
     m_toolBarContainer->setMinimumHeight(60);
     m_toolBarContainer->setMaximumHeight(60);
-    m_toolBarContainer->setMinimumWidth(100);
+    m_toolBarContainer->setMinimumWidth(1200);
+
     m_toolBarContainer->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
     globalVLayout->addWidget(m_toolBarContainer);
 
@@ -812,7 +816,8 @@ void CrtWidget::initWidget()
     m_alarmQuickView->rootContext()->setContextProperty("ArchitePlanView",m_architePlanView);
     m_alarmObj = m_alarmQuickView->rootObject();
 
-    m_alarmContainer = QWidget::createWindowContainer(m_alarmQuickView, this);
+
+    m_alarmContainer = QWidget::createWindowContainer(m_alarmQuickView, this) ;
     m_alarmContainer->setMinimumHeight(100);
     m_alarmContainer->setMinimumWidth(150);
     m_alarmContainer->setMaximumWidth(150);
