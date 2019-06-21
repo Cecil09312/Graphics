@@ -5,51 +5,17 @@
 SpeechObj::SpeechObj(QObject *parent):
     QObject(parent),
     m_isStoped(false),
-    m_currentAlarmPos(0)
+    m_currentAlarmPos(0),
+    m_textToSpeech(nullptr)
 {
     m_alarmPos =0;
 
     m_thread = new QThread;
-    m_textToSpeech = new QTextToSpeech();
-    m_textToSpeech->moveToThread(m_thread);
+    engineSelected("default");
     this->moveToThread(m_thread);
     m_thread->start();
 
-    connect(m_textToSpeech,&QTextToSpeech::stateChanged,this,[=](QTextToSpeech::State state)
-    {
-        if(state==QTextToSpeech::Ready)
-        {
-            int alarmTestListSize =m_alarmTextList.size();
-            if(alarmTestListSize>0)
-            {
-                if(m_alarmPos<alarmTestListSize)
-                {
-                    m_textToSpeech->say(m_alarmTextList.at(m_alarmPos));
-                }
 
-                foreach (QString alarmText, m_alarmTextList)
-                {
-                    if(alarmText.startsWith("首火警")||alarmText.startsWith("火警"))
-                    {
-                        m_alarmPos=0;
-                        return;
-                    }
-                }
-                if(!m_alarmTextList.at(m_alarmPos).startsWith("首火警")||!m_alarmTextList.at(m_alarmPos).startsWith("火警"))
-                {
-                    m_alarmPos++;
-                    m_alarmPos = m_alarmPos%alarmTestListSize;
-                }
-                else
-                {
-                    m_alarmPos =0;
-                }
-            }
-            else {
-                stopSpeech();
-            }
-        }
-    });
 
 
 }
@@ -57,7 +23,7 @@ SpeechObj::SpeechObj(QObject *parent):
 SpeechObj::~SpeechObj()
 {
     stopSpeech();
-    disconnect(m_textToSpeech,&QTextToSpeech::stateChanged,0,0);
+    disconnect(m_textToSpeech,&QTextToSpeech::stateChanged,nullptr,nullptr);
     m_thread->quit();
     m_thread->deleteLater();
     m_textToSpeech->deleteLater();
@@ -108,15 +74,161 @@ bool SpeechObj::alarmTextExist(const QString &alarmText)
     return m_alarmTextList.contains(alarmText);
 }
 
+void SpeechObj::engineSelected(const QString &engineName)
+{
+    if(m_textToSpeech!=nullptr)
+    {
+        disconnect(m_textToSpeech,&QTextToSpeech::stateChanged,nullptr,nullptr);
+        m_textToSpeech->deleteLater();
+        m_textToSpeech = nullptr;
+    }
+
+    if(engineName=="default" ||engineName.isEmpty())
+    {
+        m_textToSpeech = new QTextToSpeech();
+    }
+    else
+    {
+       m_textToSpeech = new QTextToSpeech(engineName);
+    }
+    m_textToSpeech->moveToThread(m_thread);
+    m_languageHash.clear();
+    m_engineNameList.clear();
+
+  setEngineNameList(QTextToSpeech::availableEngines());
+
+ QVector<QLocale>locales= m_textToSpeech->availableLocales();
+     foreach (const QLocale &locale, locales) {
+         QString name(QString("%1 (%2)")
+                      .arg(QLocale::languageToString(locale.language()))
+                      .arg(QLocale::countryToString(locale.country())));
+         QVariant localeVariant(locale);
+         m_languageHash[name] = localeVariant;
+     }
+
+     connect(m_textToSpeech,&QTextToSpeech::stateChanged,this,[=](QTextToSpeech::State state)
+     {
+         if(state==QTextToSpeech::Ready)
+         {
+             int alarmTestListSize =m_alarmTextList.size();
+             if(alarmTestListSize>0)
+             {
+                 if(m_alarmPos<alarmTestListSize)
+                 {
+                     m_textToSpeech->say(m_alarmTextList.at(m_alarmPos));
+                 }
+
+                 foreach (QString alarmText, m_alarmTextList)
+                 {
+                     if(alarmText.startsWith("首火警")||alarmText.startsWith("火警"))
+                     {
+                         m_alarmPos=0;
+                         return;
+                     }
+                 }
+                 if(!m_alarmTextList.at(m_alarmPos).startsWith("首火警")||!m_alarmTextList.at(m_alarmPos).startsWith("火警"))
+                 {
+                     m_alarmPos++;
+                     m_alarmPos = m_alarmPos%alarmTestListSize;
+                 }
+                 else
+                 {
+                     m_alarmPos =0;
+                 }
+             }
+             else {
+                 stopSpeech();
+             }
+         }
+     });
+
+    startSpeech();
+}
+
+QStringList SpeechObj::engineNameList()
+{
+    return m_engineNameList;
+}
+
+void SpeechObj::setEngineNameList(const QStringList &engine)
+{
+    m_engineNameList = engine;
+}
+
+QList<QString> SpeechObj::languageNameList()
+{
+    return m_languageHash.keys();
+}
+
+QList<QVariant> SpeechObj::languageValueList()
+{
+    return m_languageHash.values();
+}
+
+
+
+QString SpeechObj::engineName(int index)
+{
+    if(index<m_engineNameList.size())
+    {
+        return m_engineNameList.at(index);
+
+    }
+    else
+    {
+        return "";
+    }
+
+}
+
+int SpeechObj::engineNameNum()
+{
+    return m_engineNameList.size();
+}
+
+QString SpeechObj::languageName(int index)
+{
+    QList<QString> languageList= m_languageHash.keys();
+    if(languageList.size()>index)
+    {
+        return languageList.at(index);
+    }
+    else
+    {
+        return "";
+    }
+}
+
+int SpeechObj::languageNum()
+{
+    return m_languageHash.size();
+}
+
+void SpeechObj::setLanguage(const QString &languageName)
+{
+    m_textToSpeech->setLocale(m_languageHash[languageName].toLocale());
+}
+
+QString SpeechObj::currentLanguage()
+{
+
+    return m_languageHash.key(m_textToSpeech->locale());
+}
+
 
 void SpeechObj::stopSpeech()
 {
+#ifdef Q_OS_WIN
     m_textToSpeech->pause();
+#elif
+    m_textToSpeech->stop();
+#endif
 }
 
 void SpeechObj::startSpeech()
 {
 
+    // qDebug() << "state:" << m_textToSpeech->state();
     if(m_textToSpeech->state()!=QTextToSpeech::Speaking)
     {
         if(m_alarmTextList.size()>0)

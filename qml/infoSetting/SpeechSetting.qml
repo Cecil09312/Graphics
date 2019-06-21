@@ -5,7 +5,11 @@ import speechObj 1.0
 Item {
 
     ListModel {
-        id: voiceNameModel
+        id: engineModel
+    }
+
+    ListModel {
+        id: languageModel
     }
     Grid {
         columns: 2
@@ -14,6 +18,42 @@ Item {
             horizontalCenter: parent.horizontalCenter
         }
         columnSpacing: 5
+        rowSpacing: 5
+        Text {
+            text: qsTr("驱动")
+            height: 40
+            verticalAlignment: Text.AlignVCenter
+        }
+
+        ComboBox
+        {
+
+            id:engineComboBox
+            width: 300
+            model: engineModel
+            onCurrentTextChanged:
+            {
+               SpeechObj.engineSelected(currentText)
+            }
+        }
+
+        Text {
+            text: qsTr("语言")
+            height: 40
+            verticalAlignment: Text.AlignVCenter
+        }
+
+        ComboBox
+        {
+            id:languageComboBox
+            width: 300
+            model: languageModel
+            onCurrentTextChanged:
+            {
+               SpeechObj.setLanguage(currentText)
+            }
+        }
+
         Text {
             text: qsTr("音量")
             height: 40
@@ -92,5 +132,21 @@ Item {
         volumeSlider.value = SpeechObj.volume
         rateSlider.value = SpeechObj.rate
         pitchSlider.value = SpeechObj.pitch
+
+        engineModel.append({value:"default"})
+        for(var i=0;i<SpeechObj.engineNameNum();i++)
+        {
+            engineModel.append({value:SpeechObj.engineName(i)})
+        }
+
+        for(var j=0;j<SpeechObj.languageNum();j++)
+        {
+            languageModel.append({value:SpeechObj.languageName(j)})
+        }
+
+        engineComboBox.currentIndex =0;
+        var pos=  languageComboBox.find(SpeechObj.currentLanguage())
+        languageComboBox.currentIndex=pos
+
     }
 }
