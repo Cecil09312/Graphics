@@ -14,10 +14,6 @@ SpeechObj::SpeechObj(QObject *parent):
     engineSelected("default");
     this->moveToThread(m_thread);
     m_thread->start();
-
-
-
-
 }
 
 SpeechObj::~SpeechObj()
@@ -220,15 +216,14 @@ void SpeechObj::stopSpeech()
 {
 #ifdef Q_OS_WIN
     m_textToSpeech->pause();
-#elif
+#endif
+ #ifdef Q_OS_LINUX
     m_textToSpeech->stop();
 #endif
 }
 
 void SpeechObj::startSpeech()
 {
-
-    // qDebug() << "state:" << m_textToSpeech->state();
     if(m_textToSpeech->state()!=QTextToSpeech::Speaking)
     {
         if(m_alarmTextList.size()>0)

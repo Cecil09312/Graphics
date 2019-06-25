@@ -41,16 +41,31 @@ CrtWidget::CrtWidget(QWidget *parent) :
     m_sqliteManager->open();
     if(m_sqliteManager->isOpen())
     {
+        QDateTime curDateTime = QDateTime::currentDateTime();
+        curDateTime = curDateTime.addMonths(-6);
+        QString curDateTimeStr = curDateTime.toString("yyyy/MM/dd hh:mm:ss");
+
         QStringList tableNameList = m_sqliteManager->getTables();
         if(!tableNameList.contains("AlarmInfo"))
         {
             m_sqliteManager->executeQuery("create table AlarmInfo(分机号 text, 回路号 text,地址号 text,网络号 text,设备编码 text ,设备 text,报警类型 text,报警状态 text,报警时间 text,报警恢复时间 text,系统 text,建筑名称 text,楼层 text,位置 text,制造商 text,有效期 text,操作员 text)");
+        }
+        else
+        {
+            m_sqliteManager->executeQuery(QString("delete from AlarmInfo where 报警时间 <='%1'").arg(curDateTimeStr));
+
         }
 
         if(!tableNameList.contains("AnalogInfo"))
         {
             m_sqliteManager->executeQuery("create table AnalogInfo(分机号 text, 回路号 text,地址号 text,网络号 text,当前通道 int, 模拟量类型 text ,结果 text,时间 text)");
         }
+        else
+        {
+            m_sqliteManager->executeQuery(QString("delete from AnalogInfo where 时间 <='%1'").arg(curDateTimeStr));
+
+        }
+
 
     }
 

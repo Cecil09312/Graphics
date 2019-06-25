@@ -5,6 +5,8 @@
 #include <QThread>
 #include <QVoice>
 #include <QVector>
+
+
 class SpeechObj : public QObject
 {
     Q_OBJECT
