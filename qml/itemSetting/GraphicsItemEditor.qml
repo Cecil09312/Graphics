@@ -335,6 +335,7 @@ Item {
                     deviceTypeModel.append(deviceTypeTempModel.get(j))
                 }
                 emit: setItemsDeviceName(index, device)
+
             }
 
             onIconChanged: {

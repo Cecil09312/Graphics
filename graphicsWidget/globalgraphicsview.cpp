@@ -4,10 +4,12 @@ GlobalGraphicsView::GlobalGraphicsView(QWidget *parent):
     QGraphicsView(parent)
 {
     m_graphicsScene = new GlobalGraphicsScene(this);
-    m_svgItem = new QGraphicsSvgItem;
-    m_graphicsScene->addItem(m_svgItem);
+    m_pixmapItem = new QGraphicsPixmapItem;
+   //m_svgItem = new QGraphicsSvgItem;
+    //m_graphicsScene->addItem(m_svgItem);
+    m_graphicsScene->addItem(m_pixmapItem);
     setScene(m_graphicsScene);
-    fitInView(0,0,width()*1.2,height()*1.2,Qt::KeepAspectRatio);
+   fitInView(0,0,width()*0.9,height()*0.9,Qt::KeepAspectRatio);
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this,&GlobalGraphicsView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)
     {
@@ -25,14 +27,15 @@ GlobalGraphicsView::~GlobalGraphicsView()
 
 void GlobalGraphicsView::setPicture(const QString &pictureName)
 {
-    if(!pictureName.endsWith(".svg"))
-    {
-        return;
-    }
-    QSvgRenderer *renderer = new QSvgRenderer(pictureName);
-    m_svgItem->setSharedRenderer(renderer);
-    m_pictureName = pictureName;
-    m_svgItem->update();
+    m_pixmapItem->setPixmap(QPixmap(pictureName));
+//    if(!pictureName.endsWith(".svg"))
+//    {
+//        return;
+//    }
+//    QSvgRenderer *renderer = new QSvgRenderer(pictureName);
+//    m_svgItem->setSharedRenderer(renderer);
+//    m_pictureName = pictureName;
+//    m_svgItem->update();
 }
 
 QString GlobalGraphicsView::pictureName()

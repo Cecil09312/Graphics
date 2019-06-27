@@ -13,10 +13,10 @@ Controller *Controller::instance()
 Controller::~Controller()
 {
     m_commObj.clear();
-    //m_speechObj->deleteLater();
+    m_speechObj->deleteLater();
     m_tcpObj.clear();
     m_IndicatorObj.clear();
-    m_speechObj.clear();
+    //m_speechObj.clear();
    //m_operatorInfo->deleteLater();
     m_operatorInfo.clear();
 }
@@ -42,6 +42,20 @@ QString Controller::fileNameFromQml(const QString &name)
 
 #endif
     return fileName;
+}
+
+QString Controller::getFileNameFromUrl(const QString &url, bool isHasSuffix)
+{
+    QFileInfo fileInfo(url);
+    if(isHasSuffix)
+    {
+        return  fileInfo.fileName();
+    }
+    else
+    {
+
+        return  fileInfo.baseName();
+    }
 }
 
 AbstractLink*Controller::getCommObj()
@@ -98,7 +112,7 @@ UserManager::UserRight Controller::getUserRight()
 
 SpeechObj *Controller::getSpeechObj()
 {
-    return m_speechObj.data();
+    return m_speechObj;
 }
 
 AbstractLink *Controller::getTcpObj()
@@ -153,7 +167,7 @@ Controller::Controller()
     m_tcpObj = QSharedPointer<AbstractLink>(new TcpLink(),&QObject::deleteLater);
     m_IndicatorObj = QSharedPointer<AbstractLink>(new IndicatorLightCom,&QObject::deleteLater);
     m_userManager =new UserManager(this);
-    m_speechObj = QSharedPointer<SpeechObj>(new SpeechObj,&QObject::deleteLater);
+    m_speechObj = new SpeechObj;
     m_serialConfigurationManager =QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new SerialConfiguration)),&QObject::deleteLater);
     m_tcpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new TcpConfiguration)),&QObject::deleteLater);
     m_ftpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new FtpConfiguration)),&QObject::deleteLater);

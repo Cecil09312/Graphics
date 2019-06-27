@@ -3,6 +3,7 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
 import Qt.labs.platform 1.0
 import operatorInfo 1.0
+import controller 1.0
 
 Rectangle {
 
@@ -146,6 +147,10 @@ Rectangle {
                                      String("建筑物图标由\"%1\"更改为\"%2\"").arg(
                                          iconPath).arg(iconTextField.text))
             iconPath = iconTextField.text
+
+            GlobalItemSettingView.setCurrentBuildName(Controller.getFileNameFromUrl(currentFile))
+            buildNameTextField.text = Controller.getFileNameFromUrl(currentFile)
+
         }
     }
 

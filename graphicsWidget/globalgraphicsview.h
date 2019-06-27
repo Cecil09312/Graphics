@@ -16,7 +16,8 @@ public:
     GlobalGraphicsScene *currentScene();
 
 private:
-    QGraphicsSvgItem *m_svgItem;
+   // QGraphicsSvgItem *m_svgItem;
+    QGraphicsPixmapItem *m_pixmapItem;
     GlobalGraphicsScene *m_graphicsScene;
     QString m_pictureName;
 };

@@ -14,6 +14,7 @@ Rectangle {
     signal currentAlarmType(string type)
     signal startAutoSwitch(bool isAuto)
     signal reset
+    signal clearVoice()
     RowLayout {
         id: alarmBtnLayout
         height: 50
@@ -52,8 +53,9 @@ Rectangle {
             font.family: qsTr("Times New Roman")
             text: qsTr("消音")
             onClicked: {
-                OperatorInfo.insertEvent(qsTr("消音"))
-                SpeechObj.stopSpeech()
+//                OperatorInfo.insertEvent(qsTr("消音"))
+//                SpeechObj.stopSpeech()
+                emit:clearVoice()
             }
 
             onPressed: {
@@ -292,11 +294,11 @@ Rectangle {
             id: equiComIndicator
             Layout.column: 0
             Layout.row: 9
-            color: "green"
+            color: "#9d2933"
             active: true
             ColorAnimation on color {
                 id: equiComAnimation
-                from: "red"
+                from: "#9d2933"
                 to: "black"
                 duration: 1000
                 loops: Animation.Infinite
@@ -317,11 +319,11 @@ Rectangle {
             id: centerComIndictor
             Layout.column: 0
             Layout.row: 10
-            color: "green"
+            color: "#E4007F"
             active: true
             ColorAnimation on color {
                 id: centerComAnimation
-                from: "red"
+                from: "#E4007F"
                 to: "black"
                 duration: 1000
                 loops: Animation.Infinite

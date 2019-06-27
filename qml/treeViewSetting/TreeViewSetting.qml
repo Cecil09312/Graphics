@@ -5,6 +5,7 @@ import QtQuick.Layouts 1.3
 import QtQuick.Window 2.3
 import Qt.labs.platform 1.0
 import operatorInfo 1.0
+import controller 1.0
 
 Rectangle {
     id: treeViewSettingRec
@@ -100,6 +101,8 @@ Rectangle {
             primArchImageTextField.text = currentFile.toString()
             TreeView.insertPixmap(primArchImageTextField.text)
             architeImage = primArchImageTextField.text
+            primaryArchiteName.text = Controller.getFileNameFromUrl(currentFile.toString())
+            TreeView.setItemName(Controller.getFileNameFromUrl(currentFile.toString()))
         }
     }
 

@@ -24,6 +24,7 @@ public:
     Q_INVOKABLE void setOtherInfoHash(int pos ,const QString&itemName,QVariant value);
     Q_INVOKABLE QVariant otherInfo(int pos ,const QString&itemName);
 
+
 private:
     QHash<QString,QVariant>m_iconInfoHash;
     const QString c_filePath = QCoreApplication::applicationDirPath()+"/iconInfo.json";

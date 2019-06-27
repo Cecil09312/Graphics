@@ -19,10 +19,6 @@
 #include <windows.h>
 #include <tchar.h>
 #endif
-#ifdef Q_OS_LINUX
-#define _SVID_SOURCE
-#endif
-
 
 CrtWidget::CrtWidget(QWidget *parent) :
     QOpenGLWidget(parent),
@@ -348,19 +344,19 @@ CrtWidget::CrtWidget(QWidget *parent) :
 
     });
 
-    //   hideTaskBar(true);
-    //        connect(Controller::instance()->getUserManager(),&UserManager::userRightChanged,this,[=](const UserManager::UserRight& right)
-    //        {
-    //            if(right==UserManager::Super)
-    //            {
-    //                hideTaskBar(false);
-    //            }
-    //            else
-    //            {
-    //                hideTaskBar(true);
-    //            }
+    hideTaskBar(true);
+    connect(Controller::instance()->getUserManager(),&UserManager::userRightChanged,this,[=](const UserManager::UserRight& right)
+    {
+        if(right==UserManager::Super)
+        {
+            hideTaskBar(false);
+        }
+        else
+        {
+            hideTaskBar(true);
+        }
 
-    //        });
+    });
 
     //    QDateTime dateTime = QDateTime::currentDateTime();
     //   dateTime= dateTime.addMonths(-3);
@@ -832,6 +828,8 @@ void CrtWidget::initWidget()
     m_alarmObj = m_alarmQuickView->rootObject();
 
 
+
+
     m_alarmContainer = QWidget::createWindowContainer(m_alarmQuickView, this) ;
     m_alarmContainer->setMinimumHeight(100);
     m_alarmContainer->setMinimumWidth(150);
@@ -865,6 +863,9 @@ void CrtWidget::initWidget()
     globalVLayout->setSpacing(0);
     globalVLayout->setContentsMargins(QMargins(0,0,0,0));
     setLayout(globalVLayout);
+
+    Q_ASSERT(m_alarmObj);
+    connect(m_alarmObj,SIGNAL(clearVoice()),this,SLOT(clearVoice()));
 }
 
 void CrtWidget::alarmDataOnTable()
@@ -1668,8 +1669,15 @@ void CrtWidget::startReset()
             }
             m_packageNumList.clear();
         }
+
     }
 
+}
+
+void CrtWidget::clearVoice()
+{
+    Controller::instance()->getSpeechObj()->stopSpeech();
+    Controller::instance()->getOperatorInfo()->insertEvent(tr("消音"));
 }
 
 //void CrtWidget::sendSeralData()
@@ -1758,9 +1766,10 @@ void CrtWidget::hideTaskBar(bool isHidden)
     QProcess process;
     if(!isHidden)
     {
-        process.execute("gsettings set org.gnome.shell.extensions.dash-to-dock autohide true");
         process.execute("gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed true");
+        process.execute("gsettings set org.gnome.shell.extensions.dash-to-dock autohide true");
         process.execute("gsettings set org.gnome.shell.extensions.dash-to-dock intellihide true");
+
     }
     else
     {

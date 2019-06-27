@@ -2,6 +2,7 @@
 import QtQuick.Controls 2.2
 import Qt.labs.platform 1.0
 import itemIconInfoToJson 1.0
+import controller 1.0
 
 Rectangle {
     width: 680
@@ -12,6 +13,7 @@ Rectangle {
     signal manufacturersChanged(int index, string facturers)
     signal iconChanged(int index, string iconPath)
     signal deviceNameChanged(int index, string device)
+
     ListModel {
         id: listModel
         ListElement {
@@ -131,6 +133,8 @@ Rectangle {
                 onAccepted: {
                     imagePath = Qt.resolvedUrl(decodeURI(
                                                    currentFile.toString()))
+                  deviceName = Controller.getFileNameFromUrl(currentFile.toString(),false)
+
                     emit: iconChanged(index, imagePath)
                     saveInfo()
                 }

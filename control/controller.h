@@ -23,6 +23,7 @@
 #include "communication/indicatorlightconfiguration.h"
 #include "communication/indicatorlightcom.h"
 #include "database/mysqlmanager.h"
+#include <QFileInfo>
 
 class Controller:public QObject
 {
@@ -31,6 +32,7 @@ public:
     static Controller *instance();
     ~Controller();
     Q_INVOKABLE QString fileNameFromQml(const QString &name);
+    Q_INVOKABLE QString getFileNameFromUrl(const QString &url, bool isHasSuffix=false);
     AbstractLink *getCommObj();
     void setSysArchitePlanView(SysArchitePlanView*sysArchitePlanView);
     SysArchitePlanView *getSysArchitePlanView() const;
@@ -61,7 +63,7 @@ private:
     ArchitePlanView *m_architePlanView;
     UserManager*m_userManager;
     CrtWidget *m_crtWidget;
-    QSharedPointer<SpeechObj>m_speechObj;
+    SpeechObj*m_speechObj;
     QSharedPointer<ConfigurationManager> m_serialConfigurationManager;
     QSharedPointer<ConfigurationManager> m_tcpConfigurationManager;
     QSharedPointer<ConfigurationManager> m_ftpConfigurationManager;
