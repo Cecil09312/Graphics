@@ -134,3 +134,4 @@ RESOURCES += \
     qml.qrc
 
 include(package.pri)
+

@@ -1,22 +1,14 @@
 
 linux
 {
-    linux-g++ | linux-g++-64 | linux-g++-32 | linux-clang
+    linux-g++ | linux-g++-64 | linux-g++-32 | linux-clang | linux-rasp-pi2-g++
     {
-        CONFIG  += LinuxBuild
-       message("LinuxBuild")
+       CONFIG  += LinuxBuild
+       linux-rasp-pi2-g++
+       {
+         DEFINES += __rasp_pi2__
+       }
     }
-    linux-rasp-pi2-g++ {
-        CONFIG += LinuxBuild
-        DEFINES +=  __rasp_pi2__
-        message("LinuxBuild")
-    }
-}
-
-win
-{
-   CONFIG  -= LinuxBuild
-   message("winBuild")
 }
 
 LinuxBuild {
@@ -92,4 +84,9 @@ LinuxBuild {
       QMAKE_POST_LINK += && $$QMAKE_COPY --dereference --recursive $$[QT_INSTALL_QML]/$$QT_QML $$DESTDIR
     }
 }
+
+
+
+
+
 

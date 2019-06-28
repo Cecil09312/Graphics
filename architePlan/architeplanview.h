@@ -15,9 +15,9 @@
 #include "architePlan/sysarchiteplanview.h"
 #include "graphicsWidget/globalgraphicsview.h"
 #include "graphicsWidget/globalgraphicsitem.h"
+#include "database/sqlitemanager.h"
+#include "database/sqlitemanager.h"
 #include <QTimer>
-#include "database/sqlitemanager.h"
-#include "database/sqlitemanager.h"
 
 class ArchitePlanView : public QWidget
 {
