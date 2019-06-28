@@ -53,8 +53,6 @@ Rectangle {
             font.family: qsTr("Times New Roman")
             text: qsTr("消音")
             onClicked: {
-//                OperatorInfo.insertEvent(qsTr("消音"))
-//                SpeechObj.stopSpeech()
                 emit:clearVoice()
             }
 
