@@ -7,6 +7,7 @@
 #include "control/controller.h"
 #include <QSvgGenerator>
 #include <QGraphicsView>
+#include <qmath.h>
 int GraphicsItem::m_num =1;
 GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_radius(20.0),
@@ -43,7 +44,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_parallelAnimGroup->addAnimation(m_scaleAnimation);
     m_parallelAnimGroup->setLoopCount(-1);
 
-    m_itemTextFont.setPointSize(10);
+    m_itemTextFont.setPointSize(qFloor(m_radius/4));
     m_itemTextFont.setFamily("Times New Roman");
 
     m_itemInfo.m_deviceNum = QString("%1").arg(m_num++);
@@ -101,31 +102,36 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*optio
 {
 
 
+    m_itemTextFont.setPointSize(qFloor(m_radius/4));
     painter->setFont(m_itemTextFont);
-    if(m_iconName.endsWith(".svg"))
+
+    if(m_radius>0)
     {
-        QSvgRenderer renderer(m_iconName);
-        renderer.render(painter,QRectF(-m_radius/1.25,-m_radius/1.25,m_radius*2,m_radius*2));
-        painter->drawText(QRect(-m_radius,-m_radius,m_radius,m_radius),m_itemInfo.m_deviceNum);
-    }
-    else
-    {
-        if(m_radius>0)
+        painter->drawText(QRect(-m_radius,-m_radius,2*m_radius,2*m_radius),m_itemInfo.m_deviceNum);
+        QRectF rectF = QRectF(-m_radius/1.25,-m_radius/1.25,m_radius*2,m_radius*2);
+        if(m_iconName.endsWith(".svg"))
         {
-            if(!QPixmap(m_iconName).isNull())
-            {
-                painter->drawPixmap(-m_radius/1.25,-m_radius/1.25,m_radius*2,m_radius*2,QPixmap(m_iconName));
-            }
-            painter->drawText(QRect(-m_radius,-m_radius,m_radius,m_radius),m_itemInfo.m_deviceNum);
+            QSvgRenderer renderer(m_iconName);
+            renderer.render(painter,rectF);
+
         }
         else
         {
             if(!QPixmap(m_iconName).isNull())
             {
-                painter->drawPixmap(-20/1.25,-20/1.25,20,20,QPixmap(m_iconName));
+                painter->drawPixmap(rectF.toRect(),QPixmap(m_iconName));
             }
-            painter->drawText(QRectF(-20,-20,20,20),m_itemInfo.m_deviceNum);
         }
+
+    }
+    else
+    {
+        if(!QPixmap(m_iconName).isNull())
+        {
+            painter->drawPixmap(-20/1.25,-20/1.25,40,40,QPixmap(m_iconName));
+        }
+        painter->drawText(QRectF(-20,-20,40,40),m_itemInfo.m_deviceNum);
+
     }
 
     if(!m_itemInfo.m_periodOfValidity.isEmpty()&&QDate::fromString(m_itemInfo.m_periodOfValidity,"yyyy/MM/dd")<=QDate::currentDate())

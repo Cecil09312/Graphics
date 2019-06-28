@@ -338,6 +338,7 @@ ArchitePlanView::~ArchitePlanView()
 
 void ArchitePlanView::createAlarm(const QString&extNum,const QString&loopNum,const QString&addressNum,const QString&networkNum,const QString &alarmTypeName,bool isAnalog,const QString &alarmTime)
 {
+
     foreach (GraphicsView *view, m_widgetMap.values())
     {
         if(view!=nullptr)

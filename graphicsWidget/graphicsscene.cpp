@@ -13,17 +13,11 @@ GraphicsScene::GraphicsScene(QObject *parent):
     QGraphicsScene(parent)
 {
     init();
-
-
 }
 
 GraphicsScene::~GraphicsScene()
 {
-    //clearAlarms();
-//    delete m_graphicsItemSettingMenu;
-//    m_itemSettingView->deleteLater();
-//    m_analogAlarmView->deleteLater();
-    //m_maintenanceView->deleteLater();
+
 }
 
 void GraphicsScene::addGraphicsItem(qreal ax, qreal ay)

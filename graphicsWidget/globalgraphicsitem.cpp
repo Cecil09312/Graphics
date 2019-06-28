@@ -16,6 +16,8 @@ GlobalGraphicsItem::GlobalGraphicsItem(GlobalGraphicsScene *scene)
     m_propertyAnimation->setStartValue(m_radius*0.5);
     m_propertyAnimation->setEndValue(1.5*m_radius);
     m_propertyAnimation->setLoopCount(-1);
+    m_font.setPointSize(qFloor(m_radius/4));
+    m_font.setFamily("Times New Roman");
     connect(m_propertyAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &value)
     {
         setItemSize(value.toDouble());
@@ -40,6 +42,7 @@ void GlobalGraphicsItem::setIconName(const QString &name)
 {
     m_iconName = name;
     update();
+    m_scene->update();
 }
 
 QString GlobalGraphicsItem::iconName()
@@ -72,6 +75,7 @@ QString GlobalGraphicsItem::buildName()
 void GlobalGraphicsItem::setBuildName(const QString &name)
 {
     m_buildName = name;
+    update();
     m_scene->update();
 
 }
@@ -129,34 +133,34 @@ QRectF GlobalGraphicsItem::boundingRect() const
 
 void GlobalGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
 {
-    QFont font;
-    font.setPointSize(12);
-    font.setFamily("Times New Roman");
-    painter->setFont(font);
-    if(m_iconName.endsWith(".svg"))
+    m_font.setPointSize(qFloor(m_radius/4));
+    painter->setFont(m_font);
+    if(m_radius>0)
     {
-        QSvgRenderer renderer(m_iconName);
-        renderer.render(painter,QRectF(-m_radius/1.25,-m_radius/1.25,m_radius*2,m_radius*2));
-        painter->drawText(QRect(-m_radius,-m_radius,m_radius,m_radius),m_buildName);
-    }
-    else
-    {
-        if(m_radius>0)
+        painter->drawText(QRect(-m_radius,-m_radius,2*m_radius,2*m_radius),m_buildName);
+        QRectF rectF = QRectF(-m_radius/1.25,-m_radius/1.25,m_radius*2,m_radius*2);
+        if(m_iconName.endsWith(".svg"))
         {
-            if(!QPixmap(m_iconName).isNull())
-            {
-                painter->drawPixmap(-m_radius/1.25,-m_radius/1.25,m_radius*2,m_radius*2,QPixmap(m_iconName));
-            }
-            painter->drawText(QRect(-m_radius,-m_radius,m_radius,m_radius),m_buildName);
+            QSvgRenderer renderer(m_iconName);
+            renderer.render(painter,rectF);
         }
         else
         {
             if(!QPixmap(m_iconName).isNull())
             {
-                painter->drawPixmap(-40/1.25,-40/1.25,40,40,QPixmap(m_iconName));
+                painter->drawPixmap(rectF.toRect(),QPixmap(m_iconName));
             }
-             painter->drawText(QRectF(-40/1.25,-40/1.25,40,40),m_buildName);
         }
+
+    }
+    else
+    {
+        if(!QPixmap(m_iconName).isNull())
+        {
+            painter->drawPixmap(-40/1.25,-40/1.25,80,80,QPixmap(m_iconName));
+        }
+        painter->drawText(QRectF(-40,-40,80,80),m_buildName);
+
     }
 
     if (option->state & QStyle::State_Selected)

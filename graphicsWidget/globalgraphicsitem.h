@@ -44,6 +44,7 @@ private:
     QString m_buildName;
     QString m_personOnDuty;
     QPropertyAnimation *m_propertyAnimation;
+    QFont m_font;
 };
 
 #endif // GLOBALGRAPHICSITEM_H

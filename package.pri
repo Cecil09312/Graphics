@@ -13,6 +13,12 @@ linux
     }
 }
 
+win
+{
+   CONFIG  -= LinuxBuild
+   message("winBuild")
+}
+
 LinuxBuild {
 
    QMAKE_POST_LINK += mkdir -p $$DESTDIR

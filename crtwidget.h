@@ -56,7 +56,7 @@ public slots:
     void startReset();
     void clearVoice();//
    /*测试*/
-  // void sendSeralData();
+  //void sendSeralData();
 
 private:
     void closeSys();
@@ -65,7 +65,6 @@ private:
     bool setSysTime(const QDateTime &dateTime);
     void sendFireInfo(quint8 extNum, quint8 loopNum, quint8 addrNum, const QString &dateTimeStr);
     void setMySqlInfo();
-   // void processAlarmHostInfo(quint8 type, QString &extNum, quint8 loopNum, quint8 addrNum, const QString &timeStr);
     void hideTaskBar(bool isHidden);
     void reSendCmd(quint8 packageNum);//重传指令
 private:
@@ -88,8 +87,11 @@ private:
     QTimer *m_controlCenterHeartbeatTimer;
     int m_heartbeatIndex;
     bool m_tcpIsConnected;
-
     QList<quint8>m_packageNumList;
+    const int c_heartBeatTime = 35*1000;
+    bool m_serialConnected;
+    QTimer *m_mainHeartBeatTimer;
+    QString m_alarmSqlInfo;
 //    QHash<QString,int>m_packageNumHash;
 };
 

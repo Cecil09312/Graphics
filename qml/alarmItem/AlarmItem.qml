@@ -76,7 +76,7 @@ Rectangle {
             id: fireAlarmStatusIndicator
             Layout.column: 0
             Layout.row: 0
-            color: "green" //火警:绿色:正常,红色:报警
+            color: "gray" //火警:绿色:正常,红色:报警
             active: true
 
             ColorAnimation on color {
@@ -101,7 +101,7 @@ Rectangle {
             id: linkageStatusIndicator
             Layout.column: 0
             Layout.row: 1
-            color: "green" //启动:绿色:正常,红色:报警
+            color: "gray" //启动:绿色:正常,红色:报警
             active: true
             ColorAnimation on color {
                 id: linkageAnimation
@@ -125,7 +125,7 @@ Rectangle {
             id: superviseStatusIndicator
             Layout.column: 0
             Layout.row: 2
-            color: "green" //监管:绿色:正常,橙色:报警
+            color: "gray" //监管:绿色:正常,橙色:报警
             active: true
             ColorAnimation on color {
                 id: superviseAnimation
@@ -149,7 +149,7 @@ Rectangle {
             id: faultStatusIndicator
             Layout.column: 0
             Layout.row: 3
-            color: "green" //故障:绿色:正常,黄色:故障
+            color: "gray" //故障:绿色:正常,黄色:故障
             active: true
             ColorAnimation on color {
                 id: faultAnimation
@@ -173,7 +173,7 @@ Rectangle {
             id: feedbackStatusIndicator
             Layout.column: 0
             Layout.row: 4
-            color: "green" //反馈:绿色:正常,蓝色:异常
+            color: "gray" //反馈:绿色:正常,蓝色:异常
             active: true
             ColorAnimation on color {
 
@@ -198,7 +198,7 @@ Rectangle {
             id: shieldStatusIndicator
             Layout.column: 0
             Layout.row: 5
-            color: "green" //屏蔽:绿色:正常,樱桃红色:异常
+            color: "gray" //屏蔽:绿色:正常,樱桃红色:异常
             active: true
             ColorAnimation on color {
                 id: shieldAnimation
@@ -274,7 +274,7 @@ Rectangle {
             active: true
             ColorAnimation on color {
                 id: transformAnimation
-                from: "green"
+                from: "gray"
                 to: "black"
                 duration: 200
                 loops: Animation.Infinite
@@ -380,7 +380,7 @@ Rectangle {
                 ArchitePlanView.toAlarmView()
 
                 /*测试*/
-                //CrtWidget.sendSeralData()
+              //  CrtWidget.sendSeralData()
             }
             onPressed: {
                 highlighted = true
@@ -651,21 +651,21 @@ Rectangle {
         startStandbyPowerAnimation(false)
 
         if (alarmColorRedu) {
-            setFireAlarmColor(true, "green")
-            setLinkageAlarmColor(true, "green")
+            setFireAlarmColor(true, "gray")
+            setLinkageAlarmColor(true, "gray")
         } else {
             setFireAlarmColor(true, fireAlarmStatusIndicator.color)
             setLinkageAlarmColor(true, linkageStatusIndicator.color)
         }
 
-        setSuperviseAlarmColor(true, "green")
-        setfaultAlarmColor(true, "green")
-        setFeedbackColor(true, "green")
-        setShieldAlarmColor(true, "green")
+        setSuperviseAlarmColor(true, "gray")
+        setfaultAlarmColor(true, "gray")
+        setFeedbackColor(true, "gray")
+        setShieldAlarmColor(true, "gray")
         setMainPowerColor(true, "green")
         setStandbyPowerColor(true, "green")
-        //        setEquiComColor(true, "green")
-        //        setCenterComColor(true, "green")
+        //        setEquiComColor(true, "gray")
+        //        setCenterComColor(true, "gray")
         setFireAlarmText("0")
         setLinkageText("0")
         setSuperviseText("0")
