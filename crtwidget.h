@@ -25,9 +25,10 @@
 #include "dataStore/indicatordataprotocol.h"
 #include "communication/ftpmanager.h"
 #include <QDesktopServices>
+#include <QMouseEvent>
+#include <QMessageBox>
 
-
-class CrtWidget : public QOpenGLWidget
+class CrtWidget : public QWidget
 {
     Q_OBJECT
 
@@ -36,10 +37,11 @@ public:
     ~CrtWidget();
     Q_INVOKABLE QString alarmInfoDbName();
     Q_INVOKABLE void queryViewShow();
+    Q_INVOKABLE void transportIndicator(bool isOk);//传输指示灯
+
 
 protected:
     void closeEvent(QCloseEvent *event);
-
 
 public slots:
     void widgetExit();
@@ -55,8 +57,10 @@ public slots:
     void sendAnalogCommand(quint8 networkNum, quint8 extNum, quint8 loopNum, quint8 addrNum, quint8 channelNum, const QString &analogType);
     void startReset();
     void clearVoice();//
+    void setIndicatorState(bool isOk);
+
    /*测试*/
-  //void sendSeralData();
+  void sendSeralData();
 
 private:
     void closeSys();
@@ -92,6 +96,7 @@ private:
     bool m_serialConnected;
     QTimer *m_mainHeartBeatTimer;
     QString m_alarmSqlInfo;
+
 //    QHash<QString,int>m_packageNumHash;
 };
 

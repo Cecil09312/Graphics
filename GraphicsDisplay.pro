@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui quick svg opengl concurrent sql texttospeech serialport  printsupport network
+QT       += core gui quick svg  concurrent sql texttospeech serialport  printsupport network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -72,7 +72,8 @@ SOURCES += \
     database/operatorinfo.cpp \
     jsonEdit/transportinfo.cpp \
     communication/indicatorlightcom.cpp \
-    communication/indicatorlightconfiguration.cpp
+    communication/indicatorlightconfiguration.cpp \
+    architePlan/firstfirealarminfowidget.cpp
 
 
 HEADERS += \
@@ -119,7 +120,8 @@ HEADERS += \
     database/operatorinfo.h \
     jsonEdit/transportinfo.h \
     communication/indicatorlightcom.h \
-    communication/indicatorlightconfiguration.h
+    communication/indicatorlightconfiguration.h \
+    architePlan/firstfirealarminfowidget.h
 
 FORMS +=
 

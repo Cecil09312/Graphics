@@ -98,8 +98,6 @@ bool SqlManager::insertBatch(const QString &tableName, const QList<QVariant> &va
 
     });
     future.waitForFinished();
-
-
     return success;
 }
 
@@ -109,6 +107,7 @@ QStringList SqlManager::executeQuery(const QString &sql)
 
     QFuture<void> future = QtConcurrent::run([&]
     {
+
        if(d->m_database.isOpen())
         {
             QSqlQuery query(d->m_database);
@@ -125,9 +124,17 @@ QStringList SqlManager::executeQuery(const QString &sql)
             }
             d->m_database.commit();
             query.finish();
+
         }
+       if(sql.startsWith("insert")||sql.startsWith("update"))
+       {
+           emit dataCommitSuccess(d->m_database.isOpen());
+       }
     });
+
     future.waitForFinished();
+
+
     return valueList;
 }
 

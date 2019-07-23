@@ -46,7 +46,7 @@ public:
     QString connectionName();
 
 signals:
-
+   void dataCommitSuccess(bool isSuccessful);
 public slots:
 
 protected:

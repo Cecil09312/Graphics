@@ -2,8 +2,6 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QSplitter>
-#include <QGLWidget>
-#include <QOpenGLWidget>
 #include "dataStore/datastore.h"
 #include "jsonEdit/jsonedit.h"
 #include "graphicsWidget/graphicsitem.h"
@@ -260,8 +258,11 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
 
     connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::deleteGlobalItem,this,[=](GlobalGraphicsItem*item)
     {
-        QModelIndex index= m_globalToArchitePlanHash[item]->index();
-        m_treeView->deleteTreeItem(index);
+        if(m_globalToArchitePlanHash.contains(item))
+        {
+            QModelIndex index= m_globalToArchitePlanHash[item]->index();
+            m_treeView->deleteTreeItem(index);
+        }
     });
 
     connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::clearItem,this,[=]()
@@ -327,12 +328,18 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
 
 ArchitePlanView::~ArchitePlanView()
 {
+    // m_dockWidget->close();
+    m_firstFireWidget->close();
     m_autoSwitchTimer->stop();
     m_sqliteManager->close();
     m_sqliteManager->deleteLater();
     delete m_graphicsItemSettingMenu;
+    m_itemSettingView->close();
+    m_analogAlarmView->close();
+    m_maintenanceView->close();
     m_itemSettingView->deleteLater();
     m_analogAlarmView->deleteLater();
+    m_maintenanceView->deleteLater();
 }
 
 
@@ -378,8 +385,12 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item)
     item->stopColorAnimation();
     item->setColorEffectValue(0.0);
     item->restoreSize();
-    int currentPos=m_speechTextPosFromItemHash[item];
-    Controller::instance()->getSpeechObj()->removeAlarmText(currentPos);
+    QString currentAlarmText=m_speechTextFromItemHash.value(item);
+    if(!currentAlarmText.isEmpty())
+    {
+        Controller::instance()->getSpeechObj()->removeAlarmText(currentAlarmText);
+    }
+
     DataStore::deleteTypeItem(item);
 
     emit  eliminateAlarmFromTable(item);
@@ -447,21 +458,10 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
         {
             GraphicsItem*gItem =dynamic_cast<GraphicsItem*>(graphicsItemList.at(0));
 
-            if(alarmTypeName==tr("屏蔽"))
-            {
-                item->setColorEndValue(QColor("#c93756"));
-            }
-            else if(alarmTypeName==tr("反馈"))
-            {
-                item->setColorEndValue(QColor("blue"));
-            }
-            else if(alarmTypeName==tr("故障"))
+
+            if(alarmTypeName==tr("故障")||alarmTypeName==tr("屏蔽"))
             {
                 item->setColorEndValue(QColor("yellow"));
-            }
-            else if(alarmTypeName==tr("监管"))
-            {
-                item->setColorEndValue(QColor("orange"));
             }
             else
             {
@@ -475,6 +475,9 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
                     item->startAnimations();
                     firstFireAlarmView = view;
                     speechText = tr("首火警");
+                    m_firstFireWidget->setFirstFireInfo(item);
+                    //m_firstFireWidget->show();
+                    m_firstFireWidget->show();
                 }
                 else
                 {   if(alarmTypeName==tr("启动"))
@@ -501,7 +504,7 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, GraphicsItem *
 
             speechText += ","+item->buildingName()+","+item->floorOfDevice()+","+item->deviceLocation();
             Controller::instance()->getSpeechObj()->insertAlarmText(speechText);
-            m_speechTextPosFromItemHash[item] = Controller::instance()->getSpeechObj()->currentAlarmPos();
+            m_speechTextFromItemHash[item] = speechText;
 
             if(view!=nullptr)
             {
@@ -613,7 +616,11 @@ void ArchitePlanView::initWidget()
     m_globalGraphicsView = new GlobalGraphicsView(this);
     m_sysArchitePlanView = new SysArchitePlanView(this);
     m_autoSwitchTimer = new QTimer(this);
-
+    m_firstFireWidget = new FirstFireAlarmInfoWidget();
+    //  m_dockWidget = new QDockWidget(this);
+    // m_dockWidget->setWidget(m_firstFireWidget);
+    // m_dockWidget->setAcceptDrops(true);
+    // m_dockWidget->setAllowedAreas(Qt::AllDockWidgetAreas);
     m_treeView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     m_treeView->setMaximumWidth(180);
     m_stackedWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
@@ -621,7 +628,7 @@ void ArchitePlanView::initWidget()
     m_treeView->setStyleSheet("QTreeView{border:1px solid black}");
     QSplitter *splitter = new QSplitter(this);
     splitter->setChildrenCollapsible(false);
-    QHBoxLayout*globalHLayout = new QHBoxLayout;
+    QVBoxLayout*globalVLayout = new QVBoxLayout;
     splitter->addWidget(m_stackedWidget);
     splitter->addWidget(m_treeView);
 
@@ -630,9 +637,10 @@ void ArchitePlanView::initWidget()
     m_tabWidget->addTab(m_sysArchitePlanView,tr("系统图"));
     // m_sysGraphicsView->loadPixmap("D:/program/GraphicsDisplay/images/dialog.png");
     //m_tabWidget->addTab(new QWidget(this),tr("平面图"));
-    globalHLayout->addWidget(m_tabWidget);
-    globalHLayout->setContentsMargins(QMargins(0,0,0,0));
-    setLayout(globalHLayout);
+    //globalVLayout->addWidget(m_firstFireWidget);
+    globalVLayout->addWidget(m_tabWidget);
+    globalVLayout->setContentsMargins(QMargins(0,0,0,0));
+    setLayout(globalVLayout);
     Controller::instance()->setSysArchitePlanView(m_sysArchitePlanView);
     QString dbName = QCoreApplication::applicationDirPath()+"/architeInfo.db";
     m_architeInfoDbName = dbName;
@@ -754,6 +762,7 @@ void ArchitePlanView::initWidget()
             {
                 m_stackedWidget->removeWidget(widget);
                 delete widget;
+                widget = nullptr;
             }
 
         }
@@ -822,6 +831,7 @@ void ArchitePlanView::initWidget()
     });
 
     connect(m_tabWidget,&QTabWidget::currentChanged,this,&ArchitePlanView::tabIndex);
+    connect(m_firstFireWidget,&FirstFireAlarmInfoWidget::toFirstFire,this,&ArchitePlanView::firstFireAlarm);
 
 
 }
@@ -1372,21 +1382,9 @@ void ArchitePlanView::createAlarm(GraphicsItem *item, const QString &alarmTime)
         {
             GraphicsItem*gItem =dynamic_cast<GraphicsItem*>(graphicsItemList.at(0));
 
-            if(alarmTypeName==tr("屏蔽"))
-            {
-                item->setColorEndValue(QColor("#c93756"));
-            }
-            else if(alarmTypeName==tr("反馈"))
-            {
-                item->setColorEndValue(QColor("blue"));
-            }
-            else if(alarmTypeName==tr("故障"))
+            if(alarmTypeName==tr("故障")||alarmTypeName==tr("屏蔽"))
             {
                 item->setColorEndValue(QColor("yellow"));
-            }
-            else if(alarmTypeName==tr("监管"))
-            {
-                item->setColorEndValue(QColor("orange"));
             }
             else
             {
@@ -1399,8 +1397,11 @@ void ArchitePlanView::createAlarm(GraphicsItem *item, const QString &alarmTime)
                 {
                     item->startAnimations();
                     firstFireAlarmView =view;
-
                     speechText = tr("首火警");
+                    m_firstFireWidget->setFirstFireInfo(item);
+                    // m_firstFireWidget->show();
+                    m_firstFireWidget->show();
+
                 }
                 else
                 {   if(alarmTypeName==tr("启动"))
@@ -1428,7 +1429,7 @@ void ArchitePlanView::createAlarm(GraphicsItem *item, const QString &alarmTime)
 
             speechText += ","+item->alarmType()+","+item->floorOfDevice()+","+item->deviceLocation();
             Controller::instance()->getSpeechObj()->insertAlarmText(speechText);
-            m_speechTextPosFromItemHash[item] = Controller::instance()->getSpeechObj()->currentAlarmPos();
+            m_speechTextFromItemHash[item] = speechText;
 
             if(view!=nullptr)
             {
@@ -1644,8 +1645,12 @@ void ArchitePlanView::clearAlarm(bool alarmColorRedu)
                 item->setColorEffectValue(0.0);
                 item->restoreSize();
                 item->getItemInfo().m_currentState = tr("正常");
-                int currentPos=m_speechTextPosFromItemHash[item];
-                Controller::instance()->getSpeechObj()->removeAlarmText(currentPos);
+                QString currentSpeechText=m_speechTextFromItemHash.value(item);
+                if(!currentSpeechText.isEmpty())
+                {
+                   Controller::instance()->getSpeechObj()->removeAlarmText(currentSpeechText);
+                }
+
             }
 
 
@@ -1657,7 +1662,9 @@ void ArchitePlanView::clearAlarm(bool alarmColorRedu)
     m_alarmViewList.clear();
     emit noPage();
     emit reduInstruction(alarmColorRedu);
+    m_firstFireWidget->close();
 
+    //m_dockWidget->close();
     QList<QGraphicsItem*> globalGraphicsItemList= m_globalGraphicsView->currentScene()->items();
     foreach (QGraphicsItem*item, globalGraphicsItemList)
     {
@@ -1790,6 +1797,7 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
             {
                 scene->removeItem(globalGraphicsItem);
                 delete globalGraphicsItem;
+                globalGraphicsItem= nullptr;
             }
         }
 
@@ -1806,6 +1814,7 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
                 m_stackedWidget->removeWidget(childWidget);
                 deleteAlarmWidget(childWidget);
                 delete childWidget;
+                childWidget = nullptr;
             }
 
             m_widgetMap.remove(chileItemPage);
@@ -1824,6 +1833,7 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
             {
                 globalScene->removeItem(globalItem);
                 delete globalItem;
+                globalItem = nullptr;
             }
 
         }

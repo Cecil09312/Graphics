@@ -2,7 +2,8 @@
 #include <QtAlgorithms>
 #include <QDebug>
 SerialLink::SerialLink( QObject *parent)
-    : AbstractLink(parent)
+    : AbstractLink(parent),
+     m_isOpen(false)
 {
     m_thread = new QThread();
     m_serialPort = new QSerialPort();
@@ -26,6 +27,7 @@ SerialLink::SerialLink( QObject *parent)
 
     connect(this,&SerialLink::startConnect,this,[=]()
     {
+
         QHash <QString,QVariant>valueHash=  m_serialConfiguration.data()->getConfiguration().toHash();
         QString portName = valueHash["portName"].toString();
         if(m_serialPort->portName()!=portName)

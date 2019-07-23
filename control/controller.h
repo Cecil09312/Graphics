@@ -52,6 +52,8 @@ public:
     SqlManager *getMySqlManager();
     OperatorInfo *getOperatorInfo();
     TransportInfo *getTransportInfo();
+     void delayMs(int ms);//非阻塞延时
+
 private:
     Controller();
 private:

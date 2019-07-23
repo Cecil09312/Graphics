@@ -1,14 +1,11 @@
 
 linux
 {
-    linux-g++ | linux-g++-64 | linux-g++-32 | linux-clang | linux-rasp-pi2-g++
-    {
        CONFIG  += LinuxBuild
        linux-rasp-pi2-g++
        {
          DEFINES += __rasp_pi2__
        }
-    }
 }
 
 LinuxBuild {
@@ -22,7 +19,7 @@ LinuxBuild {
         libQt5DBus.so.5 \
         libQt5Gui.so.5 \
         libQt5Network.so.5 \
-        libQt5OpenGL.so.5 \
+        #libQt5OpenGL.so.5 \
         libQt5PrintSupport.so.5 \
         libQt5Qml.so.5 \
         libQt5Quick.so.5 \
@@ -56,8 +53,8 @@ LinuxBuild {
         platforminputcontexts \
         platforms \
         sqldrivers \
-        texttospeech\
-        qmltooling\
+        #texttospeech \
+        qmltooling \
         printsupport
 
    # QT_INSTALL_QML

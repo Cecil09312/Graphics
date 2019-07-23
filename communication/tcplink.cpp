@@ -18,17 +18,13 @@ TcpLink::TcpLink(QObject *parent)
     connect(this,&TcpLink::startConnect,this,[=]()
     {
 
-        if(m_tcpSocket->state()==QTcpSocket::UnconnectedState)
+        if(m_tcpSocket->state()!=QTcpSocket::ConnectedState)
         {
             setConfiguration();
             m_tcpSocket->connectToHost(m_address,m_port);
             m_tcpSocket->waitForConnected(1000);
-            if(m_tcpSocket->state()!=QTcpSocket::ConnectedState)
-            {
-                emit isConnected(false);
-            }
         }
-        //qDebug() << m_tcpSocket->state();
+
     });
     connect(this,&TcpLink::stopConnect,this,[=](){
         m_tcpSocket->close();
@@ -39,6 +35,10 @@ TcpLink::TcpLink(QObject *parent)
         if(m_tcpSocket->state()==QAbstractSocket::ConnectedState)
         {
             m_tcpSocket->write(array);
+        }
+        else
+        {
+            emit errorInfo("tcp is not connected");
         }
 
     });
@@ -54,8 +54,15 @@ TcpLink::TcpLink(QObject *parent)
     connect(m_tcpSocket,QOverload<QAbstractSocket::SocketError>::of(&QTcpSocket::error),this,[=](QAbstractSocket::SocketError socketError)
     {
         Q_UNUSED(socketError);
-        emit errorInfo(m_tcpSocket->errorString());
-        m_tcpSocket->disconnected();
+        if(m_tcpSocket->state()==QAbstractSocket::ConnectedState)
+        {
+            emit errorInfo(m_tcpSocket->errorString());
+        }
+        else
+        {
+            m_tcpSocket->disconnected();
+        }
+
     });
 
 }

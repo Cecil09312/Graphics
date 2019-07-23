@@ -18,6 +18,8 @@
 #include "database/sqlitemanager.h"
 #include "database/sqlitemanager.h"
 #include <QTimer>
+#include "firstfirealarminfowidget.h"
+
 
 class ArchitePlanView : public QWidget
 {
@@ -141,7 +143,7 @@ private:
     SqlManager *m_sqliteManager;
     QString m_architeInfoDbName;
     int m_itemInfoTableSize,m_globalArchiteTableSize;
-    QHash<GraphicsItem*,int>m_speechTextPosFromItemHash;
+    QHash<GraphicsItem*,QString>m_speechTextFromItemHash;
 
     QMenu *m_graphicsItemSettingMenu;
     QActionGroup *m_modeActionGroup;
@@ -160,6 +162,8 @@ private:
     QQuickView *m_maintenanceView;
     QObject *m_itemSettingObj;
     QObject *m_analogAlarmObj;
+    FirstFireAlarmInfoWidget*m_firstFireWidget;
+   // QDockWidget *m_dockWidget;
 
 };
 

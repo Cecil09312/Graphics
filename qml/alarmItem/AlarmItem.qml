@@ -15,6 +15,8 @@ Rectangle {
     signal startAutoSwitch(bool isAuto)
     signal reset
     signal clearVoice()
+    property int colorChangeNum:0
+    property bool curState: false
     RowLayout {
         id: alarmBtnLayout
         height: 50
@@ -123,7 +125,7 @@ Rectangle {
             id: superviseStatusIndicator
             Layout.column: 0
             Layout.row: 2
-            color: "gray" //监管:绿色:正常,橙色:报警
+            color: "gray" //监管:绿色:正常
             active: true
             ColorAnimation on color {
                 id: superviseAnimation
@@ -171,7 +173,7 @@ Rectangle {
             id: feedbackStatusIndicator
             Layout.column: 0
             Layout.row: 4
-            color: "gray" //反馈:绿色:正常,蓝色:异常
+            color: "gray" //反馈:绿色:正常
             active: true
             ColorAnimation on color {
 
@@ -196,7 +198,7 @@ Rectangle {
             id: shieldStatusIndicator
             Layout.column: 0
             Layout.row: 5
-            color: "gray" //屏蔽:绿色:正常,樱桃红色:异常
+            color: "gray" //屏蔽:绿色:正常
             active: true
             ColorAnimation on color {
                 id: shieldAnimation
@@ -224,7 +226,7 @@ Rectangle {
             active: true
             ColorAnimation on color {
                 id: mainPowerAnimation
-                from: "red"
+                from: "yellow"
                 to: "black"
                 duration: 1000
                 loops: Animation.Infinite
@@ -248,7 +250,7 @@ Rectangle {
             active: true
             ColorAnimation on color {
                 id: standbyPowerAnimation
-                from: "red"
+                from: "yellow"
                 to: "black"
                 duration: 1000
                 loops: Animation.Infinite
@@ -264,25 +266,65 @@ Rectangle {
             font.family: qsTr("Times New Roman")
         }
 
+
+        StatusIndicator {
+            id: handOrAutoIndicator//默认时紫色，手动蓝色，自动绿色。
+            Layout.column: 0
+            Layout.row: 8
+            color: "purple"
+            active: true
+            ColorAnimation on color {
+                id: handOrAutoAnimation
+                from: "purple"
+                to: "black"
+                duration: 1000
+                loops: Animation.Infinite
+                running: false
+            }
+        }
+        Text {
+            id: handOrAutoTxt
+            Layout.column: 1
+            Layout.row: 8
+            text: qsTr("默认")
+            font.pointSize: 12
+            font.family: qsTr("Times New Roman")
+        }
+
+
+
         StatusIndicator {
             id: transformIndicator //传输指示，传输正常：绿色；异常：红色；传输过程中闪烁。
             Layout.column: 0
-            Layout.row: 8
+            Layout.row: 9
             color: "gray"
             active: true
+
             ColorAnimation on color {
                 id: transformAnimation
                 from: "gray"
-                to: "black"
+                to: "green"
                 duration: 200
                 loops: Animation.Infinite
                 running: false
+            }
+
+
+
+            onColorChanged:
+            {
+                if(colorChangeNum%12==0)
+                {
+                   curState = !curState
+                   CrtWidget.transportIndicator(curState)
+                }
+                colorChangeNum +=1
             }
         }
 
         Text {
             Layout.column: 1
-            Layout.row: 8
+            Layout.row: 9
             text: qsTr("传输")
             font.pointSize: 12
             font.family: qsTr("Times New Roman")
@@ -291,12 +333,12 @@ Rectangle {
         StatusIndicator {
             id: equiComIndicator
             Layout.column: 0
-            Layout.row: 9
-            color: "#9d2933"
+            Layout.row: 10
+            color: "yellow"
             active: true
             ColorAnimation on color {
                 id: equiComAnimation
-                from: "#9d2933"
+                from: "yellow"
                 to: "black"
                 duration: 1000
                 loops: Animation.Infinite
@@ -307,7 +349,7 @@ Rectangle {
         Text {
             id: equiComTxt
             Layout.column: 1
-            Layout.row: 9
+            Layout.row: 10
             text: qsTr("主机通信")
             font.pointSize: 12
             font.family: qsTr("Times New Roman")
@@ -316,12 +358,12 @@ Rectangle {
         StatusIndicator {
             id: centerComIndictor
             Layout.column: 0
-            Layout.row: 10
-            color: "#E4007F"
+            Layout.row: 11
+            color: "yellow"
             active: true
             ColorAnimation on color {
                 id: centerComAnimation
-                from: "#E4007F"
+                from: "yellow"
                 to: "black"
                 duration: 1000
                 loops: Animation.Infinite
@@ -331,7 +373,7 @@ Rectangle {
         Text {
             id: centerComTxt
             Layout.column: 1
-            Layout.row: 10
+            Layout.row: 11
             text: qsTr("中心通信")
             font.pointSize: 12
             font.family: qsTr("Times New Roman")
@@ -378,7 +420,7 @@ Rectangle {
                 ArchitePlanView.toAlarmView()
 
                 /*测试*/
-              //  CrtWidget.sendSeralData()
+               // CrtWidget.sendSeralData()
             }
             onPressed: {
                 highlighted = true
@@ -523,6 +565,11 @@ Rectangle {
         centerComIndictor.active = isActived
     }
 
+    function setHandOrAutoColor(isActived, currentColor) {
+        handOrAutoIndicator.color = currentColor
+        handOrAutoIndicator.active = isActived
+    }
+
     function setTransformColor(isActived, currentColor) {
         transformIndicator.color = currentColor
         transformIndicator.active = isActived
@@ -638,6 +685,12 @@ Rectangle {
         var txt = qsTr("屏蔽 ") + value
         shieldNum.text = txt
     }
+
+    function setHandOrAutoText(value)
+    {
+        handOrAutoTxt.text = value
+    }
+
     function allAlarmClear(alarmColorRedu) {
         startFireAnimation(false)
         startLinkageAnimation(false)
@@ -662,8 +715,10 @@ Rectangle {
         setShieldAlarmColor(true, "gray")
         setMainPowerColor(true, "green")
         setStandbyPowerColor(true, "green")
-        //        setEquiComColor(true, "gray")
-        //        setCenterComColor(true, "gray")
+       // setEquiComColor(true, "gray")
+       // setCenterComColor(true, "gray")
+        setHandOrAutoColor(true,"purple")
+        setHandOrAutoText(qsTr("默认"))
         setFireAlarmText("0")
         setLinkageText("0")
         setSuperviseText("0")

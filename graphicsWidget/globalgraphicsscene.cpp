@@ -40,6 +40,7 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
                 removeItem(graphicsItem);
                 emit deleteGlobalItem(item);
                 delete graphicsItem;
+                graphicsItem = nullptr;
             }
             else
             {
@@ -63,6 +64,7 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
                     removeItem(item);
                     emit deleteGlobalItem(item);
                     delete item;
+                    item = nullptr;
                 }
                 else
                 {
@@ -126,6 +128,7 @@ GlobalGraphicsScene::~GlobalGraphicsScene()
 {
     m_menu->close();
     delete m_menu;
+    m_globalItemSettingView->close();
     m_globalItemSettingView->deleteLater();
 }
 
@@ -203,6 +206,7 @@ void GlobalGraphicsScene::clearGraphicsItem()
         {
             removeItem(currentItem);
             delete currentItem;
+            currentItem = nullptr;
         }
     }
 }

@@ -15,7 +15,7 @@ GraphicsView::GraphicsView(QWidget *parent, int type):
     m_svgItem = new QGraphicsSvgItem;
     zoom(1.2);
     setDragMode(QGraphicsView::ScrollHandDrag);
-    setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers),this));
+    //setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers),this));
     setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
     //m_alarmStringList << "火警"<<"启动" << "监管" << "故障"<<"反馈" <<"屏蔽";
     if(m_viewType==ArthitePlan)

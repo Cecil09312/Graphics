@@ -109,19 +109,19 @@ Item {
                         MySqlManager.open()
                         console.log(MySqlManager.isOpen())
                         if (!MySqlManager.isOpen()) {
-                            OperatorInfo.insertEvent(qsTr("MySql数据库连接"),
+                            OperatorInfo.insertEvent(qsTr("数据库连接"),
                                                      qsTr("失败"))
                             if (!SpeechObj.alarmTextExist(
-                                        qsTr("MySql数据库连接失败"))) {
-                                SpeechObj.insertAlarmText(qsTr("MySql数据库连接失败"))
+                                        qsTr("数据库连接失败"))) {
+                                SpeechObj.insertAlarmText(qsTr("数据库连接失败"))
                             }
 
                             connectStateText.text = qsTr("数据库连接:失败")
                             connectStateText.color = "red"
                         } else {
-                            OperatorInfo.insertEvent(qsTr("MySql数据库连接"),
+                            OperatorInfo.insertEvent(qsTr("数据库连接"),
                                                      qsTr("成功"))
-                            SpeechObj.removeAlarmText(qsTr("MySql数据库连接失败"))
+                            SpeechObj.removeAlarmText(qsTr("数据库连接失败"))
 
                             if (!MySqlManager.tableIsExist("sys_status")) {
                                 MySqlManager.executeQuery(
@@ -149,8 +149,8 @@ Item {
                     text: qsTr("关闭")
                     onClicked: {
                         MySqlManager.close()
-                        if (!SpeechObj.alarmTextExist(qsTr("MySql数据库连接失败"))) {
-                            SpeechObj.insertAlarmText(qsTr("MySql数据库连接失败"))
+                        if (!SpeechObj.alarmTextExist(qsTr("数据库连接失败"))) {
+                            SpeechObj.insertAlarmText(qsTr("数据库连接失败"))
                         }
                         connectStateText.text = qsTr("数据库连接:失败")
                         connectStateText.color = "red"

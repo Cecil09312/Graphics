@@ -6,9 +6,7 @@
 #include <QPainter>
 #include <QPixmap>
 #include "graphicsscene.h"
-#include <QGLWidget>
 #include <QGraphicsPixmapItem>
-#include <QtOpenGL>
 #include <QGraphicsSvgItem>
 #include <QSvgRenderer>
 class GraphicsView : public QGraphicsView

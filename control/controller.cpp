@@ -161,6 +161,16 @@ TransportInfo *Controller::getTransportInfo()
     return m_transportInfo.data();
 }
 
+void Controller::delayMs(int ms)
+{
+    QTime dieTime = QTime::currentTime().addMSecs(ms);
+
+    while(QTime::currentTime() < dieTime)
+    {
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+    }
+}
+
 Controller::Controller()
 {
     m_commObj = QSharedPointer<AbstractLink>(new SerialLink(),&QObject::deleteLater);

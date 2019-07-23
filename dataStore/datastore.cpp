@@ -4,6 +4,7 @@
 #include <QGraphicsScene>
 #include "architePlan/architeplanview.h"
 QHash<QString,QList<QGraphicsItem*> >DataStore::m_typeItemHash=QHash<QString,QList<QGraphicsItem*> >();
+QHash<QString,QList<DataInfo*> >DataStore::m_typeNoItemHash = QHash<QString,QList<DataInfo*> >();
 DataStore::DataStore()
 {
 
@@ -72,17 +73,68 @@ void DataStore::deleteTypeItem(const QString &type, int pos)
 
 void DataStore::insertTypeItem(const QString &type, QGraphicsItem *item)
 {
-    m_typeItemHash[type].push_back(item);
+    if(item!=nullptr)
+    {
+        m_typeItemHash[type].push_back(item);
+    }
+}
+
+bool DataStore::deleteType(const QString &type, const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum)
+{
+    static bool isExist = false;
+    QList<DataInfo*>  dataInfoList= m_typeNoItemHash[type];
+    foreach (DataInfo*curDataInfo, dataInfoList)
+    {
+        if(curDataInfo!=nullptr)
+        {
+            if((curDataInfo->m_addrNum==addrNum) && (curDataInfo->m_extNum==extNum) &&(curDataInfo->m_loopNum == loopNum) && (curDataInfo->m_networkNum==networkNum))
+            {
+                m_typeNoItemHash[type].removeOne(curDataInfo);
+                isExist = true;
+                break;
+            }
+        }
+    }
+    return isExist;
+}
+
+void DataStore::deleteTypeItem(const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum)
+{
+  QList<QString>typeList=  m_typeNoItemHash.keys();
+  foreach (QString type, typeList)
+  {
+
+      if(deleteType(type,extNum,loopNum,addrNum,networkNum))
+      {
+          break;
+      }
+  }
+
+}
+
+void DataStore::insertTypeItem(const QString &type, const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum)
+{
+    if(!haveTypeItem(type,extNum,addrNum,loopNum,networkNum))
+    {
+        DataInfo dataInfo;
+        dataInfo.m_extNum = extNum;
+        dataInfo.m_addrNum = addrNum;
+        dataInfo.m_loopNum = loopNum;
+        dataInfo.m_networkNum = networkNum;
+        m_typeNoItemHash[type].push_back(&dataInfo);
+    }
+
 }
 
 void DataStore::clearTypeItem()
 {
     m_typeItemHash.clear();
+    m_typeNoItemHash.clear();
 }
 
 int DataStore::numOfTypeItem(const QString &type)
 {
-    return m_typeItemHash[type].size();
+    return m_typeItemHash[type].size()+m_typeNoItemHash[type].size();
 }
 
 GraphicsView *DataStore::itemDisplayView(GraphicsItem *item)
@@ -103,3 +155,20 @@ GraphicsView *DataStore::itemDisplayView(GraphicsItem *item)
     }
     return currentView;
 }
+
+bool DataStore::haveTypeItem(const QString &type,const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum)
+{
+    bool isOk= false;
+    QList<DataInfo *> dataInfoList = m_typeNoItemHash[type];
+    foreach(DataInfo *dataInfo,dataInfoList)
+    {
+        if((dataInfo->m_addrNum==addrNum) &&(dataInfo->m_extNum==extNum )&& (dataInfo->m_loopNum==loopNum )&& (dataInfo->m_networkNum==networkNum))
+        {
+            isOk = true;
+            break;
+        }
+    }
+    return  isOk;
+}
+
+

@@ -2,27 +2,123 @@
 #include <QDebug>
 #include <QtConcurrent>
 #include <QFuture>
+#include <QMutexLocker>
+#include <QtConcurrent>
+
 SpeechObj::SpeechObj(QObject *parent):
     QObject(parent),
     m_isStoped(false),
-    m_currentAlarmPos(0),
-    m_textToSpeech(nullptr)
+    m_currentAlarmPos(0)
 {
-    m_alarmPos =0;
 
+#ifdef Q_OS_WIN
+    m_textToSpeech = nullptr;
+#endif  
+    m_alarmPos =0;
     m_thread = new QThread;
     engineSelected("default");
     this->moveToThread(m_thread);
     m_thread->start();
+
+
+#ifdef Q_OS_LINUX
+    m_languageHash["粤语"] = "Cantonese";
+    m_languageHash["普通话"] = "Mandarin";
+    m_languageHash["台山话"] = "Toisanese";
+    m_textToSpeechProcess = new QProcess;
+    m_startTimer = new QTimer();
+    m_startTimer->moveToThread(m_thread);
+    m_startTimer->setInterval(500);
+    m_textToSpeechProcess->moveToThread(m_thread);
+    m_pitch = 0;
+    m_volume = 0;
+    m_rate = 0.7;
+    m_currentLanguage = "Mandarin";
+
+    connect(m_startTimer,&QTimer::timeout,this,&SpeechObj::repeatSpeak);
+    connect(m_thread,SIGNAL(started()),m_startTimer,SLOT(start()));
+    connect(m_thread,&QThread::finished,m_startTimer,&QTimer::stop);
+
+#endif
+   connect(this,&SpeechObj::speechStart,this,&SpeechObj::runSpeech);
+   connect(this,&SpeechObj::textToSpeechStop,this,&SpeechObj::speechStop);
+   connect(this,&SpeechObj::insertText,this,[&](const QString &alarmText)
+   {
+        if(alarmText.startsWith("首火警"))
+        {
+            if(m_alarmTextList.size()>0)
+            {
+                m_alarmTextList.insert(0,alarmText);
+                m_currentAlarmPos = 0;
+            }
+            else
+            {
+                m_alarmTextList.push_back(alarmText);
+                m_currentAlarmPos = m_alarmTextList.size()-1;
+            }
+        }
+        else if(alarmText.startsWith("火警"))
+        {
+            int fireAlarmIndex =0;
+            foreach (QString alarmValue, m_alarmTextList)
+            {
+                if(alarmValue.startsWith("火警")||alarmValue.startsWith("首火警"))
+                {
+                    fireAlarmIndex= m_alarmTextList.indexOf(alarmValue)+1;
+                }
+            }
+            m_alarmTextList.insert(fireAlarmIndex,alarmText);
+            m_currentAlarmPos = fireAlarmIndex;
+        }
+        else
+        {
+
+            m_alarmTextList.push_back(alarmText);
+            m_currentAlarmPos = m_alarmTextList.size()-1;
+        }
+        runSpeech();
+    });
+
+
+    connect(this,&SpeechObj::clearText,this,[=]()
+    {
+        m_alarmTextList.clear();
+    });
+    connect(this,QOverload<int>::of(&SpeechObj::removeText),this,[&](int pos)
+    {
+
+        if(m_alarmTextList.size()>pos)
+        {
+            m_alarmTextList.removeAt(pos);
+        }
+
+    });
+
+    connect(this,QOverload<const QString &>::of(&SpeechObj::removeText),this,[&](const QString & alarmText)
+    {
+        if(m_alarmTextList.contains(alarmText))
+        {
+            m_alarmTextList.removeOne(alarmText);
+        }
+    });
+
+
 }
 
 SpeechObj::~SpeechObj()
 {
     stopSpeech();
+#ifdef Q_OS_WIN
     disconnect(m_textToSpeech,&QTextToSpeech::stateChanged,nullptr,nullptr);
+    m_textToSpeech->deleteLater();
+#endif
+#ifdef Q_OS_LINUX
+    m_startTimer->deleteLater();
+    m_textToSpeechProcess->deleteLater();
+#endif
     m_thread->quit();
     m_thread->deleteLater();
-    m_textToSpeech->deleteLater();
+
 }
 
 int SpeechObj::currentAlarmPos()
@@ -37,32 +133,41 @@ QList<QString> &SpeechObj::alarmTextList()
 
 double SpeechObj::rate()
 {
-    return m_textToSpeech->rate();
+    return m_rate;
 }
 
 double SpeechObj::volume()
 {
-    return m_textToSpeech->volume();
+    return m_volume;
 }
 
 double SpeechObj::pitch()
 {
-    return m_textToSpeech->pitch();
+    return m_pitch;
 }
 
 void SpeechObj::setRate(double rate)
 {
+    m_rate = rate;
+#ifdef Q_OS_WIN
     m_textToSpeech->setRate(rate);
+#endif
 }
 
 void SpeechObj::setVolume(double volume)
 {
+    m_volume = volume;
+#ifdef Q_OS_WIN
     m_textToSpeech->setVolume(volume);
+#endif
 }
 
 void SpeechObj::setPitch(double pitch)
 {
+    m_pitch = pitch;
+#ifdef Q_OS_WIN
     m_textToSpeech->setPitch(pitch);
+#endif
 }
 
 bool SpeechObj::alarmTextExist(const QString &alarmText)
@@ -72,6 +177,7 @@ bool SpeechObj::alarmTextExist(const QString &alarmText)
 
 void SpeechObj::engineSelected(const QString &engineName)
 {
+#ifdef Q_OS_WIN
     if(m_textToSpeech!=nullptr)
     {
         disconnect(m_textToSpeech,&QTextToSpeech::stateChanged,nullptr,nullptr);
@@ -85,60 +191,39 @@ void SpeechObj::engineSelected(const QString &engineName)
     }
     else
     {
-       m_textToSpeech = new QTextToSpeech(engineName);
+        m_textToSpeech = new QTextToSpeech(engineName);
     }
     m_textToSpeech->moveToThread(m_thread);
     m_languageHash.clear();
     m_engineNameList.clear();
+    m_pitch = m_textToSpeech->pitch();
+    m_volume = m_textToSpeech->volume();
+    m_rate = m_textToSpeech->rate();
 
-  setEngineNameList(QTextToSpeech::availableEngines());
+    setEngineNameList(QTextToSpeech::availableEngines());
 
- QVector<QLocale>locales= m_textToSpeech->availableLocales();
-     foreach (const QLocale &locale, locales) {
-         QString name(QString("%1 (%2)")
-                      .arg(QLocale::languageToString(locale.language()))
-                      .arg(QLocale::countryToString(locale.country())));
-         QVariant localeVariant(locale);
-         m_languageHash[name] = localeVariant;
-     }
+    QVector<QLocale>locales= m_textToSpeech->availableLocales();
+    foreach (const QLocale &locale, locales) {
+        QString name(QString("%1 (%2)")
+                     .arg(QLocale::languageToString(locale.language()))
+                     .arg(QLocale::countryToString(locale.country())));
+        QVariant localeVariant(locale);
+        m_languageHash[name] = localeVariant;
+    }
 
-     connect(m_textToSpeech,&QTextToSpeech::stateChanged,this,[=](QTextToSpeech::State state)
-     {
-         if(state==QTextToSpeech::Ready)
-         {
-             int alarmTestListSize =m_alarmTextList.size();
-             if(alarmTestListSize>0)
-             {
-                 if(m_alarmPos<alarmTestListSize)
-                 {
-                     m_textToSpeech->say(m_alarmTextList.at(m_alarmPos));
-                 }
-
-                 foreach (QString alarmText, m_alarmTextList)
-                 {
-                     if(alarmText.startsWith("首火警")||alarmText.startsWith("火警"))
-                     {
-                         m_alarmPos=0;
-                         return;
-                     }
-                 }
-                 if(!m_alarmTextList.at(m_alarmPos).startsWith("首火警")||!m_alarmTextList.at(m_alarmPos).startsWith("火警"))
-                 {
-                     m_alarmPos++;
-                     m_alarmPos = m_alarmPos%alarmTestListSize;
-                 }
-                 else
-                 {
-                     m_alarmPos =0;
-                 }
-             }
-             else {
-                 stopSpeech();
-             }
-         }
-     });
-
+    connect(m_textToSpeech,&QTextToSpeech::stateChanged,this,[=](QTextToSpeech::State state)
+    {
+        if(state==QTextToSpeech::Ready)
+        {
+            repeatSpeak();
+        }
+    });
     startSpeech();
+#endif
+#ifdef Q_OS_LINUX
+    Q_UNUSED(engineName);
+
+#endif
 }
 
 QStringList SpeechObj::engineNameList()
@@ -202,96 +287,144 @@ int SpeechObj::languageNum()
 
 void SpeechObj::setLanguage(const QString &languageName)
 {
+#ifdef Q_OS_WIN
     m_textToSpeech->setLocale(m_languageHash[languageName].toLocale());
+#endif
+#ifdef Q_OS_LINUX
+    m_currentLanguage= m_languageHash[languageName].toString();
+#endif
 }
 
 QString SpeechObj::currentLanguage()
 {
+#ifdef Q_OS_WIN
+    return  m_languageHash.key(m_textToSpeech->locale());
+#endif
+#ifdef Q_OS_LINUX
+    return m_languageHash.key(m_currentLanguage);
+#endif
 
-    return m_languageHash.key(m_textToSpeech->locale());
 }
 
 
 void SpeechObj::stopSpeech()
 {
-#ifdef Q_OS_WIN
-    m_textToSpeech->pause();
-#endif
- #ifdef Q_OS_LINUX
-    m_textToSpeech->stop();
-#endif
+    emit textToSpeechStop();
+    //speechStop();
 }
 
 void SpeechObj::startSpeech()
 {
-    if(m_textToSpeech->state()!=QTextToSpeech::Speaking)
-    {
-        if(m_alarmTextList.size()>0)
-        {
-            m_textToSpeech->say(m_alarmTextList.at(0));
-        }
-    }
+    emit speechStart();
 }
 
 void SpeechObj::insertAlarmText(const QString &alarmText)
 {
-    QFuture<void> future = QtConcurrent::run([=]()
-    {
-        if(alarmText.startsWith("首火警"))
-        {
-            if(m_alarmTextList.size()>0)
-            {
-                m_alarmTextList.insert(0,alarmText);
-                m_currentAlarmPos = 0;
-            }
-            else
-            {
-                m_alarmTextList.push_back(alarmText);
-                m_currentAlarmPos = m_alarmTextList.size()-1;
-            }
-        }
-        else if(alarmText.startsWith("火警"))
-        {
-            int fireAlarmIndex =0;
-            foreach (QString alarmValue, m_alarmTextList)
-            {
-                if(alarmValue.startsWith("火警")||alarmValue.startsWith("首火警"))
-                {
-                    fireAlarmIndex= m_alarmTextList.indexOf(alarmValue)+1;
-                }
-            }
-            m_alarmTextList.insert(fireAlarmIndex,alarmText);
-            m_currentAlarmPos = fireAlarmIndex;
-        }
-        else
-        {
-            m_alarmTextList.push_back(alarmText);
-            m_currentAlarmPos = m_alarmTextList.size()-1;
-        }
-
-    });
-    future.waitForFinished();
-    startSpeech();
+    emit insertText(alarmText);
 }
 
 void SpeechObj::clearAlarmText()
 {
-    m_alarmTextList.clear();
+    emit clearText();
 }
 
 void SpeechObj::removeAlarmText(const QString &alarmText)
 {
-    if(m_alarmTextList.contains(alarmText))
-    {
-        m_alarmTextList.removeOne(alarmText);
-    }
+    emit removeText(alarmText);
 
 }
 
 void SpeechObj::removeAlarmText(int pos)
 {
-    if(m_alarmTextList.size()>pos)
+
+    emit removeText(pos);
+}
+
+void SpeechObj::repeatSpeak()
+{
+
+    if(m_alarmTextList.size()>0)
     {
-        m_alarmTextList.removeAt(pos);
+        if(m_alarmPos<m_alarmTextList.size())
+        {
+#ifdef Q_OS_WIN
+            m_textToSpeech->say(m_alarmTextList.at(m_alarmPos));
+#endif
+#ifdef Q_OS_LINUX
+            double curRate;
+            if(m_rate<0)
+            {
+                curRate = m_rate *50;
+            }
+            else
+            {
+                curRate = m_rate *200;
+            }
+            if(m_alarmPos<m_alarmTextList.size())
+            {
+                m_textToSpeechProcess->start(QString("ekho -v %1 -p %2 -a %3 -s %4 '%5'").arg(m_currentLanguage).arg(m_pitch*100).arg(m_volume*100).arg(curRate).arg(m_alarmTextList.at(m_alarmPos)));
+                m_textToSpeechProcess->waitForStarted();
+                m_textToSpeechProcess->waitForFinished();
+            }
+#endif
+        }
+
+        foreach (QString alarmText, m_alarmTextList)
+        {
+            if(alarmText.startsWith("首火警")||alarmText.startsWith("火警"))
+            {
+                m_alarmPos=0;
+                return;
+            }
+        }
+        if((!m_alarmTextList.at(m_alarmPos).startsWith("首火警"))&&(!m_alarmTextList.at(m_alarmPos).startsWith("火警")))
+        {
+            m_alarmPos++;
+            if(m_alarmTextList.size()>0)
+            {
+                m_alarmPos = m_alarmPos%m_alarmTextList.size();
+            }
+
+        }
+        else
+        {
+            m_alarmPos =0;
+        }
     }
+    else {
+        speechStop();
+    }
+}
+
+void SpeechObj::runSpeech()
+{
+
+#ifdef Q_OS_WIN
+        if(m_alarmTextList.size()>0)
+        {
+
+            if(m_textToSpeech->state()!=QTextToSpeech::Speaking)
+            {
+                m_textToSpeech->say(m_alarmTextList.at(0));
+
+            }
+        }
+#endif
+
+#ifdef Q_OS_LINUX
+    if(!m_startTimer->isActive())
+    {
+        m_startTimer->start();
+    }
+#endif
+}
+
+void SpeechObj::speechStop()
+{
+#ifdef Q_OS_LINUX
+        m_startTimer->stop();
+#endif
+#ifdef Q_OS_WIN
+        m_textToSpeech->pause();
+#endif
 }

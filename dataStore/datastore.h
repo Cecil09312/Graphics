@@ -7,6 +7,14 @@
  * @brief The DataStore class
  * 用来保存不同类型的报警数据
  */
+
+struct DataInfo
+{
+    QString m_extNum;//分机号
+    QString m_loopNum;//回路号
+    QString m_addrNum;//地址号
+    QString m_networkNum;//网络号
+};
 class DataStore
 {
 public:
@@ -20,11 +28,18 @@ public:
      static void deleteTypeItem(const QString &type,QGraphicsItem*item);
      static void deleteTypeItem(const QString &type,int pos);
      static void insertTypeItem(const QString &type,QGraphicsItem*item);
+     static bool deleteType(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum);
+     static void deleteTypeItem(const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum);
+     static void insertTypeItem(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum);
      static void clearTypeItem();
      static int numOfTypeItem(const QString &type);
      static GraphicsView *itemDisplayView(GraphicsItem *item);
+     static bool haveTypeItem(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum);
+
 private:
      static QHash<QString,QList<QGraphicsItem*> >m_typeItemHash;
+     static QHash<QString,QList<DataInfo*> >m_typeNoItemHash;
+
 
 };
 

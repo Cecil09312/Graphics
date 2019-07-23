@@ -10,5 +10,6 @@
         <file>images/fireAlarm.png</file>
         <file>images/delete.png</file>
         <file>images/ldlogo.png</file>
+        <file>images/fire.png</file>
     </qresource>
 </RCC>
