@@ -13,6 +13,7 @@ Rectangle {
     signal manufacturersChanged(int index, string facturers)
     signal iconChanged(int index, string iconPath)
     signal deviceNameChanged(int index, string device)
+    signal deviceDelete(int index)
 
     ListModel {
         id: listModel
@@ -116,10 +117,14 @@ Rectangle {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            listModel.remove(index)
-                            itemIconInfo.removeIconInfo(String("%1").arg(index))
+                            var currentItemIndex=index
+                            listModel.remove(currentItemIndex)
+                            itemIconInfo.removeIconInfo(String("%1").arg(currentItemIndex))
+
+                            emit:deviceDelete(currentItemIndex)
                             itemIconInfo.clearIconInfo()
                             saveInfo()
+
                         }
                     }
                 }
@@ -139,6 +144,27 @@ Rectangle {
                     saveInfo()
                 }
             }
+        }
+    }
+
+    FileDialog {
+        id: selectFilesDialog
+        title: "Please choose some files"
+        fileMode: FileDialog.OpenFiles
+        folder: StandardPaths.writableLocation(
+                    StandardPaths.DocumentsLocation)
+        onAccepted: {
+            for(var i=0;i<currentFiles.length;i++)
+            {
+                var obj = new Object
+                obj["imagePath"] = Qt.resolvedUrl(
+                            decodeURI(currentFiles[i]))
+                obj["deviceName"] = Controller.getFileNameFromUrl(currentFiles[i].toString(),false)
+                obj["manufacturers"] = qsTr("北京利达华信电子有限公司")
+                obj["periodOfvalidity"] = ""
+                listModel.append(obj)
+            }
+            saveInfo()
         }
     }
 
@@ -221,7 +247,6 @@ Rectangle {
             id: addItemBtn
             text: qsTr("增加项目")
             onClicked: {
-
                 var obj = new Object
                 obj["imagePath"] = Qt.resolvedUrl(
                             decodeURI("qrc:/images/fireAlarm.png"))
@@ -230,6 +255,16 @@ Rectangle {
                 obj["periodOfvalidity"] = ""
                 listModel.append(obj)
                 saveInfo()
+            }
+        }
+
+
+        Button {
+            id: batchInsertItemBtn
+            text: qsTr("批量插入")
+            onClicked: {
+
+                 selectFilesDialog.open()
             }
         }
 

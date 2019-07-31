@@ -20,6 +20,7 @@ public:
     QStandardItem *addRootItem(const QString &root);
     QStandardItem *addChildItem(QModelIndex index);
     void setItemExpanded(const QStandardItem *item);
+    void closeQuickView();
 signals:
     void treeIndex(QStandardItem*item);
     void deleteIndex(QStandardItem*item);

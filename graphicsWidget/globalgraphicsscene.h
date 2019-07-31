@@ -17,6 +17,7 @@ public:
     void showMenu(const QPoint &point);
     GlobalGraphicsItem *addGlobalGraphicsItem(QPointF point);
     void clearGraphicsItem();
+    void closeQuickView();
     Q_INVOKABLE QString currentBuildName();
     Q_INVOKABLE qreal currentItemSize();
     Q_INVOKABLE QString currentItemIcon();

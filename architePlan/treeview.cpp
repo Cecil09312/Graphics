@@ -42,6 +42,7 @@ TreeView::TreeView(QWidget *parent):
                 QMetaObject::invokeMethod(obj, "setArchiteImage",Q_ARG(QVariant,graphicsView->pixmapName()));
             }
         }
+        m_architeSettingView->close();
         //QMetaObject::invokeMethod(obj,"clearTextField");
         m_architeSettingView->show();
     });
@@ -274,6 +275,11 @@ void TreeView::setItemExpanded(const QStandardItem *item)
     }
     QModelIndex index = m_stdModel->indexFromItem(item);
     setExpanded(index,true);
+}
+
+void TreeView::closeQuickView()
+{
+    m_architeSettingView->close();
 }
 
 

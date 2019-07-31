@@ -38,7 +38,7 @@ public:
     Q_INVOKABLE QString alarmInfoDbName();
     Q_INVOKABLE void queryViewShow();
     Q_INVOKABLE void transportIndicator(bool isOk);//传输指示灯
-
+    void closeQuickView();
 
 protected:
     void closeEvent(QCloseEvent *event);

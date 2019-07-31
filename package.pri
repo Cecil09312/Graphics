@@ -1,11 +1,11 @@
 
 linux
 {
-       CONFIG  += LinuxBuild
-       linux-rasp-pi2-g++
-       {
-         DEFINES += __rasp_pi2__
-       }
+   CONFIG  += LinuxBuild
+   linux-rasp-pi2-g++
+   {
+     DEFINES += __rasp_pi2__
+   }
 }
 
 LinuxBuild {
@@ -57,6 +57,7 @@ LinuxBuild {
         qmltooling \
         printsupport
 
+
    # QT_INSTALL_QML
     QT_QML_LIST += \
           Qt\
@@ -64,8 +65,6 @@ LinuxBuild {
           QtQuick.2\
           QtQml\
           QtGraphicalEffects
-
-
 
     !contains(DEFINES, __rasp_pi2__) {
         QT_PLUGIN_LIST += xcbglintegrations
@@ -80,6 +79,7 @@ LinuxBuild {
      for(QT_QML, QT_QML_LIST){
       QMAKE_POST_LINK += && $$QMAKE_COPY --dereference --recursive $$[QT_INSTALL_QML]/$$QT_QML $$DESTDIR
     }
+
 }
 
 

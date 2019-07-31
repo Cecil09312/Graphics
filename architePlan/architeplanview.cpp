@@ -1524,6 +1524,15 @@ void ArchitePlanView::updateAlarmState(const QString &extNum, const QString &loo
     }
 }
 
+void ArchitePlanView::closeQuickView()
+{
+    m_itemSettingView->close();
+    m_analogAlarmView->close();
+    m_maintenanceView->close();
+    m_globalGraphicsView->currentScene()->closeQuickView();
+    m_treeView->closeQuickView();
+}
+
 void ArchitePlanView::setGlobalArchiteFromJson()
 {
     QmlForJson qmlForJson;

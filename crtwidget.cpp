@@ -205,8 +205,8 @@ CrtWidget::CrtWidget(QWidget *parent) :
             {
                 Controller::instance()->getSpeechObj()->insertAlarmText(tr("中心通信故障"));
             }
-           // m_controlCenterHeartbeatTimer->stop();
-           // Controller::instance()->getTcpObj()->connectLink();
+            // m_controlCenterHeartbeatTimer->stop();
+            // Controller::instance()->getTcpObj()->connectLink();
         }
     });
 
@@ -306,7 +306,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
         if(connected)
         {
 
-             m_tcpIsConnected = true;
+            m_tcpIsConnected = true;
             if(!m_controlCenterHeartbeatTimer->isActive())
             {
                 m_controlCenterHeartbeatTimer->start(10000);
@@ -343,19 +343,19 @@ CrtWidget::CrtWidget(QWidget *parent) :
         }
     });
 
-   // hideTaskBar(true);
-//    connect(Controller::instance()->getUserManager(),&UserManager::userRightChanged,this,[=](const UserManager::UserRight& right)
-//    {
-//        if(right==UserManager::Super)
-//        {
-//            hideTaskBar(false);
-//        }
-//        else
-//        {
-//            hideTaskBar(true);
-//        }
+    // hideTaskBar(true);
+    //    connect(Controller::instance()->getUserManager(),&UserManager::userRightChanged,this,[=](const UserManager::UserRight& right)
+    //    {
+    //        if(right==UserManager::Super)
+    //        {
+    //            hideTaskBar(false);
+    //        }
+    //        else
+    //        {
+    //            hideTaskBar(true);
+    //        }
 
-//    });
+    //    });
 
     connect(Controller::instance()->getMySqlManager(),&SqlManager::dataCommitSuccess,this,[=](bool isSuccess)//mysql数据库上传数据指示
     {
@@ -425,6 +425,17 @@ void CrtWidget::transportIndicator(bool isOk)
     Controller::instance()->getIndicatorObj()->writeData(m_indicatorProtocol->dataPackage(arrayList));
 }
 
+void CrtWidget::closeQuickView()
+{
+    m_loginQuickView->close();
+    m_alarmQuickView->close();
+    m_settingView->close();
+    m_infoQueryView->close();
+    m_architePlanView->closeQuickView();
+
+
+}
+
 
 void CrtWidget::closeEvent(QCloseEvent *event)
 {
@@ -435,9 +446,7 @@ void CrtWidget::closeEvent(QCloseEvent *event)
     Controller::instance()->getOperatorInfo()->insertEvent(tr("系统关机"));
 
     m_architePlanView->saveInfo();
-    m_loginQuickView->close();
-    m_settingView->close();
-    m_infoQueryView->close();
+    closeQuickView();
     Controller::instance()->getMySqlManager()->close();
     Controller::instance()->getMySqlManager()->deleteLater();
     event->accept();
@@ -872,6 +881,7 @@ void CrtWidget::initWidget()
     m_loginQuickView->rootContext()->setContextProperty("CrtWidget",this);
     m_loginQuickView->setTitle(tr("用户登陆界面"));
 
+
     m_settingView = new QQuickView;
     m_settingView->setSource(QUrl("qrc:/qml/infoSetting/SettingWindow.qml"));
     m_settingView->setGeometry(300,50,m_settingView->width(),m_settingView->height());
@@ -881,6 +891,7 @@ void CrtWidget::initWidget()
     m_infoQueryView->setSource(QUrl("qrc:/qml/infoSetting/InfoQuery.qml"));
     m_infoQueryView->setGeometry(300,50,m_infoQueryView->width(),m_infoQueryView->height());
     m_infoQueryView->setTitle(tr("信息查询界面"));
+
     QHBoxLayout *globalHLayout = new QHBoxLayout;
     globalHLayout->addWidget(m_alarmContainer);
     QSplitter *splitter = new QSplitter(Qt::Vertical,this);
@@ -1071,6 +1082,7 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
         quint8 hour = m_serialDataProtocol->dataByte(array,7);
         quint8 minute= minuteValue&0x7f;
         quint8 second= m_serialDataProtocol->dataByte(array,9);
+
         QString extNum = QString("%1").arg((type>>2)&0x3f);
         if(packageNum!=m_serialDataProtocol->dataPackageNum(array))
         {
@@ -1091,7 +1103,7 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
         //报警主机
         if((minuteValue&0x80)==0)
         {
-            if(second<=60)
+            if(second<=0x60)
             {
                 int bcd_year = m_serialDataProtocol->dataBytes(array,4,4).toHex().toInt();
                 int bcd_month = m_serialDataProtocol->dataBytes(array,5,5).toHex().toInt();
@@ -1814,30 +1826,30 @@ void CrtWidget::setIndicatorState(bool isOk)
 
 void CrtWidget::sendSeralData()
 {
-//    QByteArray array;
-//    array.resize(15);
-//    array[0] =0x7e;
-//    array[1] =0x01;
-//    array[2] =0x0a;
-//    array[3] =0x01;//报警类型
-//    array[4] =0x00;
-//    array[5] =0x00;
-//    array[6] =0x00;
-//    array[7] =0x15;
-//    array[8] =0x06;
-//    array[9] =0x12;
-//    array[10] =0x18;
-//    array[11] =0x19;
-//    array[12] =0x09;
-//    quint8 sum = 0;
-//    for(int i=3;i<=12;i++)
-//    {
-//        sum += (quint8)array.at(i);
-//    }
-//    array[13] =sum;
-//    array[14] =0x7e;
+    //    QByteArray array;
+    //    array.resize(15);
+    //    array[0] =0x7e;
+    //    array[1] =0x01;
+    //    array[2] =0x0a;
+    //    array[3] =0x01;//报警类型
+    //    array[4] =0x00;
+    //    array[5] =0x00;
+    //    array[6] =0x00;
+    //    array[7] =0x15;
+    //    array[8] =0x06;
+    //    array[9] =0x12;
+    //    array[10] =0x18;
+    //    array[11] =0x19;
+    //    array[12] =0x09;
+    //    quint8 sum = 0;
+    //    for(int i=3;i<=12;i++)
+    //    {
+    //        sum += (quint8)array.at(i);
+    //    }
+    //    array[13] =sum;
+    //    array[14] =0x7e;
 
-//    Controller::instance()->getCommObj()->sendData(array);
+    //    Controller::instance()->getCommObj()->sendData(array);
 
 }
 

@@ -31,7 +31,7 @@ QString Print::createHtml(QList<QString> roleNameList, QList<QVariant> valueList
     int roleSize = roleNameList.size();
     int valueSize = valueList.size();
     QString html;
-    html+=QString("<table width=\"%1\"border=\"1\"align=\"center\">").arg(tableSize);
+    html+=QString("<table width=\"%1\" border=\"1\" align=\"center\">").arg(tableSize);
     html+="<tr style=\"background-color:white\">";
     for(int i=0;i<roleSize;i++)
     {

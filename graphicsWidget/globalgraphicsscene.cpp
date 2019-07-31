@@ -211,6 +211,11 @@ void GlobalGraphicsScene::clearGraphicsItem()
     }
 }
 
+void GlobalGraphicsScene::closeQuickView()
+{
+    m_globalItemSettingView->close();
+}
+
 
 
 QString GlobalGraphicsScene::currentBuildName()

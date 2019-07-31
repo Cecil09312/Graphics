@@ -341,6 +341,13 @@ Item {
             onIconChanged: {
                 emit: setItemsIcon(index, iconPath)
             }
+            onDeviceDelete:
+            {
+                if(deviceTypeModel.count>index)
+                {
+                    deviceTypeModel.remove(index,1)
+                }
+            }
         }
     }
 

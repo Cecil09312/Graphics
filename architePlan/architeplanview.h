@@ -59,6 +59,7 @@ public:
                                const QString &addressNum, const QString &networkNum);
     void updateAlarmState(const QString &extNum, const QString &loopNum,
                           const QString &addressNum, const QString &networkNum,const QString &curAlarmState);//更新报警状态
+    void closeQuickView();
     Q_INVOKABLE QString architeInfoDbName();
     Q_INVOKABLE void setGlobalArchitePixmap(const QString &pixmapName);
 
