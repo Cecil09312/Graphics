@@ -466,55 +466,14 @@ Item {
         return equipmentModelComboBox.currentIndex
     }
 
-    function manufacturersValue(pos) {
-        var itemIconInfoStr = new String
-        itemIconInfoStr = itemIconInfo.readFileFromJson()
-        if (itemIconInfoStr.length <= 4) {
-            return ""
-        } else {
-            if (pos < itemIconInfo.sizeOfHash()) {
-                var currentObj = new Object
-                var currentIndex = String("%1").arg(pos)
-                currentObj = JSON.parse(JSON.stringify(
-                                            itemIconInfoStr))[currentIndex]
-                if (currentObj == undefined) {
-                    return ""
-                }
-
-                if (currentObj.hasOwnProperty("manufacturers")) {
-                    return currentObj["manufacturers"]
-                } else {
-                    return ""
-                }
-            } else {
-                return ""
-            }
-        }
+    function manufacturersValue(pos)
+    {
+     return itemIconInfo.getValue(String("%1").arg(pos),"manufacturers")
     }
 
-    function periodOfvalidityValue(pos) {
-        var itemIconInfoStr = new String
-        itemIconInfoStr = itemIconInfo.readFileFromJson()
-        if (itemIconInfoStr.length <= 4) {
-            return ""
-        } else {
-            if (pos < itemIconInfo.sizeOfHash()) {
-                var currentObj = new Object
-                var currentIndex = String("%1").arg(pos)
-                currentObj = JSON.parse(JSON.stringify(
-                                            itemIconInfoStr))[currentIndex]
-                if (currentObj == undefined) {
-                    return ""
-                }
-                if (currentObj.hasOwnProperty("periodOfvalidity")) {
-                    return currentObj["periodOfvalidity"]
-                } else {
-                    return ""
-                }
-            } else {
-                return ""
-            }
-        }
+    function periodOfvalidityValue(pos)
+    {
+        return  itemIconInfo.getValue(String("%1").arg(pos),"periodOfvalidity")
     }
 
     function readInfo() {

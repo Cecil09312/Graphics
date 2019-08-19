@@ -2,7 +2,6 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QSplitter>
-#include "dataStore/datastore.h"
 #include "jsonEdit/jsonedit.h"
 #include "graphicsWidget/graphicsitem.h"
 #include <QDebug>
@@ -24,7 +23,6 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
     initFromJsonFile();
 
     setContextMenuPolicy(Qt::CustomContextMenu);
-
 
     connect(this,&ArchitePlanView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)
     {
@@ -94,6 +92,24 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
 
         }
     });
+
+
+    connect(m_itemTextVisiableAction,&QAction::triggered,this,[=]()
+    {
+        GraphicsView *view= currentGraphicsView();
+        if(view!=nullptr)
+        {
+            GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
+            if(scene!=nullptr)
+            {
+                GraphicsItem *currentItem= dynamic_cast<GraphicsItem *> (scene->itemAt(scene->currentScenePos(),QTransform()));
+                if(currentItem!=nullptr)
+                {
+                    currentItem->setItemTextVisiable(m_itemTextVisiableAction->isChecked());
+                }
+            }
+        }
+    });
     connect(m_clearAction,&QAction::triggered,this,[=]()
     {
         GraphicsView *view= currentGraphicsView();
@@ -118,9 +134,6 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
                 }
             }
         }
-
-
-
 
     });
     connect(m_deleteSelectedAction,&QAction::triggered,this,[=]()
@@ -167,12 +180,7 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
                 }
             }
 
-
-
-
         }
-
-
     });
     connect(m_closeAction,&QAction::triggered,this,[=]()
     {
@@ -380,12 +388,18 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item)
         return;
     }
     QString oldState = item->currentState();
+
     item->currentState() = tr("正常");
     item->stopAnimations();
     item->stopColorAnimation();
     item->setColorEffectValue(0.0);
     item->restoreSize();
+
     QString currentAlarmText=m_speechTextFromItemHash.value(item);
+    if(currentAlarmText.contains(tr("首火警")))
+    {
+        m_firstFireWidget->close();
+    }
     if(!currentAlarmText.isEmpty())
     {
         Controller::instance()->getSpeechObj()->removeAlarmText(currentAlarmText);
@@ -617,10 +631,6 @@ void ArchitePlanView::initWidget()
     m_sysArchitePlanView = new SysArchitePlanView(this);
     m_autoSwitchTimer = new QTimer(this);
     m_firstFireWidget = new FirstFireAlarmInfoWidget();
-    //  m_dockWidget = new QDockWidget(this);
-    // m_dockWidget->setWidget(m_firstFireWidget);
-    // m_dockWidget->setAcceptDrops(true);
-    // m_dockWidget->setAllowedAreas(Qt::AllDockWidgetAreas);
     m_treeView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     m_treeView->setMaximumWidth(180);
     m_stackedWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
@@ -635,9 +645,7 @@ void ArchitePlanView::initWidget()
     m_tabWidget->addTab(m_globalGraphicsView ,tr("总平面布局图"));
     m_tabWidget->addTab(splitter,tr("建筑平面图"));
     m_tabWidget->addTab(m_sysArchitePlanView,tr("系统图"));
-    // m_sysGraphicsView->loadPixmap("D:/program/GraphicsDisplay/images/dialog.png");
-    //m_tabWidget->addTab(new QWidget(this),tr("平面图"));
-    //globalVLayout->addWidget(m_firstFireWidget);
+
     globalVLayout->addWidget(m_tabWidget);
     globalVLayout->setContentsMargins(QMargins(0,0,0,0));
     setLayout(globalVLayout);
@@ -684,6 +692,7 @@ void ArchitePlanView::initWidget()
     m_maintenanceAction = new QAction(tr("设备维保"),m_graphicsItemSettingMenu);
     m_handDragAction = new QAction(tr("手动拖拽模式"),modeSelectMenu);
     m_rubberBandDragAction = new QAction(tr("橡皮筋模式"),modeSelectMenu);
+    m_itemTextVisiableAction = new QAction(tr("文字可见"),m_graphicsItemSettingMenu);
     m_modeActionGroup = new QActionGroup(this);
     modeSelectMenu->addAction(m_handDragAction);
     modeSelectMenu->addAction(m_rubberBandDragAction);
@@ -693,6 +702,7 @@ void ArchitePlanView::initWidget()
     m_modeActionGroup->setExclusive(true);
     m_handDragAction->setCheckable(true);
     m_rubberBandDragAction->setCheckable(true);
+    m_itemTextVisiableAction->setCheckable(true);
     m_handDragAction->setChecked(true);
     m_graphicsItemSettingMenu->addMenu(modeSelectMenu);
     m_itemSettingView = new QQuickView;
@@ -708,7 +718,7 @@ void ArchitePlanView::initWidget()
     m_maintenanceView->setSource(QUrl("qrc:/qml/infoSetting/MaintenanceInfo.qml"));
     m_maintenanceView->setTitle(tr("设备维保"));
     m_itemSettingObj= m_itemSettingView->rootObject();
-
+    m_graphicsItemSettingMenu->addAction(m_itemTextVisiableAction);
     m_graphicsItemSettingMenu->addAction(m_editAction);
     m_graphicsItemSettingMenu->addAction(m_analogAlarmAction);
     m_graphicsItemSettingMenu->addAction(m_maintenanceAction);
@@ -1639,7 +1649,7 @@ int ArchitePlanView::currentPage()
     return viewList.indexOf(view);
 }
 
-void ArchitePlanView::clearAlarm(bool alarmColorRedu)
+void ArchitePlanView::clearAlarm()
 {
     QList< QList<QGraphicsItem *> >list= DataStore::getTypeItemHash().values();
     foreach (QList<QGraphicsItem *>itemList, list)
@@ -1670,7 +1680,7 @@ void ArchitePlanView::clearAlarm(bool alarmColorRedu)
     clearAlarmWidget();
     m_alarmViewList.clear();
     emit noPage();
-    emit reduInstruction(alarmColorRedu);
+    emit reduInstruction();
     m_firstFireWidget->close();
 
     //m_dockWidget->close();
@@ -1688,6 +1698,41 @@ void ArchitePlanView::clearAlarm(bool alarmColorRedu)
     }
     // Controller::instance()->getSpeechObj()->clearAlarmText();
     emit clearAlarmFromTable();
+}
+
+void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum,const QString &rebackAlarmTime)
+{
+    QList< QList<QGraphicsItem *> >list= DataStore::getTypeItemHash().values();
+    foreach (QList<QGraphicsItem *>itemList, list)
+    {
+        foreach (QGraphicsItem *currentItem, itemList)
+        {
+            GraphicsItem *item = dynamic_cast<GraphicsItem *>(currentItem);
+            if(item!=nullptr)
+            {
+                if(item->extNum()==extNum)
+                {
+                   item->getItemInfo().m_alarmReplyTime = rebackAlarmTime;
+                   eliminateAlarm(item);
+                }
+
+            }
+        }
+    }
+
+  QList<QString>typeNoItemList= DataStore::getTypeNoItemHash().keys();
+  foreach (QString dataInfo, typeNoItemList)
+  {
+      QList<DataInfo *> infoList=  DataStore::getTypeNoItemHash().value(dataInfo);
+      foreach (DataInfo *info, infoList)
+      {
+          if(info->m_extNum==extNum)
+          {
+              DataStore::deleteDataInfo(info);
+              emit eliminateNoItemAlarm(info,rebackAlarmTime);
+          }
+      }
+  }
 }
 
 void ArchitePlanView::toPreviousPage()

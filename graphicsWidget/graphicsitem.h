@@ -81,6 +81,8 @@ public:
     Q_INVOKABLE void setChannelNum(int num);
     Q_INVOKABLE int &channelNum();
 
+    Q_INVOKABLE void setItemTextVisiable(bool isOk);
+
 
     Q_INVOKABLE QString &extNum();
     Q_INVOKABLE QString &loopNum();
@@ -126,6 +128,7 @@ private:
     QHash<int, QVariant >m_analogValueHash;//模拟量
     int m_channelNum;//通道号
     QString m_analogType;
+    bool m_itemTextIsVisiable;
 };
 
 #endif // GRAPHICSITEM_H

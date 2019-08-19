@@ -68,7 +68,9 @@ void DataStore::deleteTypeItem(const QString &type, QGraphicsItem *item)
 void DataStore::deleteTypeItem(const QString &type, int pos)
 {
     if(m_typeItemHash[type].size()>pos)
+    {
         m_typeItemHash[type].removeAt(pos);
+    }
 }
 
 void DataStore::insertTypeItem(const QString &type, QGraphicsItem *item)
@@ -169,6 +171,38 @@ bool DataStore::haveTypeItem(const QString &type,const QString &extNum, const QS
         }
     }
     return  isOk;
+}
+
+QHash<QString, QList<DataInfo *> > &DataStore::getTypeNoItemHash()
+{
+    return m_typeNoItemHash;
+}
+
+QString DataStore::getTypeNoItemKey(DataInfo *dataInfo)
+{
+   QList<QString>keyList= m_typeNoItemHash.keys();
+   static QString keyStr = "";
+   foreach (QString key, keyList)
+   {
+       QList<DataInfo *>dataInfoList= m_typeNoItemHash.value(key);
+       if(dataInfoList.contains(dataInfo))
+       {
+           keyStr=key;
+           break;
+       }
+   }
+   return keyStr;
+}
+
+void DataStore::deleteDataInfo(DataInfo *dataInfo)
+{
+  QList<QString>  keyList=m_typeNoItemHash.keys();
+  foreach (QString key, keyList) {
+      if(m_typeNoItemHash.value(key).contains(dataInfo))
+      {
+          m_typeNoItemHash[key].removeOne(dataInfo);
+      }
+  }
 }
 
 

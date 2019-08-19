@@ -42,7 +42,7 @@ void GlobalGraphicsItem::setIconName(const QString &name)
 {
     m_iconName = name;
     update();
-    m_scene->update();
+   // m_scene->update();
 }
 
 QString GlobalGraphicsItem::iconName()
@@ -58,7 +58,7 @@ qreal GlobalGraphicsItem::itemSize()
 void GlobalGraphicsItem::setItemSize(qreal radius)
 {
     m_radius = radius;
-    m_scene->update();
+    update();
 }
 
 void GlobalGraphicsItem::setHoverText(const QString &hoverText)
@@ -76,7 +76,7 @@ void GlobalGraphicsItem::setBuildName(const QString &name)
 {
     m_buildName = name;
     update();
-    m_scene->update();
+    //m_scene->update();
 
 }
 

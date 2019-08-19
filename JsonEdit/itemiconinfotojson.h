@@ -13,6 +13,8 @@ public:
     Q_INVOKABLE  void removeIconInfo(const QString &index);
     Q_INVOKABLE  void clearIconInfo();
     Q_INVOKABLE  QString readFileFromJson();
+    Q_INVOKABLE  QVariant readValueFromKey(const QString &key);
+     Q_INVOKABLE  QString getValue(const QString &index,const QString &key);
     Q_INVOKABLE  int sizeOfHash();
     QHash<QString, QVariant> getIconInfoHash();
     Q_INVOKABLE static void setIconIndexHash(int index,const QString &iconName );

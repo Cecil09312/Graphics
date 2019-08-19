@@ -420,7 +420,7 @@ Rectangle {
                 ArchitePlanView.toAlarmView()
 
                 /*测试*/
-               // CrtWidget.sendSeralData()
+               //CrtWidget.sendSeralData()
             }
             onPressed: {
                 highlighted = true
@@ -691,7 +691,7 @@ Rectangle {
         handOrAutoTxt.text = value
     }
 
-    function allAlarmClear(alarmColorRedu) {
+    function allAlarmClear() {
         startFireAnimation(false)
         startLinkageAnimation(false)
         startSuperviseAnimation(false)
@@ -700,15 +700,8 @@ Rectangle {
         startShieldAnimation(false)
         startMainPowerAnimation(false)
         startStandbyPowerAnimation(false)
-
-        if (alarmColorRedu) {
-            setFireAlarmColor(true, "gray")
-            setLinkageAlarmColor(true, "gray")
-        } else {
-            setFireAlarmColor(true, fireAlarmStatusIndicator.color)
-            setLinkageAlarmColor(true, linkageStatusIndicator.color)
-        }
-
+        setFireAlarmColor(true, "gray")
+        setLinkageAlarmColor(true, "gray")
         setSuperviseAlarmColor(true, "gray")
         setfaultAlarmColor(true, "gray")
         setFeedbackColor(true, "gray")

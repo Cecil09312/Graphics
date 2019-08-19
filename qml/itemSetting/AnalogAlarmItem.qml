@@ -115,7 +115,7 @@ Item {
                 text: qsTr("报警清除")
                 onClicked: {
                     //emit: clearAlarm(true)
-                    ArchitePlanView.clearAlarm(true)
+                    ArchitePlanView.clearAlarm()
                 }
             }
         }

@@ -14,11 +14,6 @@
 #include "database/sqlitemanager.h"
 #include "database/sqlmanager.h"
 #include <QProcess>
-#include <time.h>
-#ifdef Q_OS_WIN
-#include <windows.h>
-#include <tchar.h>
-#endif
 
 CrtWidget::CrtWidget(QWidget *parent) :
     QWidget(parent),
@@ -208,6 +203,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
             // m_controlCenterHeartbeatTimer->stop();
             // Controller::instance()->getTcpObj()->connectLink();
         }
+
     });
 
 
@@ -241,9 +237,9 @@ CrtWidget::CrtWidget(QWidget *parent) :
         QMetaObject::invokeMethod(m_alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()+1));
     });
 
-    connect(m_architePlanView,&ArchitePlanView::reduInstruction,this,[=](bool isOk)
+    connect(m_architePlanView,&ArchitePlanView::reduInstruction,this,[=]()
     {
-        QMetaObject::invokeMethod(m_alarmObj,"allAlarmClear",Q_ARG(QVariant,isOk));
+        QMetaObject::invokeMethod(m_alarmObj,"allAlarmClear");
     });
 
     connect(m_architePlanView,&ArchitePlanView::toLastPage,this,[=]()
@@ -343,30 +339,26 @@ CrtWidget::CrtWidget(QWidget *parent) :
         }
     });
 
-    // hideTaskBar(true);
-    //    connect(Controller::instance()->getUserManager(),&UserManager::userRightChanged,this,[=](const UserManager::UserRight& right)
-    //    {
-    //        if(right==UserManager::Super)
-    //        {
-    //            hideTaskBar(false);
-    //        }
-    //        else
-    //        {
-    //            hideTaskBar(true);
-    //        }
-
-    //    });
-
     connect(Controller::instance()->getMySqlManager(),&SqlManager::dataCommitSuccess,this,[=](bool isSuccess)//mysql数据库上传数据指示
     {
         QMetaObject::invokeMethod(m_alarmObj,"startTransformAnimation",Q_ARG(QVariant,true));
         setIndicatorState(isSuccess);
     });
 
-
+    connect(m_architePlanView,&ArchitePlanView::eliminateNoItemAlarm,this,[=](DataInfo *info,const QString &time)
+    {
+        m_sqliteManager->executeQuery(QString("update AlarmInfo set 报警恢复时间 ='%1',报警状态 = '正常' where 报警状态 != '正常' and 分机号 = '%2' and 回路号 = '%3' and 地址号 = '%4' and 网络号 = '%5'").arg(time).arg(info->m_extNum).arg(info->m_loopNum).arg(info->m_addrNum).arg(info->m_networkNum));
+        QString key= DataStore::getTypeNoItemKey(info);
+        alarmStatistics(key);
+        alarmDataOnTable();
+    });
 
     Controller::instance()->getCommObj()->connectLink();
     Controller::instance()->getTcpObj()->connectLink();
+#ifdef Q_OS_LINUX
+    startProcess("sh -c \"echo rpdzkj|sudo -S su\"");
+    startProcess("sh -c \"echo rpdzkj|sudo -S setled.sh 0 1\"");
+#endif
 }
 
 CrtWidget::~CrtWidget()
@@ -390,6 +382,7 @@ CrtWidget::~CrtWidget()
     m_ftpManager->deleteLater();
 
     closeSys();
+    //m_process.close();
 }
 
 QString CrtWidget::alarmInfoDbName()
@@ -407,22 +400,18 @@ void CrtWidget::queryViewShow()
 
 void CrtWidget::transportIndicator(bool isOk)
 {
-    QByteArray array;
-    array.resize(2);
-    QList<QByteArray> arrayList;
+#ifdef Q_OS_LINUX
     if(isOk)
     {
-        array[0] = 0x02;
-        array[1] = 0x00;
+        startProcess("sh -c \"echo rpdzkj|sudo -S setled.sh 2 1\"");
     }
     else
     {
-        array[0] = 0x02;
-        array[1] = 0x01;
+        startProcess("sh -c \"echo rpdzkj|sudo -S setled.sh 2 0\"");
     }
-    arrayList.push_back(array.left(1));
-    arrayList.push_back(array.right(1));
-    Controller::instance()->getIndicatorObj()->writeData(m_indicatorProtocol->dataPackage(arrayList));
+
+#endif
+
 }
 
 void CrtWidget::closeQuickView()
@@ -432,8 +421,6 @@ void CrtWidget::closeQuickView()
     m_settingView->close();
     m_infoQueryView->close();
     m_architePlanView->closeQuickView();
-
-
 }
 
 
@@ -951,18 +938,8 @@ bool CrtWidget::setSysTime(const QDateTime &dateTime)
     }
 #endif
 #ifdef Q_OS_LINUX
-    QDateTime curDateTime = QDateTime::currentDateTime();
-    curDateTime.setDate(dateTime.date());
-    curDateTime.setTime(dateTime.time());
-    time_t tt= (time_t)curDateTime.toTime_t();
-    if(stime(&tt)==0)
-    {
-        isSuccess = true;
-    }
-    else
-    {
-        isSuccess = false;
-    }
+    startProcess(QString("sh -c \"echo rpdzkj|sudo -S date -s '%1'&&sudo hwclock --systohc\"").arg(dateTime.toString("yyyy-MM-dd hh:mm:ss")));
+    isSuccess = true;
 #endif
     return isSuccess;
 }
@@ -1313,6 +1290,23 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
             {
                 m_sqliteManager->executeQuery(QString("update AlarmInfo set 报警恢复时间 ='%1',报警状态 = '正常' where 报警状态 != '正常' and 分机号 = '%2' and 回路号 = '%3' and 地址号 = '%4' and 网络号 = '%5'").arg(timeStr).arg(extNum).arg(QString::number(loopNum)).arg(QString::number(addrNum)).arg(networkNum));
                 DataStore::deleteTypeItem(extNum,QString::number(loopNum),QString::number(addrNum),networkNum);
+                if(eventNum==0x02)
+                {
+                    alarmStatistics(tr("反馈"));
+                }
+                else if(eventNum==0x04)
+                {
+                    alarmStatistics(tr("故障"));
+                }
+                else if(eventNum==0x06)
+                {
+                    alarmStatistics(tr("启动"));
+                }
+                else if(eventNum==0x0c)
+                {
+                    alarmStatistics(tr("屏蔽"));
+                }
+
                 alarmDataOnTable();
             }
             if(eventNum==0x04)
@@ -1398,10 +1392,12 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
             if((loopNum|addrNum)==0x00)
             {
                 Controller::instance()->getOperatorInfo()->insertEvent(tr("本机复位"));
+                m_architePlanView->clearAlarmFromExtNum(extNum,timeStr);
             }
             else if((loopNum&addrNum)==0x01)
             {
                 Controller::instance()->getOperatorInfo()->insertEvent(tr("网络复位"));
+                m_architePlanView->clearAlarm();
             }
         }
             break;
@@ -1523,6 +1519,7 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
                     m_sqliteManager->executeQuery(QString("update AlarmInfo set 报警恢复时间 ='%1',报警状态 = '正常' where 报警状态 != '正常' and 分机号 = '%2' and 回路号 = '%3' and 地址号 = '%4' and 网络号 = '%5'").arg(timeStr).arg(QString::number(date)).arg(QString::number(loopNum)).arg(QString::number(addrNum)).arg(QString::number(month)));
                     DataStore::deleteTypeItem(QString::number(date),QString::number(loopNum),QString::number(addrNum),QString::number(month));
                     alarmDataOnTable();
+                    alarmStatistics("故障");
                 }
 
             }
@@ -1777,7 +1774,7 @@ void CrtWidget::startReset()
     int value=  QMessageBox::question(nullptr,tr("复位操作确认"),tr("确认是否要复位，是点击Yes键,否点击No键"),QMessageBox::Yes,QMessageBox::No);
     if(value==QMessageBox::Yes)
     {
-        m_architePlanView->clearAlarm(true);//为false表示火警或启动的报警颜色不消除,为true时消除。
+        m_architePlanView->clearAlarm();
         Controller::instance()->getOperatorInfo()->insertEvent(tr("复位"));
         QMetaObject::invokeMethod(m_alarmObj,"setAutoSwitchCheckBoxState",Q_ARG(QVariant,false)) ;
         if(!m_packageNumList.isEmpty())//发送重传指令
@@ -1802,30 +1799,29 @@ void CrtWidget::clearVoice()
 void CrtWidget::setIndicatorState(bool isOk)
 {
     Controller::instance()->delayMs(1000);
-    QList<QByteArray> arrayList;
-    QByteArray array;
-    array.resize(2);
+#ifdef Q_OS_LINUX
     if(isOk)
     {
-        array[0] = 0x04;  //正常
+        startProcess("sh -c \"echo rpdzkj|sudo -S setled.sh 1 0\"");
+        startProcess("sh -c \"echo rpdzkj|sudo -S setled.sh 2 1\"");
         QMetaObject::invokeMethod(m_alarmObj,"startTransformAnimation",Q_ARG(QVariant,false));
         QMetaObject::invokeMethod(m_alarmObj,"setTransformColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
     }
     else
     {
-        array[0] = 0x03;//故障
+        startProcess("sh -c \"echo rpdzkj|sudo -S setled.sh 2 0\"");
+        startProcess("sh -c \"echo rpdzkj|sudo -S setled.sh 1 1\"");
         Controller::instance()->getSpeechObj()->insertAlarmText(tr("传输故障"));
         QMetaObject::invokeMethod(m_alarmObj,"startTransformAnimation",Q_ARG(QVariant,false));
         QMetaObject::invokeMethod(m_alarmObj,"setTransformColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"yellow"));
     }
-    array[1] = 0x00;
-    arrayList.push_back(array.left(1));
-    arrayList.push_back(array.right(1));
-    Controller::instance()->getIndicatorObj()->writeData(m_indicatorProtocol->dataPackage(arrayList));
+
+#endif
 }
 
 void CrtWidget::sendSeralData()
 {
+
     //    QByteArray array;
     //    array.resize(15);
     //    array[0] =0x7e;
@@ -1857,83 +1853,27 @@ void CrtWidget::sendSeralData()
 
 void CrtWidget::closeSys()
 {
+
     if(Controller::instance()->getUserRight()!=UserManager::Super)//为了调试方便
     {
-        QProcess process;
 #ifdef Q_OS_WIN
-        process.start("shutdown -s -t 0");
+        startProcess("shutdown -s -t 0");
 #endif
-#ifdef Q_OS_LINUX
-        process.start("poweroff");
+#ifdef Q_OS_LINUX  
+        startProcess("sh -c \"echo rpdzkj|sudo -S setled.sh 0 0\"");
+        startProcess("poweroff");
 #endif
-        process.waitForStarted();
-        process.waitForFinished();
-    }
-}
-
-void CrtWidget::hideTaskBar(bool isHidden)
-{
-    //隐藏任务栏
-#ifdef Q_OS_WIN
-
-    //#ifndef   ABM_SETSTATE
-    //#define   ABM_SETSTATE             0x0000000a
-    //#endif
-
-    //    LPARAM lParam;
-    //    if(isHidden)
-    //    {
-    //        lParam = ABS_AUTOHIDE;//自动隐藏
-    //    }
-    //    else
-    //    {
-    //        lParam = ABS_ALWAYSONTOP;//取消自动隐藏
-    //    }
-
-    //    APPBARDATA apBar;
-    //    memset(&apBar,0,sizeof(apBar));
-    //    apBar.cbSize = sizeof(apBar);
-    //    apBar.hWnd = FindWindow(_T("Shell_TrayWnd"), NULL);
-    //    if(apBar.hWnd != NULL)
-    //    {
-    //        apBar.lParam   =   lParam;
-    //        SHAppBarMessage(ABM_SETSTATE,&apBar); //设置任务栏自动隐藏
-    //    }
-    //    HWND hWnd = ::FindWindow(TEXT("Shell_traywnd"),TEXT(""));
-    //    if(!isHidden)
-    //    {
-
-    //        //::SHAppBarMessage
-    //        ::SetWindowPos(hWnd,0,0,0,0,0,SWP_SHOWWINDOW);
-    //    }
-    //    else
-    //    {
-    //        ::SetWindowPos(hWnd,0,0,0,0,0,SWP_HIDEWINDOW);
-    //    }
-
-#endif
-
-#ifdef Q_OS_LINUX
-    QProcess process;
-    if(!isHidden)
-    {
-        process.execute("gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed true");
-        process.execute("gsettings set org.gnome.shell.extensions.dash-to-dock autohide true");
-        process.execute("gsettings set org.gnome.shell.extensions.dash-to-dock intellihide true");
 
     }
     else
     {
-        process.execute("gsettings set org.gnome.shell.extensions.dash-to-dock autohide false");
-        process.execute("gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed false");
-        process.execute("gsettings set org.gnome.shell.extensions.dash-to-dock intellihide false");
+        #ifdef Q_OS_LINUX
+        startProcess("sh -c \"echo rpdzkj|sudo -S setled.sh 0 0\"");
+        #endif
     }
-
-    process.waitForStarted();
-    process.waitForFinished();
-#endif
-
 }
+
+
 
 void CrtWidget::reSendCmd(quint8 packageNum)
 {
@@ -1952,6 +1892,14 @@ void CrtWidget::reSendCmd(quint8 packageNum)
     //qDebug() <<curArray.toHex();
     Controller::instance()->getCommObj()->writeData(curArray);
 }
+
+void CrtWidget::startProcess(const QString &cmd)
+{
+    //QProcess process;
+    m_process.execute(cmd);
+}
+
+
 
 
 

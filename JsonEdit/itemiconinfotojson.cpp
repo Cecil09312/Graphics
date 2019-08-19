@@ -41,6 +41,33 @@ QString ItemIconInfoToJson::readFileFromJson()
     return readFileToString(c_filePath);
 }
 
+QVariant ItemIconInfoToJson::readValueFromKey(const QString &key)
+{
+    QHash<QString,QVariant> valueHash = readFile(c_filePath).toHash();
+    if(valueHash.contains(key))
+    {
+        return valueHash.value(key);
+    }
+    else
+    {
+        return QVariant();
+    }
+}
+
+QString ItemIconInfoToJson::getValue(const QString &index, const QString &key)
+{
+   QHash<QString,QVariant>valueHash =readValueFromKey(index).toHash();
+  // qDebug() <<valueHash;
+   if(valueHash.contains(key))
+   {
+       return valueHash.value(key).toString();
+   }
+   else
+   {
+       return "";
+   }
+}
+
 int ItemIconInfoToJson::sizeOfHash()
 {
     return getIconInfoHash().size();

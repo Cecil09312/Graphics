@@ -35,6 +35,9 @@ public:
      static int numOfTypeItem(const QString &type);
      static GraphicsView *itemDisplayView(GraphicsItem *item);
      static bool haveTypeItem(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum);
+     static QHash<QString,QList<DataInfo*> >&getTypeNoItemHash();
+     static QString getTypeNoItemKey(DataInfo*dataInfo);
+     static void deleteDataInfo(DataInfo*dataInfo);
 
 private:
      static QHash<QString,QList<QGraphicsItem*> >m_typeItemHash;

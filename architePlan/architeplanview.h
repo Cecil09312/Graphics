@@ -19,6 +19,7 @@
 #include "database/sqlitemanager.h"
 #include <QTimer>
 #include "firstfirealarminfowidget.h"
+#include "dataStore/datastore.h"
 
 
 class ArchitePlanView : public QWidget
@@ -67,7 +68,9 @@ public:
                                  const QString &addressNum, const QString &networkNum, const QString &alarmTypeName,
                                  bool isAnalog=false, const QString &alarmTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));//生成报警
 
-    Q_INVOKABLE void clearAlarm(bool alarmColorRedu=false);//清空报警
+    Q_INVOKABLE void clearAlarm();//清空报警
+    Q_INVOKABLE void clearAlarmFromExtNum(const QString &extNum, const QString &rebackAlarmTime);//按照主机号清除报警
+
     Q_INVOKABLE void toAlarmView();
     Q_INVOKABLE void setCurrentAlarmType(const QString &type);//设置当前报警类型
     Q_INVOKABLE void toArchitePlan(const QString &extNum, const QString &loopNum,
@@ -84,9 +87,10 @@ signals:
     void normalPage();
     void alarmItem(GraphicsItem *item);
     void eliminateAlarmFromTable(GraphicsItem *item);
+    void eliminateNoItemAlarm(DataInfo *info,const QString &time);
     void clearAlarmFromTable();
     void editGlobalItem();
-    void reduInstruction(bool alarmColorRedu);
+    void reduInstruction();
     void tabIndex(int index);
     void alarmStateUpdate(const QString &extNum, const QString &loopNum,
                           const QString &addressNum, const QString &networkNum,const QString &curAlarmState);
@@ -157,6 +161,7 @@ private:
     QAction *m_rubberBandDragAction;
     QAction *m_analogAlarmAction;
     QAction *m_maintenanceAction;
+    QAction *m_itemTextVisiableAction;
     QPointF m_currentPointF;
     QQuickView *m_itemSettingView;
     QQuickView *m_analogAlarmView;
@@ -164,7 +169,6 @@ private:
     QObject *m_itemSettingObj;
     QObject *m_analogAlarmObj;
     FirstFireAlarmInfoWidget*m_firstFireWidget;
-   // QDockWidget *m_dockWidget;
 
 };
 

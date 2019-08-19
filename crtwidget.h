@@ -28,6 +28,7 @@
 #include <QMouseEvent>
 #include <QMessageBox>
 
+
 class CrtWidget : public QWidget
 {
     Q_OBJECT
@@ -69,8 +70,9 @@ private:
     bool setSysTime(const QDateTime &dateTime);
     void sendFireInfo(quint8 extNum, quint8 loopNum, quint8 addrNum, const QString &dateTimeStr);
     void setMySqlInfo();
-    void hideTaskBar(bool isHidden);
     void reSendCmd(quint8 packageNum);//重传指令
+    void startProcess(const QString &cmd);
+
 private:
     QWidget *m_alarmContainer;
     QWidget *m_toolBarContainer;
@@ -96,6 +98,7 @@ private:
     bool m_serialConnected;
     QTimer *m_mainHeartBeatTimer;
     QString m_alarmSqlInfo;
+    QProcess m_process;
 
 //    QHash<QString,int>m_packageNumHash;
 };

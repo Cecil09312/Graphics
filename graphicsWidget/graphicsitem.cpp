@@ -10,9 +10,10 @@
 #include <qmath.h>
 int GraphicsItem::m_num =1;
 GraphicsItem::GraphicsItem(GraphicsScene *scene):
-    m_radius(20.0),
+    m_radius(15.0),
     m_channelNum(0),
-    m_analogType(tr("无"))
+    m_analogType(tr("无")),
+    m_itemTextIsVisiable(false)
 
 {
     m_graphicsScene = scene;
@@ -101,13 +102,20 @@ QRectF GraphicsItem::boundingRect() const
 void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*option, QWidget */*widget*/)
 {
 
+    if(m_itemTextIsVisiable)
+    {
+        m_itemTextFont.setPointSize(qFloor(m_radius/3));
+        painter->setFont(m_itemTextFont);
+    }
 
-    m_itemTextFont.setPointSize(qFloor(m_radius/4));
-    painter->setFont(m_itemTextFont);
 
     if(m_radius>0)
     {
-        painter->drawText(QRect(-m_radius,-m_radius,2*m_radius,2*m_radius),m_itemInfo.m_deviceNum);
+        if(m_itemTextIsVisiable)
+        {
+            painter->drawText(QRect(-m_radius,-m_radius,2*m_radius,2*m_radius),m_itemInfo.m_deviceNum);
+        }
+
         QRectF rectF = QRectF(-m_radius/1.25,-m_radius/1.25,m_radius*2,m_radius*2);
         if(m_iconName.endsWith(".svg"))
         {
@@ -130,7 +138,11 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*optio
         {
             painter->drawPixmap(-20/1.25,-20/1.25,40,40,QPixmap(m_iconName));
         }
-        painter->drawText(QRectF(-20,-20,40,40),m_itemInfo.m_deviceNum);
+        if(m_itemTextIsVisiable)
+        {
+            painter->drawText(QRectF(-20,-20,40,40),m_itemInfo.m_deviceNum);
+        }
+
 
     }
 
@@ -408,6 +420,12 @@ void GraphicsItem::setChannelNum(int num)
 int &GraphicsItem::channelNum()
 {
     return m_channelNum;
+}
+
+void GraphicsItem::setItemTextVisiable(bool isOk)
+{
+    m_itemTextIsVisiable = isOk;
+    update();
 }
 
 QString &GraphicsItem::extNum()
