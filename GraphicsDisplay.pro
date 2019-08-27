@@ -73,7 +73,8 @@ SOURCES += \
     jsonEdit/transportinfo.cpp \
     communication/indicatorlightcom.cpp \
     communication/indicatorlightconfiguration.cpp \
-    architePlan/firstfirealarminfowidget.cpp
+    architePlan/firstfirealarminfowidget.cpp \
+    customTimer/customtimer.cpp
 
 
 HEADERS += \
@@ -121,7 +122,8 @@ HEADERS += \
     jsonEdit/transportinfo.h \
     communication/indicatorlightcom.h \
     communication/indicatorlightconfiguration.h \
-    architePlan/firstfirealarminfowidget.h
+    architePlan/firstfirealarminfowidget.h \
+    customTimer/customtimer.h
 
 FORMS +=
 

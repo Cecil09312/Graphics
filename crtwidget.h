@@ -7,7 +7,7 @@
 #include "architePlan/architeplanview.h"
 #include "infoTable/infotableview.h"
 #include <QQuickView>
-#include <QOpenGLWidget>
+//#include <QOpenGLWidget>
 #include <QQmlApplicationEngine>
 #include "qmlTableModel/qmltablemodel.h"
 #include "jsonEdit/qmlforjson.h"
@@ -90,13 +90,13 @@ private:
     AbstractDataProtocol *m_indicatorProtocol;
     int m_monitoringPackageNum;
     FtpManager *m_ftpManager;
-    QTimer *m_controlCenterHeartbeatTimer;
+    CustomTimer *m_controlCenterHeartbeatTimer;
     int m_heartbeatIndex;
     bool m_tcpIsConnected;
     QList<quint8>m_packageNumList;
     const int c_heartBeatTime = 35*1000;
     bool m_serialConnected;
-    QTimer *m_mainHeartBeatTimer;
+    CustomTimer *m_mainHeartBeatTimer;
     QString m_alarmSqlInfo;
     QProcess m_process;
 

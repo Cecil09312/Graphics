@@ -7,7 +7,7 @@
 #include <QVector>
 #include <QProcess>
 #include <QMutex>
-#include <QTimer>
+#include "customTimer/customtimer.h"
 /**
  * @brief The SpeechObj class
  * windows平台使用系统默认
@@ -84,6 +84,7 @@ private:
     double m_volume;
     QString m_currentLanguage;
     bool m_speechIsStop;
+    int indexOfType(const QString &type);
 };
 
 #endif // SPEECHOBJ_H

@@ -20,9 +20,9 @@ QHash<QString, QList<QGraphicsItem *> > &DataStore::getTypeItemHash()
     return m_typeItemHash;
 }
 
-QList<QGraphicsItem *> &DataStore::getTypeItemList(const QString &type)
+QList<QGraphicsItem *> DataStore::getTypeItemList(const QString &type)
 {
-    return m_typeItemHash[type];
+    return m_typeItemHash.value(type);
 }
 
 QGraphicsItem *DataStore::getTypeItem(const QString &type, int pos)
@@ -92,6 +92,8 @@ bool DataStore::deleteType(const QString &type, const QString &extNum, const QSt
             if((curDataInfo->m_addrNum==addrNum) && (curDataInfo->m_extNum==extNum) &&(curDataInfo->m_loopNum == loopNum) && (curDataInfo->m_networkNum==networkNum))
             {
                 m_typeNoItemHash[type].removeOne(curDataInfo);
+                delete curDataInfo;
+                curDataInfo = nullptr;
                 isExist = true;
                 break;
             }
@@ -118,12 +120,12 @@ void DataStore::insertTypeItem(const QString &type, const QString &extNum, const
 {
     if(!haveTypeItem(type,extNum,addrNum,loopNum,networkNum))
     {
-        DataInfo dataInfo;
-        dataInfo.m_extNum = extNum;
-        dataInfo.m_addrNum = addrNum;
-        dataInfo.m_loopNum = loopNum;
-        dataInfo.m_networkNum = networkNum;
-        m_typeNoItemHash[type].push_back(&dataInfo);
+        DataInfo *dataInfo = new DataInfo;
+        dataInfo->m_extNum = extNum;
+        dataInfo->m_addrNum = addrNum;
+        dataInfo->m_loopNum = loopNum;
+        dataInfo->m_networkNum = networkNum;
+        m_typeNoItemHash[type].push_back(dataInfo);
     }
 
 }
@@ -131,7 +133,17 @@ void DataStore::insertTypeItem(const QString &type, const QString &extNum, const
 void DataStore::clearTypeItem()
 {
     m_typeItemHash.clear();
+
+    foreach (QList<DataInfo*>dataInfoList, m_typeNoItemHash.values())
+    {
+        foreach (DataInfo*dataInfo, dataInfoList)
+        {
+            delete dataInfo;
+            dataInfo= nullptr;
+        }
+    }
     m_typeNoItemHash.clear();
+
 }
 
 int DataStore::numOfTypeItem(const QString &type)

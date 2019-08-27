@@ -70,9 +70,14 @@ SpeechObj::SpeechObj(QObject *parent):
             m_alarmTextList.insert(fireAlarmIndex,alarmText);
             m_currentAlarmPos = fireAlarmIndex;
         }
+        else if(alarmText.startsWith("监管")||alarmText.startsWith("启动")||alarmText.startsWith("反馈")||alarmText.startsWith("故障")||alarmText.startsWith("屏蔽"))
+        {
+           int curIndex= indexOfType(alarmText);
+           m_alarmTextList.insert(curIndex,alarmText);
+           m_currentAlarmPos = curIndex;
+        }
         else
         {
-
             m_alarmTextList.push_back(alarmText);
             m_currentAlarmPos = m_alarmTextList.size()-1;
         }
@@ -342,15 +347,15 @@ void SpeechObj::removeAlarmText(int pos)
 
 void SpeechObj::repeatSpeak()
 {
-
     if(m_alarmTextList.size()>0)
     {
         if(m_alarmPos<m_alarmTextList.size())
         {
+            QString curSpeechText = m_alarmTextList.at(m_alarmPos);
 #ifdef Q_OS_WIN
-            m_textToSpeech->say(m_alarmTextList.at(m_alarmPos));
-#endif
-#ifdef Q_OS_LINUX
+            m_textToSpeech->say(curSpeechText);
+
+#elif define (Q_OS_LINUX)
             double curRate;
             if(m_rate<0)
             {
@@ -362,34 +367,37 @@ void SpeechObj::repeatSpeak()
             }
             if(m_alarmPos<m_alarmTextList.size())
             {
-                m_textToSpeechProcess->start(QString("ekho -v %1 -p %2 -a %3 -s %4 '%5'").arg(m_currentLanguage).arg(m_pitch*100).arg(m_volume*100).arg(curRate).arg(m_alarmTextList.at(m_alarmPos)));
+                m_textToSpeechProcess->start(QString("ekho -v %1 -p %2 -a %3 -s %4 '%5'").arg(m_currentLanguage).arg(m_pitch*100).arg(m_volume*100).arg(curRate).arg(curSpeechText));
                 m_textToSpeechProcess->waitForStarted();
                 m_textToSpeechProcess->waitForFinished();
             }
 #endif
-        }
 
-        foreach (QString alarmText, m_alarmTextList)
-        {
-            if(alarmText.startsWith("首火警")||alarmText.startsWith("火警"))
+            if((!curSpeechText.startsWith("首火警"))&&(!curSpeechText.startsWith("火警")))
             {
-                m_alarmPos=0;
-                return;
+                m_alarmPos++;
+                if(m_alarmTextList.size()>0)
+                {
+                    m_alarmPos = m_alarmPos%m_alarmTextList.size();
+                }
+
             }
-        }
-        if((!m_alarmTextList.at(m_alarmPos).startsWith("首火警"))&&(!m_alarmTextList.at(m_alarmPos).startsWith("火警")))
-        {
-            m_alarmPos++;
-            if(m_alarmTextList.size()>0)
+            else
             {
-                m_alarmPos = m_alarmPos%m_alarmTextList.size();
+                m_alarmPos =0;
             }
 
         }
-        else
-        {
-            m_alarmPos =0;
-        }
+
+//        foreach (QString alarmText, m_alarmTextList)
+//        {
+//            if(alarmText.startsWith("首火警")||alarmText.startsWith("火警"))
+//            {
+//                m_alarmPos=0;
+//                return;
+//            }
+//        }
+
     }
     else {
         speechStop();
@@ -415,7 +423,9 @@ void SpeechObj::runSpeech()
     if(!m_startTimer->isActive())
     {
         m_startTimer->start();
+        m_alarmPos =0;
     }
+
 #endif
 }
 
@@ -427,4 +437,101 @@ void SpeechObj::speechStop()
 #ifdef Q_OS_WIN
         m_textToSpeech->pause();
 #endif
+}
+
+int SpeechObj::indexOfType(const QString &type)
+{
+    int alarmIndex =0;
+    foreach (QString alarmValue, m_alarmTextList)
+    {
+        if(alarmValue.startsWith("火警")||alarmValue.startsWith("首火警"))
+        {
+            alarmIndex= m_alarmTextList.indexOf(alarmValue)+1;
+        }
+        else
+        {
+            if(type.startsWith("监管"))
+            {
+                if(alarmValue.startsWith("监管"))
+                {
+                    alarmIndex= m_alarmTextList.indexOf(alarmValue)+1;
+                }
+
+            }
+            else if(type.startsWith("启动"))
+            {
+                if(alarmValue.startsWith("监管"))
+                {
+                    alarmIndex= m_alarmTextList.indexOf(alarmValue)+1;
+                }
+                else if(alarmValue.startsWith("启动"))
+                {
+                    alarmIndex= m_alarmTextList.indexOf(alarmValue)+1;
+                }
+
+            }
+            else if(type.startsWith("反馈"))
+            {
+                if(alarmValue.startsWith("监管"))
+                {
+                    alarmIndex= m_alarmTextList.indexOf(alarmValue)+1;
+                }
+                else if(alarmValue.startsWith("启动"))
+                {
+                    alarmIndex= m_alarmTextList.indexOf(alarmValue)+1;
+                }
+                else if(alarmValue.startsWith("反馈"))
+                {
+                    alarmIndex= m_alarmTextList.indexOf(alarmValue)+1;
+                }
+
+            }
+            else if(type.startsWith("故障"))
+            {
+                if(alarmValue.startsWith("监管"))
+                {
+                    alarmIndex= m_alarmTextList.indexOf(alarmValue)+1;
+                }
+                else if(alarmValue.startsWith("启动"))
+                {
+                    alarmIndex= m_alarmTextList.indexOf(alarmValue)+1;
+                }
+                else if(alarmValue.startsWith("反馈"))
+                {
+                    alarmIndex= m_alarmTextList.indexOf(alarmValue)+1;
+                }
+                else if(alarmValue.startsWith("故障"))
+                {
+                    alarmIndex= m_alarmTextList.indexOf(alarmValue)+1;
+                }
+
+            }
+            else if(type.startsWith("屏蔽"))
+            {
+                if(alarmValue.startsWith("监管"))
+                {
+                    alarmIndex= m_alarmTextList.indexOf(alarmValue)+1;
+                }
+                else if(alarmValue.startsWith("启动"))
+                {
+                    alarmIndex= m_alarmTextList.indexOf(alarmValue)+1;
+                }
+                else if(alarmValue.startsWith("反馈"))
+                {
+                    alarmIndex= m_alarmTextList.indexOf(alarmValue)+1;
+                }
+                else if(alarmValue.startsWith("故障"))
+                {
+                    alarmIndex= m_alarmTextList.indexOf(alarmValue)+1;
+                }
+                else if(alarmValue.startsWith("屏蔽"))
+                {
+                    alarmIndex= m_alarmTextList.indexOf(alarmValue)+1;
+                }
+
+            }
+        }
+
+    }
+    return alarmIndex;
 }

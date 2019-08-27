@@ -98,33 +98,9 @@ Rectangle {
         }
 
         StatusIndicator {
-            id: linkageStatusIndicator
-            Layout.column: 0
-            Layout.row: 1
-            color: "gray" //启动:绿色:正常,红色:报警
-            active: true
-            ColorAnimation on color {
-                id: linkageAnimation
-                from: "red"
-                to: "black"
-                duration: 1000
-                loops: Animation.Infinite
-                running: false
-            }
-        }
-        Text {
-            id: linkageNum
-            Layout.column: 1
-            Layout.row: 1
-            text: qsTr("启动 0")
-            font.pointSize: 12
-            font.family: qsTr("Times New Roman")
-        }
-
-        StatusIndicator {
             id: superviseStatusIndicator
             Layout.column: 0
-            Layout.row: 2
+            Layout.row: 1
             color: "gray" //监管:绿色:正常
             active: true
             ColorAnimation on color {
@@ -139,21 +115,21 @@ Rectangle {
         Text {
             id: superviseNum
             Layout.column: 1
-            Layout.row: 2
+            Layout.row: 1
             text: qsTr("监管 0")
             font.pointSize: 12
             font.family: qsTr("Times New Roman")
         }
 
         StatusIndicator {
-            id: faultStatusIndicator
+            id: linkageStatusIndicator
             Layout.column: 0
-            Layout.row: 3
-            color: "gray" //故障:绿色:正常,黄色:故障
+            Layout.row: 2
+            color: "gray" //启动:绿色:正常,红色:报警
             active: true
             ColorAnimation on color {
-                id: faultAnimation
-                from: "yellow"
+                id: linkageAnimation
+                from: "red"
                 to: "black"
                 duration: 1000
                 loops: Animation.Infinite
@@ -161,10 +137,10 @@ Rectangle {
             }
         }
         Text {
-            id: faultNum
+            id: linkageNum
             Layout.column: 1
-            Layout.row: 3
-            text: qsTr("故障 0")
+            Layout.row: 2
+            text: qsTr("启动 0")
             font.pointSize: 12
             font.family: qsTr("Times New Roman")
         }
@@ -172,7 +148,7 @@ Rectangle {
         StatusIndicator {
             id: feedbackStatusIndicator
             Layout.column: 0
-            Layout.row: 4
+            Layout.row: 3
             color: "gray" //反馈:绿色:正常
             active: true
             ColorAnimation on color {
@@ -188,11 +164,37 @@ Rectangle {
         Text {
             id: feedbackNum
             Layout.column: 1
-            Layout.row: 4
+            Layout.row: 3
             text: qsTr("反馈 0")
             font.pointSize: 12
             font.family: qsTr("Times New Roman")
         }
+
+        StatusIndicator {
+            id: faultStatusIndicator
+            Layout.column: 0
+            Layout.row: 4
+            color: "gray" //故障:绿色:正常,黄色:故障
+            active: true
+            ColorAnimation on color {
+                id: faultAnimation
+                from: "yellow"
+                to: "black"
+                duration: 1000
+                loops: Animation.Infinite
+                running: false
+            }
+        }
+        Text {
+            id: faultNum
+            Layout.column: 1
+            Layout.row: 4
+            text: qsTr("故障 0")
+            font.pointSize: 12
+            font.family: qsTr("Times New Roman")
+        }
+
+
 
         StatusIndicator {
             id: shieldStatusIndicator

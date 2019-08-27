@@ -104,7 +104,7 @@ Item {
                     ArchitePlanView.eliminateAlarm(extNumTextField.text,
                                                    loopNumTextField.text,
                                                    addrNumTextField.text,
-                                                   networkNumTextField.text)
+                                                   networkNumTextField.text,qsTr("模拟")+alarmStateComboBox.currentText)
                 }
             }
 

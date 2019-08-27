@@ -131,7 +131,8 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
     {
         if(type=="currentState")
         {
-            currentItem->currentState() = info;
+            //currentItem->currentState() = info;
+            currentItem->setAlarmState(type,info);
         }
         else if(type=="equipmentModel")
         {
@@ -360,7 +361,7 @@ void GraphicsScene::setItemInfo(GraphicsItem *item, const QHash<QString, QVarian
         itemInfo.m_networkNum= itemHash["networkNum"].toString();
         itemInfo.m_deviceNum= itemHash["deviceNum"].toString();
         itemInfo.m_equipmentModel= itemHash["equipmentModel"].toString();
-        itemInfo.m_currentState= itemHash["currentState"].toString();
+        //itemInfo.m_currentState= itemHash["currentState"].toString();
         itemInfo.m_sysOfDevice= itemHash["sysOfDevice"].toString();
         itemInfo.m_deviceLocation=itemHash["deviceLocation"].toString();
         itemInfo.m_buildingName= itemHash["buildingName"].toString();
@@ -371,6 +372,7 @@ void GraphicsScene::setItemInfo(GraphicsItem *item, const QHash<QString, QVarian
         item->setIconName(itemHash["iconName"].toString());
         item->setRadius(itemHash["size"].toDouble());
         item->setPos(pos.section(",",0,0).toDouble(),pos.section(",",1,1).toDouble());
+        item->currentState() = itemHash["currentState"].toString();
         addItem(item);
         m_itemList.push_back(item);
     }

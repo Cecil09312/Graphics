@@ -21,7 +21,7 @@ public:
      DataStore();
      ~DataStore();
      static QHash<QString, QList<QGraphicsItem *> > &getTypeItemHash();
-     static QList<QGraphicsItem*> &getTypeItemList(const QString &type);
+     static QList<QGraphicsItem *> getTypeItemList(const QString &type);
      static QGraphicsItem* getTypeItem(const QString &type,int pos);
      static void deleteTypeItems(const QString &type);
      static void deleteTypeItem(QGraphicsItem*item);

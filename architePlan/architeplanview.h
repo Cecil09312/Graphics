@@ -17,7 +17,7 @@
 #include "graphicsWidget/globalgraphicsitem.h"
 #include "database/sqlitemanager.h"
 #include "database/sqlitemanager.h"
-#include <QTimer>
+#include "customTimer/customtimer.h"
 #include "firstfirealarminfowidget.h"
 #include "dataStore/datastore.h"
 
@@ -33,8 +33,8 @@ public:
     int totalPage();//总页数
     int currentPage();//当前页
 
-    void eliminateAlarm(GraphicsItem *item);//消除报警
-    void generateAlarm(const QString &alarmTypeName, GraphicsItem*item, GraphicsView *view, bool isAnalog=false);
+    void eliminateAlarm(GraphicsItem *item,const QString &alarmType, const QString &alarmReplyTime);//消除报警
+    void generateAlarm(const QString &alarmTypeName, const QString&alarmTime, GraphicsItem*item, bool isAnalog=false);
     void insertAlarmWidget(const QString &type,GraphicsView*view);
     void deleteAlarmWidget(const QString &type, GraphicsView *view);
     void clearAlarmWidget();
@@ -55,7 +55,7 @@ public:
     void saveArchiteInfo();//保存建筑平面信息
     void saveOtherArchiteInfo();//保存建筑平面信息以外的其它信息(包括系统图和总平面布局图)
     void saveInfo();//保存信息
-    void createAlarm(GraphicsItem *item,const QString &alarmTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));//生成报警
+    void createAlarm(GraphicsItem *item, const QString &alarmType, const QString &alarmState, const QString &alarmTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));//生成报警
     GraphicsItem *itemFormInfo(const QString &extNum, const QString &loopNum,
                                const QString &addressNum, const QString &networkNum);
     void updateAlarmState(const QString &extNum, const QString &loopNum,
@@ -76,7 +76,7 @@ public:
     Q_INVOKABLE void toArchitePlan(const QString &extNum, const QString &loopNum,
                                    const QString &addressNum,const QString &networkNum);
     Q_INVOKABLE void saveMySqlInfo(const QString &hostName,const QString &userName,
-                                    const QString &password,const QString &databaseName,int port);//将数据保存到mysql数据库
+                                   const QString &password,const QString &databaseName,int port);//将数据保存到mysql数据库
     QString deviceSysName(const QString &extNum);//设备系统名
 
 signals:
@@ -85,8 +85,8 @@ signals:
     void toFirstPage();
     void noPage();
     void normalPage();
-    void alarmItem(GraphicsItem *item);
-    void eliminateAlarmFromTable(GraphicsItem *item);
+    void alarmItem(GraphicsItem *item,const QString &alarmType);
+    void eliminateAlarmFromTable(GraphicsItem *item,const QString &alarmState);
     void eliminateNoItemAlarm(DataInfo *info,const QString &time);
     void clearAlarmFromTable();
     void editGlobalItem();
@@ -105,7 +105,7 @@ public slots:
     void viewsAutoSwitch();
     void startAutoSwitch(bool isAuto);
     void eliminateAlarm(const QString &extNum, const QString &loopNum,
-                        const QString &addrNum, const QString &networkNum);//消除报警
+                        const QString &addrNum, const QString &networkNum, const QString &alarmType);//消除报警
 
     void setItemSize(qreal size);
     void setItemIcon(QString iconName);
@@ -128,6 +128,8 @@ private:
     void setGlobalArchiteFromJson();
     void updateAlarmWidget(GraphicsView *currentView);
     void deleteAlarmWidget(GraphicsView *currentView);
+    void filterAlarm(GraphicsItem *item);
+
 private:
     TreeView *m_treeView;
     QStackedWidget *m_stackedWidget;
@@ -140,7 +142,7 @@ private:
     const QString c_jsonFilePath=QCoreApplication::applicationDirPath()+"/treeView.json";
     QString m_globalArchitePlanPixmapName;
     QHash<GlobalGraphicsItem*,QStandardItem*>m_globalToArchitePlanHash;
-    QTimer *m_autoSwitchTimer;
+    CustomTimer *m_autoSwitchTimer;
     QList<GraphicsView *>m_alarmViewList;
     int m_alarmPos;
     QHash<QStandardItem*,GraphicsView *>m_itemToViewHash;
@@ -148,7 +150,7 @@ private:
     SqlManager *m_sqliteManager;
     QString m_architeInfoDbName;
     int m_itemInfoTableSize,m_globalArchiteTableSize;
-    QHash<GraphicsItem*,QString>m_speechTextFromItemHash;
+    QHash<GraphicsItem*,QList<QString> >m_speechTextFromItemHash;
 
     QMenu *m_graphicsItemSettingMenu;
     QActionGroup *m_modeActionGroup;

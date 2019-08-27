@@ -18,6 +18,7 @@ signals:
     void tableValue(QSqlRecord record);
     void fitToWiew();
 public slots:
+    void toMaxPosition();
 private:
     void initWidget();
 private:

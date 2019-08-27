@@ -1,11 +1,13 @@
 ﻿QHeaderView::section
 {
     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                      stop:0 #616161, stop: 0.5 #505050,
-                                      stop: 0.6 #434343, stop:1 #656565);
+                                    stop:0 #616161, stop: 0.5 #505050,
+                                     stop: 0.6 #434343, stop:1 #656565);
+
     color: white;
     padding-left: 4px;
     border: 1px solid #6c6c6c;
+    font:12pt 'Times New Roman'
 }
 
 QHeaderView::section:checked
@@ -43,6 +45,15 @@ QTabBar::tab:!selected{
         background:white;
         color:black;
 
+}
+
+QTreeView::item {
+     height:20px
+}
+
+QTreeView
+{
+  font:12px 'Times New Roman'
 }
 
 

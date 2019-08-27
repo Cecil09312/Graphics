@@ -4,7 +4,7 @@
 UserManager::UserManager(QObject *parent)
     : QObject(parent),
       m_userRight(UserManager::Employee),
-      m_userName(tr("employee"))
+      m_userName(tr("119"))
 {
     m_sqliteManager = SqlManager::fromDriver("SQLITE");
     if(m_sqliteManager!=nullptr)
@@ -18,7 +18,7 @@ UserManager::UserManager(QObject *parent)
             if(tableNameList.isEmpty())
             {
                 m_sqliteManager->executeQuery("create table UserInfo(userRight text not null, userName text primary key not null,password text not null);");
-                m_sqliteManager->executeQuery("insert into UserInfo values('Employee','employee','1234')");
+                m_sqliteManager->executeQuery("insert into UserInfo values('Employee','119','119')");
                 m_sqliteManager->executeQuery("insert into UserInfo values('Super','super','super')");
             }
             else

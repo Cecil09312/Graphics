@@ -3,7 +3,7 @@
 #include "control/controller.h"
 #include <QDebug>
 GlobalGraphicsItem::GlobalGraphicsItem(GlobalGraphicsScene *scene)
-    :m_radius(40.0)
+    :m_radius(20.0)
 {
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);
@@ -13,21 +13,44 @@ GlobalGraphicsItem::GlobalGraphicsItem(GlobalGraphicsScene *scene)
     setProperty("size",m_radius);
     m_propertyAnimation = new QPropertyAnimation(this,"size");
     m_propertyAnimation->setDuration(1000);
-    m_propertyAnimation->setStartValue(m_radius*0.5);
-    m_propertyAnimation->setEndValue(1.5*m_radius);
+    m_propertyAnimation->setStartValue(0.3);
+    m_propertyAnimation->setEndValue(1.2);
     m_propertyAnimation->setLoopCount(-1);
     m_font.setPointSize(qFloor(m_radius/4));
     m_font.setFamily("Times New Roman");
     connect(m_propertyAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &value)
     {
-        setItemSize(value.toDouble());
+        qreal scale =qvariant_cast<qreal> (value);
+        setScale(scale);
+        if(m_scene!=nullptr)
+        {
+            m_scene->update();
+        }
+        //setItemSize(value.toDouble());
     });
 
     connect(m_propertyAnimation,&QPropertyAnimation::stateChanged,this,[=](QAbstractAnimation::State newState, QAbstractAnimation::State oldState)
     {
         if(oldState==QAbstractAnimation::Running&&newState==QAbstractAnimation::Stopped)
         {
-            setItemSize(40.0);
+            //setItemSize(40.0);
+            QTransform currentTransform = transform();
+            qreal xScale = currentTransform.m11();
+            qreal yScale = currentTransform.m22();
+            if(xScale*yScale>0)
+            {
+                if(qAbs(xScale-yScale)<=0.0001)
+                {
+                    setScale(1.0/xScale);
+                }
+                else
+                {
+                    currentTransform.scale(1.0/xScale,1.0/yScale);
+                    setTransform(currentTransform);
+                }
+                update();
+            }
+
         }
     });
 
@@ -42,7 +65,7 @@ void GlobalGraphicsItem::setIconName(const QString &name)
 {
     m_iconName = name;
     update();
-   // m_scene->update();
+    // m_scene->update();
 }
 
 QString GlobalGraphicsItem::iconName()
@@ -173,7 +196,7 @@ void GlobalGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 
 void GlobalGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-  UserManager::UserRight userRight =   Controller::instance()->getUserRight();
+    UserManager::UserRight userRight =   Controller::instance()->getUserRight();
     if(userRight==UserManager::Super||userRight==UserManager::Engineer)
     {
         setPos(event->scenePos());
