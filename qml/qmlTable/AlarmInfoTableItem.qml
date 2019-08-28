@@ -262,6 +262,7 @@ Item {
             var curLoopNum = new String
             var curAddrNum = new String
             var curNetworkNum = new String
+            var currentState = new String
             curExtNum = alarmInfoListModel.getValue(row, "extNum")
             curLoopNum = alarmInfoListModel.getValue(row, "loopNum")
             curAddrNum = alarmInfoListModel.getValue(row, "addrNum")

@@ -74,7 +74,7 @@ public:
     Q_INVOKABLE void toAlarmView();
     Q_INVOKABLE void setCurrentAlarmType(const QString &type);//设置当前报警类型
     Q_INVOKABLE void toArchitePlan(const QString &extNum, const QString &loopNum,
-                                   const QString &addressNum,const QString &networkNum);
+                                   const QString &addressNum, const QString &networkNum);
     Q_INVOKABLE void saveMySqlInfo(const QString &hostName,const QString &userName,
                                    const QString &password,const QString &databaseName,int port);//将数据保存到mysql数据库
     QString deviceSysName(const QString &extNum);//设备系统名
@@ -94,6 +94,7 @@ signals:
     void tabIndex(int index);
     void alarmStateUpdate(const QString &extNum, const QString &loopNum,
                           const QString &addressNum, const QString &networkNum,const QString &curAlarmState);
+    void findAlarmNum(int totalNum,int currentNum);
 
 public slots:
     void firstFireAlarm();
@@ -128,7 +129,8 @@ private:
     void setGlobalArchiteFromJson();
     void updateAlarmWidget(GraphicsView *currentView);
     void deleteAlarmWidget(GraphicsView *currentView);
-    void filterAlarm(GraphicsItem *item);
+    void filterAlarm(GraphicsItem *item,const QString &alarmType);
+
 
 private:
     TreeView *m_treeView;
@@ -144,7 +146,7 @@ private:
     QHash<GlobalGraphicsItem*,QStandardItem*>m_globalToArchitePlanHash;
     CustomTimer *m_autoSwitchTimer;
     QList<GraphicsView *>m_alarmViewList;
-    int m_alarmPos;
+    int m_alarmPos,m_alarmNum;
     QHash<QStandardItem*,GraphicsView *>m_itemToViewHash;
 
     SqlManager *m_sqliteManager;

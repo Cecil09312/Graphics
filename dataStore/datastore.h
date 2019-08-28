@@ -30,7 +30,7 @@ public:
      static void insertTypeItem(const QString &type,QGraphicsItem*item);
      static bool deleteType(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum);
      static void deleteTypeItem(const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum);
-     static void insertTypeItem(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum);
+     static void insertTypeNoItem(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum);
      static void clearTypeItem();
      static int numOfTypeItem(const QString &type);
      static GraphicsView *itemDisplayView(GraphicsItem *item);
@@ -38,6 +38,7 @@ public:
      static QHash<QString,QList<DataInfo*> >&getTypeNoItemHash();
      static QString getTypeNoItemKey(DataInfo*dataInfo);
      static void deleteDataInfo(DataInfo*dataInfo);
+     static indexOfItem(const QString &extNum,const QString &loopNum,const QString &addrNum,const QString &networkNum,const QString &alarmType);
 
 private:
      static QHash<QString,QList<QGraphicsItem*> >m_typeItemHash;

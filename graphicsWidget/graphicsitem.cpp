@@ -37,7 +37,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_colorAnimation->setLoopCount(-1);
     m_scaleAnimation = new QPropertyAnimation(this,"scale");
     m_scaleAnimation->setStartValue(0.3);
-    m_scaleAnimation->setEndValue(1.2);
+    m_scaleAnimation->setEndValue(1.5);
     m_scaleAnimation->setDuration(1000);
     m_scaleAnimation->setLoopCount(-1);
 
@@ -49,10 +49,10 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
 
     m_parallelAnimGroup = new QParallelAnimationGroup(this);
     m_parallelAnimGroup->addAnimation(m_colorAnimation);
-    m_parallelAnimGroup->addAnimation(m_scaleAnimation);
+    m_parallelAnimGroup->addAnimation(m_rotateAnimation);
     m_parallelAnimGroup->setLoopCount(-1);
 
-    m_itemTextFont.setPointSize(qFloor(m_radius/4));
+    m_itemTextFont.setPointSize(qFloor(m_radius/3));
     m_itemTextFont.setFamily("Times New Roman");
 
     m_itemInfo.m_deviceNum = QString("%1").arg(m_num++);
@@ -193,7 +193,9 @@ void GraphicsItem::startAnimations()
 void GraphicsItem::stopAnimations()
 {
     m_parallelAnimGroup->stop();
-    stopRotationAnimation();
+    setRotation(0);
+    stopScaleAnimation();
+    stopColorAnimation();
 }
 
 

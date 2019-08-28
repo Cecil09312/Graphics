@@ -440,6 +440,14 @@ Rectangle {
             model: ["全部", "火警", "启动", "监管", "故障", "反馈", "屏蔽"]
             onCurrentTextChanged: {
                 emit: currentAlarmType(currentText)
+                if(currentText===qsTr("全部"))
+                {
+                     numTxt.visible=false
+                }
+                else
+                {
+                   numTxt.visible = true;
+                }
             }
         }
         Button {
@@ -488,6 +496,16 @@ Rectangle {
             text: qsTr("总0页/第0页")
         }
 
+        Text {
+            id: numTxt
+            anchors.leftMargin: 20
+            width: parent.width
+            font.pointSize: 12
+            font.family: qsTr("Times New Roman")
+            text: qsTr("总0个/第0个")
+            visible: false
+        }
+
         CheckBox {
             id: autoSwitchCheckBox
             text: qsTr("自动切换")
@@ -507,6 +525,10 @@ Rectangle {
     function setPage(totalPage, currentPage) {
 
         pageTxt.text = String("总%1页/第%2页").arg(totalPage).arg(currentPage)
+    }
+    function setNum(totalNum,currentNum)
+    {
+       numTxt.text= String("总%1个/第%2个").arg(totalNum).arg(currentNum);
     }
 
     function enableToPreviousPageBtn(isEnable) {

@@ -20,10 +20,6 @@ struct ItemInfo
     QString m_networkNum;//网络号
     QString m_deviceNum;//设备编码
     QString m_equipmentModel;//设备
-    //QString m_alarmType;//报警类型
-   // QString m_currentState;//报警状态
-   // QString m_alarmTime;//报警时间
-   // QString m_alarmReplyTime;//报警恢复时间
     QString m_sysOfDevice;//系统
     QString m_buildingName;//建筑名称
     QString m_floorOfDevice;//楼层
@@ -52,7 +48,6 @@ enum AlarmPriority//报警优先级
 struct AlarmRecord//用来记录所有报警信息
 {
     AlarmPriority m_alarmPriority;
-   // QString m_alarmRecordType;//记录报警类型
     QString m_alarmRecordTime;//记录报警时间
     QString m_alarmRecordState;//报警状态
     QString m_alarmRecordReplyTime;//报警恢复时间

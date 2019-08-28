@@ -99,6 +99,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
         QString loopNum=  record.value("回路号").toString();
         QString addrNum=  record.value("地址号").toString();
         QString networkNum=  record.value("网络号").toString();
+
         m_architePlanView->toArchitePlan(extNum,loopNum,addrNum,networkNum);
 
     });
@@ -237,6 +238,12 @@ CrtWidget::CrtWidget(QWidget *parent) :
         QMetaObject::invokeMethod(m_alarmObj,"setPage",Q_ARG(QVariant,m_architePlanView->totalPage()),Q_ARG(QVariant,m_architePlanView->currentPage()+1));
     });
 
+
+    connect(m_architePlanView,&ArchitePlanView::findAlarmNum,this,[=](int totalNum,int currentNum)
+    {
+        QMetaObject::invokeMethod(m_alarmObj,"setNum",Q_ARG(QVariant,totalNum),Q_ARG(QVariant,currentNum));
+    });
+
     connect(m_architePlanView,&ArchitePlanView::reduInstruction,this,[=]()
     {
         QMetaObject::invokeMethod(m_alarmObj,"allAlarmClear");
@@ -347,10 +354,14 @@ CrtWidget::CrtWidget(QWidget *parent) :
 
     connect(m_architePlanView,&ArchitePlanView::eliminateNoItemAlarm,this,[=](DataInfo *info,const QString &time)
     {
-        m_sqliteManager->executeQuery(QString("update AlarmInfo set 报警恢复时间 ='%1',报警状态 = '正常' where 报警状态 != '正常' and 分机号 = '%2' and 回路号 = '%3' and 地址号 = '%4' and 网络号 = '%5'").arg(time).arg(info->m_extNum).arg(info->m_loopNum).arg(info->m_addrNum).arg(info->m_networkNum));
-        QString key= DataStore::getTypeNoItemKey(info);
-        alarmStatistics(key);
-        alarmDataOnTable();
+        if(info!=nullptr)
+        {
+            m_sqliteManager->executeQuery(QString("update AlarmInfo set 报警恢复时间 ='%1',报警状态 = '正常' where 报警状态 != '正常' and 分机号 = '%2' and 回路号 = '%3' and 地址号 = '%4' and 网络号 = '%5'").arg(time).arg(info->m_extNum).arg(info->m_loopNum).arg(info->m_addrNum).arg(info->m_networkNum));
+            QString key= DataStore::getTypeNoItemKey(info);
+            alarmStatistics(key);
+            alarmDataOnTable();
+        }
+
     });
 
     Controller::instance()->getCommObj()->connectLink();
@@ -506,6 +517,7 @@ void CrtWidget::alarmChanged(QString alarm)
     int currentPage = m_architePlanView->currentPage();
     int totalPage = m_architePlanView->totalPage();
 
+
     alarmDataOnTable();
     Q_ASSERT(m_alarmObj);
     if(totalPage>1)
@@ -546,12 +558,27 @@ void CrtWidget::alarmChanged(QString alarm)
         QMetaObject::invokeMethod(m_alarmObj,"enableToPreviousPageBtn",Q_ARG(QVariant,false));
     }
     QMetaObject::invokeMethod(m_alarmObj,"setPage",Q_ARG(QVariant,totalPage),Q_ARG(QVariant,currentPage+1));
+    if(alarm==tr("全部"))
+    {
+        QMetaObject::invokeMethod(m_alarmObj,"setNum",Q_ARG(QVariant,0),Q_ARG(QVariant,0));
+    }
+    else
+    {
+        int totalNum= DataStore::getTypeItemList(alarm).size();
+        QMetaObject::invokeMethod(m_alarmObj,"setNum",Q_ARG(QVariant,totalNum),Q_ARG(QVariant,0));
+    }
+
 }
 
 void CrtWidget::alarmStatistics(const QString &type)
 {
     Q_ASSERT(m_alarmObj);
     int typeNum = m_architePlanView->numOfTypeAlarm(type);
+    if(m_architePlanView->currentAlarmType()==type)
+    {
+       QMetaObject::invokeMethod(m_alarmObj,"setNum",Q_ARG(QVariant,typeNum),Q_ARG(QVariant,0));
+    }
+
     if(type.endsWith(tr("火警")))
     {
         if(typeNum>0)
@@ -1127,7 +1154,7 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
         case 0x0b:
         case 0x0d:
         {
-            QString currentState = alarmTypeHash[eventNum];
+            QString currentState = alarmTypeHash.value(eventNum);
             if(eventNum==0x03)
             {
                 switch ((type&0x03))
@@ -1206,13 +1233,13 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
             if(item!=nullptr)
             {
 //                item->currentState()= currentState;
-//                item->alarmType() = alarmTypeHash[eventNum];
-                m_architePlanView->createAlarm(item,alarmTypeHash[eventNum],currentState,timeStr);
-                Controller::instance()->getMySqlManager()->executeQuery(QString("insert into alarm_info values ('%1','%2','%3','%4','%5')").arg(item->sysOfDevice()).arg(item->deviceNum()).arg(item->alarmType()).arg(item->currentState()).arg(timeStr));
+//                item->alarmType() = alarmTypeHash.value(eventNum);
+                m_architePlanView->createAlarm(item,alarmTypeHash.value(eventNum),currentState,timeStr);
+                Controller::instance()->getMySqlManager()->executeQuery(QString("insert into alarm_info values ('%1','%2','%3','%4','%5')").arg(item->sysOfDevice()).arg(item->deviceNum()).arg(alarmTypeHash.value(eventNum)).arg(currentState).arg(timeStr));
             }
             else
             {
-                QString curType = alarmTypeHash[eventNum];
+                QString curType = alarmTypeHash.value(eventNum);
                 if(!DataStore::haveTypeItem(curType,extNum,QString::number(loopNum),QString::number(addrNum),networkNum))
                 {
 
@@ -1222,9 +1249,9 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
                                                   .arg(tr("未定义设备")).arg(curType).arg(currentState).arg(timeStr)
                                                   .arg("").arg("").arg("")
                                                   .arg("").arg("").arg("").arg("").arg(""));
-                    DataStore::insertTypeItem(curType,extNum,QString::number(loopNum),QString::number(addrNum),networkNum);
+                    DataStore::insertTypeNoItem(curType,extNum,QString::number(loopNum),QString::number(addrNum),networkNum);
 
-                    Controller::instance()->getMySqlManager()->executeQuery(QString("insert into alarm_info values ('%1','%2','%3','%4','%5')").arg(tr("未定义")).arg(tr("未定义设备")).arg(alarmTypeHash[eventNum]).arg(currentState).arg(timeStr));
+                    Controller::instance()->getMySqlManager()->executeQuery(QString("insert into alarm_info values ('%1','%2','%3','%4','%5')").arg(tr("未定义")).arg(tr("未定义设备")).arg(alarmTypeHash.value(eventNum)).arg(currentState).arg(timeStr));
 
                     alarmStatistics(curType);
                     alarmDataOnTable();
@@ -1243,15 +1270,15 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
                 if(item==nullptr)
                 {
 
-                    QString curType = alarmTypeHash[eventNum];
+                    QString curType = alarmTypeHash.value(eventNum);
                     if(!DataStore::haveTypeItem(curType,extNum,QString::number(loopNum),QString::number(addrNum),networkNum))
                     {
 
 
                         m_sqliteManager->executeQuery(m_alarmSqlInfo.arg(extNum).arg(QString::number(loopNum)).arg(QString::number(addrNum)).arg(networkNum).arg(tr("未定义设备"))
-                                                      .arg(tr("未定义设备")).arg(alarmTypeHash[eventNum]).arg(alarmTypeHash[eventNum]).arg(timeStr).arg("").arg("").arg("").arg("").arg("")
+                                                      .arg(tr("未定义设备")).arg(alarmTypeHash.value(eventNum)).arg(alarmTypeHash.value(eventNum)).arg(timeStr).arg("").arg("").arg("").arg("").arg("")
                                                       .arg("").arg("").arg(""));
-                        DataStore::insertTypeItem(curType,extNum,QString::number(loopNum),QString::number(addrNum),networkNum);
+                        DataStore::insertTypeNoItem(curType,extNum,QString::number(loopNum),QString::number(addrNum),networkNum);
                         alarmStatistics(curType);
                         alarmDataOnTable();
                     }
@@ -1259,7 +1286,7 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
                 }
                 else
                 {
-                    m_architePlanView->createAlarm(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,alarmTypeHash[eventNum],false,timeStr);
+                    m_architePlanView->createAlarm(extNum,QString::number(loopNum),QString::number(addrNum),networkNum,alarmTypeHash.value(eventNum),false,timeStr);
                 }
 
                 break;
@@ -1384,12 +1411,12 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
             QString powerState = "";
             if(loopNum==0)
             {
-                communicationStatus(commuStatusHash[eventNum],true);
+                communicationStatus(commuStatusHash.value(eventNum),true);
                 powerState = tr("正常");
             }
             else if(loopNum==1)
             {
-                communicationStatus(commuStatusHash[eventNum],false);
+                communicationStatus(commuStatusHash.value(eventNum),false);
                 powerState = tr("故障");
             }
 
@@ -1447,21 +1474,21 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
             {
             case 0:
             {
-                Controller::instance()->getOperatorInfo()->insertEvent(commuStatusHash[eventNum],tr("默认"));
+                Controller::instance()->getOperatorInfo()->insertEvent(commuStatusHash.value(eventNum),tr("默认"));
                 handOrAutoState = tr("默认");
                 QMetaObject::invokeMethod(m_alarmObj,"setHandOrAutoColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"purple"));
             }
                 break;
             case 1:
             {
-                Controller::instance()->getOperatorInfo()->insertEvent(commuStatusHash[eventNum],tr("手动"));
+                Controller::instance()->getOperatorInfo()->insertEvent(commuStatusHash.value(eventNum),tr("手动"));
                 handOrAutoState = tr("手动");
                 QMetaObject::invokeMethod(m_alarmObj,"setHandOrAutoColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"blue"));
             }
                 break;
             case 2:
             {
-                Controller::instance()->getOperatorInfo()->insertEvent(commuStatusHash[eventNum],tr("自动"));
+                Controller::instance()->getOperatorInfo()->insertEvent(commuStatusHash.value(eventNum),tr("自动"));
                 handOrAutoState = tr("自动");
                 QMetaObject::invokeMethod(m_alarmObj,"setHandOrAutoColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
             }
@@ -1496,12 +1523,9 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
             {
                 if(currentItem!=nullptr)
                 {
-//                    currentItem->currentState()= tr("火警");
-//                    currentItem->alarmType()= tr("光纤火警");
-                   // currentItem->setAlarmRecord(tr("光纤火警"),timeStr,tr("火警"));
                     currentItem->deviceLocation() = QString::number(type*256+year)+tr("米");
-                    m_architePlanView->createAlarm(currentItem,tr("光纤火警"),tr("火警"));
-                    Controller::instance()->getMySqlManager()->executeQuery(QString("insert into alarm_info values ('%1','%2','%3','%4','%5')").arg(currentItem->sysOfDevice()).arg(currentItem->deviceNum()).arg(tr("光纤火警")).arg("火警").arg(timeStr));
+                    m_architePlanView->createAlarm(currentItem,tr("火警"),tr("光纤火警"));
+                    Controller::instance()->getMySqlManager()->executeQuery(QString("insert into alarm_info values ('%1','%2','%3','%4','%5')").arg(currentItem->sysOfDevice()).arg(currentItem->deviceNum()).arg(tr("火警")).arg("光纤火警").arg(timeStr));
 
                 }
                 else
@@ -1509,10 +1533,10 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
                     if(!DataStore::haveTypeItem(tr("火警"),QString::number(date),QString::number(loopNum),QString::number(addrNum),QString::number(month)))
                     {
                         m_sqliteManager->executeQuery(m_alarmSqlInfo.arg(QString::number(date)).arg(QString::number(loopNum)).arg(QString::number(addrNum)).arg(QString::number(month)).arg(tr("未定义设备"))
-                                                      .arg(tr("未定义设备")).arg(tr("光纤火警")).arg(tr("火警")).arg(timeStr).arg("").arg("").arg("").arg("").arg("")
+                                                      .arg(tr("未定义设备")).arg(tr("火警")).arg(tr("光纤火警")).arg(timeStr).arg("").arg("").arg("").arg("").arg("")
                                                       .arg("").arg("").arg(""));
-                        DataStore::insertTypeItem(tr("火警"),QString::number(date),QString::number(loopNum),QString::number(addrNum),QString::number(month));
-                        Controller::instance()->getMySqlManager()->executeQuery(QString("insert into alarm_info values ('%1','%2','%3','%4','%5')").arg(tr("未定义")).arg(tr("未定义设备")).arg(tr("光纤火警")).arg(tr("火警")).arg(timeStr));
+                        DataStore::insertTypeNoItem(tr("火警"),QString::number(date),QString::number(loopNum),QString::number(addrNum),QString::number(month));
+                        Controller::instance()->getMySqlManager()->executeQuery(QString("insert into alarm_info values ('%1','%2','%3','%4','%5')").arg(tr("未定义")).arg(tr("未定义设备")).arg(tr("火警")).arg(tr("光纤火警")).arg(timeStr));
                         alarmDataOnTable();
                         alarmStatistics(tr("火警"));
                     }
@@ -1527,20 +1551,20 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
 //                    currentItem->alarmType()= tr("光纤故障");
                   //  currentItem->setAlarmRecord(tr("光纤故障"),timeStr,tr("故障"));
                     currentItem->deviceLocation() = QString::number(type*256+year)+tr("米");
-                    m_architePlanView->createAlarm(currentItem,tr("光纤故障"),tr("故障"));
-                    Controller::instance()->getMySqlManager()->executeQuery(QString("insert into alarm_info values ('%1','%2','%3','%4','%5')").arg(currentItem->sysOfDevice()).arg(currentItem->deviceNum()).arg(tr("光纤故障")).arg(tr("故障")).arg(timeStr));
+                    m_architePlanView->createAlarm(currentItem,tr("故障"),tr("光纤故障"));
+                    Controller::instance()->getMySqlManager()->executeQuery(QString("insert into alarm_info values ('%1','%2','%3','%4','%5')").arg(currentItem->sysOfDevice()).arg(currentItem->deviceNum()).arg(tr("故障")).arg(tr("光纤故障")).arg(timeStr));
                 }
                 else
                 {
                     if(!DataStore::haveTypeItem(tr("故障"),QString::number(date),QString::number(loopNum),QString::number(addrNum),QString::number(month)))
                     {
                         m_sqliteManager->executeQuery(m_alarmSqlInfo.arg(QString::number(date)).arg(QString::number(loopNum)).arg(QString::number(addrNum)).arg(QString::number(month)).arg(tr("未定义设备"))
-                                                      .arg(tr("未定义设备")).arg(tr("光纤故障")).arg(tr("故障")).arg(timeStr).arg("").arg("").arg("").arg("").arg("")
+                                                      .arg(tr("未定义设备")).arg(tr("故障")).arg(tr("光纤故障")).arg(timeStr).arg("").arg("").arg("").arg("").arg("")
                                                       .arg("").arg("").arg(""));
-                        DataStore::insertTypeItem(tr("故障"),QString::number(date),QString::number(loopNum),QString::number(addrNum),QString::number(month));
+                        DataStore::insertTypeNoItem(tr("故障"),QString::number(date),QString::number(loopNum),QString::number(addrNum),QString::number(month));
 
                         alarmDataOnTable();
-                        Controller::instance()->getMySqlManager()->executeQuery(QString("insert into alarm_info values ('%1','%2','%3','%4','%5')").arg(tr("未定义")).arg(tr("未定义设备")).arg(tr("光纤故障")).arg(tr("故障")).arg(timeStr));
+                        Controller::instance()->getMySqlManager()->executeQuery(QString("insert into alarm_info values ('%1','%2','%3','%4','%5')").arg(tr("未定义")).arg(tr("未定义设备")).arg(tr("故障")).arg(tr("光纤故障")).arg(timeStr));
                         alarmStatistics("故障");
                     }
                 }
@@ -1555,7 +1579,7 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
                 }
                 else
                 {
-                    m_sqliteManager->executeQuery(QString("update AlarmInfo set 报警恢复时间 ='%1',报警状态 = '正常' where 报警状态 = '故障' and 分机号 = '%2' and 回路号 = '%3' and 地址号 = '%4' and 网络号 = '%5'").arg(timeStr).arg(QString::number(date)).arg(QString::number(loopNum)).arg(QString::number(addrNum)).arg(QString::number(month)));
+                    m_sqliteManager->executeQuery(QString("update AlarmInfo set 报警恢复时间 ='%1',报警状态 = '正常' where 报警状态 != '正常' and 报警类型 ='故障' and 分机号 = '%2' and 回路号 = '%3' and 地址号 = '%4' and 网络号 = '%5'").arg(timeStr).arg(QString::number(date)).arg(QString::number(loopNum)).arg(QString::number(addrNum)).arg(QString::number(month)));
                     DataStore::deleteTypeItem(QString::number(date),QString::number(loopNum),QString::number(addrNum),QString::number(month));
                     alarmDataOnTable();
                     alarmStatistics("故障");

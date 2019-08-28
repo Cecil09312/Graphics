@@ -15,13 +15,13 @@ QMap<int,GraphicsView *>ArchitePlanView::m_widgetMap =QMap<int,GraphicsView *>()
 ArchitePlanView::ArchitePlanView(QWidget *parent)
     : QWidget(parent),
       m_currentAlarmType("全部"),
-      m_alarmPos(0)
+      m_alarmPos(0),
+      m_alarmNum(0)
 {
 
     initWidget();
     setGlobalArchiteFromJson();
     initFromJsonFile();
-
     setContextMenuPolicy(Qt::CustomContextMenu);
 
     connect(this,&ArchitePlanView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)
@@ -387,15 +387,37 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item, const QString &alarmTyp
     {
         return;
     }
+
+
     QString oldState = item->alarmState(alarmType);
+    if(oldState!=tr("正常"))
+    {
+        oldState = alarmType;
+    }
 
     item->removeAlarmRecord(alarmType,alarmReplyTime);
-    item->stopAnimations();
     item->stopAnimations();
     item->stopColorAnimation();
     item->setColorEffectValue(0.0);
     item->restoreSize();
-    filterAlarm(item);
+    GraphicsView*curView = DataStore::itemDisplayView(item);
+    if(curView!=nullptr)
+    {
+        if(!curView->haveAlarmType(oldState))
+        {
+            deleteAlarmWidget(oldState,curView);
+        }
+        if(!curView->haveAnyAlarm())
+        {
+            if(m_alarmViewList.contains(curView))
+            {
+                m_alarmViewList.removeOne(curView);
+            }
+            deleteAlarmWidget(tr("全部"),curView);
+        }
+        updateAlarmWidget(curView);
+    }
+    filterAlarm(item,item->currentState());
     // QString anotherType = item->alarmType();
     // createAlarm(item,anotherType,item->alarmState(anotherType),item->alarmTime(alarmType));
 
@@ -419,11 +441,6 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item, const QString &alarmTyp
                 Controller::instance()->getSpeechObj()->removeAlarmText(alarmText);
             }
         }
-
-    }
-
-    //if(!currentAlarmText.isEmpty())
-    {
 
     }
 
@@ -454,13 +471,7 @@ void ArchitePlanView::eliminateAlarm(const QString &extNum, const QString &loopN
 
                         QString replyTime=  QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss");
                         eliminateAlarm(currentItem,alarmType,replyTime);
-                        if(!view->haveAnyAlarm())
-                        {
-                            if(m_alarmViewList.contains(view))
-                            {
-                                m_alarmViewList.removeOne(view);
-                            }
-                        }
+//
                         return;
                     }
                 }
@@ -489,15 +500,15 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, const QString 
         }
         item->setAlarmRecord(type,alarmTime,alarmTypeName);
         DataStore::insertTypeItem(alarmTypeName,item);
-        filterAlarm(item);
-        emit alarmHappend(alarmTypeName);
+        filterAlarm(item,alarmTypeName);
         emit alarmItem(item,type);
+        emit alarmHappend(alarmTypeName);
     }
 }
 
 void ArchitePlanView::insertAlarmWidget(const QString &type, GraphicsView *view)
 {
-    if(!m_alarmWidgetHash[type].contains(view))
+    if(!m_alarmWidgetHash.value(type).contains(view))
     {
         m_alarmWidgetHash[type].push_back(view);
     }
@@ -1315,13 +1326,16 @@ void ArchitePlanView::createAlarm(GraphicsItem *item,const QString &alarmType,co
 
     if(item!=nullptr)
     {
+        QString state = item->alarmState(alarmType);
+        if(state!=tr("正常")&&!state.isEmpty())
+        {
+            return;
+        }
         item->setAlarmRecord(alarmType,alarmTime,alarmState);
-        QString alarmTypeName = item->currentState();
-        DataStore::insertTypeItem(alarmTypeName,item);
-        filterAlarm(item);
-        emit alarmHappend(alarmType);
+        DataStore::insertTypeItem(alarmType,item);
+        filterAlarm(item,alarmType);
         emit alarmItem(item,alarmType);
-
+        emit alarmHappend(alarmType);
     }
 }
 
@@ -1439,12 +1453,12 @@ void ArchitePlanView::deleteAlarmWidget(GraphicsView *currentView)
 {
     if(m_currentAlarmType!="全部")
     {
-        if(m_alarmWidgetHash["全部"].contains(currentView))
+        if(m_alarmWidgetHash.value("全部").contains(currentView))
         {
             m_alarmWidgetHash["全部"].removeOne(currentView);
         }
     }
-    if(m_alarmWidgetHash[m_currentAlarmType].contains(currentView))
+    if(m_alarmWidgetHash.value(m_currentAlarmType).contains(currentView))
     {
         m_alarmWidgetHash[m_currentAlarmType].removeOne(currentView);
     }
@@ -1452,28 +1466,20 @@ void ArchitePlanView::deleteAlarmWidget(GraphicsView *currentView)
     updateAlarmWidget(view);
 }
 
-void ArchitePlanView::filterAlarm(GraphicsItem *item)
+void ArchitePlanView::filterAlarm(GraphicsItem *item, const QString &alarmType)
 {
-    QString speechText="";
-    static GraphicsView * firstFireAlarmView = nullptr,*firstLinkAlarmView= nullptr;
-
     if(item!=nullptr)
     {
 
-        GraphicsView *view = nullptr;
-        foreach (QGraphicsView*curView, item->scene()->views() )
-        {
-            GraphicsView*graphicsView = dynamic_cast<GraphicsView*>(curView);
-            view =graphicsView;
-        }
         item->stopAnimations();
-       // item->stopOtherAnimations();
         QString curState=  item->currentState();
         QString curType = item->alarmType();
 
         if(curState!=tr("正常")&&!curState.isEmpty())
         {
-
+            QString speechText="";
+            static GraphicsView * firstFireAlarmView = nullptr,*firstLinkAlarmView= nullptr;
+            GraphicsView *view=DataStore::itemDisplayView(item);
             if(curState.endsWith(tr("故障"))||curState.endsWith(tr("屏蔽")))
             {
                 item->setColorEndValue(QColor("yellow"));
@@ -1490,7 +1496,8 @@ void ArchitePlanView::filterAlarm(GraphicsItem *item)
                 {
                     if(curState.endsWith(tr("火警")))
                     {
-                        item->startAnimations();
+                        item->startScaleAnimation();
+                        item->startColorAnimation();
                         firstFireAlarmView = view;
                         m_firstFireWidget->setFirstFireInfo(item);
                         m_firstFireWidget->show();
@@ -1502,7 +1509,8 @@ void ArchitePlanView::filterAlarm(GraphicsItem *item)
                         {
                             firstLinkAlarmView = view;
                         }
-                        item->startRotationAnimation();
+                        item->startAnimations();
+                        //item->startRotationAnimation();
                         speechText = curType+tr("报警");
                     }
                 }
@@ -1524,7 +1532,7 @@ void ArchitePlanView::filterAlarm(GraphicsItem *item)
 
                 if(view!=nullptr)
                 {
-                    insertAlarmWidget(curState,view);
+                    insertAlarmWidget(alarmType,view);
                     insertAlarmWidget("全部",view);
                     updateAlarmWidget(view);
                     if(!m_alarmViewList.contains(view))
@@ -1569,7 +1577,9 @@ void ArchitePlanView::filterAlarm(GraphicsItem *item)
                     }
                 }
             }
+
         }
+
     }
 }
 
@@ -1595,13 +1605,13 @@ QMap<int, GraphicsView *> &ArchitePlanView::getWidgetMap()
 
 int ArchitePlanView::totalPage()
 {
-    return m_alarmWidgetHash[m_currentAlarmType].size();
+    return m_alarmWidgetHash.value(m_currentAlarmType).size();
 }
 
 int ArchitePlanView::currentPage()
 {
     GraphicsView*view = dynamic_cast<GraphicsView*>(m_stackedWidget->currentWidget());
-    QList<GraphicsView*>viewList= m_alarmWidgetHash[m_currentAlarmType];
+    QList<GraphicsView*>viewList= m_alarmWidgetHash.value(m_currentAlarmType);
     return viewList.indexOf(view);
 }
 
@@ -1620,6 +1630,7 @@ void ArchitePlanView::clearAlarm()
                 item->setColorEffectValue(0.0);
                 item->restoreSize();
                 item->clearAllAlarm();
+                emit findAlarmNum(0,0);
                 //item->currentState() =tr("正常");
                 //item->getItemInfo().m_currentState = tr("正常");
                 QList<QString> currentSpeechTextList=m_speechTextFromItemHash.value(item);
@@ -1690,8 +1701,9 @@ void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum,const QString &
         {
             if(info->m_extNum==extNum)
             {
-                DataStore::deleteDataInfo(info);
+
                 emit eliminateNoItemAlarm(info,rebackAlarmTime);
+                DataStore::deleteDataInfo(info);
             }
         }
     }
@@ -1787,6 +1799,13 @@ void ArchitePlanView::toArchitePlan(const QString &extNum, const QString &loopNu
                         qreal size=currentItem->scale()*currentItem->radius()*8;
                         QRectF currentRectF = QRectF(currentItem->pos().x(),currentItem->pos().y(),size,size);
                         view->fitInView(currentRectF.adjusted(-size,-size,view->pos().x()/2,view->pos().y()/2),Qt::KeepAspectRatio);
+
+                        if(m_currentAlarmType!=tr("全部"))
+                        {
+                            int totalNum = DataStore::numOfTypeItem(m_currentAlarmType);
+                            int currentNum = DataStore::indexOfItem(extNum,loopNum,addressNum,networkNum,m_currentAlarmType);
+                            emit findAlarmNum(totalNum,currentNum+1);
+                        }
                         return;
                     }
                 }
@@ -1872,15 +1891,45 @@ void ArchitePlanView::viewsAutoSwitch()
         }
 
     }
-    QList<GraphicsView*> alarmViewList= haveAlarms(m_currentAlarmType);
-    if(alarmViewList.size()>m_alarmPos)
+    if(m_currentAlarmType==tr("全部"))
     {
-        autoFitView(alarmViewList.at(m_alarmPos));
-        m_alarmPos++;
+       // emit findAlarmNum(0,0);
+        QList<GraphicsView*> alarmViewList= haveAlarms(m_currentAlarmType);
+        if(alarmViewList.size()>m_alarmPos)
+        {
+            autoFitView(alarmViewList.at(m_alarmPos));
+            m_alarmPos++;
+        }
+        else
+        {
+            m_alarmPos =0;
+        }
     }
     else
     {
-        m_alarmPos =0;
+        QList<QGraphicsItem*> gItemList= DataStore::getTypeItemList(m_currentAlarmType);
+        if(m_alarmNum<gItemList.size())
+        {
+            QGraphicsItem*curItem = gItemList.at(m_alarmNum);
+            GraphicsItem *item = dynamic_cast<GraphicsItem*>(curItem);
+            if(item!=nullptr)
+            {
+                qreal size=item->scale()*item->radius()*8;
+                QRectF currentRectF = QRectF(item->pos().x(),item->pos().y(),size,size);
+                QGraphicsView *view = DataStore::itemDisplayView(item);
+                if(view!=nullptr)
+                {
+                    m_stackedWidget->setCurrentWidget(view);
+                    view->fitInView(currentRectF.adjusted(-size,-size,view->pos().x()/2,view->pos().y()/2),Qt::KeepAspectRatio);
+                }
+            }
+            m_alarmNum++;
+            emit findAlarmNum(gItemList.size(),m_alarmNum);
+        }
+        else
+        {
+            m_alarmNum=0;
+        }
     }
 }
 

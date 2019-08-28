@@ -116,7 +116,7 @@ void DataStore::deleteTypeItem(const QString &extNum, const QString &loopNum, co
 
 }
 
-void DataStore::insertTypeItem(const QString &type, const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum)
+void DataStore::insertTypeNoItem(const QString &type, const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum)
 {
     if(!haveTypeItem(type,extNum,addrNum,loopNum,networkNum))
     {
@@ -209,12 +209,42 @@ QString DataStore::getTypeNoItemKey(DataInfo *dataInfo)
 void DataStore::deleteDataInfo(DataInfo *dataInfo)
 {
   QList<QString>  keyList=m_typeNoItemHash.keys();
-  foreach (QString key, keyList) {
+  foreach (QString key, keyList)
+  {
       if(m_typeNoItemHash.value(key).contains(dataInfo))
       {
           m_typeNoItemHash[key].removeOne(dataInfo);
+          delete dataInfo;
+          dataInfo = nullptr;
       }
   }
+}
+
+DataStore::indexOfItem(const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum, const QString &alarmType)
+{
+    QList<QGraphicsItem*> itemList= m_typeItemHash.value(alarmType);
+    GraphicsItem*selectItem = nullptr;
+
+    foreach (QGraphicsItem*item, itemList) {
+        GraphicsItem *curItem = dynamic_cast<GraphicsItem*>(item);
+        if(curItem!=nullptr)
+        {
+            if(curItem->extNum()==extNum&&curItem->loopNum()==loopNum&&curItem->addrNum()==addrNum&&curItem->networkNum()==networkNum)
+            {
+                selectItem = curItem;
+                break;
+            }
+        }
+    }
+
+    if(selectItem==nullptr)
+    {
+        return -1;
+    }
+    else
+    {
+        return itemList.indexOf(selectItem);
+    }
 }
 
 
