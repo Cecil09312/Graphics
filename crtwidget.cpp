@@ -1232,8 +1232,6 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
 
             if(item!=nullptr)
             {
-//                item->currentState()= currentState;
-//                item->alarmType() = alarmTypeHash.value(eventNum);
                 m_architePlanView->createAlarm(item,alarmTypeHash.value(eventNum),currentState,timeStr);
                 Controller::instance()->getMySqlManager()->executeQuery(QString("insert into alarm_info values ('%1','%2','%3','%4','%5')").arg(item->sysOfDevice()).arg(item->deviceNum()).arg(alarmTypeHash.value(eventNum)).arg(currentState).arg(timeStr));
             }

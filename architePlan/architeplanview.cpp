@@ -418,8 +418,7 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item, const QString &alarmTyp
         updateAlarmWidget(curView);
     }
     filterAlarm(item,item->currentState());
-    // QString anotherType = item->alarmType();
-    // createAlarm(item,anotherType,item->alarmState(anotherType),item->alarmTime(alarmType));
+
 
     QList<QString> currentAlarmTextList=m_speechTextFromItemHash.value(item);
     foreach (QString alarmText, currentAlarmTextList)
