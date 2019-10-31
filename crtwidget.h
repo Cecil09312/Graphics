@@ -27,7 +27,14 @@
 #include <QDesktopServices>
 #include <QMouseEvent>
 #include <QMessageBox>
-
+//#include "LogMsg/logmsg.h"
+//#include "LogMsg/debuglogmsg.h"
+enum SerialState
+{
+    NoState=0,
+    Connected,
+    Disconnected
+};
 
 class CrtWidget : public QWidget
 {
@@ -39,13 +46,19 @@ public:
     Q_INVOKABLE QString alarmInfoDbName();
     Q_INVOKABLE void queryViewShow();
     Q_INVOKABLE void transportIndicator(bool isOk);//传输指示灯
+
+
     void closeQuickView();
 
 protected:
     void closeEvent(QCloseEvent *event);
+signals:
+    void getSerialData();
+    void getTcpData();
 
 public slots:
     void widgetExit();
+    void closeLogInView();
     void loginWidgetShow();
     void settingWindowShow();
     void logWidgetClose();
@@ -59,9 +72,15 @@ public slots:
     void startReset();
     void clearVoice();//
     void setIndicatorState(bool isOk);
-
+    void resetLoginState(bool isOk);
+    void resetLoginViewShow();
+    void resetLoginViewClose();
+    void setControlCenterEnable(bool enable);
+    void closeControlCenterHeartbeat();
+    void reSendAllCmd();
+    void closeAll();
    /*测试*/
-  void sendSeralData();
+    void sendSeralData();
 
 private:
     void closeSys();
@@ -69,9 +88,16 @@ private:
     void alarmDataOnTable();
     bool setSysTime(const QDateTime &dateTime);
     void sendFireInfo(quint8 extNum, quint8 loopNum, quint8 addrNum, const QString &dateTimeStr);
-    void setMySqlInfo();
     void reSendCmd(quint8 packageNum);//重传指令
     void startProcess(const QString &cmd);
+    void resetAllState();
+    void sendControlCenterHeartbeat();
+    void sendAlarmInfo(quint8 sysNum,quint8 alarmType,quint8 alarmState,quint8 runState,const QString &timeStr);
+    void sendPowerState(quint8 sysNum, quint8 mainPowerState, quint8 reservationState,quint8 runState, const QString &timeStr);
+    void sendHandOrAutoState(quint8 sysNum, quint8 handOrAutoState,quint8 runState, const QString &timeStr);
+    void setTransportState();
+    void setIndicator(bool state);
+
 
 private:
     QWidget *m_alarmContainer;
@@ -79,11 +105,17 @@ private:
     ArchitePlanView *m_architePlanView;
     InfoTableView*m_infoTableView;
     QQuickView *m_loginQuickView;
+    QQuickView *m_closeLoginView;
+    QQuickView *m_resetLoginQuickView;
     QQuickView *m_alarmQuickView;
     QQuickView *m_settingView;
     QQuickView *m_infoQueryView;
+    QObject *m_settingObj;
     SqlManager *m_sqliteManager;
     QObject *m_alarmObj;
+    QObject *m_resetLoginObj;
+    QObject *m_loginObj;
+    QObject *m_closeLoginObj;
     QString m_alarmInfoDbName;
     AbstractDataProtocol *m_serialDataProtocol;
     AbstractDataProtocol *m_monitoringProtocol;
@@ -93,14 +125,25 @@ private:
     CustomTimer *m_controlCenterHeartbeatTimer;
     int m_heartbeatIndex;
     bool m_tcpIsConnected;
-    QList<quint8>m_packageNumList;
-    const int c_heartBeatTime = 35*1000;
+    //QList<quint8>m_packageNumList;
+    const int c_heartBeatTime = 30*1000;
     bool m_serialConnected;
     CustomTimer *m_mainHeartBeatTimer;
+    CustomTimer *m_checkSendDataTimer;
     QString m_alarmSqlInfo;
+    QString m_updateAlarmSqlInfo;
     QProcess m_process;
+    bool m_sendEnable;
+    SerialState m_serialConnectState;
+    bool m_tcpConnectState;
+    bool m_serialCurState;
+   // QTcpSocket *m_controlCenterSocket;
+    quint8 m_packageNum;
+    QHash<quint8,QString>m_sysNameHash;
+    QHash<int,bool>m_sendPackageStateHash;
+    QHash<int,QDateTime> m_dataTimeHash;
+    bool m_sendDataResult;
 
-//    QHash<QString,int>m_packageNumHash;
 };
 
 #endif // CRTWIDGET_H

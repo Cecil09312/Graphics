@@ -9,10 +9,11 @@ import operatorInfo 1.0
 import speechObj 1.0
 
 Item {
-    width: 480
-    height: 560
+    width: 320
+    height: 360
 
     GroupBox {
+        id:mysqlGroupBox
         title: qsTr("MySql数据库设置")
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
@@ -83,23 +84,19 @@ Item {
             Row {
 
                 spacing: 5
-                Button {
-                    id: saveBtn
-                    text: qsTr("保存")
+
+
+                NaviButton {
+                    id: connectBtn
+                    text: qsTr("保存并连接")
                     onClicked: {
+
                         ArchitePlanView.saveMySqlInfo(
                                     hostTextField.text, userNameTextField.text,
                                     passwordTextField.text,
                                     databaseNameTextField.text,
                                     parseInt(portTextField.text))
-                    }
-                }
 
-                Button {
-                    id: connectBtn
-                    text: qsTr("连接")
-
-                    onClicked: {
                         MySqlManager.hostName = hostTextField.text
                         MySqlManager.userName = userNameTextField.text
                         MySqlManager.password = passwordTextField.text
@@ -107,7 +104,7 @@ Item {
                         MySqlManager.port = parseInt(portTextField.text)
                         MySqlManager.close()
                         MySqlManager.open()
-                        console.log(MySqlManager.isOpen())
+                       // console.log(MySqlManager.isOpen())
                         if (!MySqlManager.isOpen()) {
                             OperatorInfo.insertEvent(qsTr("数据库连接"),
                                                      qsTr("失败"))
@@ -144,7 +141,7 @@ Item {
                     }
                 }
 
-                Button {
+                NaviButton {
                     id: closeBtn
                     text: qsTr("关闭")
                     onClicked: {
@@ -167,6 +164,8 @@ Item {
                 horizontalAlignment: Text.AlignHCenter
             }
         }
+
+
     }
 
     Component.onCompleted: {
@@ -175,5 +174,70 @@ Item {
         passwordTextField.text = MySqlManager.password
         databaseNameTextField.text = MySqlManager.databaseName
         portTextField.text = String("%1").arg(MySqlManager.port)
+
     }
+
+
+    function setGropBoxEnable(isEnable)
+    {
+        mysqlGroupBox.enabled = isEnable;
+    }
+    function setConnectStateText(txt,color)
+    {
+       connectStateText.text = txt
+       connectStateText.color = color
+    }
+
+    Connections
+    {
+        target: MySqlManager
+        onDataCommitSuccess:
+        {
+            if(!isSuccessful)
+            {
+                if (!SpeechObj.alarmTextExist(qsTr("数据库连接失败"))) {
+                    SpeechObj.insertAlarmText(qsTr("数据库连接失败"))
+                }
+                connectStateText.text = qsTr("数据库连接:失败")
+                connectStateText.color = "red"
+            }
+        }
+//        onDbConnected:
+//        {
+
+//            if (!isConnected) {
+//                OperatorInfo.insertEvent(qsTr("数据库连接"),
+//                                         qsTr("失败"))
+//                if (!SpeechObj.alarmTextExist(
+//                            qsTr("数据库连接失败"))) {
+//                    SpeechObj.insertAlarmText(qsTr("数据库连接失败"))
+//                }
+
+//                connectStateText.text = qsTr("数据库连接:失败")
+//                connectStateText.color = "red"
+//            } else {
+//                OperatorInfo.insertEvent(qsTr("数据库连接"),
+//                                         qsTr("成功"))
+//                SpeechObj.removeAlarmText(qsTr("数据库连接失败"))
+
+//                if (!MySqlManager.tableIsExist("sys_status")) {
+//                    MySqlManager.executeQuery(
+//                                "create table sys_status ( sys_name text,main_power text,prepare_power text,hand_auto_state text,run_state text);")
+//                }
+
+//                if (!MySqlManager.tableIsExist("alarm_info")) {
+//                    MySqlManager.executeQuery(
+//                                "create table alarm_info ( sys_name text,device_num text,alarm_type text,current_state text,alarm_time text);")
+//                }
+
+//                if (!MySqlManager.tableIsExist("fault_state")) {
+//                    MySqlManager.executeQuery(
+//                                "create table fault_state ( sys_name text,fault_type text,fault_state text,run_state text);")
+//                }
+
+//                connectStateText.text = qsTr("数据库连接:成功")
+//                connectStateText.color = "green"
+//            }
+//        }
+  }
 }

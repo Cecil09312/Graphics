@@ -6,11 +6,14 @@ import QtQuick.Window 2.3
 import userManager 1.0
 import QtQuick.Dialogs 1.2
 import operatorInfo 1.0
-
+import "../infoSetting"
 Rectangle {
     id: loginWindow
     width: 480
     height: 240
+    property bool loginState: false
+    signal startClose()
+    signal closeView()
     GridLayout {
         id: gridLayout
         anchors.verticalCenter: parent.verticalCenter
@@ -25,7 +28,7 @@ Rectangle {
         }
         ComboBox {
             id: userRightComboBox
-            model: ["超级用户", "工程人员", "员工"]
+            model: ["超级用户", "管理员", "普通用户"]
             Layout.row: 0
             Layout.column: 1
             Layout.fillWidth: true
@@ -76,7 +79,7 @@ Rectangle {
             Layout.column: 1
             spacing: 5
             Layout.topMargin: 10
-            Button {
+            NaviButton {
                 text: qsTr("登陆")
                 onClicked: {
                     var passwordStr = new String
@@ -85,15 +88,15 @@ Rectangle {
                         userRight = UserManager.Super
                         passwordStr = UserManager.password(UserManager.Super,
                                                            "super")
-                    } else if (userRightComboBox.currentText === qsTr("工程人员")) {
-                        userRight = UserManager.Engineer
+                    } else if (userRightComboBox.currentText === qsTr("管理员")) {
+                        userRight = UserManager.Administrator
                         passwordStr = UserManager.password(
-                                    UserManager.Engineer,
+                                    UserManager.Administrator,
                                     userNameTextField.text)
-                    } else if (userRightComboBox.currentText === qsTr("员工")) {
-                        userRight = UserManager.Employee
+                    } else if (userRightComboBox.currentText === qsTr("普通用户")) {
+                        userRight = UserManager.User
                         passwordStr = UserManager.password(
-                                    UserManager.Employee,
+                                    UserManager.User,
                                     userNameTextField.text)
                     }
 
@@ -107,17 +110,19 @@ Rectangle {
                         }
                         OperatorInfo.insertEvent(qsTr("用户登陆"))
                         infoMessageDialog.open()
+                        loginState = true
                     } else {
                         OperatorInfo.insertEvent(qsTr("用户登陆"), qsTr("失败"))
                         criticalMessageDialog.open()
+                        loginState = false
                     }
                 }
             }
 
-            Button {
+            NaviButton {
                 text: qsTr("退出")
                 onClicked: {
-                    CrtWidget.logWidgetClose()
+                    emit:closeView()
                 }
             }
         }
@@ -138,7 +143,9 @@ Rectangle {
         text: qsTr("密码输入正确!登陆成功!")
         icon: StandardIcon.Information
         onYes: {
-            CrtWidget.logWidgetClose()
+            //CrtWidget.logWidgetClose()
+            emit:closeView()
+            emit:startClose()
         }
     }
 
@@ -150,5 +157,10 @@ Rectangle {
     function clearLoginInfo() {
         userNameTextField.clear()
         passwordTextField.clear()
+        loginState = false
+    }
+    function getLoginState()
+    {
+       return loginState
     }
 }

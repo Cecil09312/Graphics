@@ -20,7 +20,7 @@ GraphicsView::GraphicsView(QWidget *parent, int type):
     //m_alarmStringList << "火警"<<"启动" << "监管" << "故障"<<"反馈" <<"屏蔽";
     if(m_viewType==ArthitePlan)
     {
-       // setContextMenuPolicy(Qt::CustomContextMenu);
+        // setContextMenuPolicy(Qt::CustomContextMenu);
         m_scene = new GraphicsScene(this);
         setScene(m_scene);
         m_scene->addItem(m_svgItem);
@@ -128,7 +128,7 @@ bool GraphicsView::haveAlarmType(const QString &type)
         GraphicsItem*currentItem=  dynamic_cast<GraphicsItem*>(item);
         if(currentItem!=nullptr)
         {
-            if(currentItem->currentState()==type)
+            if(currentItem->currentState()!=tr("正常")&&currentItem->alarmType().endsWith(type))
             {
                 haveAlarm = true;
                 break;
@@ -164,6 +164,55 @@ QGraphicsScene *GraphicsView::currentGraphicsScene(int type)
     {
         return m_sysViewScene;
     }
+}
+
+void GraphicsView::addGraphicsTextItem(const QPointF &pointF,const QString &alarmType)
+{
+    if(m_textItemHash.value(alarmType)==nullptr)
+    {
+        QGraphicsTextItem *textItem = new QGraphicsTextItem;
+        QFont font(tr("宋体"),12);
+        textItem->setFont(font);
+        textItem->setDefaultTextColor(QColor(Qt::red));
+        textItem->setPlainText(tr("首")+alarmType);
+        m_scene->addItem(textItem);
+        m_textItemHash[alarmType] = textItem;
+        textItem->setPos(pointF);
+    }
+
+}
+
+void GraphicsView::removeGraphicsTextItem(const QString &alarmType)
+{
+
+    QGraphicsTextItem *item= m_textItemHash.value(alarmType);
+    if(item!=nullptr)
+    {
+        m_textItemHash.remove(alarmType);
+        m_scene->removeItem(item);
+        delete item;
+        item = nullptr;
+    }
+    // textItem->setPos(pointF);
+}
+
+void GraphicsView::clearGraphicsTextItem()
+{
+    foreach (QGraphicsTextItem*item, m_textItemHash.values())
+    {
+        if(item!=nullptr)
+        {
+            m_scene->removeItem(item);
+            delete item;
+            item = nullptr;
+        }
+    }
+    m_textItemHash.clear();
+}
+
+QGraphicsTextItem *GraphicsView::textItem(const QString &alarmType)
+{
+    return m_textItemHash.value(alarmType);
 }
 
 void GraphicsView::loadPixmap(const QString &fileName)

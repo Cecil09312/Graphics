@@ -8,6 +8,7 @@
 #include "abstractconfiguration.h"
 #include "abstractlink.h"
 #include "serialconfiguration.h"
+#include <QMutex>
 
 class SerialLink : public AbstractLink
 {
@@ -29,7 +30,9 @@ private :
     QSerialPort::FlowControl m_flowControl;
     QSerialPort::Parity m_parity;
     bool m_isOpen;
+    QMutex m_mutex;
     Configuration m_serialConfiguration;
+    QList<QByteArray>m_sendArrayList;
 };
 
 #endif // COMMOBJ_H

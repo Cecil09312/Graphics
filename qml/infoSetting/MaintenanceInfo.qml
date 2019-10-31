@@ -170,7 +170,7 @@ Rectangle {
         }
     }
 
-    Button {
+    NaviButton {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: selectInfoRow.bottom
         anchors.topMargin: 5

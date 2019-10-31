@@ -8,19 +8,18 @@
 #include <QSvgGenerator>
 #include <QGraphicsView>
 #include <qmath.h>
-int GraphicsItem::m_num =1;
-
+qreal GraphicsItem::s_radius =15.0;
 GraphicsItem::GraphicsItem(GraphicsScene *scene):
-    m_radius(15.0),
+
     m_channelNum(0),
     m_analogType(tr("无")),
     m_itemTextIsVisiable(true)
 
 {
+    m_radius=s_radius;
     m_graphicsScene = scene;
-    //m_itemInfo.m_currentState = tr("正常");
     m_itemInfo.m_manufacturers = tr("北京利达华信电子有限公司");
-    m_itemInfo.m_networkNum = "0";
+   // m_itemInfo.m_networkNum = "0";
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);
     m_colorEffect = new QGraphicsColorizeEffect(this);
@@ -29,7 +28,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_colorEffect->setStrength(0.0);
     setProperty("color",m_color);
     setProperty("scale",m_scale);
-    setProperty("angle",m_angle);
+   // setProperty("angle",m_angle);
     m_colorAnimation = new QPropertyAnimation(this,"color");
     m_colorAnimation->setStartValue(QColor(Qt::black));
     m_colorAnimation->setEndValue(QColor(Qt::red));
@@ -41,21 +40,27 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_scaleAnimation->setDuration(1000);
     m_scaleAnimation->setLoopCount(-1);
 
-    m_rotateAnimation = new QPropertyAnimation(this,"angle");
-    m_rotateAnimation->setDuration(500);
-    m_rotateAnimation->setLoopCount(-1);
-    m_rotateAnimation->setStartValue(-30);
-    m_rotateAnimation->setEndValue(30);
+//    m_rotateAnimation = new QPropertyAnimation(this,"angle");
+//    m_rotateAnimation->setDuration(500);
+//    m_rotateAnimation->setLoopCount(-1);
+//    m_rotateAnimation->setStartValue(-30);
+//    m_rotateAnimation->setEndValue(30);
 
     m_parallelAnimGroup = new QParallelAnimationGroup(this);
     m_parallelAnimGroup->addAnimation(m_colorAnimation);
-    m_parallelAnimGroup->addAnimation(m_rotateAnimation);
+   // m_parallelAnimGroup->addAnimation(m_rotateAnimation);
+    m_parallelAnimGroup->addAnimation(m_scaleAnimation);
     m_parallelAnimGroup->setLoopCount(-1);
 
     m_itemTextFont.setPointSize(qFloor(m_radius/3));
-    m_itemTextFont.setFamily("Times New Roman");
+    m_itemTextFont.setFamily("宋体");
 
-    m_itemInfo.m_deviceNum = QString("%1").arg(m_num++);
+    QString num = QString("%1").arg(DataStore::itemNum());
+    m_itemInfo.m_deviceNum = num;
+    m_itemInfo.m_addrNum= num;
+    m_itemInfo.m_extNum = DataStore::extNum();
+    m_itemInfo.m_loopNum = DataStore::loopNum();
+    m_itemInfo.m_networkNum = DataStore::networkNum();
     int itemIconIndex = ItemIconInfoToJson::currentIconIndex();
     setInfoFromIconIndex(itemIconIndex);
     connect(m_colorAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &/*value*/)
@@ -77,16 +82,12 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
 //        }
     });
 
-    connect(m_rotateAnimation,&QPropertyAnimation::valueChanged,this,[=]()
-    {
-      qreal angle=  qvariant_cast<qreal>(m_rotateAnimation->currentValue());
-      setRotation(angle);
+//    connect(m_rotateAnimation,&QPropertyAnimation::valueChanged,this,[=]()
+//    {
+//      qreal angle=  qvariant_cast<qreal>(m_rotateAnimation->currentValue());
+//      setRotation(angle);
 
-//      if(m_graphicsScene!=nullptr)
-//      {
-//          m_graphicsScene->update();
-//      }
-    });
+//    });
 
 }
 
@@ -94,10 +95,8 @@ GraphicsItem::~GraphicsItem()
 {
 
     stopAnimations();
-    stopColorAnimation();
-    stopScaleAnimation();
     clearAlarmRecord();
-    stopRotationAnimation();
+    //stopRotationAnimation();
 }
 
 QRectF GraphicsItem::boundingRect() const
@@ -131,7 +130,7 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*optio
     {
         if(m_itemTextIsVisiable)
         {
-            painter->drawText(QRect(-m_radius,-m_radius,2*m_radius,2*m_radius),m_itemInfo.m_deviceNum);
+            painter->drawText(QRect(-m_radius,-m_radius,2*m_radius,2*m_radius),m_itemInfo.m_addrNum);
         }
 
         QRectF rectF = QRectF(-m_radius/1.25,-m_radius/1.25,m_radius*2,m_radius*2);
@@ -158,7 +157,7 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*optio
         }
         if(m_itemTextIsVisiable)
         {
-            painter->drawText(QRectF(-20,-20,40,40),m_itemInfo.m_deviceNum);
+            painter->drawText(QRectF(-20,-20,40,40),m_itemInfo.m_addrNum);
         }
 
 
@@ -182,37 +181,51 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*optio
 void GraphicsItem::setColor(const QColor &color)
 {
     m_color = color;
+    m_colorEffect->setColor(m_color);
+   // update();
 }
 
 void GraphicsItem::startAnimations()
 {
     m_colorEffect->setStrength(1.0);
-    m_parallelAnimGroup->start();
+    if(m_parallelAnimGroup->state()!=QParallelAnimationGroup::Running)
+    {
+        m_parallelAnimGroup->start();
+    }
 }
 
 void GraphicsItem::stopAnimations()
 {
     m_parallelAnimGroup->stop();
-    setRotation(0);
     stopScaleAnimation();
     stopColorAnimation();
+    restoreSize();
 }
 
 
 void GraphicsItem::startColorAnimation()
 {
-    setColorEffectStrength(1.0);
-    m_colorAnimation->start();
+    setColorEffectValue(1.0);
+    if(m_colorAnimation->state()!=QPropertyAnimation::Running)
+    {
+         m_colorAnimation->start();
+    }
+
 }
 
 void GraphicsItem::stopColorAnimation()
 {
     m_colorAnimation->stop();
+    setColorEffectValue(0.0);
 }
 
 void GraphicsItem::startScaleAnimation()
 {
-    m_scaleAnimation->start();
+    if(m_scaleAnimation->state()!=QPropertyAnimation::Running)
+    {
+        m_scaleAnimation->start();
+    }
+
 }
 
 void GraphicsItem::stopScaleAnimation()
@@ -220,21 +233,25 @@ void GraphicsItem::stopScaleAnimation()
     m_scaleAnimation->stop();
 }
 
-void GraphicsItem::startRotationAnimation()
-{
-    m_rotateAnimation->start();
-}
+//void GraphicsItem::startRotationAnimation()
+//{
+//    if(m_rotateAnimation->state()!=QPropertyAnimation::Running)
+//    {
+//        m_rotateAnimation->start();
+//    }
 
-void GraphicsItem::stopRotationAnimation()
-{
-    m_rotateAnimation->stop();
-    setRotation(0);
-}
+//}
 
-void GraphicsItem::setColorEffectStrength(qreal strength)
-{
-    m_colorEffect->setStrength(strength);
-}
+//void GraphicsItem::stopRotationAnimation()
+//{
+//    m_rotateAnimation->stop();
+//    setRotation(0);
+//}
+
+//void GraphicsItem::setColorEffectStrength(qreal strength)
+//{
+//    m_colorEffect->setStrength(strength);
+//}
 
 void GraphicsItem::setAnimationDuration(int duration)
 {
@@ -293,13 +310,13 @@ void GraphicsItem::restoreSize()
             currentTransform.scale(1.0/xScale,1.0/yScale);
             setTransform(currentTransform);
         }
-        update();
+       // update();
     }
-    qreal curRotation = rotation();
-    if(curRotation!=0)
-    {
-        setRotation(0);
-    }
+//    qreal curRotation = rotation();
+//    if(curRotation!=0)
+//    {
+//        setRotation(0);
+//    }
 }
 
 
@@ -316,6 +333,7 @@ qreal GraphicsItem::radius() const
 
 void GraphicsItem::setRadius(qreal radius)
 {
+    s_radius =radius;
     m_radius = radius;
     update();
 }
@@ -742,6 +760,7 @@ void GraphicsItem::removeAlarmRecord(const QString &alarmType, const QString &al
         {
             alarmRecord->m_alarmRecordReplyTime =alarmReplyTime;
             alarmRecord->m_alarmRecordState = tr("正常");
+
         }
     }
 
@@ -782,9 +801,10 @@ void GraphicsItem::setAlarmState(const QString &alarmType,const QString &alarmSt
 
 void GraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    if(Controller::instance()->getUserRight()==UserManager::Super)
+    if(Controller::instance()->getUserRight()!=UserManager::User&&ArchitePlanView::itemLimit())
     {
         setPos(event->scenePos());
+        emit moveToPos(event->scenePos());
         m_graphicsScene->update();
     }
 
@@ -800,22 +820,28 @@ void GraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 
 void GraphicsItem::updateHoverText()
 {
+    QString curType ;
+    if(currentState()==tr("正常")&&(!alarmType().isEmpty()))
+    {
+        curType =alarmType()+ tr("消除");
+    }
     QString hoverText = QString("分机号:%1\n"
                                 "回路号:%2\n"
                                 "地址号:%3\n"
                                 "网络号:%4\n"
                                 "设备编码:%5\n"
                                 "设备:%6\n"
-                                "报警状态:%7\n"
-                                "报警时间:%8\n"
-                                "系统:%9\n"
-                                "建筑名称:%10\n"
-                                "楼层:%11\n"
-                                "位置:%12\n"
-                                "制造商:%13\n"
-                                "有效期:%14\n"
-                                "操作员:%15").arg(m_itemInfo.m_extNum).arg(m_itemInfo.m_loopNum).arg(m_itemInfo.m_addrNum).arg(m_itemInfo.m_networkNum)
-            .arg(m_itemInfo.m_deviceNum).arg(m_itemInfo.m_equipmentModel).arg(currentState())
+                                "类型:%7\n"
+                                "状态:%8\n"
+                                "报警时间:%9\n"
+                                "系统:%10\n"
+                                "建筑名称:%11\n"
+                                "楼层:%12\n"
+                                "位置:%13\n"
+                                "制造商:%14\n"
+                                "有效期:%15\n"
+                                "操作员:%16").arg(m_itemInfo.m_extNum).arg(m_itemInfo.m_loopNum).arg(m_itemInfo.m_addrNum).arg(m_itemInfo.m_networkNum)
+            .arg(m_itemInfo.m_deviceNum).arg(m_itemInfo.m_equipmentModel).arg(curType).arg(currentState())
             .arg(alarmTime(alarmType())).arg(m_itemInfo.m_sysOfDevice).arg(m_itemInfo.m_buildingName)
             .arg(m_itemInfo.m_floorOfDevice).arg(m_itemInfo.m_deviceLocation).arg(m_itemInfo.m_manufacturers)
             .arg(m_itemInfo.m_periodOfValidity).arg(m_itemInfo.m_deviceOperator);

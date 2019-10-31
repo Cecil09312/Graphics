@@ -3,7 +3,7 @@
 #include <QDebug>
 UserManager::UserManager(QObject *parent)
     : QObject(parent),
-      m_userRight(UserManager::Employee),
+      m_userRight(UserManager::User),
       m_userName(tr("119"))
 {
     m_sqliteManager = SqlManager::fromDriver("SQLITE");
@@ -18,12 +18,13 @@ UserManager::UserManager(QObject *parent)
             if(tableNameList.isEmpty())
             {
                 m_sqliteManager->executeQuery("create table UserInfo(userRight text not null, userName text primary key not null,password text not null);");
-                m_sqliteManager->executeQuery("insert into UserInfo values('Employee','119','119')");
-                m_sqliteManager->executeQuery("insert into UserInfo values('Super','super','super')");
+                m_sqliteManager->executeQuery("insert into UserInfo values('普通用户','119','119')");
+                m_sqliteManager->executeQuery("insert into UserInfo values('超级用户','super','super')");
+                m_sqliteManager->executeQuery("insert into UserInfo values('管理员','admin','admin')");
             }
             else
             {
-                QStringList valueList=  m_sqliteManager->executeQuery("select password from UserInfo where userRight='Employee' and userName='employee'");
+                QStringList valueList=  m_sqliteManager->executeQuery("select password from UserInfo where userRight='普通用户'");
                 if(valueList.size()>0)
                 {
                     m_password = valueList.at(0);
@@ -43,13 +44,13 @@ QString UserManager::password(const UserManager::UserRight &right,const QString 
         switch (right)
         {
         case UserManager::Super:
-            valueList= m_sqliteManager->executeQuery(QString("select password from UserInfo where userRight='Super' and userName = '%1'").arg(userName));
+            valueList= m_sqliteManager->executeQuery(QString("select password from UserInfo where userRight='超级用户' and userName = '%1'").arg(userName));
             break;
-        case UserManager::Engineer:
-            valueList= m_sqliteManager->executeQuery(QString("select password from UserInfo where userRight='Engineer' and userName = '%1'").arg(userName));
+        case UserManager::Administrator:
+            valueList= m_sqliteManager->executeQuery(QString("select password from UserInfo where userRight='管理员' and userName = '%1'").arg(userName));
             break;
-        case UserManager::Employee:
-            valueList= m_sqliteManager->executeQuery(QString("select password from UserInfo where userRight='Employee' and userName = '%1'").arg(userName));
+        case UserManager::User:
+            valueList= m_sqliteManager->executeQuery(QString("select password from UserInfo where userRight='普通用户' and userName = '%1'").arg(userName));
             break;
         default:
             break;
@@ -69,13 +70,13 @@ void UserManager::setPassword(const UserManager::UserRight &right, const QString
         switch (right)
         {
         case UserManager::Super:
-            m_sqliteManager->executeQuery(QString("update UserInfo set password = '%1' where userRight = 'Super' and userName = '%2'").arg(userPassword).arg(userName));
+            m_sqliteManager->executeQuery(QString("update UserInfo set password = '%1' where userRight = '超级用户' and userName = '%2'").arg(userPassword).arg(userName));
             break;
-        case UserManager::Engineer:
-            m_sqliteManager->executeQuery(QString("update UserInfo set password = '%1' where userRight = 'Engineer' and userName = '%2'").arg(userPassword).arg(userName));
+        case UserManager::Administrator:
+            m_sqliteManager->executeQuery(QString("update UserInfo set password = '%1' where userRight = '管理员' and userName = '%2'").arg(userPassword).arg(userName));
             break;
-        case UserManager::Employee:
-            m_sqliteManager->executeQuery(QString("update UserInfo set password = '%1' where userRight = 'Employee' and userName = '%2'").arg(userPassword).arg(userName));
+        case UserManager::User:
+            m_sqliteManager->executeQuery(QString("update UserInfo set password = '%1' where userRight = '普通用户' and userName = '%2'").arg(userPassword).arg(userName));
             break;
         default:
             break;
@@ -115,11 +116,11 @@ void UserManager::addUser(const QString &userName, const UserManager::UserRight 
         case UserManager::Super:
 
             break;
-        case UserManager::Engineer:
-            m_sqliteManager->executeQuery(QString("insert into UserInfo values ('Engineer','%1','%2')").arg(userName).arg(password));
+        case UserManager::Administrator:
+            m_sqliteManager->executeQuery(QString("insert into UserInfo values ('管理员','%1','%2')").arg(userName).arg(password));
             break;
-        case UserManager::Employee:
-            m_sqliteManager->executeQuery(QString("insert into UserInfo values ('Employee','%1','%2')").arg(userName).arg(password));
+        case UserManager::User:
+            m_sqliteManager->executeQuery(QString("insert into UserInfo values ('普通用户','%1','%2')").arg(userName).arg(password));
             break;
         default:
             break;

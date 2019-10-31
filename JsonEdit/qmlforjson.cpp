@@ -19,8 +19,11 @@ void QmlForJson::writeFile(const QVariant &value,const QString &fileName)
         if(file.open(QIODevice::WriteOnly))
         {
             file.write(QJsonDocument::fromVariant(value).toJson());
+            QThread::msleep(50);
             file.close();
+
         }
+
     });
 
    future.waitForFinished();
@@ -38,6 +41,7 @@ QVariant QmlForJson::readFile(const QString &fileName)
             if(file.open(QIODevice::ReadOnly))
             {
                 value = QJsonDocument::fromJson(file.readAll()).toVariant();
+                QThread::msleep(50);
                 file.close();
             }
         }

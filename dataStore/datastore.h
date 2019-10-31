@@ -38,11 +38,19 @@ public:
      static QHash<QString,QList<DataInfo*> >&getTypeNoItemHash();
      static QString getTypeNoItemKey(DataInfo*dataInfo);
      static void deleteDataInfo(DataInfo*dataInfo);
-     static indexOfItem(const QString &extNum,const QString &loopNum,const QString &addrNum,const QString &networkNum,const QString &alarmType);
+     static int indexOfItem(const QString &extNum,const QString &loopNum,const QString &addrNum,const QString &networkNum,const QString &alarmType);
+     static int &itemNum();
+     static QString &loopNum();
+     static QString &extNum();
+     static QString &networkNum();
 
 private:
      static QHash<QString,QList<QGraphicsItem*> >m_typeItemHash;
      static QHash<QString,QList<DataInfo*> >m_typeNoItemHash;
+     static int s_itemNum;
+     static QString m_loopNum;
+     static QString m_extNum;
+     static QString m_networkNum;
 
 
 };

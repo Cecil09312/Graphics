@@ -84,7 +84,7 @@ TreeView::TreeView(QWidget *parent):
 
         m_rootPoint=  QWidget::mapFromGlobal(QCursor::pos());
         UserManager::UserRight userRight=   Controller::instance()->getUserRight();
-        if(userRight==UserManager::Super||userRight==UserManager::Engineer)
+        if(userRight==UserManager::Super||userRight==UserManager::Administrator)
         {
             QModelIndex index = indexAt(m_rootPoint);
             if(index.isValid())

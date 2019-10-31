@@ -3,7 +3,10 @@ import QtQuick.Controls 2.2
 import QtQuick.Controls 1.4 as Contral_1_4
 
 Rectangle {
+    signal setControlCenter(bool enable)
+    signal closeHeartbeat()
     id: rect
+
     visible: true
     width: 900
     height: 640
@@ -12,5 +15,15 @@ Rectangle {
         id: settingView
         anchors.fill: parent
         width: parent.width
+        onEnableControlCenter:
+        {
+            emit:setControlCenter(enable)
+        }
+        onHeartbeatClose:
+        {
+
+           emit:closeHeartbeat()
+        }
+
     }
 }

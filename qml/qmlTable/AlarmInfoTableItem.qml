@@ -5,7 +5,7 @@ import qmlTableModel 1.0
 import crtWidget 1.0
 import QtQuick.Dialogs 1.2
 import architePlanView 1.0
-
+import "../infoSetting"
 Item {
 
     Column {
@@ -66,15 +66,16 @@ Item {
 
             Text {
                 id: alarmInfoAlarmType
-                text: qsTr("报警类型")
+                text: qsTr("类型")
                 height: 30
                 horizontalAlignment: TextEdit.AlignLeft
                 verticalAlignment: TextEdit.AlignVCenter
             }
-            TextField {
-                id: alarmInfoAlarmTypeTextField
+            ComboBox {
+                id: alarmInfoAlarmTypeComboBox
                 height: 30
                 width: 100
+                model: ["火警","监管","启动","反馈","故障","屏蔽","火警消除","监管消除","启动消除","反馈消除","故障消除","屏蔽消除"]
             }
         }
         Row {
@@ -107,7 +108,7 @@ Item {
                 width: 150
                 placeholderText: qsTr("如:2050/01/01 00:00:00")
             }
-            Button {
+            NaviButton {
                 id: alarmInfoQueryBtn
                 text: qsTr("查询")
                 height: 30
@@ -115,24 +116,24 @@ Item {
                 onClicked: {
                     alarmInfoListModel.sqlCommit(
                                 String(
-                                    "select 分机号,回路号,地址号,网络号,系统,设备编码,设备,报警类型,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo where %1").arg(
+                                    "select 分机号,回路号,地址号,网络号,系统,设备编码,设备,类型,状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo where %1").arg(
                                     selectInfo()))
                 }
             }
 
-            Button {
+            NaviButton {
                 id: alarmInfoQueryAllBtn
                 text: qsTr("查询所有")
                 height: 30
-                width: 80
+                width: 100
                 onClicked: {
                     alarmInfoListModel.sqlCommit(
-                                "select 分机号,回路号,地址号,网络号,系统,设备编码,设备,报警类型,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo")
+                                "select 分机号,回路号,地址号,网络号,系统,设备编码,设备,类型,状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo")
                 }
             }
 
 
-            Button {
+            NaviButton {
                 id: alarmInfoDeleteBtn
                 text: qsTr("删除")
                 height: 30
@@ -146,7 +147,7 @@ Item {
                     }
                 }
             }
-            Button {
+            NaviButton {
                 id: alarmInfoClearBtn
                 text: qsTr("清空")
                 height: 30
@@ -210,13 +211,13 @@ Item {
 
         Controls1_4.TableViewColumn {
             role: "alarmType"
-            title: qsTr("报警类型")
+            title: qsTr("类型")
             width: 60
         }
 
         Controls1_4.TableViewColumn {
             role: "currentAlarmState"
-            title: qsTr("报警状态")
+            title: qsTr("状态")
             width: 60
         }
 
@@ -278,7 +279,7 @@ Item {
         dbConnectionName: "alarmInfoDb"
         dbPort: 888
         roleNameList: ["extNum", "loopNum", "addrNum", "networkNum", "deviceSys", "productNum", "deviceType", "alarmType", "currentAlarmState", "alarmTime", "rebackAlarmTime", "buildName", "floor", "deviceLocation", "operator"]
-        titleList: ["分机号", "回路号", "地址号", "网络号", "系统", "设备编码", "设备", "报警类型", "报警状态", "报警时间", "报警恢复时间", "建筑名称", "楼层", "位置", "操作员"]
+        titleList: ["分机号", "回路号", "地址号", "网络号", "系统", "设备编码", "设备", "类型", "状态", "报警时间", "报警恢复时间", "建筑名称", "楼层", "位置", "操作员"]
     }
     function selectInfo() {
         var info = new String
@@ -308,11 +309,11 @@ Item {
             }
             info += (qsTr("网络号=") + "'" + networkNumTextField.text + "'")
         }
-        if (alarmInfoAlarmTypeTextField.text.length > 0) {
+        if (alarmInfoAlarmTypeComboBox.currentText.length > 0) {
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("报警类型=") + "'" + alarmInfoAlarmTypeTextField.text + "'")
+            info += (qsTr("类型=") + "'" + alarmInfoAlarmTypeComboBox.currentText + "'")
         }
 
         if (alarmStartTimeTextField.text.length > 0) {
@@ -347,7 +348,7 @@ Item {
                                              ListView.Contain)
         alarmInfoListModel.setDbOpen(true)
         alarmInfoListModel.sqlCommit(
-                    "select 分机号,回路号,地址号,网络号,系统,设备编码,设备,报警类型,报警状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo")
+                    "select 分机号,回路号,地址号,网络号,系统,设备编码,设备,类型,状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo")
     }
 
     MessageDialog {

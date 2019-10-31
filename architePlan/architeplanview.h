@@ -33,7 +33,7 @@ public:
     int totalPage();//总页数
     int currentPage();//当前页
 
-    void eliminateAlarm(GraphicsItem *item,const QString &alarmType, const QString &alarmReplyTime);//消除报警
+    void eliminateAlarm(GraphicsItem *item, const QString &alarmType, const QString &alarmReplyTime);//消除报警
     void generateAlarm(const QString &alarmTypeName, const QString&alarmTime, GraphicsItem*item, bool isAnalog=false);
     void insertAlarmWidget(const QString &type,GraphicsView*view);
     void deleteAlarmWidget(const QString &type, GraphicsView *view);
@@ -61,15 +61,20 @@ public:
     void updateAlarmState(const QString &extNum, const QString &loopNum,
                           const QString &addressNum, const QString &networkNum,const QString &curAlarmState);//更新报警状态
     void closeQuickView();
+
+    Q_INVOKABLE static bool &itemLimit();
+    Q_INVOKABLE void setItemLimit(bool isOk);
+
     Q_INVOKABLE QString architeInfoDbName();
     Q_INVOKABLE void setGlobalArchitePixmap(const QString &pixmapName);
 
     Q_INVOKABLE void createAlarm(const QString &extNum, const QString &loopNum,
                                  const QString &addressNum, const QString &networkNum, const QString &alarmTypeName,
-                                 bool isAnalog=false, const QString &alarmTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));//生成报警
+                                 const QString& alarmState, const QString &alarmTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));//生成报警
 
     Q_INVOKABLE void clearAlarm();//清空报警
     Q_INVOKABLE void clearAlarmFromExtNum(const QString &extNum, const QString &rebackAlarmTime);//按照主机号清除报警
+    Q_INVOKABLE void clearExcptFireAlarm();
 
     Q_INVOKABLE void toAlarmView();
     Q_INVOKABLE void setCurrentAlarmType(const QString &type);//设置当前报警类型
@@ -78,6 +83,8 @@ public:
     Q_INVOKABLE void saveMySqlInfo(const QString &hostName,const QString &userName,
                                    const QString &password,const QString &databaseName,int port);//将数据保存到mysql数据库
     QString deviceSysName(const QString &extNum);//设备系统名
+    void clearAllGraphicsTextItem();
+
 
 signals:
     void alarmHappend(const QString &alarmType);
@@ -87,14 +94,17 @@ signals:
     void normalPage();
     void alarmItem(GraphicsItem *item,const QString &alarmType);
     void eliminateAlarmFromTable(GraphicsItem *item,const QString &alarmState);
-    void eliminateNoItemAlarm(DataInfo *info,const QString &time);
+    void eliminateNoItemAlarm(const QString&extNum,const QString &loopNum,const QString &addrNum,const QString networkNum,const QString &type,const QString &time);
     void clearAlarmFromTable();
     void editGlobalItem();
     void reduInstruction();
     void tabIndex(int index);
+    void keepStartState();
+    void clearTableAlarm();
     void alarmStateUpdate(const QString &extNum, const QString &loopNum,
                           const QString &addressNum, const QString &networkNum,const QString &curAlarmState);
     void findAlarmNum(int totalNum,int currentNum);
+
 
 public slots:
     void firstFireAlarm();
@@ -106,7 +116,7 @@ public slots:
     void viewsAutoSwitch();
     void startAutoSwitch(bool isAuto);
     void eliminateAlarm(const QString &extNum, const QString &loopNum,
-                        const QString &addrNum, const QString &networkNum, const QString &alarmType);//消除报警
+                        const QString &addrNum, const QString &networkNum,  const QString &alarmType);//消除报警
 
     void setItemSize(qreal size);
     void setItemIcon(QString iconName);
@@ -129,8 +139,12 @@ private:
     void setGlobalArchiteFromJson();
     void updateAlarmWidget(GraphicsView *currentView);
     void deleteAlarmWidget(GraphicsView *currentView);
-    void filterAlarm(GraphicsItem *item,const QString &alarmType);
-
+    void filterAlarm(GraphicsItem *item);
+    void filterAlarmView(GraphicsItem *item,const QString &alarmType);
+    void viewSwitch();
+    void startAlarmAnimation(const QString &alarmType);
+    void startAlarmAnimation(GraphicsItem*item);
+    void updateAlarmText(const QString &alarmType);
 
 private:
     TreeView *m_treeView;
@@ -166,6 +180,7 @@ private:
     QAction *m_analogAlarmAction;
     QAction *m_maintenanceAction;
     QAction *m_itemTextVisiableAction;
+    QAction *m_fitViewAction;
     QPointF m_currentPointF;
     QQuickView *m_itemSettingView;
     QQuickView *m_analogAlarmView;
@@ -173,7 +188,7 @@ private:
     QObject *m_itemSettingObj;
     QObject *m_analogAlarmObj;
     FirstFireAlarmInfoWidget*m_firstFireWidget;
-
+    static bool m_itemLimit;
 };
 
 #endif // ARCHITEPLANVIEW_H

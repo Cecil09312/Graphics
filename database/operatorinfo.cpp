@@ -88,14 +88,14 @@ void OperatorInfo::insertEvent(const QString &eventName,const QString &result)
     QString currentTime = QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss");
     switch (userRight)
     {
-    case UserManager::Employee:
-        userRightStr = "Employee";
+    case UserManager::User:
+        userRightStr = "普通用户";
         break;
-    case UserManager::Engineer:
-        userRightStr = "Engineer";
+    case UserManager::Administrator:
+        userRightStr = "管理员";
         break;
     case UserManager::Super:
-        userRightStr = "Super";
+        userRightStr = "超级用户";
         break;
     default:
         break;

@@ -22,7 +22,8 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
     m_globalItemSettingView->rootContext()->setContextProperty("GlobalItemSettingView",this);
     m_globalItemSettingView->setTitle(tr("建筑物信息设置界面"));
     m_globalItemObj = m_globalItemSettingView->rootObject();
-
+    m_globalItemSettingView->setMinimumSize(QSize(420,320));
+    m_globalItemSettingView->setMaximumSize(QSize(420,320));
     m_menu->addAction(m_removeItemAction);
     m_menu->addAction(m_removeSelectItemAction);
     m_menu->addAction(m_clearItemAction);
@@ -51,6 +52,7 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
 
     connect(m_removeSelectItemAction,&QAction::triggered,this,[=]()
     {
+
         QList<QGraphicsItem*>itemList =selectedItems();
 
         foreach (QGraphicsItem*currentItem, itemList)
@@ -96,6 +98,8 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
     });
     connect(m_clearItemAction,&QAction::triggered,this,[=]()
     {
+
+
         QList<QGraphicsItem*>itemList=  items();
         bool isHaveAlarm = false;
         foreach (QGraphicsItem*item, itemList)
@@ -118,6 +122,8 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
         {
             QMessageBox::warning(nullptr,tr("信息警告"),tr("有报警信息存在，不能被清空"));
         }
+
+
     });
     Q_ASSERT(m_globalItemObj);
     connect(m_globalItemObj,SIGNAL(setItemValue(qreal)),this,SLOT(setCurrentItemSize(qreal)));
@@ -138,13 +144,22 @@ void GlobalGraphicsScene::showMenu(const QPoint &point)
     GlobalGraphicsItem *item = dynamic_cast<GlobalGraphicsItem *>(graphicsItem);
 
     UserManager::UserRight userRight=   Controller::instance()->getUserRight();
-    if(userRight==UserManager::Super||userRight==UserManager::Engineer)
+    if(userRight==UserManager::Super||userRight==UserManager::Administrator)
     {
+
         if(items().size()>1)
         {
             if(item!=nullptr)
             {
-                m_removeItemAction->setEnabled(true);
+                if(ArchitePlanView::itemLimit())
+                {
+                    m_removeItemAction->setEnabled(true);
+                }
+                else
+                {
+                    m_removeItemAction->setEnabled(false);
+                }
+
                 m_editItemAction->setEnabled(true);
             }
             else
@@ -152,7 +167,15 @@ void GlobalGraphicsScene::showMenu(const QPoint &point)
                 m_removeItemAction->setEnabled(false);
                 m_editItemAction->setEnabled(false);
             }
-            m_clearItemAction->setEnabled(true);
+            if(ArchitePlanView::itemLimit())
+            {
+                m_clearItemAction->setEnabled(true);
+            }
+            else
+            {
+                m_clearItemAction->setEnabled(false);
+            }
+
         }
         else
         {
@@ -165,8 +188,17 @@ void GlobalGraphicsScene::showMenu(const QPoint &point)
         }
         else
         {
-            m_removeSelectItemAction->setEnabled(true);
+            if(ArchitePlanView::itemLimit())
+            {
+                m_removeSelectItemAction->setEnabled(true);
+            }
+            else
+            {
+                m_removeSelectItemAction->setEnabled(false);
+            }
+
         }
+
     }
     else
     {
@@ -189,6 +221,28 @@ void GlobalGraphicsScene::showMenu(const QPoint &point)
 GlobalGraphicsItem * GlobalGraphicsScene::addGlobalGraphicsItem(QPointF point)
 {
     GlobalGraphicsItem *item = new GlobalGraphicsItem(this);
+    QList<QGraphicsItem*> curItemList= items();
+    int curNum=0,num=0;
+    if(curItemList.size()<=1)
+    {
+        m_num = 0;
+    }
+    foreach (QGraphicsItem*curItem, curItemList)
+    {
+        GlobalGraphicsItem *gItem = dynamic_cast<GlobalGraphicsItem *>(curItem);
+        if(gItem!=nullptr)
+        {
+            QString buildName=  gItem->buildName();
+            if(buildName.endsWith(tr("号楼")))
+            {
+                int len = QString(tr("号楼")).size();
+                int size = buildName.size();
+                curNum = buildName.left(size-len).toInt();
+                num = qMax(num,curNum);
+                m_num = num;
+            }
+        }
+    }
     m_num++;
     item->setBuildName(QString(tr("%1号楼")).arg(m_num));
     item->setPos(point);
@@ -324,10 +378,14 @@ void GlobalGraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
     if(event->button()==Qt::LeftButton)
     {
         UserManager::UserRight userRight=  Controller::instance()->getUserRight();
-        if(userRight==UserManager::Super|| userRight==UserManager::Engineer)
+        if(userRight==UserManager::Super|| userRight==UserManager::Administrator)
         {
-            GlobalGraphicsItem*item=  addGlobalGraphicsItem(event->scenePos());
-            emit addGlobalItem(item);
+            if(ArchitePlanView::itemLimit())
+            {
+                GlobalGraphicsItem*item=  addGlobalGraphicsItem(event->scenePos());
+                emit addGlobalItem(item);
+            }
+
         }
     }
 }

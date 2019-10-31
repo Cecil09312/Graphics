@@ -1,13 +1,17 @@
 ﻿import QtQuick 2.9
 import QtQuick.Controls 2.2
 import QtQuick.Controls 1.4 as Controls1_4
+
 import "qrc:/qml/infoSetting"
 import "qrc:/qml/databaseSetting"
+
 import QtQuick.Controls.Styles 1.4
 
 Controls1_4.TabView {
 
     anchors.fill: parent
+    signal enableControlCenter(bool enable)
+    signal heartbeatClose()
     Controls1_4.Tab {
         title: qsTr("串口设置")
         id: serialPortSettingTab
@@ -67,18 +71,30 @@ Controls1_4.TabView {
     }
 
     Controls1_4.Tab {
-        title: qsTr("网络设置")
-        NetworkSetting {
-            id: networkSetting
+        title: qsTr("中心通信设置")
+
+        ControlCenterSetting{
+            id: controlCenteSetting
+
+            onSetControlCenterEnable:
+            {
+                emit:enableControlCenter(enable)
+            }
+            onCloseControlCenterHeartbeat:
+            {
+              emit:heartbeatClose()
+            }
         }
     }
 
-    Controls1_4.Tab {
-        title: qsTr("数据库设置")
-        MySqlSetting {
-            id: mySqlSettinng
-        }
-    }
+//    Controls1_4.Tab {
+//        title: qsTr("数据库设置")
+
+//        MySqlSetting{
+//            id: mysqlSetting
+//        }
+//    }
+
     style: TabViewStyle {
         frameOverlap: 1
         tab: Rectangle {

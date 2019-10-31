@@ -47,6 +47,7 @@ public:
 
 signals:
    void dataCommitSuccess(bool isSuccessful);
+   void dbConnected(bool isConnected);
 public slots:
 
 protected:

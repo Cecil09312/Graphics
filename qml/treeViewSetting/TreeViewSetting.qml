@@ -6,6 +6,7 @@ import QtQuick.Window 2.3
 import Qt.labs.platform 1.0
 import operatorInfo 1.0
 import controller 1.0
+import "../infoSetting"
 
 Rectangle {
     id: treeViewSettingRec
@@ -31,7 +32,7 @@ Rectangle {
             inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase
                               | Qt.ImhSensitiveData | Qt.ImhNoPredictiveText
         }
-        Button {
+        NaviButton {
             id: primaryArchiteBtn
             Layout.row: 0
             Layout.column: 2
@@ -58,7 +59,7 @@ Rectangle {
             Layout.row: 1
             Layout.column: 1
         }
-        Button {
+        NaviButton {
             id: primArchImageBtn
             Layout.row: 1
             Layout.column: 2
@@ -74,12 +75,12 @@ Rectangle {
         //            Layout.topMargin: 10
         //            spacing: 5
 
-        //            Button {
+        //            NaviButton {
         //                id: saveBtn
         //                text: qsTr("保存")
         //            }
 
-        //            Button {
+        //            NaviButton {
         //                id: quitBtn
         //                text: qsTr("退出")
         //                onClicked: {

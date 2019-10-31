@@ -40,6 +40,7 @@ private:
     GlobalGraphicsScene *m_scene;
     QString m_iconName;
     qreal m_radius;
+
     QString m_hoverText;
     QString m_buildName;
     QString m_personOnDuty;

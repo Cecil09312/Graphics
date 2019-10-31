@@ -21,10 +21,11 @@
         <file>qml/infoSetting/SpeechSetting.qml</file>
         <file>qml/infoSetting/MaintenanceInfo.qml</file>
         <file>qml/itemSetting/GlobalItemSetting.qml</file>
-        <file>qml/infoSetting/NetworkSetting.qml</file>
         <file>qml/qmlTable/MaintInfoTableItem.qml</file>
         <file>qml/itemSetting/AnalogAlarmItem.qml</file>
         <file>qml/qmlTable/AnalogTableItem.qml</file>
         <file>qml/databaseSetting/MySqlSetting.qml</file>
+        <file>qml/logInWindow/ResetLoginItem.qml</file>
+        <file>qml/infoSetting/ControlCenterSetting.qml</file>
     </qresource>
 </RCC>

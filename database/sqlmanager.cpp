@@ -84,7 +84,7 @@ bool SqlManager::insertBatch(const QString &tableName, const QList<QVariant> &va
             sqlStr+=")";
             QSqlQuery query(d->m_database);
             d->m_database.transaction();
-
+            QThread::msleep(10);
             query.prepare(sqlStr);
             foreach (QVariant value, valueList)
             {
@@ -104,32 +104,45 @@ bool SqlManager::insertBatch(const QString &tableName, const QList<QVariant> &va
 QStringList SqlManager::executeQuery(const QString &sql)
 {
     QStringList valueList;
-
+    bool isTransaction= false;
     QFuture<void> future = QtConcurrent::run([&]
     {
 
-       if(d->m_database.isOpen())
+        if(d->m_database.isOpen())
         {
             QSqlQuery query(d->m_database);
-            d->m_database.transaction();
-            query.prepare(sql);
-            query.exec();
-            QSqlRecord record = query.record();
-            while (query.next())
+            isTransaction=d->m_database.transaction();
+            QThread::msleep(10);
+            if(isTransaction)
             {
-                for(int i=0;i<record.count();i++)
+                query.prepare(sql);
+                query.exec();
+                QSqlRecord record = query.record();
+                while (query.next())
                 {
-                    valueList.push_back(query.value(i).toString());
+                    for(int i=0;i<record.count();i++)
+                    {
+                        valueList.push_back(query.value(i).toString());
+                    }
                 }
+                d->m_database.commit();
+                query.finish();
             }
-            d->m_database.commit();
-            query.finish();
+            else
+            {
+                QThread::msleep(200);
+            }
+//            else
+//            {
+//                close();
+//            }
 
         }
-       if(sql.startsWith("insert")||sql.startsWith("update"))
-       {
-           emit dataCommitSuccess(d->m_database.isOpen());
-       }
+
+        if(sql.startsWith("insert")||sql.startsWith("update"))
+        {
+            emit dataCommitSuccess(isTransaction);
+        }
     });
 
     future.waitForFinished();
@@ -157,8 +170,9 @@ SqlManager*SqlManager::fromDriver(const QString &driver)
 
 bool SqlManager::open()
 {
-    return d->m_database.open();
-
+    bool isOpen = d->m_database.open();
+    emit dbConnected(isOpen);
+    return isOpen;
 }
 
 bool SqlManager::isOpen() const
@@ -169,6 +183,7 @@ bool SqlManager::isOpen() const
 void SqlManager::close()
 {
     d->m_database.close();
+    emit dbConnected(false);
 }
 
 bool SqlManager::tableIsExist(const QString &tableName)

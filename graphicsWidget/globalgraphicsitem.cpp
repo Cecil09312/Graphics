@@ -3,7 +3,7 @@
 #include "control/controller.h"
 #include <QDebug>
 GlobalGraphicsItem::GlobalGraphicsItem(GlobalGraphicsScene *scene)
-    :m_radius(20.0)
+    :m_radius(40.0)
 {
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);
@@ -17,7 +17,7 @@ GlobalGraphicsItem::GlobalGraphicsItem(GlobalGraphicsScene *scene)
     m_propertyAnimation->setEndValue(1.2);
     m_propertyAnimation->setLoopCount(-1);
     m_font.setPointSize(qFloor(m_radius/4));
-    m_font.setFamily("Times New Roman");
+    m_font.setFamily("宋体");
     connect(m_propertyAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &value)
     {
         qreal scale =qvariant_cast<qreal> (value);
@@ -197,10 +197,14 @@ void GlobalGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 void GlobalGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     UserManager::UserRight userRight =   Controller::instance()->getUserRight();
-    if(userRight==UserManager::Super||userRight==UserManager::Engineer)
+    if(userRight==UserManager::Super||userRight==UserManager::Administrator)
     {
-        setPos(event->scenePos());
-        m_scene->update();
+        if(ArchitePlanView::itemLimit())
+        {
+            setPos(event->scenePos());
+            m_scene->update();
+        }
+
     }
 }
 

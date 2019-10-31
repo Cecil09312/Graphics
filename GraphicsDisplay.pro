@@ -74,7 +74,13 @@ SOURCES += \
     communication/indicatorlightcom.cpp \
     communication/indicatorlightconfiguration.cpp \
     architePlan/firstfirealarminfowidget.cpp \
-    customTimer/customtimer.cpp
+    customTimer/customtimer.cpp \
+    LogMsg/datapool.cpp \
+    LogMsg/debuglogmsg.cpp \
+    LogMsg/errorlogmsg.cpp \
+    LogMsg/infologmsg.cpp \
+    LogMsg/logmsg.cpp \
+    communication/tcpserver.cpp
 
 
 HEADERS += \
@@ -123,7 +129,13 @@ HEADERS += \
     communication/indicatorlightcom.h \
     communication/indicatorlightconfiguration.h \
     architePlan/firstfirealarminfowidget.h \
-    customTimer/customtimer.h
+    customTimer/customtimer.h \
+    LogMsg/datapool.h \
+    LogMsg/debuglogmsg.h \
+    LogMsg/errorlogmsg.h \
+    LogMsg/infologmsg.h \
+    LogMsg/logmsg.h \
+    communication/tcpserver.h
 
 FORMS +=
 

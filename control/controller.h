@@ -24,6 +24,8 @@
 #include "communication/indicatorlightcom.h"
 #include "database/mysqlmanager.h"
 #include <QFileInfo>
+#include "LogMsg/logmsg.h"
+#include "LogMsg/debuglogmsg.h"
 
 class Controller:public QObject
 {
@@ -33,6 +35,7 @@ public:
     ~Controller();
     Q_INVOKABLE QString fileNameFromQml(const QString &name);
     Q_INVOKABLE QString getFileNameFromUrl(const QString &url, bool isHasSuffix=false);
+
     AbstractLink *getCommObj();
     void setSysArchitePlanView(SysArchitePlanView*sysArchitePlanView);
     SysArchitePlanView *getSysArchitePlanView() const;
@@ -52,6 +55,7 @@ public:
     SqlManager *getMySqlManager();
     OperatorInfo *getOperatorInfo();
     TransportInfo *getTransportInfo();
+    LogMsg *getLogMsg();
      void delayMs(int ms);//非阻塞延时
 
 private:
@@ -73,6 +77,8 @@ private:
     QSharedPointer<OperatorInfo>m_operatorInfo;
     QSharedPointer<TransportInfo>m_transportInfo;
     SqlManager *m_mysqlManager;
+    QSharedPointer<LogMsg>m_logMsg;
+
 };
 
 #endif // CONTROLLER_H

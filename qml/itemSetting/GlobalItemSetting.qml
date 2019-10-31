@@ -4,11 +4,11 @@ import QtQuick.Controls 2.2
 import Qt.labs.platform 1.0
 import operatorInfo 1.0
 import controller 1.0
-
+import "../infoSetting"
 Rectangle {
 
-    width: 480
-    height: 360
+    width: 420
+    height: 320
     signal setItemValue(real value)
     property string buildName: ""
     property string personOnDuty: ""
@@ -29,7 +29,7 @@ Rectangle {
             Layout.column: 1
         }
 
-        Button {
+        NaviButton {
             id: buildNameSettingBtn
             Layout.row: 0
             Layout.column: 2
@@ -58,7 +58,7 @@ Rectangle {
             Layout.column: 1
         }
 
-        Button {
+        NaviButton {
             id: personOnDutySettingBtn
             Layout.row: 1
             Layout.column: 2
@@ -88,7 +88,7 @@ Rectangle {
             readOnly: true
         }
 
-        Button {
+        NaviButton {
             id: iconSelectBtn
             Layout.row: 2
             Layout.column: 2

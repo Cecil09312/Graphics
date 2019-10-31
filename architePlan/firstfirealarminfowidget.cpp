@@ -6,7 +6,7 @@ FirstFireAlarmInfoWidget::FirstFireAlarmInfoWidget(QWidget *parent)
     setWindowFlags(Qt::WindowStaysOnTopHint|Qt::WindowTitleHint);
     setWindowTitle(tr("首火警信息"));
     QLabel *titleLabel = new QLabel(tr("首火警信息"),this);
-    titleLabel->setFont(QFont("Times New Roman",12));
+    titleLabel->setFont(QFont("宋体",12));
     titleLabel->setAlignment(Qt::AlignHCenter);
     titleLabel->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
     m_firstFireBtn = new QPushButton(tr("首火警"),this);

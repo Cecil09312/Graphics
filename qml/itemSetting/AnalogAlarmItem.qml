@@ -1,13 +1,13 @@
 ﻿import QtQuick 2.0
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
-
-Item {
-    width: 560
-    height: 420
+import "../infoSetting"
+Rectangle {
+    width: 480
+    height: 480
     GridLayout {
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.horizontalCenter: parent.horizontalCenter
+       anchors.verticalCenter: parent.verticalCenter
+       anchors.horizontalCenter: parent.horizontalCenter
 
         Text {
             text: qsTr("分机号")
@@ -56,7 +56,7 @@ Item {
         }
 
         Text {
-            text: qsTr("报警状态")
+            text: qsTr("状态")
             Layout.row: 4
             Layout.column: 0
         }
@@ -65,10 +65,10 @@ Item {
             Layout.fillWidth: true
             Layout.row: 4
             Layout.column: 1
-            model: ["火警", "启动", "故障", "监管", "反馈", "屏蔽"]
+            model: ["火警", "监管","启动", "反馈","故障","屏蔽"]
         }
 
-        Button {
+        NaviButton {
 
             id: creatAlarmBtn
             Layout.row: 5
@@ -80,11 +80,9 @@ Item {
                                             loopNumTextField.text,
                                             addrNumTextField.text,
                                             networkNumTextField.text,
-                                            alarmStateComboBox.currentText,
-                                            true)
-                //                emit: createAlarm(extNumTextField.text, loopNumTextField.text,
-                //                                  addrNumTextField.text,networkNumTextField.text,
-                //                                  alarmStateComboBox.currentText)
+                                            qsTr("模拟")+alarmStateComboBox.currentText,
+                                            alarmStateComboBox.currentText)
+
             }
         }
 
@@ -95,7 +93,7 @@ Item {
             columns: 2
             Layout.fillWidth: true
 
-            Button {
+            NaviButton {
 
                 id: deleteAlarmBtn
                 text: qsTr("报警恢复")
@@ -108,13 +106,13 @@ Item {
                 }
             }
 
-            Button {
+            NaviButton {
 
                 id: clearAlarmBtn
 
                 text: qsTr("报警清除")
                 onClicked: {
-                    //emit: clearAlarm(true)
+
                     ArchitePlanView.clearAlarm()
                 }
             }

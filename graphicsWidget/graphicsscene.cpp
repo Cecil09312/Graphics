@@ -75,8 +75,14 @@ void GraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
     {
         if(Controller::instance()->getUserRight()==UserManager::Super)
         {
-            if(ItemIconInfoToJson::currentIconIndex()>=0)
-                addGraphicsItem(event->scenePos().x(),event->scenePos().y());
+            if(ArchitePlanView::itemLimit())
+            {
+                if(ItemIconInfoToJson::currentIconIndex()>=0)
+                {
+                    addGraphicsItem(event->scenePos().x(),event->scenePos().y());
+                }
+            }
+
         }
     }
 }
@@ -140,10 +146,12 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
         }
         else if(type=="extNum")
         {
+            DataStore::extNum()=info;
             currentItem->extNum() = info;
         }
         else if(type=="loopNum")
         {
+            DataStore::loopNum()=info;
             currentItem->loopNum() = info;
         }
         else if(type =="addrNum")
@@ -153,6 +161,7 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
 
         else if(type =="networkNum")
         {
+            DataStore::networkNum()=info;
             currentItem->networkNum()= info;
         }
         else if(type =="deviceNum")
@@ -356,9 +365,12 @@ void GraphicsScene::setItemInfo(GraphicsItem *item, const QHash<QString, QVarian
         QString pos= itemHash["pos"].toString();
         ItemInfo itemInfo;
         itemInfo.m_extNum= itemHash["extNum"].toString();
+        DataStore::extNum() = itemInfo.m_extNum;
         itemInfo.m_loopNum= itemHash["loopNum"].toString();
+        DataStore::loopNum() = itemInfo.m_loopNum;
         itemInfo.m_addrNum= itemHash["addrNum"].toString();
         itemInfo.m_networkNum= itemHash["networkNum"].toString();
+        DataStore::networkNum()=itemInfo.m_networkNum;
         itemInfo.m_deviceNum= itemHash["deviceNum"].toString();
         itemInfo.m_equipmentModel= itemHash["equipmentModel"].toString();
         //itemInfo.m_currentState= itemHash["currentState"].toString();

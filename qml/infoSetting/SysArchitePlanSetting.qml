@@ -27,7 +27,7 @@ Item {
             id: fireAlarmTextField
             readOnly: true
         }
-        Button {
+        NaviButton {
             id: fireAlarmBtn
             text: qsTr("选择图纸")
             onClicked: {
@@ -48,7 +48,7 @@ Item {
             id: linkageTextField
             readOnly: true
         }
-        Button {
+        NaviButton {
             id: linkageBtn
             text: qsTr("选择图纸")
             onClicked: {
@@ -69,7 +69,7 @@ Item {
             id: autoSprayWaterTextField
             readOnly: true
         }
-        Button {
+        NaviButton {
             id: autoSprayWaterBtn
             text: qsTr("选择图纸")
             onClicked: {
@@ -90,7 +90,7 @@ Item {
             id: fireCockTextField
             readOnly: true
         }
-        Button {
+        NaviButton {
             id: fireCockBtn
             text: qsTr("选择图纸")
             onClicked: {
@@ -111,7 +111,7 @@ Item {
             id: gasFireTextField
             readOnly: true
         }
-        Button {
+        NaviButton {
             id: gasFireBtn
             text: qsTr("选择图纸")
             onClicked: {
@@ -132,7 +132,7 @@ Item {
             id: waterSprayTextField
             readOnly: true
         }
-        Button {
+        NaviButton {
             id: waterSprayBtn
             text: qsTr("选择图纸")
             onClicked: {
@@ -153,7 +153,7 @@ Item {
             id: foamAndDryTextField
             readOnly: true
         }
-        Button {
+        NaviButton {
             id: foamAndDryBtn
             text: qsTr("选择图纸")
             onClicked: {
@@ -174,7 +174,7 @@ Item {
             id: smokeControlTextField
             readOnly: true
         }
-        Button {
+        NaviButton {
             id: smokeControlBtn
             text: qsTr("选择图纸")
             onClicked: {
@@ -195,7 +195,7 @@ Item {
             id: fireEmergencyLightingTextField
             readOnly: true
         }
-        Button {
+        NaviButton {
             id: fireEmergencyLightingBtn
             text: qsTr("选择图纸")
             onClicked: {
@@ -216,7 +216,7 @@ Item {
             id: evacuationTextField
             readOnly: true
         }
-        Button {
+        NaviButton {
             id: evacuationBtn
             text: qsTr("选择图纸")
             onClicked: {

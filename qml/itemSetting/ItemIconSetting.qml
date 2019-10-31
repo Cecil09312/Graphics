@@ -3,7 +3,7 @@ import QtQuick.Controls 2.2
 import Qt.labs.platform 1.0
 import itemIconInfoToJson 1.0
 import controller 1.0
-
+import "../infoSetting"
 Rectangle {
     width: 680
     height: 480
@@ -100,7 +100,7 @@ Rectangle {
                     }
                 }
 
-                Button {
+                NaviButton {
                     id: imageSettingBtn
                     width: 80
                     text: qsTr("选择图标")
@@ -171,6 +171,7 @@ Rectangle {
     Row {
         id: titleRow
         anchors.top: parent.top
+        anchors.bottomMargin: 20
         anchors.margins: 10
         spacing: 5
         Text {
@@ -178,14 +179,14 @@ Rectangle {
             width: 40
             // height: 40
             text: qsTr("图标")
-            font.family: "Times New Roman"
+            font.family: "宋体"
             font.pixelSize: 14
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
         }
         Text {
             id: deviceNameTxt
-            font.family: "Times New Roman"
+            font.family: "宋体"
             font.pixelSize: 14
             // height: 40
             width: 150
@@ -198,7 +199,7 @@ Rectangle {
             width: 160
             // height: 40
             text: qsTr("制造商")
-            font.family: "Times New Roman"
+            font.family: "宋体"
             font.pixelSize: 14
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
@@ -209,7 +210,7 @@ Rectangle {
             width: 150
             // height: 40
             text: qsTr("有效期")
-            font.family: "Times New Roman"
+            font.family: "宋体"
             font.pixelSize: 14
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
@@ -217,7 +218,7 @@ Rectangle {
 
         Text {
             id: pathTxt
-            font.family: "Times New Roman"
+            font.family: "宋体"
             font.pixelSize: 14
             width: 150
             text: qsTr("图标路径")
@@ -232,7 +233,6 @@ Rectangle {
         anchors.left: parent.left
         anchors.bottom: buttons.top
         anchors.right: parent.right
-        //anchors.margins: 10
         model: listModel
         delegate: listDelegate
     }
@@ -240,10 +240,10 @@ Rectangle {
         id: buttons
         anchors.bottom: parent.bottom
         anchors.left: parent.left
-        anchors.bottomMargin: 40
+        //anchors.bottomMargin: 40
         anchors.margins: 10
         spacing: 20
-        Button {
+        NaviButton {
             id: addItemBtn
             text: qsTr("增加项目")
             onClicked: {
@@ -259,7 +259,7 @@ Rectangle {
         }
 
 
-        Button {
+        NaviButton {
             id: batchInsertItemBtn
             text: qsTr("批量插入")
             onClicked: {
@@ -268,7 +268,7 @@ Rectangle {
             }
         }
 
-        Button {
+        NaviButton {
             id: saveBtn
             text: qsTr("保存")
             onClicked: {
@@ -276,7 +276,7 @@ Rectangle {
             }
         }
 
-        Button {
+        NaviButton {
             id: clearBtn
             text: qsTr("清空")
             onClicked: {

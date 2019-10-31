@@ -5,7 +5,7 @@ import qmlTableModel 1.0
 import crtWidget 1.0
 import QtQuick.Dialogs 1.2
 import architePlanView 1.0
-
+import "../infoSetting"
 Item {
 
     Grid {
@@ -96,7 +96,7 @@ Item {
                     "交流电压(V)"), qsTr("直流电压(V)")]
         }
 
-        Button {
+        NaviButton {
             id: infoQueryBtn
             text: qsTr("查询")
             height: 30
@@ -114,11 +114,11 @@ Item {
             }
         }
 
-        Button {
+        NaviButton {
             id: infoQueryAllBtn
             text: qsTr("查询所有")
             height: 30
-            width: 80
+            width: 100
             onClicked: {
                 Crt.sendAnalogCommand(
                             parseInt(networkNumTextField.text) & 0xff, parseInt(
@@ -130,7 +130,7 @@ Item {
             }
         }
 
-        Button {
+        NaviButton {
             id: infoDeleteBtn
             text: qsTr("删除")
             height: 30
@@ -147,7 +147,7 @@ Item {
             }
         }
 
-        Button {
+        NaviButton {
             id: infoClearBtn
             text: qsTr("清空")
             height: 30

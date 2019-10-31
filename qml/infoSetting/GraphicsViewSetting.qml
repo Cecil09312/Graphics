@@ -9,6 +9,7 @@ import architePlanView 1.0
 import qmlForJson 1.0
 import operatorInfo 1.0
 
+
 Item {
 
     //    width: 420
@@ -96,8 +97,53 @@ Item {
                         currentValue = value
                     }
                 }
+
             }
         }
+
+        GroupBox
+        {
+            id: itemLimitGroupBox
+            title: qsTr("添加、删除、移动图标权限设置")
+            Column
+            {
+
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+                CheckBox
+                {
+                    id:limitOpen
+                    text: qsTr("权限开启")
+                    onClicked:
+                    {
+                      ArchitePlanView.setItemLimit(checked)
+                    }
+
+                }
+
+                Text
+                {
+                  color: "red"
+                  font
+                  {
+                    family:qsTr("宋体")
+                    pointSize:12
+
+                  }
+
+                text:  qsTr("说明:1.添加图标:双击鼠标左键
+2.删除图标:在图标上点击鼠标右键，在弹出的菜单中选中删除
+3.移动图标:在图标上点鼠标左键，移动鼠标，图标也会跟着移动，释放鼠标左键图标位置即可确定。
+4.选中图标:在图标上点击一下鼠标左键，可以选中图标
+5.选中多个图标:按住键盘上的Ctrl键，在每个图标上面点击一下鼠标左键"
+                            )
+                }
+
+
+            }
+
+       }
+
 
         GroupBox {
             id: globalArchitePlanGroupBox
@@ -114,7 +160,7 @@ Item {
                     id: globalArchitePlanTextFiled
                     readOnly: true
                 }
-                Button {
+                NaviButton {
                     id: globalArchitePlanBtn
                     text: qsTr("选择路径")
                     onClicked: {

@@ -20,7 +20,7 @@ Item {
             id: managInstitutionsTextField
             readOnly: true
         }
-        Button {
+        NaviButton {
             id: managInstitutionsBtn
             text: qsTr("选择文件")
             onClicked: {
@@ -38,7 +38,7 @@ Item {
             id: sysAsbuiltDrawingsTextField
             readOnly: true
         }
-        Button {
+        NaviButton {
             id: sysAsbuiltDrawingsBtn
             text: qsTr("选择文件")
             onClicked: {
@@ -56,7 +56,7 @@ Item {
             id: logicalThatTextField
             readOnly: true
         }
-        Button {
+        NaviButton {
             id: logicalThatBtn
             text: qsTr("选择文件")
             onClicked: {
@@ -74,7 +74,7 @@ Item {
             id: equipmentInstTextField
             readOnly: true
         }
-        Button {
+        NaviButton {
             id: equipmentInstBtn
             text: qsTr("选择文件")
             onClicked: {
@@ -92,7 +92,7 @@ Item {
             id: sysProceduresTextField
             readOnly: true
         }
-        Button {
+        NaviButton {
             id: sysProceduresBtn
             text: qsTr("选择文件")
             onClicked: {
@@ -110,7 +110,7 @@ Item {
             id: emergencyPlanTextField
             readOnly: true
         }
-        Button {
+        NaviButton {
             id: emergencyPlanBtn
             text: qsTr("选择文件")
             onClicked: {
@@ -128,7 +128,7 @@ Item {
             id: onDutySysTextField
             readOnly: true
         }
-        Button {
+        NaviButton {
             id: onDutySysBtn
             text: qsTr("选择文件")
             onClicked: {
@@ -148,7 +148,7 @@ Item {
         }
 
 
-        Button {
+        NaviButton {
             id: maintainSysBtn
             text: qsTr("选择文件")
             onClicked: {
@@ -167,7 +167,7 @@ Item {
             readOnly: true
         }
 
-        Button {
+        NaviButton {
             id: maintainRecordBtn
             text: qsTr("选择文件")
             onClicked: {

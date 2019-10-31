@@ -9,6 +9,7 @@
 #include <QGraphicsPixmapItem>
 #include <QGraphicsSvgItem>
 #include <QSvgRenderer>
+#include <QGraphicsTextItem>
 class GraphicsView : public QGraphicsView
 {
 public:
@@ -21,6 +22,10 @@ public:
     bool haveAlarmType(const QString &type);
     bool haveAnyAlarm();
     QGraphicsScene* currentGraphicsScene(int type = ArthitePlan);
+    void addGraphicsTextItem(const QPointF &pointF, const QString &alarmType);
+    void removeGraphicsTextItem(const QString&alarmType);
+    void clearGraphicsTextItem();
+    QGraphicsTextItem *textItem(const QString&alarmType);
 
 public slots:
     static void zoom(qreal scaleValue);
@@ -44,6 +49,7 @@ private:
     QGraphicsSvgItem *m_svgItem;
     QString m_pixmapName;
     int m_viewType;
+    QHash<QString,QGraphicsTextItem*>m_textItemHash;
     //QStringList m_alarmStringList;
 };
 

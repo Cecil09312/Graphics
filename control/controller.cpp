@@ -19,6 +19,7 @@ Controller::~Controller()
     //m_speechObj.clear();
    //m_operatorInfo->deleteLater();
     m_operatorInfo.clear();
+    m_logMsg.clear();
 }
 
 QString Controller::fileNameFromQml(const QString &name)
@@ -57,6 +58,8 @@ QString Controller::getFileNameFromUrl(const QString &url, bool isHasSuffix)
         return  fileInfo.baseName();
     }
 }
+
+
 
 AbstractLink*Controller::getCommObj()
 {
@@ -106,7 +109,7 @@ UserManager::UserRight Controller::getUserRight()
     }
     else
     {
-        return UserManager::Employee;
+        return UserManager::User;
     }
 }
 
@@ -161,6 +164,11 @@ TransportInfo *Controller::getTransportInfo()
     return m_transportInfo.data();
 }
 
+LogMsg *Controller::getLogMsg()
+{
+    return m_logMsg.data();
+}
+
 void Controller::delayMs(int ms)
 {
     QTime dieTime = QTime::currentTime().addMSecs(ms);
@@ -176,6 +184,7 @@ Controller::Controller()
     m_commObj = QSharedPointer<AbstractLink>(new SerialLink(),&QObject::deleteLater);
     m_tcpObj = QSharedPointer<AbstractLink>(new TcpLink(),&QObject::deleteLater);
     m_IndicatorObj = QSharedPointer<AbstractLink>(new IndicatorLightCom,&QObject::deleteLater);
+    m_logMsg = QSharedPointer<LogMsg>(new DebugLogMsg(nullptr),&QObject::deleteLater);
     m_userManager =new UserManager(this);
     m_speechObj = new SpeechObj;
     m_serialConfigurationManager =QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new SerialConfiguration)),&QObject::deleteLater);

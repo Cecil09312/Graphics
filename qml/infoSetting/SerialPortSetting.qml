@@ -120,7 +120,7 @@ Rectangle {
                     enabled: false
                 }
 
-                Button {
+                NaviButton {
                     id: flushBtn
                     text: qsTr("刷新")
                     Layout.row: 6
@@ -132,7 +132,7 @@ Rectangle {
                     }
                 }
 
-                Button {
+                NaviButton {
                     id: saveBtn
                     text: qsTr("保存并打开")
                     Layout.row: 7
@@ -164,7 +164,7 @@ Rectangle {
                     }
                 }
 
-                Button {
+                NaviButton {
                     id: closeBtn
                     text: "关闭"
                     Layout.row: 8
@@ -264,7 +264,7 @@ Rectangle {
 //                    model: ["无"]
 //                }
 
-//                Button {
+//                NaviButton {
 //                    id: flushBtn1
 //                    text: qsTr("刷新")
 //                    Layout.row: 6
@@ -276,7 +276,7 @@ Rectangle {
 //                    }
 //                }
 
-//                Button {
+//                NaviButton {
 //                    id: saveBtn1
 //                    text: qsTr("保存并打开")
 //                    Layout.row: 7
@@ -309,7 +309,7 @@ Rectangle {
 //                    }
 //                }
 
-//                Button {
+//                NaviButton {
 //                    id: closeBtn1
 //                    text: qsTr("关闭")
 //                    Layout.row: 8

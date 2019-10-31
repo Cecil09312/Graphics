@@ -3,7 +3,7 @@ import QtQuick.Controls 2.2
 import QtQuick.Controls 1.4 as Controls1_4
 import qmlTableModel 1.0
 import architePlanView 1.0
-
+import "../infoSetting"
 Item {
 
     Grid {
@@ -91,7 +91,7 @@ Item {
             height: 30
         }
 
-        Button {
+        NaviButton {
             id: stateQueryBtn
             text: qsTr("查询")
             height: 30
@@ -104,11 +104,11 @@ Item {
             }
         }
 
-        Button {
+        NaviButton {
             id: stateQueryAllBtn
             text: qsTr("查询所有")
             height: 30
-            width: 80
+            width: 100
             onClicked: {
                 deviceStateModel.sqlCommit(
                             "select extNum ,loopNum,addrNum,networkNum,manufacturers,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo")
@@ -179,7 +179,7 @@ Item {
 
         Controls1_4.TableViewColumn {
             role: qsTr("alarmState")
-            title: qsTr("报警状态")
+            title: qsTr("状态")
             width: 100
             // resizable: true
         }
@@ -211,7 +211,7 @@ Item {
         dbConnectionName: "deviceState"
         dbPort: 8888
         roleNameList: ["extNum", "loopNum", "addrNum", "networkNum", "manufacturers", "periodOfValidity", "deviceNum", "deviceName", "alarmState", "operator"]
-        titleList: ["分机号", "回路号", "地址号", "网络号", "制造商", "有效期", "设备编码", "设备", "报警状态", "操作员"]
+        titleList: ["分机号", "回路号", "地址号", "网络号", "制造商", "有效期", "设备编码", "设备", "状态", "操作员"]
     }
 
     Component.onCompleted: {

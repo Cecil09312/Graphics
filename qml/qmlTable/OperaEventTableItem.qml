@@ -3,7 +3,7 @@ import QtQuick.Controls 2.2
 import QtQuick.Controls 1.4 as Controls1_4
 import qmlTableModel 1.0
 import operatorInfo 1.0
-
+import "../infoSetting"
 Item {
     Row {
         id: operaEventQuery
@@ -62,7 +62,7 @@ Item {
             placeholderText: qsTr("如:2050/01/01 00:00:00")
         }
 
-        Button {
+        NaviButton {
             id: operaEventQueryBtn
             text: qsTr("查询")
             height: 30
@@ -76,17 +76,17 @@ Item {
             }
         }
 
-        Button {
+        NaviButton {
             id: operaEventQueryAllBtn
             text: qsTr("查询所有")
             height: 30
-            width: 80
+            width: 100
             onClicked: {
                 operaEventQueryModel.sqlCommit("select * from operator")
             }
         }
 
-        Button {
+        NaviButton {
             id: operaEventQueryDeleteBtn
             text: qsTr("删除")
             height: 30
@@ -102,7 +102,7 @@ Item {
             }
         }
 
-        Button {
+        NaviButton {
             id: operaEventQueryClearBtn
             text: qsTr("清空")
             height: 30

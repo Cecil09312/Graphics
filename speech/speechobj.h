@@ -25,6 +25,7 @@ public:
     ~SpeechObj();
     int currentAlarmPos();
     QList<QString> &alarmTextList();
+    //QString &alarmText(int pos);
     double rate();
     double volume();
     double pitch();

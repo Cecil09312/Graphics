@@ -5,6 +5,10 @@
 #include "architePlan/architeplanview.h"
 QHash<QString,QList<QGraphicsItem*> >DataStore::m_typeItemHash=QHash<QString,QList<QGraphicsItem*> >();
 QHash<QString,QList<DataInfo*> >DataStore::m_typeNoItemHash = QHash<QString,QList<DataInfo*> >();
+int DataStore::s_itemNum=0;
+QString DataStore::m_loopNum="0";
+QString DataStore::m_extNum="0";
+QString DataStore::m_networkNum="0";
 DataStore::DataStore()
 {
 
@@ -53,7 +57,11 @@ void DataStore::deleteTypeItem(QGraphicsItem *item)
         {
             if(currentItem==item)
             {
-                m_typeItemHash[type].removeOne(item);
+                if(m_typeItemHash.value(type).contains(item))
+                {
+                    m_typeItemHash[type].removeOne(item);
+                }
+
                 return;
             }
         }
@@ -62,11 +70,15 @@ void DataStore::deleteTypeItem(QGraphicsItem *item)
 
 void DataStore::deleteTypeItem(const QString &type, QGraphicsItem *item)
 {
-    m_typeItemHash[type].removeOne(item);
+    if(m_typeItemHash.value(type).contains(item))
+    {
+        m_typeItemHash[type].removeOne(item);
+    }
 }
 
 void DataStore::deleteTypeItem(const QString &type, int pos)
 {
+
     if(m_typeItemHash[type].size()>pos)
     {
         m_typeItemHash[type].removeAt(pos);
@@ -104,15 +116,11 @@ bool DataStore::deleteType(const QString &type, const QString &extNum, const QSt
 
 void DataStore::deleteTypeItem(const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum)
 {
-  QList<QString>typeList=  m_typeNoItemHash.keys();
-  foreach (QString type, typeList)
-  {
-
-      if(deleteType(type,extNum,loopNum,addrNum,networkNum))
-      {
-          break;
-      }
-  }
+    QList<QString>typeList=  m_typeNoItemHash.keys();
+    foreach (QString type, typeList)
+    {
+        deleteType(type,extNum,loopNum,addrNum,networkNum);
+    }
 
 }
 
@@ -192,35 +200,35 @@ QHash<QString, QList<DataInfo *> > &DataStore::getTypeNoItemHash()
 
 QString DataStore::getTypeNoItemKey(DataInfo *dataInfo)
 {
-   QList<QString>keyList= m_typeNoItemHash.keys();
-   static QString keyStr = "";
-   foreach (QString key, keyList)
-   {
-       QList<DataInfo *>dataInfoList= m_typeNoItemHash.value(key);
-       if(dataInfoList.contains(dataInfo))
-       {
-           keyStr=key;
-           break;
-       }
-   }
-   return keyStr;
+    QList<QString>keyList= m_typeNoItemHash.keys();
+    static QString keyStr = "";
+    foreach (QString key, keyList)
+    {
+        QList<DataInfo *>dataInfoList= m_typeNoItemHash.value(key);
+        if(dataInfoList.contains(dataInfo))
+        {
+            keyStr=key;
+            break;
+        }
+    }
+    return keyStr;
 }
 
 void DataStore::deleteDataInfo(DataInfo *dataInfo)
 {
-  QList<QString>  keyList=m_typeNoItemHash.keys();
-  foreach (QString key, keyList)
-  {
-      if(m_typeNoItemHash.value(key).contains(dataInfo))
-      {
-          m_typeNoItemHash[key].removeOne(dataInfo);
-          delete dataInfo;
-          dataInfo = nullptr;
-      }
-  }
+    QList<QString>  keyList=m_typeNoItemHash.keys();
+    foreach (QString key, keyList)
+    {
+        if(m_typeNoItemHash.value(key).contains(dataInfo))
+        {
+            m_typeNoItemHash[key].removeOne(dataInfo);
+            delete dataInfo;
+            dataInfo = nullptr;
+        }
+    }
 }
 
-DataStore::indexOfItem(const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum, const QString &alarmType)
+int DataStore::indexOfItem(const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum, const QString &alarmType)
 {
     QList<QGraphicsItem*> itemList= m_typeItemHash.value(alarmType);
     GraphicsItem*selectItem = nullptr;
@@ -245,6 +253,53 @@ DataStore::indexOfItem(const QString &extNum, const QString &loopNum, const QStr
     {
         return itemList.indexOf(selectItem);
     }
+}
+
+int &DataStore::itemNum()
+{
+    int itemNum=-1;
+    QList<GraphicsView *> viewList= ArchitePlanView::getWidgetMap().values();
+    foreach (GraphicsView *curView, viewList)
+    {
+        if(curView!=nullptr)
+        {
+            QGraphicsScene *scene= curView->currentGraphicsScene();
+            GraphicsScene *curScene = dynamic_cast<GraphicsScene*>(scene);
+            if(curScene!=nullptr)
+            {
+                QList<QGraphicsItem*>itemList=  curScene->getItemList();
+                foreach (QGraphicsItem*item, itemList)
+                {
+                    GraphicsItem *curItem = dynamic_cast<GraphicsItem*>(item);
+                    if(curItem!=nullptr)
+                    {
+                        itemNum= qMax(curItem->addrNum().toInt(),itemNum);
+                    }
+
+                }
+
+            }
+        }
+    }
+
+    itemNum++;
+    s_itemNum=itemNum;
+    return s_itemNum;
+}
+
+QString &DataStore::loopNum()
+{
+    return m_loopNum;
+}
+
+QString &DataStore::extNum()
+{
+    return m_extNum;
+}
+
+QString &DataStore::networkNum()
+{
+    return m_networkNum;
 }
 
 

@@ -3,7 +3,7 @@ import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.0
 import itemIconInfoToJson 1.0
-
+import "../infoSetting"
 Item {
     width: 860
     height: 560
@@ -35,9 +35,9 @@ Item {
         anchors.fill: parent
 
         anchors.leftMargin: 20
-        anchors.bottomMargin: 20
+        anchors.bottomMargin: 10
         anchors.topMargin: 80
-        anchors.bottom: parent.bottom
+
 
         interactive: false
         Item {
@@ -135,7 +135,7 @@ Item {
                     width: 180
                     height: 40
                     onTextEdited: {
-                        emit: setItemInfo("networkNum", addrNumTextField.text)
+                        emit: setItemInfo("networkNum", networkNumTextField.text)
                     }
                 }
 
@@ -366,7 +366,7 @@ Item {
         anchors.leftMargin: 20
         anchors.left: parent.left
         spacing: 10
-        Button {
+        NaviButton {
             id: iconSettingBtn
             text: qsTr("图标信息设置")
 
@@ -379,7 +379,7 @@ Item {
             }
         }
 
-        Button {
+        NaviButton {
             id: legendBtn
             text: qsTr("图例")
             onClicked: {
@@ -387,6 +387,7 @@ Item {
                     swipView.currentIndex = 1
                     highlighted = true
                     iconSettingBtn.highlighted = false
+
                 }
             }
         }

@@ -21,7 +21,7 @@ signals:
    void toFirstFire();
 public slots:
 private:
-   QPushButton *m_firstFireBtn;
+    QPushButton *m_firstFireBtn;
     QLabel *m_extLabel;
     QLabel *m_loopLabel;
     QLabel *m_addrNumLabel;

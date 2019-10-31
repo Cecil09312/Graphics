@@ -1,12 +1,14 @@
 ﻿#include "seriallink.h"
 #include <QtAlgorithms>
 #include <QDebug>
+#include <QMutexLocker>
 SerialLink::SerialLink( QObject *parent)
     : AbstractLink(parent),
      m_isOpen(false)
 {
     m_thread = new QThread();
     m_serialPort = new QSerialPort();
+
     m_serialConfiguration = Configuration(new SerialConfiguration);
     m_serialPort->moveToThread(m_thread);
     moveToThread(m_thread);
@@ -17,9 +19,24 @@ SerialLink::SerialLink( QObject *parent)
     connect(m_serialPort,&QSerialPort::readyRead,this,&SerialLink::readData);
     connect(this,&SerialLink::writeData,this,[=](const QByteArray &array)
     {
+        QMutexLocker locker(&m_mutex);
+
+        m_sendArrayList.push_back(array);
         if(m_serialPort->isOpen())
         {
-           m_serialPort->write(array);
+            foreach (QByteArray curArray, m_sendArrayList)
+            {
+
+                qint64 size=  m_serialPort->write(curArray);
+               // qDebug() << "curArray" << curArray.toHex();
+                m_serialPort->flush();
+                if(size>0)
+                {
+                    m_sendArrayList.removeOne(curArray);
+                }
+                m_thread->msleep(5);
+            }
+
         }
     });
 
@@ -80,7 +97,9 @@ SerialLink::~SerialLink()
 
 void SerialLink::readData()
 {
+    QMutexLocker locker(&m_mutex);
     QByteArray array = m_serialPort->readAll();
+   // qDebug() << "array" << array.toHex();
     emit getData(array);
 }
 

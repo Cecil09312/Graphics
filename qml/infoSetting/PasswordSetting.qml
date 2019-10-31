@@ -10,11 +10,11 @@ Item {
     ListModel {
         id: addUserModel
         ListElement {
-            value: qsTr("工程人员")
+            value: qsTr("管理员")
         }
 
         ListElement {
-            value: qsTr("员工")
+            value: qsTr("普通用户")
         }
     }
     Column {
@@ -68,7 +68,7 @@ Item {
             }
             ComboBox {
                 id: userRightComboBox
-                model: ["超级用户", "工程人员", "员工"]
+                model: ["超级用户", "管理员", "普通用户"]
                 Layout.row: 0
                 Layout.column: 1
                 Layout.fillWidth: true
@@ -128,7 +128,7 @@ Item {
                                   | Qt.ImhSensitiveData | Qt.ImhNoPredictiveText
             }
 
-            Button {
+            NaviButton {
                 id: confineBtn
                 Layout.row: 4
                 Layout.column: 1
@@ -152,7 +152,7 @@ Item {
             }
             ComboBox {
                 id: managerRightComboBox
-                model: ["超级用户", "工程人员"]
+                model: ["超级用户", "管理员"]
                 Layout.row: 0
                 Layout.column: 1
                 Layout.fillWidth: true
@@ -160,10 +160,10 @@ Item {
                     if (currentText === qsTr("超级用户")) {
                         addUserModel.clear()
                         addUserModel.append({
-                                                value: qsTr("工程人员")
+                                                value: qsTr("管理员")
                                             })
                         addUserModel.append({
-                                                value: qsTr("员工")
+                                                value: qsTr("普通用户")
                                             })
                         if (addUserModel.count > 0) {
                             newUserComboBox.currentIndex = 0
@@ -172,7 +172,7 @@ Item {
                         for (var i = 0; i < addUserModel.count; i++) {
                             var userRightObj = new Object
                             userRightObj = addUserModel.get(i)
-                            if (userRightObj["value"] === qsTr("工程人员")) {
+                            if (userRightObj["value"] === qsTr("管理员")) {
                                 addUserModel.remove(i)
                             }
                         }
@@ -230,19 +230,19 @@ Item {
                 echoMode: TextInput.Password
             }
 
-            Button {
+            NaviButton {
                 id: addNewUserconfineBtn
                 Layout.row: 4
                 Layout.column: 1
                 text: qsTr("确认")
                 onClicked: {
-                    if (newUserComboBox.currentText === qsTr("工程人员")) {
+                    if (newUserComboBox.currentText === qsTr("管理员")) {
                         UserManager.addUser(newUserTextField.text,
-                                            UserManager.Engineer,
+                                            UserManager.Administrator,
                                             newUserPasswordTextField.text)
 
                         if (UserManager.password(
-                                    UserManager.Engineer,
+                                    UserManager.Administrator,
                                     newUserTextField.text) === newUserPasswordTextField.text) {
                             addNewUserSuccessDialog.open()
                             OperatorInfo.insertEvent(qsTr("添加用户成功"))
@@ -251,13 +251,13 @@ Item {
                             OperatorInfo.insertEvent(qsTr("添加用户失败"),
                                                      qsTr("添加用户失败,或者用户已经存在"))
                         }
-                    } else if (newUserComboBox.currentText === qsTr("员工")) {
+                    } else if (newUserComboBox.currentText === qsTr("普通用户")) {
                         UserManager.addUser(newUserTextField.text,
-                                            UserManager.Employee,
+                                            UserManager.User,
                                             newUserPasswordTextField.text)
 
                         if (UserManager.password(
-                                    UserManager.Employee,
+                                    UserManager.User,
                                     newUserTextField.text) === newUserPasswordTextField.text) {
                             addNewUserSuccessDialog.open()
                         } else {
@@ -279,13 +279,13 @@ Item {
         if (userRight === qsTr("超级用户")) {
             currentUserRight = UserManager.Super
             oldPasswordStr = UserManager.password(UserManager.Super, "super")
-        } else if (userRight === qsTr("工程人员")) {
-            currentUserRight = UserManager.Engineer
-            oldPasswordStr = UserManager.password(UserManager.Engineer,
+        } else if (userRight === qsTr("管理员")) {
+            currentUserRight = UserManager.Administrator
+            oldPasswordStr = UserManager.password(UserManager.Administrator,
                                                   currentUserName)
-        } else if (userRight === qsTr("员工")) {
-            currentUserRight = UserManager.Employee
-            oldPasswordStr = UserManager.password(UserManager.Employee,
+        } else if (userRight === qsTr("普通用户")) {
+            currentUserRight = UserManager.User
+            oldPasswordStr = UserManager.password(UserManager.User,
                                                   currentUserName)
         }
 

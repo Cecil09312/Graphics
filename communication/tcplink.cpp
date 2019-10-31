@@ -2,67 +2,63 @@
 
 #include <QDebug>
 #include <QHostAddress>
+#include "control/controller.h"
+#include <QMutexLocker>
 TcpLink::TcpLink(QObject *parent)
     : AbstractLink(parent)
+
 {
-    m_tcpSocket = new QTcpSocket;
+    m_tcpServer = new TcpServer;
+
     m_thread = new QThread();
     m_tcpConfiguration = Configuration(new TcpConfiguration);
-    m_tcpSocket->moveToThread(m_thread);
+    m_tcpServer->moveToThread(m_thread);
     moveToThread(m_thread);
     m_thread->start();
+
     qRegisterMetaType<QHostAddress>("QHostAddress");
     qRegisterMetaType<QHostAddress>("const QHostAddress&");
     qRegisterMetaType<QByteArray>("const QByteArray&");
     qRegisterMetaType<QByteArray>("QByteArray");
     connect(this,&TcpLink::startConnect,this,[=]()
     {
-
-        if(m_tcpSocket->state()!=QTcpSocket::ConnectedState)
+        setConfiguration();
+        if(m_tcpServer->isListening())
         {
-            setConfiguration();
-            m_tcpSocket->connectToHost(m_address,m_port);
-            m_tcpSocket->waitForConnected(1000);
+            return;
         }
+       bool isListened= m_tcpServer->listen(QHostAddress::Any,m_port);
+       if(!isListened)
+       {
+           emit isConnected(false);
+           qDebug() << "**********";
+       }
 
     });
+
+    connect(m_tcpServer,&TcpServer::resendData,this,&TcpLink::sendAllData);
     connect(this,&TcpLink::stopConnect,this,[=](){
-        m_tcpSocket->close();
+
+      m_tcpServer->close();
+      emit isConnected(false);
+
+    });
+
+    connect(m_tcpServer,&QTcpServer::acceptError,this,[=](QAbstractSocket::SocketError socketError)
+    {
+        Q_UNUSED(socketError);
+        emit errorInfo(m_tcpServer->errorString());
+
     });
 
     connect(this,&TcpLink::writeData,this,[=](const QByteArray &array)
     {
-        if(m_tcpSocket->state()==QAbstractSocket::ConnectedState)
-        {
-            m_tcpSocket->write(array);
-        }
-        else
-        {
-            emit errorInfo("tcp is not connected");
-        }
-
+        m_tcpServer->writeData(array);
     });
-    connect(m_tcpSocket,&QTcpSocket::readyRead,this,&TcpLink::readData);
-    connect(m_tcpSocket,&QTcpSocket::connected,this,[=]()
-    {
+    connect(m_tcpServer,&TcpServer::readData,this,&TcpLink::getData);
+    connect(m_tcpServer,&TcpServer::newConnection,this,[=](){
+
         emit isConnected(true);
-    });
-    connect(m_tcpSocket,&QTcpSocket::disconnected,this,[=]()
-    {
-        emit isConnected(false);
-    });
-    connect(m_tcpSocket,QOverload<QAbstractSocket::SocketError>::of(&QTcpSocket::error),this,[=](QAbstractSocket::SocketError socketError)
-    {
-        Q_UNUSED(socketError);
-        if(m_tcpSocket->state()==QAbstractSocket::ConnectedState)
-        {
-            emit errorInfo(m_tcpSocket->errorString());
-        }
-        else
-        {
-            m_tcpSocket->disconnected();
-        }
-
     });
 
 }
@@ -70,17 +66,36 @@ TcpLink::TcpLink(QObject *parent)
 TcpLink::~TcpLink()
 {
     disconnectLink();
-    m_tcpSocket->deleteLater();
+    m_tcpServer->close();
     m_thread->quit();
     m_thread->deleteLater();
+}
+
+QIODevice *TcpLink::device()
+{
+    //return m_tcpSocket;
+}
+
+qint64 TcpLink::writeDataSize()
+{
+    return m_writeDataSize;
+}
+
+bool TcpLink::writeDataSuccess()
+{
+    return m_tcpServer->dataSendSuccess();
 }
 
 
 void TcpLink::readData()
 {
-    QMutexLocker locker(&m_mutex);
-    QByteArray dataArray=  m_tcpSocket->readAll();
-    emit getData(dataArray);
+//    if(m_tcpSocket==nullptr)
+//    {
+//        return ;
+//    }
+//    QMutexLocker locker(&m_mutex);
+//    QByteArray dataArray=  m_tcpSocket->readAll();
+//    emit getData(dataArray);
 }
 
 void TcpLink::setConfiguration()

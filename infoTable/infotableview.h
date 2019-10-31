@@ -17,6 +17,7 @@ public:
 signals:
     void tableValue(QSqlRecord record);
     void fitToWiew();
+    void setAlarmNum(int totalNum,int curNum);
 public slots:
     void toMaxPosition();
 private:

@@ -6,7 +6,9 @@
 int main(int argc, char *argv[])
 {
     qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
-    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+#ifdef Q_OS_LINUX
+    QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
+#endif
     QApplication a(argc, argv);
 
     // 创建信号量

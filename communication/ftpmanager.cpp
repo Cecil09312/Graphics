@@ -1,11 +1,15 @@
 ﻿#include "ftpmanager.h"
 #include <QFile>
 #include "control/controller.h"
-FtpManager::FtpManager(QObject *parent) : QObject(parent)
+FtpManager::FtpManager(QObject *parent)
+    : QObject(parent),
+      m_sendDataSuccess(false)
 {
     m_ftpConfiguration = Configuration(new FtpConfiguration);
     m_thread = new QThread;
     m_manager = new QNetworkAccessManager();
+    m_timeoutTimer = new CustomTimer;
+    m_timeoutTimer->setSingleShot(true);
     m_manager->moveToThread(m_thread);
     this->moveToThread(m_thread);
     m_thread->start();
@@ -14,6 +18,10 @@ FtpManager::FtpManager(QObject *parent) : QObject(parent)
         if(reply!=nullptr)
         {
             //emit sendFileSuccess(true);
+            if(m_replyList.contains(reply))
+            {
+                m_replyList.removeOne(reply);
+            }
             reply->close();
             reply->deleteLater();
         }
@@ -25,16 +33,23 @@ FtpManager::FtpManager(QObject *parent) : QObject(parent)
 
     connect(this,&FtpManager::sendData,this,[=](const QUrl&url,const QByteArray&array)
     {
-        m_reply = m_manager->put(QNetworkRequest(url),array);
-        Q_ASSERT(m_reply);
-        connect(m_reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::error),this,[=](QNetworkReply::NetworkError error)
+        QNetworkReply* reply = m_manager->put(QNetworkRequest(url),array);
+        if(reply==nullptr)
+        {
+            emit sendFileSuccess(false);
+            return;
+        }
+        m_replyList.push_back(reply);
+        Q_ASSERT(reply);
+        connect(reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::error),this,[=](QNetworkReply::NetworkError error)
         {
             Q_UNUSED(error)
-            emit ftpError(m_reply->errorString());
+            emit ftpError(reply->errorString());
         });
 
-        connect(m_reply,&QNetworkReply::uploadProgress,this,[=](qint64 bytesSent, qint64 bytesTotal)
+        connect(reply,&QNetworkReply::uploadProgress,this,[=](qint64 bytesSent, qint64 bytesTotal)
         {
+            m_sendDataSuccess = true;
             if(bytesTotal<=0)
             {
                 emit sendFileSuccess(false);
@@ -52,10 +67,37 @@ FtpManager::FtpManager(QObject *parent) : QObject(parent)
 
     });
 
+    connect(m_timeoutTimer,&CustomTimer::timeout,this,[=]()
+    {
+        if(!m_sendDataSuccess)
+        {
+            emit sendFileSuccess(false);
+            foreach (QNetworkReply *reply, m_replyList)
+            {
+                if(reply!=nullptr)
+                {
+                    reply->close();
+                    reply->deleteLater();
+                }
+            }
+            m_replyList.clear();
+        }
+    });
+
 }
 
 FtpManager::~FtpManager()
 {
+    foreach (QNetworkReply *reply, m_replyList) {
+        if(reply!=nullptr)
+        {
+            reply->close();
+            reply->deleteLater();
+        }
+    }
+    m_timeoutTimer->stop();
+    m_timeoutTimer->deleteLater();
+    m_replyList.clear();
     m_thread->quit();
     m_thread->deleteLater();
     m_manager->deleteLater();
@@ -87,6 +129,11 @@ void FtpManager::uploadFile(const QString &fileName )
         }
     });
     future.waitForFinished();
+    m_sendDataSuccess = false;
+    if(!m_timeoutTimer->isActive())
+    {
+        m_timeoutTimer->start(1000);
+    }
     emit sendData(url,dataArray);
 
 }

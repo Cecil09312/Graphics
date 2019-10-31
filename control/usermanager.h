@@ -13,8 +13,8 @@ public:
     enum UserRight
     {
         Super =1,
-        Engineer,
-        Employee
+        Administrator,
+        User
     };
     explicit UserManager(QObject *parent = nullptr);
     Q_INVOKABLE  QString password(const UserRight& right, const QString &userName);

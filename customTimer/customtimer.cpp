@@ -39,3 +39,8 @@ bool CustomTimer::isActive()
 {
     return m_timer->isActive();
 }
+
+void CustomTimer::setSingleShot(bool singleShot)
+{
+    m_timer->setSingleShot(singleShot);
+}

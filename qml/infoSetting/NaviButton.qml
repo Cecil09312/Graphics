@@ -1,36 +1,47 @@
 ﻿import QtQuick 2.7
 import QtQuick.Controls 2.2
-
+//import QtGraphicalEffects 1.0
 Button {
     id: button
 
-    property int edge: Qt.TopEdge
-    property alias imageSource: image.source
-
-    contentItem: Image {
-        id: image
-        fillMode: Image.Pad
-        sourceSize {
-            width: 40
-            height: 40
-        } // ### TODO: resize the image
+    font.pointSize: 14
+    font.family: "宋体"
+    background: Rectangle
+    {
+        id:backRect
+        implicitWidth: 100
+        implicitHeight: 40
+        color: "lightgray"
+        radius:10
+//        layer.enabled: button.enabled
+//        layer.effect: DropShadow {
+//            verticalOffset: 1
+//            //color: firmAlarmBtn.visualFocus ? "#330066ff" : "#aaaaaa"
+//            samples: 4
+//            spread: 0.2
+//        }
     }
 
-    background: Rectangle {
-        height: button.height * 4
-        width: height
-        radius: width / 2
-        anchors.horizontalCenter: button.horizontalCenter
-        anchors.top: edge === Qt.BottomEdge ? button.top : undefined
-        anchors.bottom: edge === Qt.TopEdge ? button.bottom : undefined
-        color: "#222840"
+    //                onClicked: {
+    //                    ArchitePlanView.firstFireAlarm()
+    //                }
+    onPressed: {
+        highlighted = true
+    }
+    onReleased: {
+       highlighted = false
+
     }
 
-    transform: Translate {
-        Behavior on y {
-            NumberAnimation {
-            }
-        }
-        y: enabled ? 0 : edge === Qt.TopEdge ? -button.height : button.height
+    onHighlightedChanged:
+    {
+       if(highlighted)
+       {
+          backRect.color="gray"
+       }
+       else
+       {
+          backRect.color="lightgray"
+       }
     }
 }

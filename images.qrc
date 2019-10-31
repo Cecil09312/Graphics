@@ -11,5 +11,6 @@
         <file>images/delete.png</file>
         <file>images/ldlogo.png</file>
         <file>images/fire.png</file>
+        <file>images/limitSettings.png</file>
     </qresource>
 </RCC>

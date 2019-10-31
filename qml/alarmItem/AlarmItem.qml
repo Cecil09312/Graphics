@@ -8,61 +8,52 @@ import QtQuick.Dialogs 1.2
 import speechObj 1.0
 import crtWidget 1.0
 import operatorInfo 1.0
+import QtGraphicalEffects 1.0
 
+import "../infoSetting"
+//import QtQuick.Controls 1.4 as Controls1_4
 Rectangle {
-    width: 150
+    width: 154
     signal currentAlarmType(string type)
     signal startAutoSwitch(bool isAuto)
     signal reset
     signal clearVoice()
+    signal reSendCmd()
     property int colorChangeNum:0
     property bool curState: false
+    property int totalNum: 0
+    property int curNum: 0
     RowLayout {
         id: alarmBtnLayout
         height: 50
         width: parent.width
-        Button {
+
+
+        NaviButton {
             id: firmAlarmBtn
             Layout.alignment: Qt.AlignLeft
             Layout.topMargin: 10
             text: qsTr("首火警")
             Layout.fillWidth: true
             Layout.fillHeight: true
-
-            //iconSource: "qrc:/images/fire.png"
-            font.pointSize: 14
-            font.family: "Times New Roman"
+            Layout.leftMargin: 2
             onClicked: {
                 ArchitePlanView.firstFireAlarm()
             }
-            onPressed: {
-                firmAlarmBtn.highlighted = true
-            }
-            onReleased: {
-                firmAlarmBtn.highlighted = false
-            }
         }
 
-        Button {
-            id: resetBtn
+        NaviButton {
+            id: erasureBtn
             // anchors.leftMargin: 20
             Layout.alignment: Qt.AlignRight
 
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.topMargin: 10
-            font.pointSize: 14
-            font.family: qsTr("Times New Roman")
             text: qsTr("消音")
+            Layout.rightMargin:2
             onClicked: {
                 emit:clearVoice()
-            }
-
-            onPressed: {
-                highlighted = true
-            }
-            onReleased: {
-                highlighted = false
             }
         }
     }
@@ -94,7 +85,7 @@ Rectangle {
             Layout.row: 0
             text: qsTr("火警 0")
             font.pointSize: 12
-            font.family: qsTr("Times New Roman")
+            font.family: qsTr("宋体")
         }
 
         StatusIndicator {
@@ -118,7 +109,7 @@ Rectangle {
             Layout.row: 1
             text: qsTr("监管 0")
             font.pointSize: 12
-            font.family: qsTr("Times New Roman")
+            font.family: qsTr("宋体")
         }
 
         StatusIndicator {
@@ -142,7 +133,7 @@ Rectangle {
             Layout.row: 2
             text: qsTr("启动 0")
             font.pointSize: 12
-            font.family: qsTr("Times New Roman")
+            font.family: qsTr("宋体")
         }
 
         StatusIndicator {
@@ -167,7 +158,7 @@ Rectangle {
             Layout.row: 3
             text: qsTr("反馈 0")
             font.pointSize: 12
-            font.family: qsTr("Times New Roman")
+            font.family: qsTr("宋体")
         }
 
         StatusIndicator {
@@ -191,7 +182,7 @@ Rectangle {
             Layout.row: 4
             text: qsTr("故障 0")
             font.pointSize: 12
-            font.family: qsTr("Times New Roman")
+            font.family: qsTr("宋体")
         }
 
 
@@ -217,7 +208,7 @@ Rectangle {
             Layout.row: 5
             text: qsTr("屏蔽 0")
             font.pointSize: 12
-            font.family: qsTr("Times New Roman")
+            font.family: qsTr("宋体")
         }
 
         StatusIndicator {
@@ -241,7 +232,7 @@ Rectangle {
             Layout.row: 6
             text: qsTr("主电")
             font.pointSize: 12
-            font.family: qsTr("Times New Roman")
+            font.family: qsTr("宋体")
         }
 
         StatusIndicator {
@@ -265,7 +256,7 @@ Rectangle {
             Layout.row: 7
             text: qsTr("备电")
             font.pointSize: 12
-            font.family: qsTr("Times New Roman")
+            font.family: qsTr("宋体")
         }
 
 
@@ -290,7 +281,7 @@ Rectangle {
             Layout.row: 8
             text: qsTr("默认")
             font.pointSize: 12
-            font.family: qsTr("Times New Roman")
+            font.family: qsTr("宋体")
         }
 
 
@@ -311,14 +302,12 @@ Rectangle {
                 running: false
             }
 
-
-
             onColorChanged:
             {
                 if(colorChangeNum%12==0)
                 {
-                   curState = !curState
-                   CrtWidget.transportIndicator(curState)
+                    curState = !curState
+                    CrtWidget.transportIndicator(curState)
                 }
                 colorChangeNum +=1
             }
@@ -329,7 +318,7 @@ Rectangle {
             Layout.row: 9
             text: qsTr("传输")
             font.pointSize: 12
-            font.family: qsTr("Times New Roman")
+            font.family: qsTr("宋体")
         }
 
         StatusIndicator {
@@ -346,6 +335,14 @@ Rectangle {
                 loops: Animation.Infinite
                 running: false
             }
+
+//            onColorChanged:
+//            {
+//                if(color=="#008000")
+//                {
+//                    emit:reSendCmd()
+//                }
+//            }
         }
 
         Text {
@@ -354,7 +351,7 @@ Rectangle {
             Layout.row: 10
             text: qsTr("主机通信")
             font.pointSize: 12
-            font.family: qsTr("Times New Roman")
+            font.family: qsTr("宋体")
         }
 
         StatusIndicator {
@@ -378,7 +375,7 @@ Rectangle {
             Layout.row: 11
             text: qsTr("中心通信")
             font.pointSize: 12
-            font.family: qsTr("Times New Roman")
+            font.family: qsTr("宋体")
         }
     }
 
@@ -392,99 +389,80 @@ Rectangle {
         anchors.topMargin: 5
         anchors.verticalCenter: parent.verticalCenter
 
-        Button {
+        NaviButton {
             anchors.leftMargin: 20
             width: parent.width
             // Layout.fillHeight: true
             font.pointSize: 14
-            font.family: qsTr("Times New Roman")
+            font.family: qsTr("宋体")
             text: qsTr("复位")
+
             onClicked: {
                 emit: reset()
             }
 
-            onPressed: {
-                highlighted = true
-            }
-            onReleased: {
-                highlighted = false
-            }
+
         }
 
-        Button {
+        NaviButton {
             anchors.leftMargin: 20
             width: parent.width
             // Layout.fillHeight: true
             font.pointSize: 14
-            font.family: qsTr("Times New Roman")
+            font.family: qsTr("宋体")
             text: qsTr("报警平面")
             onClicked: {
                 ArchitePlanView.toAlarmView()
 
                 /*测试*/
-               //CrtWidget.sendSeralData()
+                // CrtWidget.sendSeralData()
             }
-            onPressed: {
-                highlighted = true
-            }
-            onReleased: {
-                highlighted = false
-            }
+
         }
         ComboBox {
             id: alarmTypeComboBox
             anchors.leftMargin: 20
             font.pointSize: 14
-            font.family: qsTr("Times New Roman")
+            font.family: qsTr("宋体")
             width: parent.width
-            model: ["全部", "火警", "启动", "监管", "故障", "反馈", "屏蔽"]
+            model: ["全部", "火警", "监管","启动", "反馈","故障",  "屏蔽"]
             onCurrentTextChanged: {
                 emit: currentAlarmType(currentText)
                 if(currentText===qsTr("全部"))
                 {
-                     numTxt.visible=false
+                    numTxt.visible=false
                 }
                 else
                 {
-                   numTxt.visible = true;
+                    numTxt.visible = true;
                 }
             }
         }
-        Button {
+        NaviButton {
             id: previousBtn
             anchors.leftMargin: 20
             width: parent.width
             // Layout.fillHeight: true
             font.pointSize: 14
-            font.family: qsTr("Times New Roman")
+            font.family: qsTr("宋体")
             text: qsTr("上一页")
             onClicked: {
                 ArchitePlanView.toPreviousPage()
             }
-            onPressed: {
-                highlighted = true
-            }
-            onReleased: {
-                highlighted = false
-            }
+
         }
 
-        Button {
+        NaviButton {
             id: nextBtn
             anchors.leftMargin: 20
             width: parent.width
             font.pointSize: 14
-            font.family: qsTr("Times New Roman")
+            font.family: qsTr("宋体")
             text: qsTr("下一页")
             onClicked: {
                 ArchitePlanView.toNextPage()
             }
-            onPressed: {
-                highlighted = true
-            }
-            onReleased: {
-                highlighted = false
-            }
+
         }
 
         Text {
@@ -492,7 +470,7 @@ Rectangle {
             anchors.leftMargin: 20
             width: parent.width
             font.pointSize: 12
-            font.family: qsTr("Times New Roman")
+            font.family: qsTr("宋体")
             text: qsTr("总0页/第0页")
         }
 
@@ -501,17 +479,27 @@ Rectangle {
             anchors.leftMargin: 20
             width: parent.width
             font.pointSize: 12
-            font.family: qsTr("Times New Roman")
+            font.family: qsTr("宋体")
             text: qsTr("总0个/第0个")
             visible: false
         }
+
+        //        Text {
+        //            id: explainTxt
+        //            anchors.leftMargin: 20
+        //            width: parent.width
+        //            font.pointSize: 12
+        //            font.family: qsTr("宋体")
+        //            text: qsTr("总0个/第0个")
+        //            visible: false
+        //        }
 
         CheckBox {
             id: autoSwitchCheckBox
             text: qsTr("自动切换")
             width: parent.width
             font.pointSize: 12
-            font.family: qsTr("Times New Roman")
+            font.family: qsTr("宋体")
             onClicked: {
                 ArchitePlanView.startAutoSwitch(checked)
             }
@@ -526,9 +514,22 @@ Rectangle {
 
         pageTxt.text = String("总%1页/第%2页").arg(totalPage).arg(currentPage)
     }
-    function setNum(totalNum,currentNum)
+    function setNum(totalNumber,currentNum)
     {
-       numTxt.text= String("总%1个/第%2个").arg(totalNum).arg(currentNum);
+        totalNum = totalNumber
+        curNum = currentNum
+        numTxt.text= String("总%1个/第%2个").arg(totalNum).arg(curNum);
+    }
+    function setTotalNum(totalNumber)
+    {
+        totalNum = totalNumber
+        numTxt.text= String("总%1个/第%2个").arg(totalNum).arg(curNum)
+    }
+
+    function setCurNum(curNumber)
+    {
+        curNum = curNumber
+        numTxt.text= String("总%1个/第%2个").arg(totalNum).arg(curNum)
     }
 
     function enableToPreviousPageBtn(isEnable) {
@@ -732,8 +733,9 @@ Rectangle {
         setShieldAlarmColor(true, "gray")
         setMainPowerColor(true, "green")
         setStandbyPowerColor(true, "green")
-       // setEquiComColor(true, "gray")
-       // setCenterComColor(true, "gray")
+        setTransformColor(true,"gray")
+        // setEquiComColor(true, "gray")
+        // setCenterComColor(true, "gray")
         setHandOrAutoColor(true,"purple")
         setHandOrAutoText(qsTr("默认"))
         setFireAlarmText("0")
@@ -742,6 +744,7 @@ Rectangle {
         setFaultText("0")
         setFeedbackText("0")
         setShieldText("0")
+        setAutoSwitchCheckBoxState(false)
     }
 
     function setAutoSwitchCheckBoxState(isChecked) {

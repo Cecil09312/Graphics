@@ -10,7 +10,7 @@
 #include <QGraphicsSvgItem>
 #include "jsonEdit/itemiconinfotojson.h"
 #include <QGraphicsColorizeEffect>
-#include <QPair> 
+
 class GraphicsScene;
 struct ItemInfo
 {
@@ -49,7 +49,7 @@ struct AlarmRecord//用来记录所有报警信息
 {
     AlarmPriority m_alarmPriority;
     QString m_alarmRecordTime;//记录报警时间
-    QString m_alarmRecordState;//报警状态
+    QString m_alarmRecordState;//状态
     QString m_alarmRecordReplyTime;//报警恢复时间
 };
 
@@ -68,9 +68,9 @@ public:
     void stopColorAnimation();
     void startScaleAnimation();
     void stopScaleAnimation();
-    void startRotationAnimation();
-    void stopRotationAnimation();
-    void setColorEffectStrength(qreal strength);
+//    void startRotationAnimation();
+//    void stopRotationAnimation();
+   // void setColorEffectStrength(qreal strength);
     void setAnimationDuration(int duration);
     void setAnimationLoopCount(int count);
     QPointF graphicsItemPos() const;
@@ -139,13 +139,15 @@ protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+signals:
+    void moveToPos(const QPointF&pos);
 private:
     void updateHoverText();
 
 private:
     QPropertyAnimation *m_colorAnimation;
     QPropertyAnimation *m_scaleAnimation;
-    QPropertyAnimation *m_rotateAnimation;
+   // QPropertyAnimation *m_rotateAnimation;
     QParallelAnimationGroup *m_parallelAnimGroup;
     QColor m_color;
     GraphicsScene *m_graphicsScene;
@@ -153,7 +155,6 @@ private:
     QString m_hoverText;
     QColor m_itemTextColor;
     QString m_iconName;
-    static int m_num;
     ItemInfo m_itemInfo;
     QFont m_itemTextFont;
     ItemIconInfoToJson m_itemIconInfoToJson;
@@ -165,8 +166,9 @@ private:
     bool m_itemTextIsVisiable;
     QHash<QString,AlarmRecord*>m_alarmRecordHash;
     QString m_currentState;
-    qreal m_angle;
+   // qreal m_angle;
     qreal m_scale;
+    static qreal s_radius;
 };
 
 #endif // GRAPHICSITEM_H

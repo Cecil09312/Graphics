@@ -36,7 +36,7 @@ ConfigurationManager::ConfigurationManager(Configuration configuration,QObject *
     }
     if(m_tcpConfigurationHash.isEmpty())
     {
-        m_tcpConfigurationHash["hostAddr"] = "127.0.0.1";
+        m_tcpConfigurationHash["hostAddr"] = "192.195.1.1";
         m_tcpConfigurationHash["port"] = 8080;
 
         // m_configuration.data()->setConfiguration(m_tcpConfigurationHash);
@@ -48,15 +48,15 @@ ConfigurationManager::ConfigurationManager(Configuration configuration,QObject *
     }
     if(m_udpConfigurationHash.isEmpty())
     {
-        m_udpConfigurationHash["readAddr"] = "127.0.0.1";
+        m_udpConfigurationHash["readAddr"] = "192.195.1.1";
         m_udpConfigurationHash["readPort"] = 8080;
-        m_udpConfigurationHash["sendAddr"] = "127.0.0.1";
+        m_udpConfigurationHash["sendAddr"] = "192.195.1.1";
         m_udpConfigurationHash["sendPort"] = 8080;
     }
 
     if(m_ftpConfigurationHash.isEmpty())
     {
-        m_ftpConfigurationHash["host"] = "127.0.0.1";
+        m_ftpConfigurationHash["host"] = "192.195.1.1";
         m_ftpConfigurationHash["port"] =21;
         m_ftpConfigurationHash["user"] = "sss";
         m_ftpConfigurationHash["password"] = "1234";

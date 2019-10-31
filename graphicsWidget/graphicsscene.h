@@ -27,7 +27,7 @@ public:
     //void setItemFromIconIndex();
 
 signals:
-    void createItem(GraphicsItem *item);signals:
+    void createItem(GraphicsItem *item);
 
 
 protected:

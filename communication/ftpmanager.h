@@ -10,6 +10,7 @@
 #include "communication/ftpconfiguration.h"
 #include <QtConcurrent>
 #include <QFuture>
+#include "customTimer/customtimer.h"
 
 class FtpManager : public QObject
 {
@@ -28,9 +29,12 @@ public slots:
     void uploadFile(const QString &fileName);
 private:
     Configuration m_ftpConfiguration;
-    QNetworkReply*m_reply;
+    //QNetworkReply*m_reply;
     QNetworkAccessManager *m_manager;
     QThread *m_thread;
+    QList<QNetworkReply*>m_replyList;
+    bool m_sendDataSuccess;
+    CustomTimer *m_timeoutTimer;
 
 };
 

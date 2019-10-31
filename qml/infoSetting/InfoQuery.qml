@@ -17,17 +17,17 @@ Item {
         anchors.topMargin: 10
         id: btnRow
         spacing: 10
-        Button {
+        NaviButton {
             id: saveToPdfBtn
             text: qsTr("保存成pdf")
             height: 30
         }
-        Button {
+        NaviButton {
             id: printPreviewBtn
             text: qsTr("打印预览")
             height: 30
         }
-        Button {
+        NaviButton {
             id: printBtn
             text: qsTr("打印")
             height: 30

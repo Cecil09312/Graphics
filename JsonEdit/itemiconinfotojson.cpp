@@ -57,7 +57,6 @@ QVariant ItemIconInfoToJson::readValueFromKey(const QString &key)
 QString ItemIconInfoToJson::getValue(const QString &index, const QString &key)
 {
    QHash<QString,QVariant>valueHash =readValueFromKey(index).toHash();
-  // qDebug() <<valueHash;
    if(valueHash.contains(key))
    {
        return valueHash.value(key).toString();

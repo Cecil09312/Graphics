@@ -14,6 +14,7 @@ public:
     void start(int ms);
     void stop();
     bool isActive();
+    void setSingleShot(bool singleShot);
 
 signals:
     void startTimerMs(int ms);

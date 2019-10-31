@@ -15,6 +15,7 @@ InfoTableView::InfoTableView(QWidget *parent)
     {
         QSqlRecord record = m_tableModel->record(logicalIndex);
         emit tableValue(record);
+        emit setAlarmNum(m_tableModel->rowCount(),logicalIndex+1);
     }) ;
 
     connect(this->horizontalHeader(),&QHeaderView::sectionDoubleClicked,this,[=](int logicalIndex)
@@ -27,6 +28,7 @@ InfoTableView::InfoTableView(QWidget *parent)
     {
         QSqlRecord record = m_tableModel->record(index.row());
         emit tableValue(record);
+        emit setAlarmNum(m_tableModel->rowCount(),index.row()+1);
     });
 }
 
