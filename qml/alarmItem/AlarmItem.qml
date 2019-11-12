@@ -716,7 +716,7 @@ Rectangle {
         handOrAutoTxt.text = value
     }
 
-    function allAlarmClear() {
+    function allAlarmClear(fireAlarmClear) {
         startFireAnimation(false)
         startLinkageAnimation(false)
         startSuperviseAnimation(false)
@@ -725,8 +725,11 @@ Rectangle {
         startShieldAnimation(false)
         startMainPowerAnimation(false)
         startStandbyPowerAnimation(false)
-        setFireAlarmColor(true, "gray")
-        setLinkageAlarmColor(true, "gray")
+        if(fireAlarmClear)
+        {
+            setFireAlarmColor(true, "gray")
+            setLinkageAlarmColor(true, "gray")
+        }
         setSuperviseAlarmColor(true, "gray")
         setfaultAlarmColor(true, "gray")
         setFeedbackColor(true, "gray")

@@ -97,6 +97,8 @@ private:
     void sendHandOrAutoState(quint8 sysNum, quint8 handOrAutoState,quint8 runState, const QString &timeStr);
     void setTransportState();
     void setIndicator(bool state);
+private slots:
+    void processViewsData();
 
 
 private:
@@ -126,10 +128,11 @@ private:
     int m_heartbeatIndex;
     bool m_tcpIsConnected;
     //QList<quint8>m_packageNumList;
-    const int c_heartBeatTime = 30*1000;
+    const int c_heartBeatTime = 5*1000;
     bool m_serialConnected;
     CustomTimer *m_mainHeartBeatTimer;
     CustomTimer *m_checkSendDataTimer;
+    QTimer *m_updateViewTimer;
     QString m_alarmSqlInfo;
     QString m_updateAlarmSqlInfo;
     QProcess m_process;
@@ -143,6 +146,9 @@ private:
     QHash<int,bool>m_sendPackageStateHash;
     QHash<int,QDateTime> m_dataTimeHash;
     bool m_sendDataResult;
+    QList<QByteArray>m_readSerialDataList;
+    QList<QByteArray>m_fireDataList;
+    QMutex m_mutex;
 
 };
 

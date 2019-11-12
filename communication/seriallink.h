@@ -9,7 +9,8 @@
 #include "abstractlink.h"
 #include "serialconfiguration.h"
 #include <QMutex>
-
+#include "dataStore/abstractdataprotocol.h"
+#include "dataStore/serialdataprotocol.h"
 class SerialLink : public AbstractLink
 {
     Q_OBJECT

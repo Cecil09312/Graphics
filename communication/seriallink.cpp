@@ -2,6 +2,7 @@
 #include <QtAlgorithms>
 #include <QDebug>
 #include <QMutexLocker>
+
 SerialLink::SerialLink( QObject *parent)
     : AbstractLink(parent),
      m_isOpen(false)
@@ -99,8 +100,8 @@ void SerialLink::readData()
 {
     QMutexLocker locker(&m_mutex);
     QByteArray array = m_serialPort->readAll();
-   // qDebug() << "array" << array.toHex();
     emit getData(array);
+    m_thread->msleep(2);
 }
 
 

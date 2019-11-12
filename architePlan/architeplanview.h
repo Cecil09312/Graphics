@@ -29,7 +29,7 @@ public:
     explicit ArchitePlanView(QWidget *parent = nullptr);
     ~ArchitePlanView();
     int numOfTypeAlarm(const QString &type);//type类型的报警数目
-    static QMap<int,GraphicsView *> &getWidgetMap();
+    static QHash<int, GraphicsView *> &getWidgetHash();
     int totalPage();//总页数
     int currentPage();//当前页
 
@@ -72,7 +72,7 @@ public:
                                  const QString &addressNum, const QString &networkNum, const QString &alarmTypeName,
                                  const QString& alarmState, const QString &alarmTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));//生成报警
 
-    Q_INVOKABLE void clearAlarm();//清空报警
+    Q_INVOKABLE void clearAlarm(bool clearFireAlarm);//清空报警
     Q_INVOKABLE void clearAlarmFromExtNum(const QString &extNum, const QString &rebackAlarmTime);//按照主机号清除报警
     Q_INVOKABLE void clearExcptFireAlarm();
 
@@ -97,7 +97,7 @@ signals:
     void eliminateNoItemAlarm(const QString&extNum,const QString &loopNum,const QString &addrNum,const QString networkNum,const QString &type,const QString &time);
     void clearAlarmFromTable();
     void editGlobalItem();
-    void reduInstruction();
+    void reduInstruction(bool isOk);
     void tabIndex(int index);
     void keepStartState();
     void clearTableAlarm();
@@ -152,7 +152,7 @@ private:
     QTabWidget *m_tabWidget;
     GlobalGraphicsView *m_globalGraphicsView;
     SysArchitePlanView *m_sysArchitePlanView;
-    static QMap<int,GraphicsView *>m_widgetMap;
+    static QHash<int,GraphicsView *>m_widgetHash;
     QHash<QString,QList<GraphicsView *> >m_alarmWidgetHash;
     QString m_currentAlarmType;
     const QString c_jsonFilePath=QCoreApplication::applicationDirPath()+"/treeView.json";

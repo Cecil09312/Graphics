@@ -2,12 +2,13 @@
 #include "control/controller.h"
 TransportInfo::TransportInfo(QObject *parent) : QObject(parent)
 {
-
+    QmlForJson qmlForJson;
+    m_transportInfoHash=  qmlForJson.readFile(c_jsonFilePath).toHash();
 }
 
 TransportInfo::~TransportInfo()
 {
-
+   saveTransportInfoToJson();
 }
 
 void TransportInfo::setTransportInfo(const QString &name, const QString &value)
@@ -23,12 +24,11 @@ void TransportInfo::saveTransportInfoToJson()
 
 QString TransportInfo::transportInfoFromJson(const QString &name)
 {
-    QmlForJson qmlForJson;
-    m_transportInfoHash=  qmlForJson.readFile(c_jsonFilePath).toHash();
-    return m_transportInfoHash[name].toString();
+
+    return m_transportInfoHash.value(name).toString();
 }
 
 QString TransportInfo::transportInfo(const QString &name)
 {
-    return m_transportInfoHash[name].toString();
+    return m_transportInfoHash.value(name).toString();
 }

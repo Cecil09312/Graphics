@@ -10,6 +10,7 @@
 #include <QGraphicsSvgItem>
 #include <QSvgRenderer>
 #include <QGraphicsTextItem>
+#include "svgitem.h"
 class GraphicsView : public QGraphicsView
 {
 public:
@@ -26,6 +27,7 @@ public:
     void removeGraphicsTextItem(const QString&alarmType);
     void clearGraphicsTextItem();
     QGraphicsTextItem *textItem(const QString&alarmType);
+
 
 public slots:
     static void zoom(qreal scaleValue);
@@ -46,11 +48,11 @@ private:
     static qreal m_scale;
     GraphicsScene *m_scene;
     QGraphicsScene*m_sysViewScene;
-    QGraphicsSvgItem *m_svgItem;
+   // QGraphicsSvgItem *m_svgItem;
+    SvgItem *m_svgItem;
     QString m_pixmapName;
     int m_viewType;
     QHash<QString,QGraphicsTextItem*>m_textItemHash;
-    //QStringList m_alarmStringList;
 };
 
 #endif // GRAPHICSVIEW_H

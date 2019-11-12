@@ -73,6 +73,7 @@ TcpLink::~TcpLink()
 
 QIODevice *TcpLink::device()
 {
+    return nullptr;
     //return m_tcpSocket;
 }
 

@@ -12,7 +12,9 @@ GraphicsView::GraphicsView(QWidget *parent, int type):
     m_viewType(type)
 {
 
-    m_svgItem = new QGraphicsSvgItem;
+   // m_svgItem = new QGraphicsSvgItem;
+
+    m_svgItem = new SvgItem();
     zoom(1.2);
     setDragMode(QGraphicsView::ScrollHandDrag);
     //setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers),this));
@@ -215,16 +217,11 @@ QGraphicsTextItem *GraphicsView::textItem(const QString &alarmType)
     return m_textItemHash.value(alarmType);
 }
 
+
 void GraphicsView::loadPixmap(const QString &fileName)
 {
     m_pixmapName = Controller::instance()->fileNameFromQml(fileName);
-    if(m_pixmapName.endsWith(".svg"))
-    {
-        QSvgRenderer *render = new QSvgRenderer(this);
-        render->load(m_pixmapName);
-        m_svgItem->setSharedRenderer(render);
-    }
-
+    m_svgItem->setSvgName(m_pixmapName);
 }
 
 void GraphicsView::zoomIn()

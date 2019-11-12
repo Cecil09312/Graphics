@@ -35,6 +35,7 @@ private:
     QList<QNetworkReply*>m_replyList;
     bool m_sendDataSuccess;
     CustomTimer *m_timeoutTimer;
+    QHash<QString,QString>m_fileNameHash;
 
 };
 

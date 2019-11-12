@@ -80,7 +80,8 @@ SOURCES += \
     LogMsg/errorlogmsg.cpp \
     LogMsg/infologmsg.cpp \
     LogMsg/logmsg.cpp \
-    communication/tcpserver.cpp
+    communication/tcpserver.cpp \
+    graphicsWidget/svgitem.cpp
 
 
 HEADERS += \
@@ -135,7 +136,8 @@ HEADERS += \
     LogMsg/errorlogmsg.h \
     LogMsg/infologmsg.h \
     LogMsg/logmsg.h \
-    communication/tcpserver.h
+    communication/tcpserver.h \
+    graphicsWidget/svgitem.h
 
 FORMS +=
 

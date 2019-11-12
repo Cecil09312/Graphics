@@ -235,6 +235,7 @@ Rectangle {
         anchors.right: parent.right
         model: listModel
         delegate: listDelegate
+        clip: true
     }
     Row {
         id: buttons

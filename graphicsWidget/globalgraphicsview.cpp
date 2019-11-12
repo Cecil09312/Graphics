@@ -10,7 +10,9 @@ GlobalGraphicsView::GlobalGraphicsView(QWidget *parent):
     m_graphicsScene->addItem(m_pixmapItem);
     setScene(m_graphicsScene);
     setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-   fitInView(0,0,width()*0.9,height()*0.9,Qt::KeepAspectRatio);
+    //QRectF currentRectF = m_graphicsScene->sceneRect();
+   // fitInView(QRectF(0, 0, 1024, 768),Qt::KeepAspectRatio);
+   fitInView(0,0,width(),height(),Qt::KeepAspectRatio);
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this,&GlobalGraphicsView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)
     {

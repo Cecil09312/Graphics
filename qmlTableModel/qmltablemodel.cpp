@@ -42,6 +42,14 @@ void QmlTableModel::sqlCommit(const QString &sqlStr)
     if(m_sqlManager!=nullptr)
     {
         setQuery(sqlStr,m_sqlManager->getDatabase());
+        if(!sqlStr.startsWith("delete"))
+        {
+            while (canFetchMore())
+            {
+                 fetchMore();
+            }
+        }
+
     }
     submit();
 }

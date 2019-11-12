@@ -54,7 +54,7 @@ TreeView::TreeView(QWidget *parent):
     });
     connect(m_clearAction,&QAction::triggered,this,[=]()
     {
-        QList<GraphicsView*>viewList= Controller::instance()->getArchitePlanView()->getWidgetMap().values();
+        QList<GraphicsView*>viewList= Controller::instance()->getArchitePlanView()->getWidgetHash().values();
         bool isCanClear = false;
         foreach (GraphicsView*view, viewList)
         {

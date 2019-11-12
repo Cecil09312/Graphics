@@ -113,7 +113,7 @@ Rectangle {
                 text: qsTr("报警清除")
                 onClicked: {
 
-                    ArchitePlanView.clearAlarm()
+                    ArchitePlanView.clearAlarm(true)
                 }
             }
         }

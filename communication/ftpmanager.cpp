@@ -6,6 +6,17 @@ FtpManager::FtpManager(QObject *parent)
       m_sendDataSuccess(false)
 {
     m_ftpConfiguration = Configuration(new FtpConfiguration);
+
+    m_fileNameHash["消防控制室管理机构.pdf"]="Fire control room management organization.pdf";
+    m_fileNameHash["系统竣工图纸.svg"]="System as built drawings.svg";
+    m_fileNameHash["各分系统控制逻辑关系说明.pdf"]="Subsystem instructions.pdf";
+    m_fileNameHash["设备使用说明书.pdf"]="Operation instructions.pdf";
+    m_fileNameHash["系统操作规程.pdf"]="System operation procedures.pdf";
+    m_fileNameHash["应急预案.pdf"]="Contingency plan.pdf";
+    m_fileNameHash["值班制度.pdf"]="Duty rules.pdf";
+    m_fileNameHash["维护保养制度.pdf"]="Maintenance rules.pdf";
+    m_fileNameHash["维护保养记录.pdf"]="Maintenance records.pdf";
+
     m_thread = new QThread;
     m_manager = new QNetworkAccessManager();
     m_timeoutTimer = new CustomTimer;
@@ -117,9 +128,24 @@ void FtpManager::uploadFile(const QString &fileName )
         int port = configurationHash["port"].toInt();
         url.setScheme("ftp");
         url.setHost(hostStr);
-        url.setPath(QUrl(pathStr).fileName());
-        url.setUserName(userStr);
-        url.setPassword(password);
+        QString curFileName=QUrl(pathStr).fileName();
+//        QFile curFile;
+//        if(!curFileName.isEmpty())
+//        {
+//            curFile.setFileName(curFileName);
+//            curFile.rename(m_fileNameHash.value(curFileName));
+//        }
+       // qDebug() << "curFile.fileName()" << curFile.fileName();
+        url.setPath(m_fileNameHash.value(curFileName));
+        if(!userStr.isEmpty())
+        {
+            url.setUserName(userStr);
+        }
+        if(!password.isEmpty())
+        {
+            url.setPassword(password);
+        }
+
         url.setPort(port);
         QFile file(pathStr);
         if(file.open(QIODevice::ReadWrite))

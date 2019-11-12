@@ -45,7 +45,7 @@ ToolBar {
             font.bold: true
             color: "black"
 
-            text: qsTr("消防控制室图形显示装置V1.0")
+            text: qsTr("消防控制室图形显示装置V6.0")
             // Layout.alignment: Qt.AlignLeft
             Layout.fillWidth: true
         }

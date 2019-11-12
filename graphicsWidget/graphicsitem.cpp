@@ -8,6 +8,7 @@
 #include <QSvgGenerator>
 #include <QGraphicsView>
 #include <qmath.h>
+#include <QPointF>
 qreal GraphicsItem::s_radius =15.0;
 GraphicsItem::GraphicsItem(GraphicsScene *scene):
 
@@ -20,6 +21,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_graphicsScene = scene;
     m_itemInfo.m_manufacturers = tr("北京利达华信电子有限公司");
    // m_itemInfo.m_networkNum = "0";
+
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);
     m_colorEffect = new QGraphicsColorizeEffect(this);
@@ -182,7 +184,6 @@ void GraphicsItem::setColor(const QColor &color)
 {
     m_color = color;
     m_colorEffect->setColor(m_color);
-   // update();
 }
 
 void GraphicsItem::startAnimations()

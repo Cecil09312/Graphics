@@ -10,7 +10,7 @@
 #include <QQuickItem>
 #include <QQmlContext>
 
-QMap<int,GraphicsView *>ArchitePlanView::m_widgetMap =QMap<int,GraphicsView *>();
+QHash<int,GraphicsView *>ArchitePlanView::m_widgetHash =QHash<int,GraphicsView *>();
 bool ArchitePlanView::m_itemLimit = false;
 ArchitePlanView::ArchitePlanView(QWidget *parent)
     : QWidget(parent),
@@ -667,10 +667,10 @@ void ArchitePlanView::initWidget()
         if(item!=nullptr)
         {
             int page = map[item];
-            if(m_widgetMap[page]==nullptr)
+            if(m_widgetHash.value(page)==nullptr)
             {
                 GraphicsView *widget = new GraphicsView(this);
-                m_widgetMap[page]=widget;
+                m_widgetHash[page]=widget;
                 m_stackedWidget->addWidget(widget);
                 m_itemToViewHash[item] = widget;
             }
@@ -682,24 +682,34 @@ void ArchitePlanView::initWidget()
         int page=0;
         QStandardItemModel*model =dynamic_cast<QStandardItemModel*>(m_treeView->model());
         QStandardItem *item= model->itemFromIndex(index);
+        if(item->parent()==nullptr)
+        {
+            return;
+        }
         QMap<QStandardItem*,int>itemMap;
         itemMap = m_treeView->getTreeIndexMap();
-        page =itemMap[item];
-        if(m_widgetMap[page]!=nullptr)
+        page =itemMap.value(item);
+
+        if(m_widgetHash.value(page)!=nullptr)
         {
-            m_stackedWidget->setCurrentWidget(m_widgetMap[page]);
-            GraphicsView *currentView = dynamic_cast<GraphicsView *>(m_widgetMap[page]);
-            updateAlarmWidget(currentView);
+            GraphicsView *currentView = dynamic_cast<GraphicsView *>(m_widgetHash.value(page));
+            if(currentView!=nullptr)
+            {
+                m_stackedWidget->setCurrentWidget(currentView);
+                updateAlarmWidget(currentView);
+            }
+
+
         }
 
     });
 
     connect(m_treeView,&TreeView::clearIndex,this,[=]()
     {
-        int count = m_widgetMap.size();
+        int count = m_widgetHash.size();
         for(int i=0;i<count;i++)
         {
-            QWidget *widget = m_widgetMap.values().at(i);
+            QWidget *widget = m_widgetHash.values().at(i);
             if(widget!=nullptr)
             {
                 m_stackedWidget->removeWidget(widget);
@@ -708,7 +718,7 @@ void ArchitePlanView::initWidget()
             }
 
         }
-        m_widgetMap.clear();
+        m_widgetHash.clear();
         m_globalGraphicsView->currentScene()->clearGraphicsItem();
         emit noPage();
     });
@@ -720,11 +730,13 @@ void ArchitePlanView::initWidget()
         QMap<QStandardItem*,int>itemMap;
         itemMap = m_treeView->getTreeIndexMap();
         int page =itemMap[item];
-        GraphicsView*widget = m_widgetMap[page];
+        GraphicsView*widget = m_widgetHash.value(page);
+
         if(widget!=nullptr)
         {
             widget->loadPixmap(fileName);
         }
+
     });
 
     connect(m_stackedWidget,&QStackedWidget::currentChanged,this,[=](int index)
@@ -733,9 +745,9 @@ void ArchitePlanView::initWidget()
         int count = viewList.size();
         if(count>1)
         {
-            if(index<m_widgetMap.size())
+            if(index<m_widgetHash.size())
             {
-                GraphicsView *view = m_widgetMap[index];
+                GraphicsView *view = m_widgetHash.value(index);
                 int currentIndex= viewList.indexOf(view);
                 if(currentIndex==0)
                 {
@@ -974,10 +986,10 @@ QStandardItem *ArchitePlanView::getParnentItemFromView(GraphicsView *view)
 void ArchitePlanView::saveArchiteInfoToDb()
 {
     m_sqliteManager->executeQuery("delete from ItemInfo");
-    QList<int> keyValueList= m_widgetMap.keys();
+    QList<int> keyValueList= m_widgetHash.keys();
     foreach (int value, keyValueList)
     {
-        GraphicsView *view=  m_widgetMap.value(value);
+        GraphicsView *view=  m_widgetHash.value(value);
         if(view!=nullptr)
         {
             QList<QVariant>valueList,extNumList,addrNumList,loopNumList,networkNumList,buildingNameList,
@@ -1075,7 +1087,7 @@ QHash<QString,QVariant> ArchitePlanView::saveViewInfo(QStandardItem *item)
     QMap<QStandardItem*,int>itemMap;
     itemMap = m_treeView->getTreeIndexMap();
     int page =itemMap[item];
-    GraphicsView*widget = m_widgetMap[page];
+    GraphicsView*widget = m_widgetHash.value(page);
     if(widget!=nullptr)
     {
         imageHash["path"]=widget->pixmapName();
@@ -1215,10 +1227,10 @@ GraphicsView* ArchitePlanView::setViewFromJson(const QHash<QString,QVariant> &ha
         QMap<QStandardItem*,int>parentItemMap;
         parentItemMap = m_treeView->getTreeIndexMap();
         int page =parentItemMap[treeItem];
-        GraphicsView*widget = m_widgetMap[page];
+        GraphicsView*widget = m_widgetHash.value(page);
         if(widget!=nullptr)
         {
-            widget->loadPixmap(hash["path"].toString());
+            widget->loadPixmap(hash.value("path").toString());
         }
         return widget;
     }
@@ -1233,7 +1245,7 @@ void ArchitePlanView::findFireAlarm(int pos)
     QList<QGraphicsItem*>itemList= DataStore::getTypeItemList(tr("火警"));
     int listSize = itemList.size();
 
-    QList<GraphicsView *>viewList = m_widgetMap.values();
+    QList<GraphicsView *>viewList = m_widgetHash.values();
     if(listSize>0)
     {
         foreach (GraphicsView *currentView, viewList)
@@ -1345,7 +1357,7 @@ GraphicsItem *ArchitePlanView::itemFormInfo(const QString &extNum, const QString
 {
     GraphicsItem *graphicsItem = nullptr;
     bool isFind = false;
-    QList<GraphicsView *>viewList = m_widgetMap.values();
+    QList<GraphicsView *>viewList = m_widgetHash.values();
 
     foreach (GraphicsView *currentView, viewList)
     {
@@ -1734,9 +1746,9 @@ void ArchitePlanView::setGlobalArchitePixmap(const QString &pixmapName)
     m_globalGraphicsView->setPicture(filePath);
 }
 
-QMap<int, GraphicsView *> &ArchitePlanView::getWidgetMap()
+QHash<int, GraphicsView *> &ArchitePlanView::getWidgetHash()
 {
-    return m_widgetMap;
+    return m_widgetHash;
 }
 
 int ArchitePlanView::totalPage()
@@ -1751,7 +1763,7 @@ int ArchitePlanView::currentPage()
     return viewList.indexOf(view);
 }
 
-void ArchitePlanView::clearAlarm()
+void ArchitePlanView::clearAlarm(bool clearFireAlarm)
 {
     QList< QList<QGraphicsItem *> >list= DataStore::getTypeItemHash().values();
     foreach (QList<QGraphicsItem *>itemList, list)
@@ -1818,7 +1830,7 @@ void ArchitePlanView::clearAlarm()
     m_alarmViewList.clear();
 
     emit noPage();
-    emit reduInstruction();
+    emit reduInstruction(clearFireAlarm);
     m_firstFireWidget->close();
     QList<QGraphicsItem*> globalGraphicsItemList= m_globalGraphicsView->currentScene()->items();
     foreach (QGraphicsItem*item, globalGraphicsItemList)
@@ -1898,57 +1910,7 @@ void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum,const QString &
 
 void ArchitePlanView::clearExcptFireAlarm()
 {
-    QList< QList<QGraphicsItem *> >list= DataStore::getTypeItemHash().values();
-    foreach (QList<QGraphicsItem *>itemList, list)
-    {
-        foreach (QGraphicsItem *currentItem, itemList)
-        {
-            GraphicsItem *item = dynamic_cast<GraphicsItem *>(currentItem);
-            if(item!=nullptr)
-            {
-                foreach (QString type, item->alarmTypeList())
-                {
-//                    if(type.endsWith(tr("火警"))||type.endsWith(tr("启动")))
-//                    {
-//                        continue;
-//                    }
-//                    else
-  //                  {
-                        eliminateAlarm(item,type,QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
-  //                  }
-                }
-            }
-        }
-    }
-
-    QList<QString>typeNoItemList= DataStore::getTypeNoItemHash().keys();
-    foreach (QString dataInfo, typeNoItemList)
-    {
-//        if(dataInfo.endsWith(tr("火警"))||dataInfo.endsWith(tr("启动")))
-//        {
-//            continue;
-//        }
-//        else
-//        {
-            QList<DataInfo *> infoList=  DataStore::getTypeNoItemHash().value(dataInfo);
-            foreach (DataInfo *info, infoList)
-            {
-                if(info!=nullptr)
-                {
-                    QString curExtNum = info->m_extNum;
-                    QString curLoopNum = info->m_loopNum;
-                    QString curAddrNum = info->m_addrNum;
-                    QString curNetworkNum = info->m_networkNum;
-                    DataStore::deleteDataInfo(info);
-                    emit eliminateNoItemAlarm(curExtNum,curLoopNum,curAddrNum,curNetworkNum,dataInfo,QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
-                }
-
-            }
-       // }
-
-    }
-
-    emit keepStartState();
+ clearAlarm(false);
 }
 
 void ArchitePlanView::toPreviousPage()
@@ -2018,7 +1980,7 @@ void ArchitePlanView::setCurrentAlarmType(const QString &type)
 
 void ArchitePlanView::toArchitePlan(const QString &extNum, const QString &loopNum, const QString &addressNum,const QString &networkNum)
 {
-    foreach (GraphicsView *view, m_widgetMap.values())
+    foreach (GraphicsView *view, m_widgetHash.values())
     {
         if(view!=nullptr)
         {
@@ -2087,7 +2049,7 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
         {
             QStandardItem*childItem =  item->child(i);
             int chileItemPage = itemMap[childItem];
-            GraphicsView*childWidget = m_widgetMap[chileItemPage];
+            GraphicsView*childWidget = m_widgetHash.value(chileItemPage);
             if(childWidget!=nullptr)
             {
                 m_stackedWidget->removeWidget(childWidget);
@@ -2097,7 +2059,7 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
 
             }
 
-            m_widgetMap.remove(chileItemPage);
+            m_widgetHash.remove(chileItemPage);
             m_treeView->getTreeIndexMap().remove(childItem);
 
 
@@ -2106,7 +2068,7 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
     else
     {
         int itemPage = itemMap[item];
-        GraphicsView*gWidget = m_widgetMap[itemPage];
+        GraphicsView*gWidget = m_widgetHash.value(itemPage);
         if(gWidget!=nullptr)
         {
             m_stackedWidget->removeWidget(gWidget);
@@ -2116,7 +2078,7 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
 
         }
 
-        m_widgetMap.remove(itemPage);
+        m_widgetHash.remove(itemPage);
         m_treeView->getTreeIndexMap().remove(item);
     }
 
@@ -2316,7 +2278,7 @@ GraphicsView *ArchitePlanView::viewFromChildItem(QStandardItem *childItem)
         if(childItem->parent()!=nullptr)
         {
             int page =itemMap[childItem];
-            widget = m_widgetMap[page];
+            widget = m_widgetHash.value(page);
         }
     }
     return widget;
@@ -2334,7 +2296,7 @@ QList<GraphicsView *> ArchitePlanView::viewsFromParentItem(QStandardItem *parent
         {
             QStandardItem*childItem =  parentItem->child(i);
             int chileItemPage = itemMap[childItem];
-            GraphicsView*childWidget = m_widgetMap[chileItemPage];
+            GraphicsView*childWidget = m_widgetHash.value(chileItemPage);
             viewList.push_back(childWidget);
         }
     }
@@ -2397,7 +2359,7 @@ QString ArchitePlanView::deviceSysName(const QString &extNum)
 {
     QString sysName = "";
     sysName.clear();
-    foreach (GraphicsView *view, m_widgetMap.values())
+    foreach (GraphicsView *view, m_widgetHash.values())
     {
         if(view!=nullptr)
         {

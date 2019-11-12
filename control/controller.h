@@ -56,7 +56,7 @@ public:
     OperatorInfo *getOperatorInfo();
     TransportInfo *getTransportInfo();
     LogMsg *getLogMsg();
-     void delayMs(int ms);//非阻塞延时
+    void delayMs(int ms);//非阻塞延时
 
 private:
     Controller();

@@ -7,6 +7,7 @@ import transportInfo 1.0
 Item {
     property string fileType: ""
     Grid {
+        id:grid
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
         columns: 3
@@ -176,6 +177,8 @@ Item {
             }
         }
     }
+
+
 
     FileDialog {
         id: fileDialog

@@ -162,7 +162,7 @@ int DataStore::numOfTypeItem(const QString &type)
 GraphicsView *DataStore::itemDisplayView(GraphicsItem *item)
 {
     GraphicsView *currentView = nullptr;
-    QList<GraphicsView*> viewList= ArchitePlanView::getWidgetMap().values();
+    QList<GraphicsView*> viewList= ArchitePlanView::getWidgetHash().values();
     foreach (GraphicsView*view, viewList)
     {
         if(view!=nullptr)
@@ -258,7 +258,7 @@ int DataStore::indexOfItem(const QString &extNum, const QString &loopNum, const 
 int &DataStore::itemNum()
 {
     int itemNum=-1;
-    QList<GraphicsView *> viewList= ArchitePlanView::getWidgetMap().values();
+    QList<GraphicsView *> viewList= ArchitePlanView::getWidgetHash().values();
     foreach (GraphicsView *curView, viewList)
     {
         if(curView!=nullptr)

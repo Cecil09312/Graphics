@@ -46,7 +46,7 @@ QmlTableModel *InfoTableView::tableModel()
 
 void InfoTableView::toMaxPosition()
 {
-    Controller::instance()->delayMs(50);
+   // Controller::instance()->delayMs(50);
     int rowCount = m_tableModel->rowCount();
     int currentHeight=0;
     if(rowCount>0)
