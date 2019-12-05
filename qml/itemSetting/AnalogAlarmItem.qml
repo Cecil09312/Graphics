@@ -100,8 +100,7 @@ Rectangle {
                 onClicked: {
 
                     ArchitePlanView.eliminateAlarm(extNumTextField.text,
-                                                   loopNumTextField.text,
-                                                   addrNumTextField.text,
+                                                   loopNumTextField.text, addrNumTextField.text,
                                                    networkNumTextField.text,qsTr("模拟")+alarmStateComboBox.currentText)
                 }
             }

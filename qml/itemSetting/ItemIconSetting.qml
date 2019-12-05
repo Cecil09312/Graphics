@@ -5,15 +5,18 @@ import itemIconInfoToJson 1.0
 import controller 1.0
 import "../infoSetting"
 Rectangle {
-    width: 680
+    width: 1020
     height: 480
 
     signal saveItemInfoToJson
     signal periodValueChanged(int index, string periodValue)
     signal manufacturersChanged(int index, string facturers)
+    signal deviceInstallTimeChanged(int index, string deviceInstallTime)
     signal iconChanged(int index, string iconPath)
     signal deviceNameChanged(int index, string device)
     signal deviceDelete(int index)
+    property url oneFilePath: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
+    property url someFilePath: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
 
     ListModel {
         id: listModel
@@ -21,6 +24,7 @@ Rectangle {
             deviceName: qsTr("报警装置")
             imagePath: "qrc:/images/fireAlarm.png"
             manufacturers: qsTr("北京利达华信电子有限公司")
+            deviceInstallTime:""
             periodOfvalidity: ""
         }
     }
@@ -51,11 +55,15 @@ Rectangle {
 
                     onTextChanged: {
                         deviceName = deviceNameTextFild.text
+
                     }
-                    onEditingFinished: {
+                    onEditingFinished:
+                    {
                         emit: deviceNameChanged(index, deviceName)
-                        saveInfo()
+                       // saveInfo()
+
                     }
+
                 }
 
                 TextField {
@@ -66,12 +74,33 @@ Rectangle {
 
                     onTextChanged: {
                         manufacturers = manufacturersTextField.text
+
+
+                    }
+                    onEditingFinished:
+                    {
+                       emit: manufacturersChanged(index, manufacturers)
+                       // saveInfo()
+                    }
+                }
+
+
+                TextField {
+                    id: deviceInstallTimeTextField
+                    width: 160
+                    height: 40
+                    text: deviceInstallTime
+                    placeholderText: qsTr("安装时间(如:2020/01/01)")
+                    onTextChanged: {
+                        deviceInstallTime = deviceInstallTimeTextField.text
+
+                    }
+                    onEditingFinished:
+                    {
+                        emit: deviceInstallTimeChanged(index, deviceInstallTime)
+                       //saveInfo()
                     }
 
-                    onEditingFinished: {
-                        emit: manufacturersChanged(index, manufacturers)
-                        saveInfo()
-                    }
                 }
 
                 TextField {
@@ -82,11 +111,14 @@ Rectangle {
                     placeholderText: qsTr("有效期(如:2050/01/01)")
                     onTextChanged: {
                         periodOfvalidity = periodTextField.text
+
                     }
-                    onEditingFinished: {
+                    onEditingFinished:
+                    {
                         emit: periodValueChanged(index, periodOfvalidity)
-                        saveInfo()
+                    //  saveInfo()
                     }
+
                 }
 
                 TextField {
@@ -102,7 +134,7 @@ Rectangle {
 
                 NaviButton {
                     id: imageSettingBtn
-                    width: 80
+                    width: 100
                     text: qsTr("选择图标")
                     onClicked: {
                         fileDialog.open()
@@ -133,12 +165,14 @@ Rectangle {
             FileDialog {
                 id: fileDialog
                 title: "Please choose a file"
-                folder: StandardPaths.writableLocation(
-                            StandardPaths.DocumentsLocation)
+                folder: oneFilePath
+//                folder: StandardPaths.writableLocation(
+//                            StandardPaths.DocumentsLocation)
                 onAccepted: {
+                    oneFilePath= file
                     imagePath = Qt.resolvedUrl(decodeURI(
                                                    currentFile.toString()))
-                  deviceName = Controller.getFileNameFromUrl(currentFile.toString(),false)
+                    deviceName = Controller.getFileNameFromUrl(currentFile.toString(),false)
 
                     emit: iconChanged(index, imagePath)
                     saveInfo()
@@ -151,9 +185,11 @@ Rectangle {
         id: selectFilesDialog
         title: "Please choose some files"
         fileMode: FileDialog.OpenFiles
-        folder: StandardPaths.writableLocation(
-                    StandardPaths.DocumentsLocation)
+        folder: someFilePath
+//        folder: StandardPaths.writableLocation(
+//                    StandardPaths.DocumentsLocation)
         onAccepted: {
+            someFilePath=file
             for(var i=0;i<currentFiles.length;i++)
             {
                 var obj = new Object
@@ -161,6 +197,7 @@ Rectangle {
                             decodeURI(currentFiles[i]))
                 obj["deviceName"] = Controller.getFileNameFromUrl(currentFiles[i].toString(),false)
                 obj["manufacturers"] = qsTr("北京利达华信电子有限公司")
+                obj["deviceInstallTime"] = ""
                 obj["periodOfvalidity"] = ""
                 listModel.append(obj)
             }
@@ -206,6 +243,17 @@ Rectangle {
         }
 
         Text {
+            id: deviceInstallTimeTxt
+            width: 160
+            // height: 40
+            text: qsTr("安装时间")
+            font.family: "宋体"
+            font.pixelSize: 14
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+        }
+
+        Text {
             id: periodTxt
             width: 150
             // height: 40
@@ -226,16 +274,25 @@ Rectangle {
             horizontalAlignment: Text.AlignHCenter
         }
     }
-
-    ListView {
-        id: listView
+    ScrollView
+    {
         anchors.top: titleRow.bottom
         anchors.left: parent.left
         anchors.bottom: buttons.top
         anchors.right: parent.right
-        model: listModel
-        delegate: listDelegate
-        clip: true
+        ListView {
+            id: listView
+            anchors.fill: parent
+            //        orientation: ListView.Vertical
+            //        anchors.top: titleRow.bottom
+            //        anchors.left: parent.left
+            //        anchors.bottom: buttons.top
+            //        anchors.right: parent.right
+            model: listModel
+            delegate: listDelegate
+
+            clip: true
+        }
     }
     Row {
         id: buttons
@@ -254,6 +311,7 @@ Rectangle {
                 obj["deviceName"] = String(qsTr("报警装置%1").arg(listModel.count))
                 obj["manufacturers"] = qsTr("北京利达华信电子有限公司")
                 obj["periodOfvalidity"] = ""
+                obj["deviceInstallTime"] = ""
                 listModel.append(obj)
                 saveInfo()
             }
@@ -265,7 +323,7 @@ Rectangle {
             text: qsTr("批量插入")
             onClicked: {
 
-                 selectFilesDialog.open()
+                selectFilesDialog.open()
             }
         }
 
@@ -306,6 +364,8 @@ Rectangle {
 
             itemIconInfo.saveItemIconInfo(String("%1").arg(i), "manufacturers",
                                           obj["manufacturers"].toString())
+            itemIconInfo.saveItemIconInfo(String("%1").arg(i), "deviceInstallTime",
+                                          obj["deviceInstallTime"].toString())
             itemIconInfo.saveItemIconInfo(String("%1").arg(i),
                                           "periodOfvalidity",
                                           obj["periodOfvalidity"].toString())

@@ -30,10 +30,14 @@ void SvgItem::setSvgName(const QString &svgName)
 void SvgItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
 
-        if(m_svgName.endsWith(".svg"))
-        {
-            QSvgRenderer renderer(m_svgName);
-            renderer.render(painter,m_rectF);
-        }
+    if(m_svgName.endsWith(".svg"))
+    {
+        QSvgRenderer renderer(m_svgName);
+        renderer.render(painter,m_rectF);
+    }
+    else
+    {
+        painter->drawPixmap(m_rectF.toRect(),QPixmap(m_svgName));
+    }
 
 }

@@ -55,6 +55,7 @@ protected:
 signals:
     void getSerialData();
     void getTcpData();
+    void checkExtNum(quint8 extNum,quint8 networkNum);
 
 public slots:
     void widgetExit();
@@ -88,7 +89,8 @@ private:
     void alarmDataOnTable();
     bool setSysTime(const QDateTime &dateTime);
     void sendFireInfo(quint8 extNum, quint8 loopNum, quint8 addrNum, const QString &dateTimeStr);
-    void reSendCmd(quint8 packageNum);//重传指令
+    void reSendCmd();//广播重传指令
+    void reSendUnicastCmd(quint8 extNum, quint8 networkNum);
     void startProcess(const QString &cmd);
     void resetAllState();
     void sendControlCenterHeartbeat();
@@ -97,6 +99,7 @@ private:
     void sendHandOrAutoState(quint8 sysNum, quint8 handOrAutoState,quint8 runState, const QString &timeStr);
     void setTransportState();
     void setIndicator(bool state);
+
 private slots:
     void processViewsData();
 
@@ -112,6 +115,8 @@ private:
     QQuickView *m_alarmQuickView;
     QQuickView *m_settingView;
     QQuickView *m_infoQueryView;
+    QQuickView *m_extNumStateView;
+    QObject*m_extNumObj;
     QObject *m_settingObj;
     SqlManager *m_sqliteManager;
     QObject *m_alarmObj;
@@ -141,14 +146,18 @@ private:
     bool m_tcpConnectState;
     bool m_serialCurState;
    // QTcpSocket *m_controlCenterSocket;
-    quint8 m_packageNum;
     QHash<quint8,QString>m_sysNameHash;
-    QHash<int,bool>m_sendPackageStateHash;
-    QHash<int,QDateTime> m_dataTimeHash;
+    QHash<quint8,bool>m_extNumStateHash;
+    QHash<quint8,CustomTimer*>m_checkExtNumHash;
+    QHash<quint8,int>m_extNumTimesHash;
+    QHash<quint8,SerialState> m_extOnlineStateHash;
+    //QHash<int,QDateTime> m_dataTimeHash;
     bool m_sendDataResult;
     QList<QByteArray>m_readSerialDataList;
     QList<QByteArray>m_fireDataList;
     QMutex m_mutex;
+    const int c_mainHeartBeatTimeOut=90000;
+    const int c_mainHeartBeatTime=4500;
 
 };
 

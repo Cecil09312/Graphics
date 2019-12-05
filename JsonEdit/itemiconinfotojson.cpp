@@ -6,6 +6,12 @@ int ItemIconInfoToJson::s_currentIconIndex =0;
 ItemIconInfoToJson::ItemIconInfoToJson(QObject *parent):
     QmlForJson(parent)
 {
+   m_iconInfoHash = readFile(c_filePath).toHash();
+  QList<QString>keyList= m_iconInfoHash.keys();
+  foreach (QString key, keyList) {
+    QHash<QString,QVariant>iconHash=  m_iconInfoHash.value(key).toHash();
+    s_iconIndexHash[key.toInt()]=iconHash.value("imagePath").toString();
+  }
 
 }
 
@@ -114,6 +120,19 @@ void ItemIconInfoToJson::clearIconIndex()
 int ItemIconInfoToJson::currentIconIndex()
 {
     return s_currentIconIndex;
+}
+
+int ItemIconInfoToJson::iconIndex(const QString &iconName)
+{
+    int curIndex = 0;
+    foreach (QString value, s_iconIndexHash.values())
+    {
+        if(value.contains(iconName))
+        {
+          curIndex=  s_iconIndexHash.key(value);
+        }
+    }
+    return curIndex;
 }
 
 void ItemIconInfoToJson::setCurrentIconIndex(int index)

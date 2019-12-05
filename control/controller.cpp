@@ -35,6 +35,10 @@ QString Controller::fileNameFromQml(const QString &name)
             fileName = nameList.at(size-1);
         }
     }
+    if(fileName.startsWith("qrc"))
+    {
+        fileName.remove("qrc");
+    }
 #ifdef Q_OS_LINUX
     if(!QDir::isAbsolutePath(fileName))
     {

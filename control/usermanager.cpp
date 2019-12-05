@@ -19,7 +19,7 @@ UserManager::UserManager(QObject *parent)
             {
                 m_sqliteManager->executeQuery("create table UserInfo(userRight text not null, userName text primary key not null,password text not null);");
                 m_sqliteManager->executeQuery("insert into UserInfo values('普通用户','119','119')");
-                m_sqliteManager->executeQuery("insert into UserInfo values('超级用户','super','super')");
+                m_sqliteManager->executeQuery("insert into UserInfo values('超级用户','super','system')");
                 m_sqliteManager->executeQuery("insert into UserInfo values('管理员','admin','admin')");
             }
             else

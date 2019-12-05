@@ -99,7 +99,7 @@ Item {
             onClicked: {
                 deviceStateModel.sqlCommit(
                             String(
-                                "select extNum ,loopNum,addrNum,networkNum,manufacturers,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo where %1").arg(
+                                "select extNum ,loopNum,addrNum,networkNum,manufacturers,deviceInstallTime,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo where %1").arg(
                                 selectInfo()))
             }
         }
@@ -111,7 +111,7 @@ Item {
             width: 100
             onClicked: {
                 deviceStateModel.sqlCommit(
-                            "select extNum ,loopNum,addrNum,networkNum,manufacturers,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo")
+                            "select extNum ,loopNum,addrNum,networkNum,manufacturers,deviceInstallTime,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo")
             }
         }
     }
@@ -153,6 +153,13 @@ Item {
             role: qsTr("manufacturers")
             title: qsTr("制造商")
             width: 150
+            //resizable: true
+        }
+
+        Controls1_4.TableViewColumn {
+            role: qsTr("deviceInstallTime")
+            title: qsTr("安装时间")
+            width: 100
             //resizable: true
         }
 
@@ -210,15 +217,15 @@ Item {
         dbName: ArchitePlanView.architeInfoDbName()
         dbConnectionName: "deviceState"
         dbPort: 8888
-        roleNameList: ["extNum", "loopNum", "addrNum", "networkNum", "manufacturers", "periodOfValidity", "deviceNum", "deviceName", "alarmState", "operator"]
-        titleList: ["分机号", "回路号", "地址号", "网络号", "制造商", "有效期", "设备编码", "设备", "状态", "操作员"]
+        roleNameList: ["extNum", "loopNum", "addrNum", "networkNum", "manufacturers","deviceInstallTime","periodOfValidity", "deviceNum", "deviceName", "alarmState", "operator"]
+        titleList: ["分机号", "回路号", "地址号", "网络号", "制造商", "安装时间","有效期", "设备编码", "设备", "状态", "操作员"]
     }
 
     Component.onCompleted: {
 
         deviceStateModel.setDbOpen(true)
         deviceStateModel.sqlCommit(
-                    "select extNum ,loopNum,addrNum,networkNum,manufacturers,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo")
+                    "select extNum ,loopNum,addrNum,networkNum,manufacturers,deviceInstallTime,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo")
     }
 
     function selectInfo() {

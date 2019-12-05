@@ -58,8 +58,7 @@ public:
     void createAlarm(GraphicsItem *item, const QString &alarmType, const QString &alarmState, const QString &alarmTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));//生成报警
     GraphicsItem *itemFormInfo(const QString &extNum, const QString &loopNum,
                                const QString &addressNum, const QString &networkNum);
-    void updateAlarmState(const QString &extNum, const QString &loopNum,
-                          const QString &addressNum, const QString &networkNum,const QString &curAlarmState);//更新报警状态
+
     void closeQuickView();
 
     Q_INVOKABLE static bool &itemLimit();
@@ -101,9 +100,9 @@ signals:
     void tabIndex(int index);
     void keepStartState();
     void clearTableAlarm();
-    void alarmStateUpdate(const QString &extNum, const QString &loopNum,
-                          const QString &addressNum, const QString &networkNum,const QString &curAlarmState);
+    void alarmStateUpdate(const QString &extNum,const QString &alarmReplyTime);
     void findAlarmNum(int totalNum,int currentNum);
+    void showExtNumState();
 
 
 public slots:
@@ -126,6 +125,7 @@ public slots:
     void setItemsEquipmentModel(int index,QString device);
     void setItemsManufacturers(int index,QString manufacturers);
     void setItemsPeriodOfValidity(int index,QString periodOfValidity);
+    void setDeviceInstallTime(int index,QString deviceInstallTime);
 
 private:
     void initWidget();
@@ -144,7 +144,10 @@ private:
     void viewSwitch();
     void startAlarmAnimation(const QString &alarmType);
     void startAlarmAnimation(GraphicsItem*item);
-    void updateAlarmText(const QString &alarmType);
+
+    void deleteAlarmText(GraphicsItem*item,const QString &alarmType);
+    void updateAlarmText(GraphicsItem*item,const QString &alarmType);
+    QString speechInfo(GraphicsItem*item,const QString &alarmType);
 
 private:
     TreeView *m_treeView;
@@ -180,6 +183,7 @@ private:
     QAction *m_analogAlarmAction;
     QAction *m_maintenanceAction;
     QAction *m_itemTextVisiableAction;
+    QAction *m_showExtOnlineAction;
     QAction *m_fitViewAction;
     QPointF m_currentPointF;
     QQuickView *m_itemSettingView;
@@ -189,6 +193,7 @@ private:
     QObject *m_analogAlarmObj;
     FirstFireAlarmInfoWidget*m_firstFireWidget;
     static bool m_itemLimit;
+
 };
 
 #endif // ARCHITEPLANVIEW_H

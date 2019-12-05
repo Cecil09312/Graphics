@@ -12,5 +12,6 @@
         <file>images/ldlogo.png</file>
         <file>images/fire.png</file>
         <file>images/limitSettings.png</file>
+        <file>qml/deviceOnline/DeviceOnline.qml</file>
     </qresource>
 </RCC>

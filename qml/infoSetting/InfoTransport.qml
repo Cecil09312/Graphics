@@ -6,6 +6,7 @@ import transportInfo 1.0
 
 Item {
     property string fileType: ""
+    property url filePath: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
     Grid {
         id:grid
         anchors.verticalCenter: parent.verticalCenter
@@ -183,8 +184,11 @@ Item {
     FileDialog {
         id: fileDialog
         title: "Please choose a file"
-        folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
+        folder: filePath
+        //folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
         onAccepted: {
+
+            filePath = file
             if (fileType == "managInstitutions") {
                 managInstitutionsTextField.text = currentFile
                 TransportInfo.setTransportInfo(qsTr("消防控制室的管理机构"), currentFile)

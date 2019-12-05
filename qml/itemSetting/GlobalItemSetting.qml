@@ -13,6 +13,7 @@ Rectangle {
     property string buildName: ""
     property string personOnDuty: ""
     property string iconPath: ""
+    property url filePath: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
 
     GridLayout {
         anchors.verticalCenter: parent.verticalCenter
@@ -138,9 +139,11 @@ Rectangle {
     FileDialog {
         id: fileDialog
         title: "Please choose a file"
-        folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
+        folder: filePath
+        //folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
         onAccepted: {
 
+            filePath = file
             GlobalItemSettingView.setCurrentItemIcon(currentFile)
             iconTextField.text = currentFile
             OperatorInfo.insertEvent(qsTr("更改建筑物图标"),

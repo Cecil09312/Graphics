@@ -49,34 +49,42 @@ TreeView::TreeView(QWidget *parent):
 
     connect(m_deleteAction,&QAction::triggered,this,[=]()
     {
-        QModelIndex index = indexAt(m_rootPoint);
-        deleteTreeItem(index);
+        int btnValue= QMessageBox::warning(nullptr,tr("删除提示窗口"),tr("确认要删除吗?"),QMessageBox::Ok,QMessageBox::No);
+        if(btnValue==QMessageBox::Ok)
+        {
+            QModelIndex index = indexAt(m_rootPoint);
+            deleteTreeItem(index);
+        }
+
     });
     connect(m_clearAction,&QAction::triggered,this,[=]()
     {
-        QList<GraphicsView*>viewList= Controller::instance()->getArchitePlanView()->getWidgetHash().values();
-        bool isCanClear = false;
-        foreach (GraphicsView*view, viewList)
+        int btnValue= QMessageBox::warning(nullptr,tr("清空提示窗口"),tr("确认要清空吗?"),QMessageBox::Ok,QMessageBox::No);
+        if(btnValue==QMessageBox::Ok)
         {
-            if(view!=nullptr)
+            QList<GraphicsView*>viewList= Controller::instance()->getArchitePlanView()->getWidgetHash().values();
+            bool isCanClear = false;
+            foreach (GraphicsView*view, viewList)
             {
-                if(view->haveAnyAlarm())
+                if(view!=nullptr)
                 {
-                    isCanClear = true;
-                    break;
+                    if(view->haveAnyAlarm())
+                    {
+                        isCanClear = true;
+                        break;
+                    }
                 }
             }
-        }
 
-        if(isCanClear)
-        {
-            QMessageBox::warning(this,tr("警告"),tr("存在报警信息，消除报警才能清除"));
+            if(isCanClear)
+            {
+                QMessageBox::warning(this,tr("警告"),tr("存在报警信息，消除报警才能清除"));
+            }
+            else
+            {
+                clearItem();
+            }
         }
-        else
-        {
-            clearItem();
-        }
-
     });
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this,&TreeView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)

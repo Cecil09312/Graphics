@@ -9,17 +9,18 @@
 #include <QGraphicsView>
 #include <qmath.h>
 #include <QPointF>
-qreal GraphicsItem::s_radius =15.0;
-GraphicsItem::GraphicsItem(GraphicsScene *scene):
 
-    m_channelNum(0),
-    m_analogType(tr("无")),
+GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_itemTextIsVisiable(true)
 
 {
-    m_radius=s_radius;
+    m_radius=DataStore::iconSize();
     m_graphicsScene = scene;
     m_itemInfo.m_manufacturers = tr("北京利达华信电子有限公司");
+    m_itemInfo.m_sysOfDevice = DataStore::sysName();
+    m_itemInfo.m_deviceOperator = DataStore::oneOperator();
+    m_channelNum = DataStore::channelNum();
+    m_analogType = DataStore::analogValue();
    // m_itemInfo.m_networkNum = "0";
 
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
@@ -334,7 +335,7 @@ qreal GraphicsItem::radius() const
 
 void GraphicsItem::setRadius(qreal radius)
 {
-    s_radius =radius;
+    DataStore::iconSize() =radius;
     m_radius = radius;
     update();
 }
@@ -369,7 +370,14 @@ QString GraphicsItem::iconName() const
 void GraphicsItem::setIconName(const QString &iconName)
 {
     m_iconName = Controller::instance()->fileNameFromQml(iconName);
-
+#ifdef Q_OS_LINUX
+                    if(!m_iconName.startsWith("/home"))
+                    {
+                        QFileInfo fileInfo(m_iconName);
+                        m_iconName ="/home/rpdzkj/usr/设备图标/" +fileInfo.fileName();
+                    }
+#endif
+    m_itemInfo.m_equipmentModel =Controller::instance()->getFileNameFromUrl(iconName,false);
     update();
 }
 
@@ -422,7 +430,14 @@ ItemInfo &GraphicsItem::getItemInfo()
 
 int GraphicsItem::iconIndex()
 {
+   int index= ItemIconInfoToJson::iconIndex(m_iconName);
+   m_iconIndex = index;
     return m_iconIndex;
+}
+
+void GraphicsItem::setIconIndex(int index)
+{
+    m_iconIndex = index;
 }
 
 void GraphicsItem::setInfoFromIconIndex(int itemIconIndex)
@@ -433,9 +448,10 @@ void GraphicsItem::setInfoFromIconIndex(int itemIconIndex)
     if(itemIconInfoHash.size()>0)
     {
         QHash<QString,QVariant> deviceHash=  itemIconInfoHash[QString("%1").arg(itemIconIndex)].toHash();
-        m_itemInfo.m_equipmentModel= deviceHash["deviceName"].toString();
-        m_itemInfo.m_manufacturers = deviceHash["manufacturers"].toString();
-        m_itemInfo.m_periodOfValidity = deviceHash["periodOfvalidity"].toString();
+        m_itemInfo.m_equipmentModel= deviceHash.value("deviceName").toString();
+        m_itemInfo.m_manufacturers = deviceHash.value("manufacturers").toString();
+        m_itemInfo.m_periodOfValidity = deviceHash.value("periodOfvalidity").toString();
+        m_itemInfo.m_deviceInstallTime = deviceHash.value("deviceInstallTime").toString();
     }
     else
     {
@@ -572,6 +588,11 @@ QString &GraphicsItem::periodOfValidity()
 QString &GraphicsItem::deviceOperator()
 {
     return m_itemInfo.m_deviceOperator;
+}
+
+QString &GraphicsItem::deviceInstallTime()
+{
+    return m_itemInfo.m_deviceInstallTime;
 }
 
 QString GraphicsItem::alarmType()

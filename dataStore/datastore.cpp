@@ -9,6 +9,12 @@ int DataStore::s_itemNum=0;
 QString DataStore::m_loopNum="0";
 QString DataStore::m_extNum="0";
 QString DataStore::m_networkNum="0";
+
+QString DataStore:: m_sysName = "";
+int DataStore::m_channelNum=0;
+QString DataStore::m_analogValue="无";
+qreal DataStore::m_iconSize=15;
+QString DataStore::m_operator="";
 DataStore::DataStore()
 {
 
@@ -283,7 +289,7 @@ int &DataStore::itemNum()
     }
 
     itemNum++;
-    s_itemNum=itemNum;
+    s_itemNum=qMax(itemNum,s_itemNum);
     return s_itemNum;
 }
 
@@ -300,6 +306,31 @@ QString &DataStore::extNum()
 QString &DataStore::networkNum()
 {
     return m_networkNum;
+}
+
+QString &DataStore::sysName()
+{
+    return m_sysName;
+}
+
+int &DataStore::channelNum()
+{
+    return m_channelNum;
+}
+
+QString &DataStore::analogValue()
+{
+    return m_analogValue;
+}
+
+qreal &DataStore::iconSize()
+{
+    return m_iconSize;
+}
+
+QString &DataStore::oneOperator()
+{
+   return m_operator;
 }
 
 

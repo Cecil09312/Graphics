@@ -15,6 +15,7 @@ Item {
     //    width: 420
     //    height: 360
     property real currentValue: 5
+    property url filePath: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
     ColumnLayout {
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
@@ -174,7 +175,8 @@ Item {
     FileDialog {
         id: fileDialog
         title: "Please choose a file"
-        folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
+        folder: filePath
+       // folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
         onAccepted: {
             OperatorInfo.insertEvent(
                         qsTr("建筑总平面布局图变更"),
@@ -182,6 +184,7 @@ Item {
                                  globalArchitePlanTextFiled.text).arg(
                                  currentFile.toString())))
             globalArchitePlanTextFiled.text = currentFile.toString()
+            filePath = file
             ArchitePlanView.setGlobalArchitePixmap(
                         globalArchitePlanTextFiled.text)
         }

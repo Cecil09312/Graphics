@@ -32,41 +32,19 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
 
     connect(m_removeItemAction,&QAction::triggered,this,[=]()
     {
-        QGraphicsItem *graphicsItem =  itemAt(m_pointF,QTransform());
-        GlobalGraphicsItem *item = dynamic_cast<GlobalGraphicsItem *>(graphicsItem);
-        if(item!=nullptr)
+        int btnValue= QMessageBox::warning(nullptr,tr("删除提示窗口"),tr("确认要删除吗?"),QMessageBox::Ok,QMessageBox::No);
+        if(btnValue==QMessageBox::Ok)
         {
-            if(!item->animalIsRunning())
-            {
-                removeItem(graphicsItem);
-                emit deleteGlobalItem(item);
-                delete graphicsItem;
-                graphicsItem = nullptr;
-            }
-            else
-            {
-                QMessageBox::warning(nullptr,tr("信息警告"),tr("有报警信息存在，不能被删除"));
-            }
-        }
-    });
-
-    connect(m_removeSelectItemAction,&QAction::triggered,this,[=]()
-    {
-
-        QList<QGraphicsItem*>itemList =selectedItems();
-
-        foreach (QGraphicsItem*currentItem, itemList)
-        {
-            GlobalGraphicsItem *item=  dynamic_cast<GlobalGraphicsItem *>(currentItem);
+            QGraphicsItem *graphicsItem =  itemAt(m_pointF,QTransform());
+            GlobalGraphicsItem *item = dynamic_cast<GlobalGraphicsItem *>(graphicsItem);
             if(item!=nullptr)
             {
                 if(!item->animalIsRunning())
                 {
-
-                    removeItem(item);
+                    removeItem(graphicsItem);
                     emit deleteGlobalItem(item);
-                    delete item;
-                    item = nullptr;
+                    delete graphicsItem;
+                    graphicsItem = nullptr;
                 }
                 else
                 {
@@ -74,6 +52,38 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
                 }
             }
         }
+
+    });
+
+    connect(m_removeSelectItemAction,&QAction::triggered,this,[=]()
+    {
+
+        int btnValue= QMessageBox::warning(nullptr,tr("删除提示窗口"),tr("确认要删除吗?"),QMessageBox::Ok,QMessageBox::No);
+        if(btnValue==QMessageBox::Ok)
+        {
+            QList<QGraphicsItem*>itemList =selectedItems();
+
+            foreach (QGraphicsItem*currentItem, itemList)
+            {
+                GlobalGraphicsItem *item=  dynamic_cast<GlobalGraphicsItem *>(currentItem);
+                if(item!=nullptr)
+                {
+                    if(!item->animalIsRunning())
+                    {
+
+                        removeItem(item);
+                        emit deleteGlobalItem(item);
+                        delete item;
+                        item = nullptr;
+                    }
+                    else
+                    {
+                        QMessageBox::warning(nullptr,tr("信息警告"),tr("有报警信息存在，不能被删除"));
+                    }
+                }
+            }
+        }
+
     });
 
     connect(m_editItemAction,&QAction::triggered,this,[=]()
@@ -99,30 +109,32 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
     connect(m_clearItemAction,&QAction::triggered,this,[=]()
     {
 
-
-        QList<QGraphicsItem*>itemList=  items();
-        bool isHaveAlarm = false;
-        foreach (QGraphicsItem*item, itemList)
+        int btnValue= QMessageBox::warning(nullptr,tr("清空提示窗口"),tr("确认要清空吗?"),QMessageBox::Ok,QMessageBox::No);
+        if(btnValue==QMessageBox::Ok)
         {
-            GlobalGraphicsItem *globalGraphics = dynamic_cast<GlobalGraphicsItem*>(item);
-            if(globalGraphics!=nullptr)
+            QList<QGraphicsItem*>itemList=  items();
+            bool isHaveAlarm = false;
+            foreach (QGraphicsItem*item, itemList)
             {
-                if(globalGraphics->animalIsRunning())
+                GlobalGraphicsItem *globalGraphics = dynamic_cast<GlobalGraphicsItem*>(item);
+                if(globalGraphics!=nullptr)
                 {
-                    isHaveAlarm = true;
-                    break;
+                    if(globalGraphics->animalIsRunning())
+                    {
+                        isHaveAlarm = true;
+                        break;
+                    }
                 }
             }
+            if(!isHaveAlarm)
+            {
+                emit clearItem();
+            }
+            else
+            {
+                QMessageBox::warning(nullptr,tr("信息警告"),tr("有报警信息存在，不能被清空"));
+            }
         }
-        if(!isHaveAlarm)
-        {
-            emit clearItem();
-        }
-        else
-        {
-            QMessageBox::warning(nullptr,tr("信息警告"),tr("有报警信息存在，不能被清空"));
-        }
-
 
     });
     Q_ASSERT(m_globalItemObj);

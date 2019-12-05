@@ -12,7 +12,7 @@
 GraphicsScene::GraphicsScene(QObject *parent):
     QGraphicsScene(parent)
 {
-    init();
+
 }
 
 GraphicsScene::~GraphicsScene()
@@ -111,12 +111,14 @@ void GraphicsScene::setItemColor(QColor color)
 
 void GraphicsScene::setItemSize(qreal size)
 {
+    DataStore::iconSize() = size;
     GraphicsItem *currentItem=dynamic_cast<GraphicsItem *> (itemAt(m_currentPointF,QTransform()));
     if(currentItem!=nullptr)
     {
         currentItem->setRadius(size);
+        update();
     }
-    update();
+
 }
 
 
@@ -157,6 +159,7 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
         else if(type =="addrNum")
         {
             currentItem->addrNum() = info;
+            DataStore::itemNum() = info.toInt();
         }
 
         else if(type =="networkNum")
@@ -173,8 +176,8 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
 
         else if(type =="sysOfDevice")
         {
+            DataStore::sysName() = info;
             currentItem->sysOfDevice() = info;
-
         }
         else if(type =="manufacturers")
         {
@@ -195,6 +198,12 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
             currentItem->deviceLocation() = info;
         }
 
+        else if(type == "deviceInstallTime")
+        {
+            currentItem->deviceInstallTime() = info;
+        }
+
+
         else if(type == "periodOfValidity")
         {
             currentItem->setPeriodOfValidity(info);
@@ -202,17 +211,58 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
         }
         else if(type == "operator")
         {
+            DataStore::oneOperator() = info;
             currentItem->deviceOperator() = info;
         }
 
         else if(type == "channelNum")
         {
+            DataStore::channelNum() = info.toInt();
             currentItem->setChannelNum(info.toInt());
         }
         else if(type == "analogType")
         {
+            DataStore::analogValue() = info;
             currentItem->analogType()= info;
         }
+    }
+    else
+    {
+        if(type=="extNum")
+        {
+            DataStore::extNum()=info;
+        }
+        else if(type=="loopNum")
+        {
+            DataStore::loopNum()=info;
+        }
+        else if(type =="addrNum")
+        {
+            DataStore::itemNum() = info.toInt();
+           // currentItem->addrNum() = info;
+        }
+        else if(type =="networkNum")
+        {
+            DataStore::networkNum()=info;
+        }
+        else if(type == "operator")
+        {
+            DataStore::oneOperator() = info;
+        }
+
+        else if(type == "channelNum")
+        {
+            DataStore::channelNum() = info.toInt();
+        }
+        else if(type == "analogType")
+        {
+            DataStore::analogValue() = info;
+        }
+        else if(type =="sysOfDevice")
+        {
+            DataStore::sysName() = info;
+        }
+
     }
 
 }
@@ -226,9 +276,11 @@ void GraphicsScene::setItemsIcon(int index, QString iconName)
         GraphicsItem*graphicsItem = dynamic_cast<GraphicsItem*>(item);
         if(graphicsItem!=nullptr)
         {
-            if(graphicsItem->iconIndex()==index)
+            int iconIndex= ItemIconInfoToJson::iconIndex(graphicsItem->iconName());
+            if(iconIndex==index)
             {
                 graphicsItem->setIconName(iconName);
+
             }
         }
     }
@@ -242,7 +294,8 @@ void GraphicsScene::setItemsEquipmentModel(int index, QString device)
         GraphicsItem*graphicsItem = dynamic_cast<GraphicsItem*>(item);
         if(graphicsItem!=nullptr)
         {
-            if(graphicsItem->iconIndex()==index)
+            int iconIndex= ItemIconInfoToJson::iconIndex(graphicsItem->iconName());
+            if(iconIndex==index)
             {
                 graphicsItem->equipmentModel()=device;
                 graphicsItem->update();
@@ -259,7 +312,8 @@ void GraphicsScene::setItemsManufacturers(int index, QString manufacturers)
         GraphicsItem*graphicsItem = dynamic_cast<GraphicsItem*>(item);
         if(graphicsItem!=nullptr)
         {
-            if(graphicsItem->iconIndex()==index)
+            int iconIndex= ItemIconInfoToJson::iconIndex(graphicsItem->iconName());
+            if(iconIndex==index)
             {
                 graphicsItem->manufacturers()=manufacturers;
                 graphicsItem->update();
@@ -276,7 +330,8 @@ void GraphicsScene::setItemsPeriodOfValidity(int index, QString periodOfValidity
         GraphicsItem*graphicsItem = dynamic_cast<GraphicsItem*>(item);
         if(graphicsItem!=nullptr)
         {
-            if(graphicsItem->iconIndex()==index)
+            int iconIndex= ItemIconInfoToJson::iconIndex(graphicsItem->iconName());
+            if(iconIndex==index)
             {
                 graphicsItem->periodOfValidity()=periodOfValidity;
                 graphicsItem->update();
@@ -285,61 +340,26 @@ void GraphicsScene::setItemsPeriodOfValidity(int index, QString periodOfValidity
     }
 }
 
-//void GraphicsScene::restoreAlarm(QString extNum, QString loopNum, QString addrNum, QString networkNum)
-//{
-//    ArchitePlanView*architePlanView=   Controller::instance()->getArchitePlanView();
-//    if(architePlanView!=nullptr)
-//    {
-//        architePlanView->eliminateAlarm(extNum,loopNum,addrNum,networkNum);
-//    }
-//}
-
-void GraphicsScene::init()
+void GraphicsScene::setDeviceInstallTime(int index, QString installTime)
 {
-//    m_graphicsItemSettingMenu = new QMenu;
-//    QMenu *modeSelectMenu = new QMenu("模式选择",m_graphicsItemSettingMenu);
-//    m_deleteAction = new QAction(tr("删除"),m_graphicsItemSettingMenu);
-//    m_editAction = new QAction(tr("编辑"),m_graphicsItemSettingMenu);
-//    m_clearAction = new QAction(tr("清空"),m_graphicsItemSettingMenu);
-//    m_deleteSelectedAction = new QAction(tr("删除选中"),m_graphicsItemSettingMenu);
-//    m_closeAction= new QAction(tr("关闭"),m_graphicsItemSettingMenu);
-//    m_analogAlarmAction = new QAction(tr("报警模拟"),m_graphicsItemSettingMenu);
-//    m_maintenanceAction = new QAction(tr("设备维保"),m_graphicsItemSettingMenu);
-//    m_handDragAction = new QAction(tr("手动拖拽模式"),modeSelectMenu);
-//    m_rubberBandDragAction = new QAction(tr("橡皮筋模式"),modeSelectMenu);
-//    m_modeActionGroup = new QActionGroup(this);
-//    modeSelectMenu->addAction(m_handDragAction);
-//    modeSelectMenu->addAction(m_rubberBandDragAction);
-//    m_modeActionGroup->addAction(m_rubberBandDragAction);
-//    m_modeActionGroup->addAction(m_handDragAction);
+    QList<QGraphicsItem*>itemList =  getItemList();
+    foreach (QGraphicsItem*item, itemList)
+    {
+        GraphicsItem*graphicsItem = dynamic_cast<GraphicsItem*>(item);
+        if(graphicsItem!=nullptr)
+        {
 
-//    m_modeActionGroup->setExclusive(true);
-//    m_handDragAction->setCheckable(true);
-//    m_rubberBandDragAction->setCheckable(true);
-//    m_handDragAction->setChecked(true);
-//    m_graphicsItemSettingMenu->addMenu(modeSelectMenu);
-//    m_itemSettingView = new QQuickView;
-//    m_itemSettingView->setSource(QUrl("qrc:/qml/itemSetting/GraphicsItemEditor.qml"));
-//    m_itemSettingView->setTitle(tr("设备信息设置界面"));
-//    m_analogAlarmView = new QQuickView;
-//    m_analogAlarmView->setSource(QUrl("qrc:/qml/itemSetting/AnalogAlarmItem.qml"));
-//    m_analogAlarmView->setTitle(tr("报警模拟界面"));
-//    //m_maintenanceView = new QQuickView;
-//    //m_maintenanceView->setSource(QUrl("qrc:/qml/infoSetting/MaintenanceInfo.qml"));
-//   // m_maintenanceView->setTitle(tr("设备维保"));
-//    m_itemSettingObj= m_itemSettingView->rootObject();
+            int iconIndex= ItemIconInfoToJson::iconIndex(graphicsItem->iconName());
+            if(iconIndex==index)
+            {
+                graphicsItem->deviceInstallTime()=installTime;
+                //graphicsItem->update();
+               // qDebug() << "****************" << iconIndex << graphicsItem->deviceInstallTime() << installTime;
+            }
 
-//    m_graphicsItemSettingMenu->addAction(m_editAction);
-//    m_graphicsItemSettingMenu->addAction(m_analogAlarmAction);
-//   // m_graphicsItemSettingMenu->addAction(m_maintenanceAction);
-//    m_graphicsItemSettingMenu->addAction(m_deleteAction);
-//    m_graphicsItemSettingMenu->addAction(m_deleteSelectedAction);
-//    m_graphicsItemSettingMenu->addAction(m_clearAction);
-//    m_graphicsItemSettingMenu->addAction(m_closeAction);
-
+        }
+    }
 }
-
-
 
 QList<QGraphicsItem *>& GraphicsScene::getItemList()
 {

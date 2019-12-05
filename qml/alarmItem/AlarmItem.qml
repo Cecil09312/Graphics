@@ -264,11 +264,11 @@ Rectangle {
             id: handOrAutoIndicator//默认时紫色，手动蓝色，自动绿色。
             Layout.column: 0
             Layout.row: 8
-            color: "purple"
+            color: "green"
             active: true
             ColorAnimation on color {
                 id: handOrAutoAnimation
-                from: "purple"
+                from: "green"
                 to: "black"
                 duration: 1000
                 loops: Animation.Infinite
@@ -279,7 +279,7 @@ Rectangle {
             id: handOrAutoTxt
             Layout.column: 1
             Layout.row: 8
-            text: qsTr("默认")
+            text: qsTr("自动")
             font.pointSize: 12
             font.family: qsTr("宋体")
         }
@@ -419,25 +419,25 @@ Rectangle {
             }
 
         }
-        ComboBox {
-            id: alarmTypeComboBox
-            anchors.leftMargin: 20
-            font.pointSize: 14
-            font.family: qsTr("宋体")
-            width: parent.width
-            model: ["全部", "火警", "监管","启动", "反馈","故障",  "屏蔽"]
-            onCurrentTextChanged: {
-                emit: currentAlarmType(currentText)
-                if(currentText===qsTr("全部"))
-                {
-                    numTxt.visible=false
-                }
-                else
-                {
-                    numTxt.visible = true;
-                }
-            }
-        }
+//        ComboBox {
+//            id: alarmTypeComboBox
+//            anchors.leftMargin: 20
+//            font.pointSize: 14
+//            font.family: qsTr("宋体")
+//            width: parent.width
+//            model:["火警"] /*["全部", "火警", "监管","启动", "反馈","故障",  "屏蔽"]*/
+//            onCurrentTextChanged: {
+//                emit: currentAlarmType(currentText)
+//                if(currentText===qsTr("全部"))
+//                {
+//                    numTxt.visible=false
+//                }
+//                else
+//                {
+//                    numTxt.visible = true;
+//                }
+//            }
+//        }
         NaviButton {
             id: previousBtn
             anchors.leftMargin: 20
@@ -739,8 +739,8 @@ Rectangle {
         setTransformColor(true,"gray")
         // setEquiComColor(true, "gray")
         // setCenterComColor(true, "gray")
-        setHandOrAutoColor(true,"purple")
-        setHandOrAutoText(qsTr("默认"))
+        setHandOrAutoColor(true,"green")
+        setHandOrAutoText(qsTr("自动"))
         setFireAlarmText("0")
         setLinkageText("0")
         setSuperviseText("0")

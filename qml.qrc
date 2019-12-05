@@ -27,5 +27,6 @@
         <file>qml/databaseSetting/MySqlSetting.qml</file>
         <file>qml/logInWindow/ResetLoginItem.qml</file>
         <file>qml/infoSetting/ControlCenterSetting.qml</file>
+        <file>qml/deviceOnline/DeviceOnline.qml</file>
     </qresource>
 </RCC>

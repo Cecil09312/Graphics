@@ -25,6 +25,7 @@ struct ItemInfo
     QString m_floorOfDevice;//楼层
     QString m_deviceLocation;//位置
     QString m_manufacturers;//制造商
+    QString m_deviceInstallTime;//设备安装时间
     QString m_periodOfValidity;//有效期
     QString m_deviceOperator;//操作员
 };
@@ -98,6 +99,7 @@ public:
     QHash<int, QVariant >anlogValueHah();
     ItemInfo &getItemInfo();
     int iconIndex();
+    void setIconIndex(int index);
     void setInfoFromIconIndex(int itemIconIndex);
     bool itemTextIsVisiable();
     Q_INVOKABLE void setPeriodOfValidity(const QString &period);
@@ -120,6 +122,7 @@ public:
     Q_INVOKABLE QString &manufacturers();
     Q_INVOKABLE QString &periodOfValidity();
     Q_INVOKABLE QString &deviceOperator();
+    Q_INVOKABLE QString &deviceInstallTime();
     Q_INVOKABLE QString alarmType();
     Q_INVOKABLE QString &analogType();
     Q_INVOKABLE QString alarmTime(const QString  &alarmType);
@@ -168,7 +171,7 @@ private:
     QString m_currentState;
    // qreal m_angle;
     qreal m_scale;
-    static qreal s_radius;
+
 };
 
 #endif // GRAPHICSITEM_H

@@ -28,10 +28,10 @@ SpeechObj::SpeechObj(QObject *parent):
     m_textToSpeechProcess = new QProcess;
     m_startTimer = new QTimer();
     m_startTimer->moveToThread(m_thread);
-    m_startTimer->setInterval(500);
+    m_startTimer->setInterval(100);
     m_textToSpeechProcess->moveToThread(m_thread);
     m_pitch = 0;
-    m_volume = 0;
+    m_volume = 0.5;
     m_rate = 0.7;
     m_currentLanguage = "Mandarin";
 
@@ -51,13 +51,13 @@ SpeechObj::SpeechObj(QObject *parent):
                 if(m_alarmTextList.size()>0)
                 {
                     m_alarmTextList.insert(0,alarmText);
-                    m_currentAlarmPos = 0;
+
                 }
                 else
                 {
                     m_alarmTextList.push_back(alarmText);
-                    m_currentAlarmPos = m_alarmTextList.size()-1;
                 }
+                m_currentAlarmPos = 0;
             }
             else if(alarmText.startsWith("火警"))
             {
@@ -82,6 +82,14 @@ SpeechObj::SpeechObj(QObject *parent):
             {
                 m_alarmTextList.push_back(alarmText);
                 m_currentAlarmPos = m_alarmTextList.size()-1;
+            }
+            foreach (QString alarmText, m_alarmTextList)
+            {
+                if(alarmText.contains("首火警"))
+                {
+                    m_alarmPos=0;
+                    break;
+                }
             }
 
             runSpeech();
@@ -371,6 +379,11 @@ void SpeechObj::repeatSpeak()
         if(m_alarmPos<m_alarmTextList.size())
         {
             QString curSpeechText = m_alarmTextList.at(m_alarmPos);
+            int index = curSpeechText.indexOf(";");
+            if(index>0)
+            {
+                curSpeechText = curSpeechText.left(index);
+            }
 #ifdef Q_OS_WIN
             m_textToSpeech->say(curSpeechText);
 
@@ -384,12 +397,11 @@ void SpeechObj::repeatSpeak()
             {
                 curRate = m_rate *200;
             }
-            if(m_alarmPos<m_alarmTextList.size())
-            {
-                m_textToSpeechProcess->start(QString("ekho -v %1 -p %2 -a %3 -s %4 '%5'").arg(m_currentLanguage).arg(m_pitch*100).arg(m_volume*100).arg(curRate).arg(curSpeechText));
-                m_textToSpeechProcess->waitForStarted();
-                m_textToSpeechProcess->waitForFinished();
-            }
+
+            m_textToSpeechProcess->start(QString("ekho -v %1 -p %2 -a %3 -s %4 '%5'").arg(m_currentLanguage).arg(m_pitch*100).arg(m_volume*100).arg(curRate).arg(curSpeechText));
+            m_textToSpeechProcess->waitForStarted();
+            m_textToSpeechProcess->waitForFinished();
+
 #endif
 
             if((!curSpeechText.startsWith("首火警"))&&(!curSpeechText.startsWith("火警")))
@@ -407,16 +419,6 @@ void SpeechObj::repeatSpeak()
             }
 
         }
-
-        //        foreach (QString alarmText, m_alarmTextList)
-        //        {
-        //            if(alarmText.startsWith("首火警")||alarmText.startsWith("火警"))
-        //            {
-        //                m_alarmPos=0;
-        //                return;
-        //            }
-        //        }
-
     }
     else {
         speechStop();
@@ -432,7 +434,13 @@ void SpeechObj::runSpeech()
 
         if(m_textToSpeech->state()!=QTextToSpeech::Speaking)
         {
-            m_textToSpeech->say(m_alarmTextList.at(0));
+            QString curAlarmInfo= m_alarmTextList.at(0);
+            int index = curAlarmInfo.indexOf(";");
+            if(index>0)
+            {
+                curAlarmInfo = curAlarmInfo.left(index);
+            }
+            m_textToSpeech->say(curAlarmInfo);
 
         }
     }

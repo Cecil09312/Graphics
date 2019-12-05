@@ -151,5 +151,7 @@ RESOURCES += \
     qss.qrc \
     qml.qrc
 
+linux{
 include(package.pri)
+}
 

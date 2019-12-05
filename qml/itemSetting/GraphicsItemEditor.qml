@@ -5,7 +5,7 @@ import Qt.labs.platform 1.0
 import itemIconInfoToJson 1.0
 import "../infoSetting"
 Item {
-    width: 860
+    width: 1040
     height: 560
     signal setSize(real size)
     signal setIcon(string icon)
@@ -14,6 +14,7 @@ Item {
     signal setItemsPeriodOfValidity(int index, string periodOfValidity)
     signal setItemsIcon(int index, string iconName)
     signal setItemsDeviceName(int index, string deviceName)
+    signal setDeviceInstallTime(int index,string devideInstallTime)
 
     ListModel {
         id: deviceTypeModel
@@ -33,7 +34,6 @@ Item {
         id: swipView
         currentIndex: 0
         anchors.fill: parent
-
         anchors.leftMargin: 20
         anchors.bottomMargin: 10
         anchors.topMargin: 80
@@ -49,6 +49,7 @@ Item {
                 // anchors.fill: parent
                 anchors.bottomMargin: 40
                 anchors.topMargin: 60
+
                 columnSpacing: 5
                 rowSpacing: 5
                 columns: 4
@@ -75,6 +76,7 @@ Item {
                             emit: setItemInfo("periodOfValidity",
                                               periodOfvalidityValue(
                                                   currentIndex))
+                            emit:setItemInfo("deviceInstallTime",getDeviceInstallTime(currentIndex))
 
                             manufacturersText.text = manufacturersValue(
                                         currentIndex)
@@ -322,6 +324,11 @@ Item {
                 manufacturersText.text = facturers
                 emit: setItemsManufacturers(index, facturers)
             }
+            onDeviceInstallTimeChanged:
+            {
+              itemIconInfo.setCurrentIconIndex(index)
+              emit: setDeviceInstallTime(index, deviceInstallTime)
+            }
             onDeviceNameChanged: {
                 var currentDeviceObj = new Object
                 currentDeviceObj["deviceName"] = device
@@ -475,6 +482,10 @@ Item {
     function periodOfvalidityValue(pos)
     {
         return  itemIconInfo.getValue(String("%1").arg(pos),"periodOfvalidity")
+    }
+    function getDeviceInstallTime(pos)
+    {
+       return  itemIconInfo.getValue(String("%1").arg(pos),"deviceInstallTime")
     }
 
     function readInfo() {

@@ -43,6 +43,12 @@ public:
      static QString &loopNum();
      static QString &extNum();
      static QString &networkNum();
+     static QString &sysName();
+     static int &channelNum();
+     static QString &analogValue();
+     static qreal &iconSize();
+     static QString &oneOperator();
+
 
 private:
      static QHash<QString,QList<QGraphicsItem*> >m_typeItemHash;
@@ -51,6 +57,11 @@ private:
      static QString m_loopNum;
      static QString m_extNum;
      static QString m_networkNum;
+     static QString m_sysName;
+     static int m_channelNum;
+     static QString m_analogValue;
+     static qreal m_iconSize;
+     static QString m_operator;
 
 
 };

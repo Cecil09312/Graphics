@@ -14,6 +14,7 @@ Rectangle {
     height: 240
     property string architeName: ""
     property string architeImage: ""
+    property url filePath: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
     GridLayout {
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
@@ -92,9 +93,11 @@ Rectangle {
     FileDialog {
         id: fileDialog
         title: "Please choose a file"
-        folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
-        nameFilters: "SVG Files(*.svg)"
+        folder: filePath
+        //folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
+       // nameFilters: ["SVG Files(*.svg)","JPG Files(*.jpg)","PNG Files(*.png)","BMP Files(*.bmp)"]
         onAccepted: {
+            filePath = file
             OperatorInfo.insertEvent(qsTr("建筑平面图更改"),
                                      qsTr(String("\"%1\"变更为\"%2\"").arg(
                                               architeImage).arg(

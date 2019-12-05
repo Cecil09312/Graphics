@@ -43,8 +43,8 @@ public slots:
     void setItemsEquipmentModel(int index,QString device);
     void setItemsManufacturers(int index,QString manufacturers);
     void setItemsPeriodOfValidity(int index,QString periodOfValidity);
-private:
-    void init();
+    void setDeviceInstallTime(int index,QString installTime);
+
 private:
     QList<QGraphicsItem*>m_itemList;
     QPointF m_currentPointF;

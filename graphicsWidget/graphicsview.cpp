@@ -221,6 +221,21 @@ QGraphicsTextItem *GraphicsView::textItem(const QString &alarmType)
 void GraphicsView::loadPixmap(const QString &fileName)
 {
     m_pixmapName = Controller::instance()->fileNameFromQml(fileName);
+#ifdef Q_OS_LINUX
+            if(!m_pixmapName.startsWith("/home"))
+            {
+                QFileInfo fileInfo(m_pixmapName);
+                if(m_viewType==ArthitePlan)
+                {
+                    m_pixmapName ="/home/rpdzkj/usr/楼层图/" +fileInfo.fileName();
+                }
+                else
+                {
+                    m_pixmapName ="/home/rpdzkj/usr/系统图纸/" +fileInfo.fileName();
+                }
+
+            }
+#endif
     m_svgItem->setSvgName(m_pixmapName);
 }
 

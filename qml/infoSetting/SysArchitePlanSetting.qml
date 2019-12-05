@@ -10,6 +10,7 @@ import operatorInfo 1.0
 Item {
     property var textFieldName: fireAlarmTxt
     property string txtName: ""
+    property url filePath: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
     Grid {
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
@@ -229,7 +230,8 @@ Item {
 
     FileDialog {
         id: chooseFileDialog
-        folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
+        folder: filePath
+        //folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
         nameFilters: "SVG Files(*.svg)"
         onAccepted: {
             OperatorInfo.insertEvent(qsTr(String("%1图纸变更").arg(txtName)),
@@ -237,6 +239,7 @@ Item {
                                               textFieldName.text).arg(
                                               currentFile.toString())))
             textFieldName.text = currentFile.toString()
+            filePath = file
             SysArchitePlanView.setSysDrawing(txtName, textFieldName.text)
         }
     }
