@@ -10,12 +10,14 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
     QGraphicsScene(parent),
     m_num(0)
 {
+
     m_menu = new QMenu();
     m_removeItemAction = new QAction(tr("删除"),m_menu);
     m_editItemAction = new QAction(tr("编辑"),m_menu);
     m_removeSelectItemAction = new QAction(tr("删除选中"),m_menu);
     m_goToAchitePlanAction = new QAction(tr("转到建筑平面"),m_menu);
     m_clearItemAction = new QAction(tr("清空"),m_menu);
+    //m_saveGeneralLayoutItemsAction = new QAction(tr("保存"),m_menu);
 
     m_globalItemSettingView = new QQuickView;
     m_globalItemSettingView->setSource(QUrl("qrc:/qml/itemSetting/GlobalItemSetting.qml"));
@@ -24,11 +26,13 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
     m_globalItemObj = m_globalItemSettingView->rootObject();
     m_globalItemSettingView->setMinimumSize(QSize(420,320));
     m_globalItemSettingView->setMaximumSize(QSize(420,320));
+    m_menu->addAction(m_editItemAction);
+   // m_menu->addAction(m_saveGeneralLayoutItemsAction);
     m_menu->addAction(m_removeItemAction);
     m_menu->addAction(m_removeSelectItemAction);
     m_menu->addAction(m_clearItemAction);
-    m_menu->addAction(m_editItemAction);
     m_menu->addAction(m_goToAchitePlanAction);
+
 
     connect(m_removeItemAction,&QAction::triggered,this,[=]()
     {
@@ -51,6 +55,7 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
                     QMessageBox::warning(nullptr,tr("信息警告"),tr("有报警信息存在，不能被删除"));
                 }
             }
+            emit deleteItems();
         }
 
     });
@@ -82,9 +87,13 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
                     }
                 }
             }
+
+            emit deleteItems();
         }
 
     });
+
+   // connect(m_saveGeneralLayoutItemsAction,&QAction::triggered,this,&GlobalGraphicsScene::saveGeneralLayoutItems);
 
     connect(m_editItemAction,&QAction::triggered,this,[=]()
     {
@@ -187,12 +196,14 @@ void GlobalGraphicsScene::showMenu(const QPoint &point)
             {
                 m_clearItemAction->setEnabled(false);
             }
+           // m_saveGeneralLayoutItemsAction->setEnabled(true);
 
         }
         else
         {
             m_removeItemAction->setEnabled(false);
             m_clearItemAction->setEnabled(false);
+            //m_saveGeneralLayoutItemsAction->setEnabled(false);
         }
         if(selectedItems().isEmpty())
         {
@@ -218,6 +229,7 @@ void GlobalGraphicsScene::showMenu(const QPoint &point)
         m_editItemAction->setEnabled(false);
         m_removeSelectItemAction->setEnabled(false);
         m_clearItemAction->setEnabled(false);
+        //m_saveGeneralLayoutItemsAction->setEnabled(false);
     }
     if(item!=nullptr)
     {
@@ -316,6 +328,7 @@ void GlobalGraphicsScene::setPersonOnDuty(const QString &personName)
     if(item!=nullptr)
     {
         item->setPersonOnDuty(personName);
+        emit setCurPersonOnDuty(item,personName);
     }
 }
 
@@ -341,6 +354,7 @@ void GlobalGraphicsScene::setCurrentItemSize(qreal size)
     {
         item->setItemSize(size);
         update();
+        emit setItemSize(item,size);
     }
 }
 
@@ -381,6 +395,7 @@ void GlobalGraphicsScene::setCurrentItemIcon(const QString &icon)
         QString currentIconName=  Controller::instance()->fileNameFromQml(icon);
         item->setIconName(currentIconName);
         update();
+        emit setItemIcon(item,currentIconName);
     }
 }
 

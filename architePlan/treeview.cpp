@@ -140,6 +140,7 @@ TreeView::TreeView(QWidget *parent):
             m_clearAction->setEnabled(false);
             //m_addAction->setEnabled(false);
             m_addChildAction->setEnabled(false);
+
         }
 
         m_treeSettingMenu->exec(QCursor::pos());

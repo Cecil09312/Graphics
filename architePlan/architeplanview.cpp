@@ -46,7 +46,9 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
                 if(scene!=nullptr)
                 {
                     scene->removeGraphicsItem(scene->currentScenePos());
+
                 }
+                saveArchiteInfoToDb();
             }
         }
 
@@ -135,12 +137,14 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
                         }
                         scene->getItemList().clear();
                         DataStore::clearTypeItem();
+                        saveArchiteInfoToDb();
                     }
                     else
                     {
                         QMessageBox::warning(nullptr,tr("警告"),tr("存在报警信息，不能被清空"));
                     }
                 }
+
             }
         }
 
@@ -186,6 +190,8 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
                                 DataStore::deleteTypeItem(graphicsItem);
                             }
                         }
+
+                        saveArchiteInfoToDb();
                     }
                     else
                     {
@@ -199,6 +205,8 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
     {
         m_graphicsItemSettingMenu->close();
     });
+
+
 
     connect(m_modeActionGroup,&QActionGroup::triggered,this,[=](QAction *action)
     {
@@ -278,9 +286,13 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
             {
                 m_globalToArchitePlanHash[item] = standardItem;
             }
+
+            m_sqliteManager->executeQuery(QString("insert into GlobalArchite values ('%1','%2','%3','%4','%5')").arg(item->buildName()).arg(item->personOnDuty()).arg(QString("%1,%2").arg(item->scenePos().x()).arg(item->scenePos().y())).arg(item->itemSize()).arg(item->iconName()));
         }
 
     });
+
+    connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::deleteItems,this,&ArchitePlanView::saveGeneralLayoutInfo);
 
     connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::deleteGlobalItem,this,[=](GlobalGraphicsItem*item)
     {
@@ -291,9 +303,12 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
         }
     });
 
+    connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::saveGeneralLayoutItems,this,&ArchitePlanView::saveGeneralLayoutInfo);
+
     connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::clearItem,this,[=]()
     {
         m_treeView->clearItem();
+        m_sqliteManager->executeQuery("delete from GlobalArchite");
     });
 
     connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::goToArchitePlan,this,[=](GlobalGraphicsItem*item)
@@ -345,6 +360,39 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
             }
         }
 
+        if(item!=nullptr)
+        {
+          QString curPos= QString("%1,%2").arg(item->scenePos().x()).arg(item->scenePos().y());
+          m_sqliteManager->executeQuery(QString("update GlobalArchite set buildingName='%1' where pos='%2'").arg(name).arg(curPos));
+        }
+
+    });
+
+    connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::setItemIcon,this,[=](GlobalGraphicsItem*item,const QString &icon)
+    {
+        if(item!=nullptr)
+        {
+          QString curPos= QString("%1,%2").arg(item->scenePos().x()).arg(item->scenePos().y());
+          m_sqliteManager->executeQuery(QString("update GlobalArchite set iconName='%1' where pos='%2'").arg(icon).arg(curPos));
+        }
+    });
+
+    connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::setItemSize,this,[=](GlobalGraphicsItem*item,qreal size)
+    {
+        if(item!=nullptr)
+        {
+          QString curPos= QString("%1,%2").arg(item->scenePos().x()).arg(item->scenePos().y());
+          m_sqliteManager->executeQuery(QString("update GlobalArchite set size='%1' where pos='%2'").arg(size).arg(curPos));
+        }
+    });
+
+    connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::setCurPersonOnDuty,this,[=](GlobalGraphicsItem*item,const QString &person)
+    {
+        if(item!=nullptr)
+        {
+          QString curPos= QString("%1,%2").arg(item->scenePos().x()).arg(item->scenePos().y());
+          m_sqliteManager->executeQuery(QString("update GlobalArchite set personOnDuty='%1' where pos='%2'").arg(person).arg(curPos));
+        }
     });
 
     connect(m_autoSwitchTimer,&CustomTimer::timeout,this,&ArchitePlanView::viewsAutoSwitch);
@@ -417,9 +465,6 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item, const QString &alarmTyp
     disconnect(item,&GraphicsItem::moveToPos,0,0);
     deleteAlarmText(item,oldState);
     DataStore::deleteTypeItem(oldState,item);
-
-    // qDebug() << oldState << DataStore::getTypeItemHash().size();
-
     if(oldState!=tr("正常"))
     {
         emit alarmHappend(oldState);
@@ -629,7 +674,6 @@ void ArchitePlanView::initWidget()
     m_rubberBandDragAction = new QAction(tr("橡皮筋模式"),modeSelectMenu);
     m_itemTextVisiableAction = new QAction(tr("文字可见"),m_graphicsItemSettingMenu);
     m_fitViewAction = new QAction(tr("最佳视图"),m_graphicsItemSettingMenu);
-    m_showExtOnlineAction = new QAction(tr("在线状态"),m_graphicsItemSettingMenu);
     m_modeActionGroup = new QActionGroup(this);
     modeSelectMenu->addAction(m_handDragAction);
     modeSelectMenu->addAction(m_rubberBandDragAction);
@@ -672,8 +716,8 @@ void ArchitePlanView::initWidget()
     m_graphicsItemSettingMenu->addAction(m_deleteSelectedAction);
     m_graphicsItemSettingMenu->addAction(m_clearAction);
     m_graphicsItemSettingMenu->addAction(m_closeAction);
-    m_graphicsItemSettingMenu->addAction(m_showExtOnlineAction);
-    connect(m_showExtOnlineAction,&QAction::triggered,this,&ArchitePlanView::showExtNumState);
+
+   // connect(m_showExtOnlineAction,&QAction::triggered,this,&ArchitePlanView::showExtNumState);
 
 
 
@@ -686,6 +730,17 @@ void ArchitePlanView::initWidget()
             if(m_widgetHash.value(page)==nullptr)
             {
                 GraphicsView *widget = new GraphicsView(this);
+                GraphicsScene*curScene=  dynamic_cast<GraphicsScene*>(widget->currentGraphicsScene());
+                if(curScene!=nullptr)
+                {
+                    connect(curScene,&GraphicsScene::addOneItem,this,[=](GraphicsItem *item)
+                    {
+                        if(item!=nullptr)
+                        {
+                            saveItemInfoToDb(item);
+                        }
+                    });
+                }
                 m_widgetHash[page]=widget;
                 m_stackedWidget->addWidget(widget);
                 m_itemToViewHash[item] = widget;
@@ -883,6 +938,7 @@ void ArchitePlanView::showMenu(const QPoint &point)
                     m_analogAlarmAction->setEnabled(true);
 
 
+
                 }
                 else
                 {
@@ -893,7 +949,6 @@ void ArchitePlanView::showMenu(const QPoint &point)
                     m_maintenanceAction->setEnabled(false);
                 }
                 m_editAction->setEnabled(true);
-
 
             }
             else
@@ -1312,27 +1367,7 @@ void ArchitePlanView::saveOtherArchiteInfo()
 
     architePlanHash["sysArchitePlan"] = m_sysArchitePlanView->infoToJson();
 
-    m_sqliteManager->executeQuery("delete from GlobalArchite");
-    QList<QGraphicsItem*> itemList=  m_globalGraphicsView->currentScene()->items();
-    QList<QVariant>buildingNameList,personOnDutyList,posList,sizeList,iconNameList,valueList;
-    foreach (QGraphicsItem*graphicsItem, itemList)
-    {
-        GlobalGraphicsItem *globalItem = dynamic_cast<GlobalGraphicsItem *>(graphicsItem);
-        if(globalItem!=nullptr)
-        {
-            buildingNameList.push_back(globalItem->buildName());
-            personOnDutyList.push_back(globalItem->personOnDuty());
-            posList.push_back(QString("%1,%2").arg( globalItem->scenePos().x()).arg(globalItem->scenePos().y()));
-            sizeList.push_back(globalItem->itemSize());
-            iconNameList.push_back(globalItem->iconName());
-        }
-    }
-    valueList.push_back(buildingNameList);
-    valueList.push_back(personOnDutyList);
-    valueList.push_back(posList);
-    valueList.push_back(sizeList);
-    valueList.push_back(iconNameList);
-    m_sqliteManager->insertBatch("GlobalArchite",valueList);
+    saveGeneralLayoutInfo();
     architePlanHash["grobalPlanPicture"] =m_globalArchitePlanPixmapName;
     QmlForJson qmlForJson;
     qmlForJson.writeFile(architePlanHash);
@@ -1611,7 +1646,6 @@ void ArchitePlanView::startAlarmAnimation(GraphicsItem *item)
         QString curType = item->alarmType();
         QString curState= item->currentState();
         GraphicsView *view = DataStore::itemDisplayView(item);
-        // QString speechText="";
         if(curState!=tr("正常")&&!curState.isEmpty())
         {
             if(!curType.startsWith(tr("模拟")))
@@ -1745,6 +1779,26 @@ QString ArchitePlanView::speechInfo(GraphicsItem *item, const QString &alarmType
     return speechText;
 }
 
+void ArchitePlanView::saveItemInfoToDb(GraphicsItem *item)
+{
+    QStringList valueList;
+    for(int i=0;i<m_itemInfoTableSize;i++)
+    {
+        valueList.push_back(QString("'%%1'").arg(i+1));
+    }
+
+    QString insertStr = QString("insert into ItemInfo values (")+valueList.join(",")+")";
+    if(item!=nullptr)
+    {
+
+        m_sqliteManager->executeQuery(insertStr.arg(item->extNum()).arg(item->addrNum()).arg(item->loopNum()).arg(item->networkNum())
+                                      .arg(item->buildingName()).arg(item->currentState()).arg(item->deviceLocation()).arg(item->deviceNum()).arg(item->equipmentModel())
+                                      .arg(item->floorOfDevice()).arg(item->iconName()).arg(item->manufacturers()).arg(item->deviceInstallTime()).arg(item->periodOfValidity())
+                                      .arg(QString("%1,%2").arg(item->scenePos().x()).arg(item->scenePos().y())).arg(item->radius()).arg(item->sysOfDevice()).arg(item->deviceOperator())
+                                      .arg(item->analogType()).arg(item->channelNum()));
+    }
+}
+
 
 
 int ArchitePlanView::numOfTypeAlarm(const QString &type)
@@ -1797,12 +1851,6 @@ void ArchitePlanView::clearAlarm(bool clearFireAlarm)
                 item->stopAnimations();
 
                 disconnect(item,&GraphicsItem::moveToPos,0,0);
-                //                QList<QString> typeList= item->alarmTypeList();
-                //                foreach (QString curType, typeList)
-                //                {
-                //                    emit eliminateAlarmFromTable(item,curType);
-                //                    Controller::instance()->delayMs(5);
-                //                }
                 item->clearAllAlarm();
             }
         }
@@ -1832,20 +1880,6 @@ void ArchitePlanView::clearAlarm(bool clearFireAlarm)
     Controller::instance()->getSpeechObj()->removeAlarmText(tr("传输故障"));
     Controller::instance()->getSpeechObj()->removeAlarmText(tr("主电故障"));
     Controller::instance()->getSpeechObj()->removeAlarmText(tr("备电故障"));
-
-    //    QList<QString>typeNoItemList= DataStore::getTypeNoItemHash().keys();
-    //    foreach (QString dataInfo, typeNoItemList)
-    //    {
-    //        QList<DataInfo *> infoList=  DataStore::getTypeNoItemHash().value(dataInfo);
-    //        foreach (DataInfo *info, infoList)
-    //        {
-    //            if(info!=nullptr)
-    //            {
-    //                emit eliminateNoItemAlarm(info->m_extNum,info->m_loopNum,info->m_addrNum,info->m_networkNum,DataStore::getTypeNoItemKey(info), QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
-    //            }
-
-    //        }
-    //    }
     DataStore::clearTypeItem();
     clearAlarmWidget();
     m_alarmViewList.clear();
@@ -1897,8 +1931,6 @@ void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum,const QString &
                                 {
                                     m_firstFireWidget->close();
                                 }
-
-                                // GraphicsView*curView = DataStore::itemDisplayView(item);
                                 if(curView!=nullptr)
                                 {
                                     curView->removeGraphicsTextItem(alarmType);
@@ -2130,8 +2162,6 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
 
             m_widgetHash.remove(chileItemPage);
             m_treeView->getTreeIndexMap().remove(childItem);
-
-
         }
     }
     else
@@ -2169,6 +2199,7 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
         // delete globalItem;
     }
     m_treeView->getTreeIndexMap().remove(item);
+    saveArchiteInfoToDb();
 
 }
 
@@ -2346,6 +2377,31 @@ void ArchitePlanView::setDeviceInstallTime(int index, QString deviceInstallTime)
             scene->setDeviceInstallTime(index,deviceInstallTime);
         }
     }
+}
+
+void ArchitePlanView::saveGeneralLayoutInfo()
+{
+    m_sqliteManager->executeQuery("delete from GlobalArchite");
+    QList<QGraphicsItem*> itemList=  m_globalGraphicsView->currentScene()->items();
+    QList<QVariant>buildingNameList,personOnDutyList,posList,sizeList,iconNameList,valueList;
+    foreach (QGraphicsItem*graphicsItem, itemList)
+    {
+        GlobalGraphicsItem *globalItem = dynamic_cast<GlobalGraphicsItem *>(graphicsItem);
+        if(globalItem!=nullptr)
+        {
+            buildingNameList.push_back(globalItem->buildName());
+            personOnDutyList.push_back(globalItem->personOnDuty());
+            posList.push_back(QString("%1,%2").arg( globalItem->scenePos().x()).arg(globalItem->scenePos().y()));
+            sizeList.push_back(globalItem->itemSize());
+            iconNameList.push_back(globalItem->iconName());
+        }
+    }
+    valueList.push_back(buildingNameList);
+    valueList.push_back(personOnDutyList);
+    valueList.push_back(posList);
+    valueList.push_back(sizeList);
+    valueList.push_back(iconNameList);
+    m_sqliteManager->insertBatch("GlobalArchite",valueList);
 }
 
 

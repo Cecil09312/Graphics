@@ -34,6 +34,12 @@ signals:
     void deleteGlobalItem(GlobalGraphicsItem*item);
     void clearItem();
     void setBuildingName(GlobalGraphicsItem*item,const QString &name);
+    void setCurPersonOnDuty(GlobalGraphicsItem*item,const QString &person);
+    void setItemIcon(GlobalGraphicsItem*item,const QString &icon);
+    void setItemSize(GlobalGraphicsItem*item,qreal size);
+    void saveGeneralLayoutItems();
+    void deleteItems();
+
 
 protected:
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent*event);
@@ -46,6 +52,7 @@ private:
     QAction *m_editItemAction;
     QAction *m_clearItemAction;
     QAction *m_goToAchitePlanAction;
+   // QAction *m_saveGeneralLayoutItemsAction;
     int m_num;
     QQuickView *m_globalItemSettingView;
     QObject *m_globalItemObj;

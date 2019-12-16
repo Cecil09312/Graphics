@@ -2,10 +2,14 @@
 import QtQuick.Window 2.2
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
+import Qt.labs.platform 1.0
 
 ToolBar {
     id: toolBar
+    signal showOnlineState()
+    signal chAndEnSwitch()
     anchors.fill: parent
+
     //width: 30
     RowLayout {
         anchors.bottom: parent.bottom
@@ -236,8 +240,10 @@ ToolBar {
         Item {
             Layout.alignment: Qt.AlignRight
             width: 30
+
         }
     }
+
 
     Timer {
         id: time
@@ -255,4 +261,33 @@ ToolBar {
     Component.onDestruction: {
         time.running = false
     }
+
+
+    MouseArea
+    {
+      id:mouseArea
+      anchors.fill: parent
+      acceptedButtons: Qt.RightButton
+      onClicked:
+      {
+          menu.open()
+      }
+
+    }
+
+    Menu
+    {
+      id:menu
+      MenuItem
+      {
+        text:qsTr("在线状态")
+        onTriggered: showOnlineState()
+      }
+      MenuItem
+      {
+        text:qsTr("中英文切换")
+        onTriggered: chAndEnSwitch()
+      }
+    }
 }
+

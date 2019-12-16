@@ -126,6 +126,7 @@ public slots:
     void setItemsManufacturers(int index,QString manufacturers);
     void setItemsPeriodOfValidity(int index,QString periodOfValidity);
     void setDeviceInstallTime(int index,QString deviceInstallTime);
+    void saveGeneralLayoutInfo();
 
 private:
     void initWidget();
@@ -148,6 +149,7 @@ private:
     void deleteAlarmText(GraphicsItem*item,const QString &alarmType);
     void updateAlarmText(GraphicsItem*item,const QString &alarmType);
     QString speechInfo(GraphicsItem*item,const QString &alarmType);
+    void saveItemInfoToDb(GraphicsItem*item);
 
 private:
     TreeView *m_treeView;
@@ -183,7 +185,6 @@ private:
     QAction *m_analogAlarmAction;
     QAction *m_maintenanceAction;
     QAction *m_itemTextVisiableAction;
-    QAction *m_showExtOnlineAction;
     QAction *m_fitViewAction;
     QPointF m_currentPointF;
     QQuickView *m_itemSettingView;

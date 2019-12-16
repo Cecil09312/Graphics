@@ -113,14 +113,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
     //        });
     //    }
 
-    connect(m_architePlanView,&ArchitePlanView::showExtNumState,this,[=](){
-        if(m_extNumStateView!=nullptr)
-        {
-            m_extNumStateView->close();
-            m_extNumStateView->show();
-        }
 
-    });
     connect(m_architePlanView,&ArchitePlanView::alarmHappend,this,&CrtWidget::alarmStatistics);
     connect(m_architePlanView,&ArchitePlanView::alarmItem,this,[=](GraphicsItem *item,const QString &alarmType)
     {
@@ -343,7 +336,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
                     {
                         m_extNumTimesHash[curExtNum]=extNumTimes+1;
                     }
-                    if(extNumTimes>=c_mainHeartBeatTimeOut/c_mainHeartBeatTime)
+                    if(m_extNumTimesHash.value(curExtNum)>=c_mainHeartBeatTimeOut/c_mainHeartBeatTime)
                     {
                         m_extNumTimesHash[curExtNum]=0;
                         if(m_extNumObj!=nullptr)
@@ -354,13 +347,16 @@ CrtWidget::CrtWidget(QWidget *parent) :
                             {
                                 m_extNumStateView->show();
                             }
-
+                          //   m_sqliteManager->executeQuery(QString("insert into AlarmInfo (分机号,网络号,类型,状态,报警时间) values ('%1','%2','%3','%4','%5') ").arg(QString("%1").arg(curExtNum)).arg(QString("%1").arg(networkNum)).arg(QString("%1号主机离线").arg(curExtNum)).arg("主机通信故障").arg(QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss")));
                             curTimer->stop();
                         }
                     }
                     else
                     {
-                        m_extOnlineStateHash[curExtNum]=Disconnected;
+                        if(m_extNumTimesHash.value(curExtNum)>=2)
+                        {
+                            m_extOnlineStateHash[curExtNum]=Disconnected;
+                        }
                     }
 
                 }
@@ -491,6 +487,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
             m_sqliteManager->executeQuery(QString("insert into AlarmInfo (类型,状态,报警时间) values ('%1','%2','%3') ").arg("主机通信故障").arg("主机通信故障").arg(QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss")));
             sendAlarmInfo(0,4,11,0,curTime);
             m_mainHeartBeatTimer->stop();
+            closeAllOnlineState();
             // Controller::instance()->getCommObj()->connectLink();//重新连接
         }
     });
@@ -566,11 +563,22 @@ CrtWidget::CrtWidget(QWidget *parent) :
                     m_serialCurState= false;
                     QString curTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss");
                     sendAlarmInfo(0,4,11,0,curTime);
+
+                    closeAllOnlineState();
+
                 }
 
 
             }
-            m_serialConnectState=Disconnected;
+            else
+            {
+                if(num>=2)
+                {
+                   m_serialConnectState=Disconnected;
+                }
+
+            }
+
 
         }
         if(m_serialConnectState==Connected)
@@ -598,7 +606,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
             QMetaObject::invokeMethod(m_alarmObj,"setEquiComColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));//主机通信
             Controller::instance()->getSpeechObj()->removeAlarmText(tr("主机通信故障"));
             m_serialCurState=true;
-            m_serialConnectState=Connected;
+            //m_serialConnectState=Connected;
         }
     });
 
@@ -1194,7 +1202,7 @@ void CrtWidget::initWidget()
     QQuickView *toolBarQuickView = new QQuickView;
     toolBarQuickView->setSource(QUrl("qrc:/qml/toolBar/ToolBarWindow.qml"));
     toolBarQuickView->rootContext()->setContextProperty("CrtWidget",this);
-
+    m_toolBarObj = toolBarQuickView->rootObject();
     toolBarQuickView->setMinimumWidth(1200);
     // toolBarQuickView->setWidth(this->width());
     m_toolBarContainer = QWidget::createWindowContainer(toolBarQuickView, this);
@@ -1316,6 +1324,8 @@ void CrtWidget::initWidget()
     Q_ASSERT(m_closeLoginObj);
     connect(m_closeLoginObj,SIGNAL(startClose()),this,SLOT(closeAll()));
     connect(m_closeLoginObj,SIGNAL(closeView()),this,SLOT(closeLogInView()));
+    Q_ASSERT(m_toolBarObj);
+    connect(m_toolBarObj,SIGNAL(showOnlineState()),this,SLOT(showOnlineView()));
 }
 
 void CrtWidget::alarmDataOnTable()
@@ -1403,14 +1413,15 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
     {
         return;
     }
-    emit getSerialData();
+
     m_serialConnected = true;
+    emit getSerialData();
 
     foreach (QByteArray array, dataArrayList)
     {
         quint8 eventNum =  m_serialDataProtocol->dataByte(array,0);//事件
-        //quint8 loopNum =  m_serialDataProtocol->dataByte(array,1);//回路
-        //quint8 addrNum =  m_serialDataProtocol->dataByte(array,2);//地址
+        quint8 loopNum =  m_serialDataProtocol->dataByte(array,1);//回路
+        quint8 addrNum =  m_serialDataProtocol->dataByte(array,2);//地址
         quint8 type = m_serialDataProtocol->dataByte(array,3);
         quint8 curExtNum = (type>>2)&0x3f;
         quint8 networkNum=0;
@@ -1420,19 +1431,34 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
         {
             networkNum = minute;
         }
-        // QString extNum = QString("%1").arg((type>>2)&0x3f);
+        m_extNumStateHash[curExtNum] = true;
+        QString extNum = QString("%1").arg((type>>2)&0x3f);
         if(eventNum==0x99)//心跳
         {
-            m_serialConnected = true;
-            m_extNumStateHash[curExtNum] = true;
+           // m_serialConnected = true;
+
             emit checkExtNum(curExtNum,networkNum);
+        }
+        else if(eventNum== 0x20)
+        {
+            if((loopNum|addrNum)==0x00)
+            {
+                Controller::instance()->getOperatorInfo()->insertEvent(tr("本机复位"));
+                m_architePlanView->clearAlarmFromExtNum(extNum,QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
+            }
+            else if((loopNum&addrNum)==0x01)
+            {
+                Controller::instance()->getOperatorInfo()->insertEvent(tr("网络复位"));
+                m_architePlanView->clearExcptFireAlarm();
+
+            }
         }
         else if(eventNum==0x01)
         {
             m_fireDataList.push_back(array);
             if(!m_updateViewTimer->isActive())
             {
-                m_updateViewTimer->start(15);
+                m_updateViewTimer->start(c_updateTime);
             }
         }
         else
@@ -1442,7 +1468,7 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
             m_readSerialDataList.push_back(array);
             if(!m_updateViewTimer->isActive())
             {
-                m_updateViewTimer->start(15);
+                m_updateViewTimer->start(c_updateTime);
             }
 
         }
@@ -1662,7 +1688,7 @@ void CrtWidget::reSendCmd()
     sendArray[0]=packageNum;
     sendArray[1]=0x05;
     sendArray[2]=0x22;
-    sendArray[3]=0x00;
+    sendArray[3]=0x80;
     sendArray[4]=0x00;
     QList<QByteArray> sendArrayList;
     sendArrayList.push_back(sendArray.mid(0,1));
@@ -1841,6 +1867,26 @@ void CrtWidget::setIndicator(bool state)
         Controller::instance()->getSpeechObj()->insertAlarmText(tr("传输故障"));
         m_sqliteManager->executeQuery(QString("insert into AlarmInfo (类型,状态,报警时间) values ('%1','%2','%3') ").arg("传输故障").arg("传输故障").arg(QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss")));
         QMetaObject::invokeMethod(m_alarmObj,"setTransformColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"yellow"));
+    }
+}
+
+void CrtWidget::closeAllOnlineState()
+{
+    QList<quint8>extNumKeyList=m_extNumStateHash.keys();
+    foreach (quint8 curValue, extNumKeyList)
+    {
+        m_extNumStateHash[curValue] = false;
+        m_extNumTimesHash[curValue] = 0;
+        m_extOnlineStateHash[curValue]=NoState;
+        if(m_extNumObj!=nullptr)
+        {
+            QMetaObject::invokeMethod(m_extNumObj,"setIndicatorState",Q_ARG(QVariant,curValue),Q_ARG(QVariant,"yellow"));
+        }
+
+    }
+    if(!m_extNumStateView->isActive())
+    {
+        m_extNumStateView->show();
     }
 }
 
@@ -2266,21 +2312,21 @@ void CrtWidget::processViewsData()
 
     }
         break;
-    case 0x20:
-    {
-        if((loopNum|addrNum)==0x00)
-        {
-            Controller::instance()->getOperatorInfo()->insertEvent(tr("本机复位"));
-            m_architePlanView->clearAlarmFromExtNum(extNum,timeStr);
-        }
-        else if((loopNum&addrNum)==0x01)
-        {
-            Controller::instance()->getOperatorInfo()->insertEvent(tr("网络复位"));
-            m_architePlanView->clearExcptFireAlarm();
+//    case 0x20:
+//    {
+//        if((loopNum|addrNum)==0x00)
+//        {
+//            Controller::instance()->getOperatorInfo()->insertEvent(tr("本机复位"));
+//            m_architePlanView->clearAlarmFromExtNum(extNum,timeStr);
+//        }
+//        else if((loopNum&addrNum)==0x01)
+//        {
+//            Controller::instance()->getOperatorInfo()->insertEvent(tr("网络复位"));
+//            m_architePlanView->clearExcptFireAlarm();
 
-        }
-    }
-        break;
+//        }
+//    }
+//        break;
         //    case 0x23:
         //    {
         //        Controller::instance()->getSpeechObj()->stopSpeech();
@@ -2581,6 +2627,15 @@ void CrtWidget::processViewsData()
         break;
     default:
         break;
+    }
+}
+
+void CrtWidget::showOnlineView()
+{
+    if(m_extNumStateView!=nullptr)
+    {
+        m_extNumStateView->close();
+        m_extNumStateView->show();
     }
 }
 

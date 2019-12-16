@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QSystemSemaphore>
 #include <QSharedMemory>
+#include <QTransform>
 int main(int argc, char *argv[])
 {
     qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
@@ -52,6 +53,11 @@ int main(int argc, char *argv[])
         file.close();
     }
     a.setStyleSheet(QString(array));
+
+//    QTranslator translator;
+//      translator.load("D:/program/GraphicsDisplay/zh_CN.qm");
+//       a.installTranslator(&translator);
+
 
     CrtWidget w;
     w.showMaximized();

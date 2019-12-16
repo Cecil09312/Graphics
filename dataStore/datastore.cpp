@@ -15,6 +15,7 @@ int DataStore::m_channelNum=0;
 QString DataStore::m_analogValue="无";
 qreal DataStore::m_iconSize=15;
 QString DataStore::m_operator="";
+int DataStore::s_itemNumTemp =0;
 DataStore::DataStore()
 {
 
@@ -263,34 +264,23 @@ int DataStore::indexOfItem(const QString &extNum, const QString &loopNum, const 
 
 int &DataStore::itemNum()
 {
-    int itemNum=-1;
-    QList<GraphicsView *> viewList= ArchitePlanView::getWidgetHash().values();
-    foreach (GraphicsView *curView, viewList)
+    //qDebug() << s_itemNum << s_itemNumTemp;
+    if(s_itemNum!=s_itemNumTemp)
     {
-        if(curView!=nullptr)
-        {
-            QGraphicsScene *scene= curView->currentGraphicsScene();
-            GraphicsScene *curScene = dynamic_cast<GraphicsScene*>(scene);
-            if(curScene!=nullptr)
-            {
-                QList<QGraphicsItem*>itemList=  curScene->getItemList();
-                foreach (QGraphicsItem*item, itemList)
-                {
-                    GraphicsItem *curItem = dynamic_cast<GraphicsItem*>(item);
-                    if(curItem!=nullptr)
-                    {
-                        itemNum= qMax(curItem->addrNum().toInt(),itemNum);
-                    }
-
-                }
-
-            }
-        }
+        s_itemNum = s_itemNumTemp++;
+    }
+    else
+    {
+        s_itemNum = ++s_itemNumTemp;
     }
 
-    itemNum++;
-    s_itemNum=qMax(itemNum,s_itemNum);
     return s_itemNum;
+}
+
+void DataStore::setItemNum(int num)
+{
+    s_itemNum = num;
+    s_itemNumTemp =num;
 }
 
 QString &DataStore::loopNum()
@@ -330,7 +320,7 @@ qreal &DataStore::iconSize()
 
 QString &DataStore::oneOperator()
 {
-   return m_operator;
+    return m_operator;
 }
 
 

@@ -75,7 +75,7 @@ Item {
                 id: alarmInfoAlarmTypeComboBox
                 height: 30
                 width: 100
-                model: ["火警","监管","启动","反馈","故障","屏蔽","火警消除","监管消除","启动消除","反馈消除","故障消除","屏蔽消除"]
+                model: [qsTr("火警"),qsTr("监管"),qsTr("启动"),qsTr("反馈"),qsTr("故障"),qsTr("屏蔽"),qsTr("火警消除"),qsTr("监管消除"),qsTr("启动消除"),qsTr("反馈消除"),qsTr("故障消除"),qsTr("屏蔽消除")]
             }
         }
         Row {

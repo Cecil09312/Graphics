@@ -99,9 +99,11 @@ private:
     void sendHandOrAutoState(quint8 sysNum, quint8 handOrAutoState,quint8 runState, const QString &timeStr);
     void setTransportState();
     void setIndicator(bool state);
+    void closeAllOnlineState();
 
 private slots:
     void processViewsData();
+    void showOnlineView();
 
 
 private:
@@ -116,6 +118,7 @@ private:
     QQuickView *m_settingView;
     QQuickView *m_infoQueryView;
     QQuickView *m_extNumStateView;
+    QObject *m_toolBarObj;
     QObject*m_extNumObj;
     QObject *m_settingObj;
     SqlManager *m_sqliteManager;
@@ -133,8 +136,9 @@ private:
     int m_heartbeatIndex;
     bool m_tcpIsConnected;
     //QList<quint8>m_packageNumList;
-    const int c_heartBeatTime = 5*1000;
-    bool m_serialConnected;
+    const int c_heartBeatTime { 5*1000};
+    const int c_updateTime {15};
+    bool m_serialConnected ;
     CustomTimer *m_mainHeartBeatTimer;
     CustomTimer *m_checkSendDataTimer;
     QTimer *m_updateViewTimer;
@@ -156,8 +160,8 @@ private:
     QList<QByteArray>m_readSerialDataList;
     QList<QByteArray>m_fireDataList;
     QMutex m_mutex;
-    const int c_mainHeartBeatTimeOut=90000;
-    const int c_mainHeartBeatTime=4500;
+    const int c_mainHeartBeatTimeOut {90000};
+    const int c_mainHeartBeatTime {30000};
 
 };
 

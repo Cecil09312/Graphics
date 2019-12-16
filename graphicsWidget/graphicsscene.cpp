@@ -20,18 +20,19 @@ GraphicsScene::~GraphicsScene()
 
 }
 
-void GraphicsScene::addGraphicsItem(qreal ax, qreal ay)
+GraphicsItem *GraphicsScene::addGraphicsItem(qreal ax, qreal ay)
 {
-    addGraphicsItem(QPointF(ax,ay));
+    return addGraphicsItem(QPointF(ax,ay));
 }
 
-void GraphicsScene::addGraphicsItem(const QPointF &pointF)
+GraphicsItem *GraphicsScene::addGraphicsItem(const QPointF &pointF)
 {
     GraphicsItem *item= new GraphicsItem(this);
     item->setPos(pointF);
     this->addItem(item);
     m_itemList.push_back(item);
     emit createItem(item);
+    return item;
 }
 
 void GraphicsScene::removeGraphicsItem(qreal ax, qreal ay)
@@ -79,7 +80,8 @@ void GraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
             {
                 if(ItemIconInfoToJson::currentIconIndex()>=0)
                 {
-                    addGraphicsItem(event->scenePos().x(),event->scenePos().y());
+                   GraphicsItem *item= addGraphicsItem(event->scenePos().x(),event->scenePos().y());
+                   emit addOneItem(item);
                 }
             }
 
@@ -159,7 +161,9 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
         else if(type =="addrNum")
         {
             currentItem->addrNum() = info;
-            DataStore::itemNum() = info.toInt();
+            DataStore::setItemNum(info.toInt());
+            currentItem->update();
+           // DataStore::itemNum() = info.toInt();
         }
 
         else if(type =="networkNum")
@@ -238,8 +242,7 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
         }
         else if(type =="addrNum")
         {
-            DataStore::itemNum() = info.toInt();
-           // currentItem->addrNum() = info;
+            DataStore::setItemNum(info.toInt()-1);
         }
         else if(type =="networkNum")
         {

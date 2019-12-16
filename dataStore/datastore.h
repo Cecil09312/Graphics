@@ -40,6 +40,7 @@ public:
      static void deleteDataInfo(DataInfo*dataInfo);
      static int indexOfItem(const QString &extNum,const QString &loopNum,const QString &addrNum,const QString &networkNum,const QString &alarmType);
      static int &itemNum();
+     static void setItemNum(int num);
      static QString &loopNum();
      static QString &extNum();
      static QString &networkNum();
@@ -62,6 +63,7 @@ private:
      static QString m_analogValue;
      static qreal m_iconSize;
      static QString m_operator;
+     static int s_itemNumTemp;
 
 
 };

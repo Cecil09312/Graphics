@@ -14,6 +14,7 @@ Rectangle {
     property string personOnDuty: ""
     property string iconPath: ""
     property url filePath: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
+    signal updateBuildingName(string oldName,string newName)
 
     GridLayout {
         anchors.verticalCenter: parent.verticalCenter
@@ -43,6 +44,8 @@ Rectangle {
                                          String("建筑物名称由\"%1\"改为\"%2\"").arg(
                                              buildName).arg(
                                              buildNameTextField.text))
+
+               // emit:updateItemInfo(buildName,buildNameTextField.text)
                 buildName = buildNameTextField.text
             }
         }
@@ -73,6 +76,7 @@ Rectangle {
                                              personOnDuty).arg(
                                              personOnDutyTextField.text))
                 personOnDuty = personOnDutyTextField.text
+               // emit:updateItemInfo(buildName,personOnDuty)
             }
         }
 

@@ -14,8 +14,8 @@ class GraphicsScene : public QGraphicsScene
 public:
     GraphicsScene(QObject *parent = Q_NULLPTR);
     ~GraphicsScene();
-    void addGraphicsItem(qreal ax, qreal ay);
-    void addGraphicsItem(const QPointF &pointF);
+    GraphicsItem* addGraphicsItem(qreal ax, qreal ay);
+    GraphicsItem* addGraphicsItem(const QPointF &pointF);
     void removeGraphicsItem(qreal ax, qreal ay);
     void removeGraphicsItem(const QPointF &pointF);
 
@@ -28,6 +28,7 @@ public:
 
 signals:
     void createItem(GraphicsItem *item);
+    void addOneItem(GraphicsItem *item);
 
 
 protected:

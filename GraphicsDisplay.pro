@@ -146,6 +146,9 @@ DISTFILES += \
 
 RC_ICONS = logo_icon.ico
 
+TRANSLATIONS += zh_CN.ts \
+                en_EN.ts
+
 RESOURCES += \
     images.qrc \
     qss.qrc \
