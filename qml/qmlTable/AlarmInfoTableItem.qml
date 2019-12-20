@@ -116,7 +116,7 @@ Item {
                 onClicked: {
                     alarmInfoListModel.sqlCommit(
                                 String(
-                                    "select 分机号,回路号,地址号,网络号,系统,设备编码,设备,类型,状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo where %1").arg(
+                                    "select 分机号,回路号,地址号,网络号,系统,设备编码,设备,类型,状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员,历史记录 from AlarmInfo where %1").arg(
                                     selectInfo()))
                 }
             }
@@ -128,7 +128,7 @@ Item {
                 width: 100
                 onClicked: {
                     alarmInfoListModel.sqlCommit(
-                                "select 分机号,回路号,地址号,网络号,系统,设备编码,设备,类型,状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo")
+                                "select 分机号,回路号,地址号,网络号,系统,设备编码,设备,类型,状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员,历史记录 from AlarmInfo")
                 }
             }
 
@@ -257,6 +257,12 @@ Item {
             width: 60
         }
 
+        Controls1_4.TableViewColumn {
+            role: "history"
+            title: qsTr("历史记录")
+            width: 60
+        }
+
         model: alarmInfoListModel
         onDoubleClicked: {
             var curExtNum = new String
@@ -278,8 +284,8 @@ Item {
         dbName: Crt.alarmInfoDbName()
         dbConnectionName: "alarmInfoDb"
         dbPort: 888
-        roleNameList: ["extNum", "loopNum", "addrNum", "networkNum", "deviceSys", "productNum", "deviceType", "alarmType", "currentAlarmState", "alarmTime", "rebackAlarmTime", "buildName", "floor", "deviceLocation", "operator"]
-        titleList: ["分机号", "回路号", "地址号", "网络号", "系统", "设备编码", "设备", "类型", "状态", "报警时间", "报警恢复时间", "建筑名称", "楼层", "位置", "操作员"]
+        roleNameList: ["extNum", "loopNum", "addrNum", "networkNum", "deviceSys", "productNum", "deviceType", "alarmType", "currentAlarmState", "alarmTime", "rebackAlarmTime", "buildName", "floor", "deviceLocation", "operator","history"]
+        titleList: ["分机号", "回路号", "地址号", "网络号", "系统", "设备编码", "设备", "类型", "状态", "报警时间", "报警恢复时间", "建筑名称", "楼层", "位置", "操作员","历史记录"]
     }
     function selectInfo() {
         var info = new String
@@ -348,7 +354,7 @@ Item {
                                              ListView.Contain)
         alarmInfoListModel.setDbOpen(true)
         alarmInfoListModel.sqlCommit(
-                    "select 分机号,回路号,地址号,网络号,系统,设备编码,设备,类型,状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员 from AlarmInfo")
+                    "select 分机号,回路号,地址号,网络号,系统,设备编码,设备,类型,状态,报警时间,报警恢复时间,建筑名称,楼层,位置,操作员,历史记录 from AlarmInfo")
     }
 
     MessageDialog {

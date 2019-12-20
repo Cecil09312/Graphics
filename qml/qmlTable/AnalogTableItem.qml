@@ -79,22 +79,22 @@ Item {
             horizontalAlignment: TextEdit.AlignLeft
             verticalAlignment: TextEdit.AlignVCenter
         }
-        ComboBox {
-            id: analogComboBox
-            height: 30
-            width: 150
-            model: [qsTr("高度(m)"), qsTr("温度(℃)"), qsTr(
-                    "压力(Mpa)"), qsTr("压力(Kpa)"), qsTr(
-                    "气体浓度(%LEL)"), qsTr("气体浓度(PPM)"), qsTr(
-                    "气体浓度(%V/V)"), qsTr("气体浓度(KPPM)"), qsTr(
-                    "气体浓度(Mg/m^3)"), qsTr("时间(s)"), qsTr(
-                    "电压(V)"), qsTr("电流(A)"), qsTr(
-                    "流量(L/s)"), qsTr("风量(m^3/min)"), qsTr(
-                    "风速(m/s)"), qsTr("剩余电流(mA)"), qsTr(
-                    "烟参量"), qsTr("距离(m)"), qsTr(
-                    "交流电流(mA)"), qsTr("直流电流(mA)"), qsTr(
-                    "交流电压(V)"), qsTr("直流电压(V)")]
-        }
+//        ComboBox {
+//            id: analogComboBox
+//            height: 30
+//            width: 150
+//            model: [qsTr("高度(m)"), qsTr("温度(℃)"), qsTr(
+//                    "压力(Mpa)"), qsTr("压力(Kpa)"), qsTr(
+//                    "气体浓度(%LEL)"), qsTr("气体浓度(PPM)"), qsTr(
+//                    "气体浓度(%V/V)"), qsTr("气体浓度(KPPM)"), qsTr(
+//                    "气体浓度(Mg/m^3)"), qsTr("时间(s)"), qsTr(
+//                    "电压(V)"), qsTr("电流(A)"), qsTr(
+//                    "流量(L/s)"), qsTr("风量(m^3/min)"), qsTr(
+//                    "风速(m/s)"), qsTr("剩余电流(mA)"), qsTr(
+//                    "烟参量"), qsTr("距离(m)"), qsTr(
+//                    "交流电流(mA)"), qsTr("直流电流(mA)"), qsTr(
+//                    "交流电压(V)"), qsTr("直流电压(V)")]
+//        }
 
         NaviButton {
             id: infoQueryBtn
@@ -102,12 +102,14 @@ Item {
             height: 30
             width: 80
             onClicked: {
+               // console.log(networkNumTextField)
+
                 Crt.sendAnalogCommand(
-                            parseInt(networkNumTextField.text) & 0xff, parseInt(
+                            parseInt(networkNumTextField.text)&0xff, parseInt(
                                 extNumTextField.text) & 0xff,
                             parseInt(loopNumTextField.text) & 0xff, parseInt(
                                 addrNumTextField.text) & 0xff,
-                            parseInt(curChannelTextField.text) & 0xff, analogComboBox.currentText)
+                            parseInt(curChannelTextField.text) & 0xff, 1)
                 infoListModel.sqlCommit(
                             String("select * from AnalogInfo where %1").arg(
                                 selectInfo()))
@@ -121,11 +123,11 @@ Item {
             width: 100
             onClicked: {
                 Crt.sendAnalogCommand(
-                            parseInt(networkNumTextField.text) & 0xff, parseInt(
+                            parseInt(networkNumTextField.text)&0xff, parseInt(
                                 extNumTextField.text) & 0xff,
                             parseInt(loopNumTextField.text) & 0xff, parseInt(
                                 addrNumTextField.text) & 0xff,
-                            "0", analogComboBox.currentText)
+                            0, 1)
                 infoListModel.sqlCommit("select * from AnalogInfo")
             }
         }
@@ -274,16 +276,16 @@ Item {
             info += (qsTr("当前通道=") + "'" + curChannelTextField.text + "'")
         }
 
-        if (analogComboBox.currentText.length > 0) {
+//        if (analogComboBox.currentText.length > 0) {
 
-            if (analogComboBox.currentText != qsTr("全部")) {
-                if (info.length > 0) {
-                    info += " and "
-                }
-                info += (qsTr(
-                             "模拟量类型=") + "'" + analogComboBox.currentText + "'")
-            }
-        }
+//            if (analogComboBox.currentText != qsTr("全部")) {
+//                if (info.length > 0) {
+//                    info += " and "
+//                }
+//                info += (qsTr(
+//                             "模拟量类型=") + "'" + analogComboBox.currentText + "'")
+//            }
+//        }
 
         return info
     }

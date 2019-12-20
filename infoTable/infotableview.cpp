@@ -10,6 +10,16 @@ InfoTableView::InfoTableView(QWidget *parent)
     : QTableView(parent)
 {
     initWidget();
+
+    setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(this,&InfoTableView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)
+    {
+        m_menu->exec(QCursor::pos());
+    });
+
+    connect(m_analogValueShowAction,&QAction::triggered,this,&InfoTableView::showAlalogValue);
+    connect(m_alarmInfoShowAction,&QAction::triggered,this,&InfoTableView::showAlarmValue);
     setSelectionBehavior(QAbstractItemView::SelectRows);
     connect(this->verticalHeader(),&QHeaderView::sectionDoubleClicked,this,[=](int logicalIndex)
     {
@@ -35,6 +45,7 @@ InfoTableView::InfoTableView(QWidget *parent)
 InfoTableView::~InfoTableView()
 {
     m_tableModel->setDbOpen(false);
+    delete m_menu;
 }
 
 
@@ -70,6 +81,11 @@ void InfoTableView::initWidget()
 {
 
     m_tableModel = new QmlTableModel(this);
+    m_menu = new QMenu;
+    m_analogValueShowAction = new QAction(tr("模拟量"),m_menu);
+    m_alarmInfoShowAction = new QAction(tr("报警信息"),m_menu);
+    m_menu->addAction(m_analogValueShowAction);
+    m_menu->addAction(m_alarmInfoShowAction);
     this->setModel(m_tableModel);
     this->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     //    m_tableModel->setDbDriver("QSQLITE");

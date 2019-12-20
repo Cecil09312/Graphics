@@ -386,6 +386,25 @@ QString GlobalGraphicsScene::personOnDuty()
     }
 }
 
+GlobalGraphicsItem *GlobalGraphicsScene::itemFromBuildingName(const QString &buildingName)
+{
+ QList<QGraphicsItem*>itemList  = items();
+ GlobalGraphicsItem*item = nullptr;
+ foreach (QGraphicsItem*curItem, itemList)
+ {
+     GlobalGraphicsItem*gItem = dynamic_cast<GlobalGraphicsItem*>(curItem);
+     if(gItem!=nullptr)
+     {
+         if(gItem->buildName()==buildingName)
+         {
+             item = gItem;
+             break;
+         }
+     }
+ }
+ return item;
+}
+
 void GlobalGraphicsScene::setCurrentItemIcon(const QString &icon)
 {
     QGraphicsItem *graphicsItem =  itemAt(m_pointF,QTransform());

@@ -283,11 +283,11 @@ ToolBar {
         text:qsTr("在线状态")
         onTriggered: showOnlineState()
       }
-      MenuItem
-      {
-        text:qsTr("中英文切换")
-        onTriggered: chAndEnSwitch()
-      }
+//      MenuItem
+//      {
+//        text:qsTr("中英文切换")
+//        onTriggered: chAndEnSwitch()
+//      }
     }
 }
 

@@ -45,6 +45,10 @@ Rectangle {
                                                   architeName).arg(
                                                   primaryArchiteName.text)))
                 architeName = primaryArchiteName.text
+
+                TreeView.updateTreeItemInfo()
+
+
             }
         }
 
@@ -107,6 +111,8 @@ Rectangle {
             architeImage = primArchImageTextField.text
             primaryArchiteName.text = Controller.getFileNameFromUrl(currentFile.toString())
             TreeView.setItemName(Controller.getFileNameFromUrl(currentFile.toString()))
+
+            TreeView.updateTreeItemInfo()
         }
     }
 

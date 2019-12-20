@@ -164,7 +164,8 @@ private:
     QGraphicsColorizeEffect *m_colorEffect;
     int m_iconIndex;
     QHash<int, QVariant >m_analogValueHash;//模拟量
-    int m_channelNum;//通道号
+    int m_channelNum;//通道数量
+    //bool m_isHavingAnalogValue;
     QString m_analogType;
     bool m_itemTextIsVisiable;
     QHash<QString,AlarmRecord*>m_alarmRecordHash;

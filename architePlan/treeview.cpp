@@ -25,6 +25,8 @@ TreeView::TreeView(QWidget *parent):
     {
         QModelIndex index = indexAt(m_rootPoint);
         addChildItem(index);
+        saveTreeItem();
+        emit updateTreeItemInfo();
     });
 
     connect(m_editAction,&QAction::triggered,this,[=]()
@@ -54,6 +56,8 @@ TreeView::TreeView(QWidget *parent):
         {
             QModelIndex index = indexAt(m_rootPoint);
             deleteTreeItem(index);
+            saveTreeItem();
+            emit updateTreeItemInfo();
         }
 
     });
@@ -83,7 +87,10 @@ TreeView::TreeView(QWidget *parent):
             else
             {
                 clearItem();
+                saveTreeItem();
+                emit updateTreeItemInfo();
             }
+
         }
     });
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -176,11 +183,12 @@ QMap<QStandardItem *, int> &TreeView::getTreeIndexMap()
 
 void TreeView::saveTreeItem()
 {
+    JsonEdit::instance()->fileClear();
     for(int i=0;i<m_stdModel->rowCount();i++)
     {
         QHash<QString,QVariant> rootHash;
         QStandardItem *parentItem = m_stdModel->item(i);
-        if(parentItem)
+        if(parentItem!=nullptr)
         {
             rootHash["name"] =parentItem->text();
             JsonEdit::instance()->insertRoot(rootHash);
@@ -190,7 +198,7 @@ void TreeView::saveTreeItem()
                 {
                     QStandardItem *childItem = parentItem->child(j);
 
-                    if(childItem)
+                    if(childItem!=nullptr)
                     {
                         QHash<QString,QVariant> childHash;
                         childHash["name"] = childItem->text();
@@ -366,6 +374,8 @@ void TreeView::setItemName(const QString &name)
             }
         }
 
+        JsonEdit::instance()->setChildName(item->parent()->row(),item->row(),name);
+
     }
 }
 
@@ -373,6 +383,13 @@ void TreeView::insertPixmap(const QString &fileName)
 {
     QModelIndex index = indexAt(m_rootPoint);
     QStandardItem*item = m_stdModel->itemFromIndex(index);
+    if(item->parent()!=nullptr)
+    {
+        QHash<QString,QVariant> childImageHash;
+        childImageHash["path"]=fileName;
+        JsonEdit::instance()->setChildImage(item->parent()->row(),item->row(),childImageHash);
+    }
+
     emit insertAnchPixmap(item,fileName);
 }
 

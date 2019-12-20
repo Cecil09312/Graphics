@@ -11,8 +11,9 @@ IndicatorDataProtocol::~IndicatorDataProtocol()
 
 }
 
-QByteArray IndicatorDataProtocol::dataPackage(const QList<QByteArray> &arrayList)
+QByteArray IndicatorDataProtocol::dataPackage(const QList<QByteArray> &arrayList, int start)
 {
+    Q_UNUSED(start);
     QByteArray dataArray;
     QFuture<void> future= QtConcurrent::run([&]()
     {

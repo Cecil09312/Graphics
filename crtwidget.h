@@ -69,7 +69,7 @@ public slots:
     void serialDataProcessing(const QByteArray&arrayValue);
     void tcpDataProcessing(const QByteArray&arrayValue);
     void openHelpFile();
-    void sendAnalogCommand(quint8 networkNum, quint8 extNum, quint8 loopNum, quint8 addrNum, quint8 channelNum, const QString &analogType);
+    void sendAnalogCommand(quint8 networkNum, quint8 extNum, quint8 loopNum, quint8 addrNum, quint8 channelNum, quint8 analogType);
     void startReset();
     void clearVoice();//
     void setIndicatorState(bool isOk);
@@ -80,13 +80,14 @@ public slots:
     void closeControlCenterHeartbeat();
     void reSendAllCmd();
     void closeAll();
+    void clearCurrentAlarm();
    /*测试*/
     void sendSeralData();
 
 private:
     void closeSys();
     void initWidget();
-    void alarmDataOnTable();
+
     bool setSysTime(const QDateTime &dateTime);
     void sendFireInfo(quint8 extNum, quint8 loopNum, quint8 addrNum, const QString &dateTimeStr);
     void reSendCmd();//广播重传指令
@@ -100,10 +101,12 @@ private:
     void setTransportState();
     void setIndicator(bool state);
     void closeAllOnlineState();
+    void insertOtherAlarmInfo(const QString &info,const QString&extNum="");
 
 private slots:
     void processViewsData();
     void showOnlineView();
+    void alarmDataOnTable();
 
 
 private:

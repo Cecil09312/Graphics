@@ -103,6 +103,7 @@ signals:
     void alarmStateUpdate(const QString &extNum,const QString &alarmReplyTime);
     void findAlarmNum(int totalNum,int currentNum);
     void showExtNumState();
+    void sendAnalogValue(GraphicsItem*curItem,quint8 channelNum);
 
 
 public slots:
@@ -127,6 +128,7 @@ public slots:
     void setItemsPeriodOfValidity(int index,QString periodOfValidity);
     void setDeviceInstallTime(int index,QString deviceInstallTime);
     void saveGeneralLayoutInfo();
+    void updateTreeItems();
 
 private:
     void initWidget();
@@ -174,6 +176,7 @@ private:
     QHash<GraphicsItem*,QList<QString> >m_speechTextFromItemHash;
 
     QMenu *m_graphicsItemSettingMenu;
+    QMenu *m_analogValueQueryMenu {nullptr};
     QActionGroup *m_modeActionGroup;
     QAction *m_deleteAction;
     QAction *m_editAction;
@@ -186,6 +189,7 @@ private:
     QAction *m_maintenanceAction;
     QAction *m_itemTextVisiableAction;
     QAction *m_fitViewAction;
+    QAction *m_analogValueQueryAction;
     QPointF m_currentPointF;
     QQuickView *m_itemSettingView;
     QQuickView *m_analogAlarmView;

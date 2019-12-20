@@ -12,7 +12,7 @@ SerialDataProtocol::~SerialDataProtocol()
 
 }
 
-QByteArray SerialDataProtocol::dataPackage(const QList<QByteArray> &arrayList)
+QByteArray SerialDataProtocol::dataPackage(const QList<QByteArray> &arrayList, int start)
 {
     QByteArray array;
     QFuture<void> future=  QtConcurrent::run([&]()
@@ -27,7 +27,7 @@ QByteArray SerialDataProtocol::dataPackage(const QList<QByteArray> &arrayList)
         if(arrayList.size()>1)
         {
             quint32 sum=0;
-            for(int i=1;i<arrayList.size();i++)
+            for(int i=start;i<arrayList.size();i++)
             {
                 sum +=dataByte(arrayList.at(i),0);
             }

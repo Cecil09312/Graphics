@@ -75,8 +75,9 @@ QList<QByteArray> MonitoringProtocol::frameData(const QByteArray &array)
     return arrayList;
 }
 
-QByteArray MonitoringProtocol::dataPackage(const QList<QByteArray> &arrayList)
+QByteArray MonitoringProtocol::dataPackage(const QList<QByteArray> &arrayList, int startIndex)
 {
+    Q_UNUSED(startIndex);
     char start[] = "START";
     char end[]="END";
     QByteArray startArray(start);

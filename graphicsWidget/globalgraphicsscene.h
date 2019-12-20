@@ -22,6 +22,7 @@ public:
     Q_INVOKABLE qreal currentItemSize();
     Q_INVOKABLE QString currentItemIcon();
     Q_INVOKABLE QString personOnDuty();
+    GlobalGraphicsItem *itemFromBuildingName(const QString &buildingName);
 public slots:
     void setCurrentItemSize(qreal size);
     void setCurrentItemIcon(const QString &icon);

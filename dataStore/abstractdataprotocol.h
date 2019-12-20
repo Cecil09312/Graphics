@@ -14,7 +14,7 @@ public:
     quint8 dataByte(QByteArray frameArray,int pos);
     virtual int dataPackageNum(const QByteArray &dataArray)=0;
     QByteArray dataBytes(QByteArray frameArray,int start,int end);
-    virtual QByteArray dataPackage(const QList<QByteArray> &arrayList)=0;
+    virtual QByteArray dataPackage(const QList<QByteArray> &arrayList,int start=1)=0;
 signals:
     void errorFrameData(const QByteArray &errorArray);
 };

@@ -9,7 +9,7 @@ public:
     MonitoringProtocol();
     ~MonitoringProtocol();
     QList<QByteArray>frameData(const QByteArray &array);
-    QByteArray dataPackage(const QList<QByteArray> &arrayList);
+    QByteArray dataPackage(const QList<QByteArray> &arrayList,int startIndex=1);
     int dataPackageNum(const QByteArray &dataArray);
 private:
     QByteArray m_receiveDataArray;

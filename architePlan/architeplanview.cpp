@@ -54,6 +54,8 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
 
     });
 
+    connect(m_treeView,&TreeView::updateTreeItemInfo,this,&ArchitePlanView::updateTreeItems);
+
     connect(m_editAction,&QAction::triggered,this,[=]()
     {
         GraphicsView *view= currentGraphicsView();
@@ -100,6 +102,25 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
         }
     });
 
+    connect(m_analogValueQueryAction,&QAction::triggered,this,[=](){
+
+        GraphicsView *view= currentGraphicsView();
+        if(view!=nullptr)
+        {
+            GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
+            if(scene!=nullptr)
+            {
+                GraphicsItem *currentItem= dynamic_cast<GraphicsItem *> (scene->itemAt(scene->currentScenePos(),QTransform()));
+                if(currentItem!=nullptr)
+                {
+                      if(currentItem->channelNum()==0)
+                      {
+                          emit sendAnalogValue(currentItem,0);
+                      }
+                }
+            }
+        }
+    });
 
     connect(m_itemTextVisiableAction,&QAction::triggered,this,[=]()
     {
@@ -292,7 +313,11 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
 
     });
 
-    connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::deleteItems,this,&ArchitePlanView::saveGeneralLayoutInfo);
+    connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::deleteItems,this,[=]()
+    {
+        saveArchiteInfoToDb();
+        saveGeneralLayoutInfo();
+    });
 
     connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::deleteGlobalItem,this,[=](GlobalGraphicsItem*item)
     {
@@ -308,7 +333,6 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
     connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::clearItem,this,[=]()
     {
         m_treeView->clearItem();
-        m_sqliteManager->executeQuery("delete from GlobalArchite");
     });
 
     connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::goToArchitePlan,this,[=](GlobalGraphicsItem*item)
@@ -358,12 +382,16 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
                     }
                 }
             }
+
+            JsonEdit::instance()->setRootName(stdItem->row(),name);
+            JsonEdit::instance()->writeFile(c_jsonFilePath);
+
         }
 
         if(item!=nullptr)
         {
-          QString curPos= QString("%1,%2").arg(item->scenePos().x()).arg(item->scenePos().y());
-          m_sqliteManager->executeQuery(QString("update GlobalArchite set buildingName='%1' where pos='%2'").arg(name).arg(curPos));
+            QString curPos= QString("%1,%2").arg(item->scenePos().x()).arg(item->scenePos().y());
+            m_sqliteManager->executeQuery(QString("update GlobalArchite set buildingName='%1' where pos='%2'").arg(name).arg(curPos));
         }
 
     });
@@ -372,8 +400,8 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
     {
         if(item!=nullptr)
         {
-          QString curPos= QString("%1,%2").arg(item->scenePos().x()).arg(item->scenePos().y());
-          m_sqliteManager->executeQuery(QString("update GlobalArchite set iconName='%1' where pos='%2'").arg(icon).arg(curPos));
+            QString curPos= QString("%1,%2").arg(item->scenePos().x()).arg(item->scenePos().y());
+            m_sqliteManager->executeQuery(QString("update GlobalArchite set iconName='%1' where pos='%2'").arg(icon).arg(curPos));
         }
     });
 
@@ -381,8 +409,8 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
     {
         if(item!=nullptr)
         {
-          QString curPos= QString("%1,%2").arg(item->scenePos().x()).arg(item->scenePos().y());
-          m_sqliteManager->executeQuery(QString("update GlobalArchite set size='%1' where pos='%2'").arg(size).arg(curPos));
+            QString curPos= QString("%1,%2").arg(item->scenePos().x()).arg(item->scenePos().y());
+            m_sqliteManager->executeQuery(QString("update GlobalArchite set size='%1' where pos='%2'").arg(size).arg(curPos));
         }
     });
 
@@ -390,8 +418,8 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
     {
         if(item!=nullptr)
         {
-          QString curPos= QString("%1,%2").arg(item->scenePos().x()).arg(item->scenePos().y());
-          m_sqliteManager->executeQuery(QString("update GlobalArchite set personOnDuty='%1' where pos='%2'").arg(person).arg(curPos));
+            QString curPos= QString("%1,%2").arg(item->scenePos().x()).arg(item->scenePos().y());
+            m_sqliteManager->executeQuery(QString("update GlobalArchite set personOnDuty='%1' where pos='%2'").arg(person).arg(curPos));
         }
     });
 
@@ -409,6 +437,7 @@ ArchitePlanView::~ArchitePlanView()
     m_sqliteManager->close();
     m_sqliteManager->deleteLater();
     delete m_graphicsItemSettingMenu;
+    delete m_analogValueQueryMenu;
     m_itemSettingView->close();
     m_analogAlarmView->close();
     m_maintenanceView->close();
@@ -674,12 +703,15 @@ void ArchitePlanView::initWidget()
     m_rubberBandDragAction = new QAction(tr("橡皮筋模式"),modeSelectMenu);
     m_itemTextVisiableAction = new QAction(tr("文字可见"),m_graphicsItemSettingMenu);
     m_fitViewAction = new QAction(tr("最佳视图"),m_graphicsItemSettingMenu);
+
+    m_analogValueQueryAction = new QAction(tr("模拟量查询"),m_graphicsItemSettingMenu);
+    m_analogValueQueryMenu = new QMenu;
     m_modeActionGroup = new QActionGroup(this);
     modeSelectMenu->addAction(m_handDragAction);
     modeSelectMenu->addAction(m_rubberBandDragAction);
     m_modeActionGroup->addAction(m_rubberBandDragAction);
     m_modeActionGroup->addAction(m_handDragAction);
-
+    m_analogValueQueryAction->setMenu(m_analogValueQueryMenu);
     m_modeActionGroup->setExclusive(true);
     m_handDragAction->setCheckable(true);
     m_rubberBandDragAction->setCheckable(true);
@@ -712,12 +744,13 @@ void ArchitePlanView::initWidget()
     m_graphicsItemSettingMenu->addAction(m_fitViewAction);
     m_graphicsItemSettingMenu->addAction(m_analogAlarmAction);
     m_graphicsItemSettingMenu->addAction(m_maintenanceAction);
+    m_graphicsItemSettingMenu->addAction(m_analogValueQueryAction);
     m_graphicsItemSettingMenu->addAction(m_deleteAction);
     m_graphicsItemSettingMenu->addAction(m_deleteSelectedAction);
     m_graphicsItemSettingMenu->addAction(m_clearAction);
     m_graphicsItemSettingMenu->addAction(m_closeAction);
 
-   // connect(m_showExtOnlineAction,&QAction::triggered,this,&ArchitePlanView::showExtNumState);
+    // connect(m_showExtOnlineAction,&QAction::triggered,this,&ArchitePlanView::showExtNumState);
 
 
 
@@ -792,6 +825,8 @@ void ArchitePlanView::initWidget()
         m_widgetHash.clear();
         m_globalGraphicsView->currentScene()->clearGraphicsItem();
         emit noPage();
+        m_sqliteManager->executeQuery("delete from ItemInfo");
+        m_sqliteManager->executeQuery("delete from GlobalArchite");
     });
 
     connect(m_treeView,&TreeView::deleteIndex,this,&ArchitePlanView::deleteViewFromItem);
@@ -864,6 +899,7 @@ void ArchitePlanView::initWidget()
 void ArchitePlanView::showMenu(const QPoint &point)
 {
 
+    m_analogValueQueryMenu->clear();
     GraphicsView *view = currentGraphicsView();
     if(view!=nullptr)
     {
@@ -878,11 +914,46 @@ void ArchitePlanView::showMenu(const QPoint &point)
             {
                 m_itemTextVisiableAction->setEnabled(true);
                 m_itemTextVisiableAction->setChecked(selectGrraphicsItem->itemTextIsVisiable());
+                if(selectGrraphicsItem->analogType()==tr("无"))
+                {
+                    m_analogValueQueryAction->setEnabled(false);
+
+                }
+                else
+                {
+                    m_analogValueQueryAction->setEnabled(true);
+                }
+
+                int curChannelNum = selectGrraphicsItem->channelNum();
+                if(curChannelNum==0)
+                {
+                    QAction *curAction = new QAction(QString(tr("当前设备")),m_analogValueQueryMenu);
+                    m_analogValueQueryMenu->addAction(curAction);
+                    connect(curAction,&QAction::triggered,this,[=]()
+                    {
+                        emit sendAnalogValue(selectGrraphicsItem,0);
+                    });
+                }
+                else
+                {
+                    for(int i=0;i<curChannelNum;i++)
+                    {
+
+                        QAction *action = new QAction(QString(tr("%1通道")).arg(i+1),m_analogValueQueryMenu);
+                        m_analogValueQueryMenu->addAction(action);
+                        connect(action,&QAction::triggered,this,[=]()
+                        {
+                            emit sendAnalogValue(selectGrraphicsItem,i+1);
+                        });
+                    }
+                }
+
             }
             else
             {
                 m_itemTextVisiableAction->setEnabled(false);
                 m_itemTextVisiableAction->setChecked(false);
+                m_analogValueQueryAction->setEnabled(false);
             }
 
             if(userRight==UserManager::Super||userRight==UserManager::Administrator)
@@ -969,30 +1040,7 @@ void ArchitePlanView::showMenu(const QPoint &point)
 
 void ArchitePlanView::saveArchiteInfo()
 {
-    QStandardItemModel *model=dynamic_cast<QStandardItemModel *>(m_treeView->model());
-    for(int i=0;i<model->rowCount();i++)
-    {
-        QStandardItem *parentItem = model->item(i);
-        if(parentItem!=nullptr)
-        {
-
-            if(parentItem->hasChildren())
-            {
-                for(int j=0;j<parentItem->rowCount();j++)
-                {
-                    QStandardItem *childItem = parentItem->child(j);
-                    if(childItem!=nullptr)
-                    {
-                        QHash<QString,QVariant> childImageHash= saveViewInfo(childItem);
-                        JsonEdit::instance()->setChildImage(model->indexFromItem(parentItem).row(),model->indexFromItem(childItem).row(),childImageHash);
-                    }
-                }
-            }
-
-        }
-    }
-
-    JsonEdit::instance()->writeFile(c_jsonFilePath);
+    updateTreeItems();
     saveArchiteInfoToDb();
 }
 
@@ -1182,62 +1230,57 @@ void ArchitePlanView::initFromJsonFile()
     {
         return;
     }
-    bool isHave = false;
-    foreach (QGraphicsItem*item, globalScene->items()) {
+    QList<QString>buildingNameList;
+    foreach (QGraphicsItem*item, globalScene->items())
+    {
         GlobalGraphicsItem*gItem = dynamic_cast<GlobalGraphicsItem*>(item);
         if(gItem!=nullptr)
         {
-            isHave= true;
-            break;
+            buildingNameList.push_back(gItem->buildName());
         }
     }
 
-    if(isHave)
+    QList<QVariant>   jsonValueList=JsonEdit::instance()->readFile(c_jsonFilePath).toList();
+    foreach (QString name, buildingNameList)
     {
-        QList<QVariant>   jsonValueList=JsonEdit::instance()->readFile(c_jsonFilePath).toList();
-        for(int i=0;i<jsonValueList.size();i++)
+        QStandardItem *parentItem= m_treeView->addRootItem(name);
+        GlobalGraphicsItem*globalGraphicsItem=globalScene->itemFromBuildingName(name);
+        if(globalGraphicsItem!=nullptr)
         {
-            QHash<QString,QVariant> parentHash=  jsonValueList.at(i).toHash();
+          m_globalToArchitePlanHash[globalGraphicsItem] = parentItem;
+        }
+        for(QVariant curValue:jsonValueList)
+        {
+            QHash<QString,QVariant> parentHash=  curValue.toHash();
             if(!parentHash.isEmpty())
             {
-                QStandardItem *parentItem= m_treeView->addRootItem(parentHash["name"].toString());
-                QList<QGraphicsItem*>  globalItemList=     m_globalGraphicsView->currentScene()->items();
-                foreach (QGraphicsItem*curItem, globalItemList)
+                QString rootItemName=parentHash.value("name").toString();
+                if(rootItemName==name)
                 {
-                    GlobalGraphicsItem *globalGraphicsItem = dynamic_cast<GlobalGraphicsItem *>(curItem);
-                    if(globalGraphicsItem!=nullptr)
+                    QList<QVariant> childList =  parentHash.value("child").toList();
+
+                    for(QVariant childValue:childList)
                     {
-                        if(globalGraphicsItem->buildName() ==parentItem->text())
+                        QHash<QString,QVariant> childHash=  childValue.toHash();
+                        QModelIndex parentIndex= parentItem->index();
+
+                        if(parentIndex.isValid())
                         {
-                            m_globalToArchitePlanHash[globalGraphicsItem] = parentItem;
-                            break;
+                            QStandardItem *childItem= m_treeView->addChildItem(parentIndex);
+                            if(childItem)
+                            {
+                                childItem->setText(childHash.value("name").toString());
+                                QHash<QString,QVariant> childPixmapHash = childHash["image"].toHash();
+                                GraphicsView*view=  setViewFromJson(childPixmapHash,childItem);
+                                initFromDataBase(view,parentItem->text(),childItem->text());
+                            }
                         }
+
                     }
                 }
-
-                QList<QVariant> childList =  parentHash["child"].toList();
-
-                for(int j=0;j<childList.size();j++)
-                {
-                    QHash<QString,QVariant> childHash=  childList.at(j).toHash();
-                    QModelIndex parentIndex= parentItem->index();
-
-                    if(parentIndex.isValid())
-                    {
-                        QStandardItem *childItem= m_treeView->addChildItem(parentIndex);
-                        if(childItem)
-                        {
-                            childItem->setText(childHash["name"].toString());
-                            QHash<QString,QVariant> childPixmapHash = childHash["image"].toHash();
-                            GraphicsView*view=  setViewFromJson(childPixmapHash,childItem);
-                            initFromDataBase(view,parentItem->text(),childItem->text());
-                        }
-                    }
-
-                }
-
             }
         }
+
     }
 }
 
@@ -1366,7 +1409,6 @@ void ArchitePlanView::saveOtherArchiteInfo()
     QHash<QString,QVariant> architePlanHash;
 
     architePlanHash["sysArchitePlan"] = m_sysArchitePlanView->infoToJson();
-
     saveGeneralLayoutInfo();
     architePlanHash["grobalPlanPicture"] =m_globalArchitePlanPixmapName;
     QmlForJson qmlForJson;
@@ -2005,7 +2047,7 @@ void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum,const QString &
         alarmHappend(curAlarm);
         // updateAlarmText(curAlarm);
     }
-    alarmStateUpdate(extNum,rebackAlarmTime);
+    emit alarmStateUpdate(extNum,rebackAlarmTime);
 
 }
 
@@ -2200,7 +2242,7 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
     }
     m_treeView->getTreeIndexMap().remove(item);
     saveArchiteInfoToDb();
-
+    saveGeneralLayoutInfo();
 }
 
 void ArchitePlanView::viewsAutoSwitch()
@@ -2402,6 +2444,34 @@ void ArchitePlanView::saveGeneralLayoutInfo()
     valueList.push_back(sizeList);
     valueList.push_back(iconNameList);
     m_sqliteManager->insertBatch("GlobalArchite",valueList);
+}
+
+void ArchitePlanView::updateTreeItems()
+{
+    QStandardItemModel *model=dynamic_cast<QStandardItemModel *>(m_treeView->model());
+    for(int i=0;i<model->rowCount();i++)
+    {
+        QStandardItem *parentItem = model->item(i);
+        if(parentItem!=nullptr)
+        {
+
+            if(parentItem->hasChildren())
+            {
+                for(int j=0;j<parentItem->rowCount();j++)
+                {
+                    QStandardItem *childItem = parentItem->child(j);
+                    if(childItem!=nullptr)
+                    {
+                        QHash<QString,QVariant> childImageHash= saveViewInfo(childItem);
+                        JsonEdit::instance()->setChildImage(model->indexFromItem(parentItem).row(),model->indexFromItem(childItem).row(),childImageHash);
+                    }
+                }
+            }
+
+        }
+    }
+
+    JsonEdit::instance()->writeFile(c_jsonFilePath);
 }
 
 
