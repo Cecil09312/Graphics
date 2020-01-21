@@ -2,13 +2,13 @@
 import QtQuick.Controls 2.2
 import operatorInfo 1.0
 
-Rectangle {
-    width: 900
-    height: 560
+Item {
+    width: 800
+    height: 640
     Row {
         id: maintenanceRow
         anchors.top: parent.top
-        anchors.topMargin: 10
+        anchors.topMargin: 60
         spacing: 3
         Text {
             text: qsTr("设备编码:")

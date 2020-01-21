@@ -7,7 +7,6 @@
         <file>qml/infoSetting/PasswordSetting.qml</file>
         <file>qml/infoSetting/SerialPortSetting.qml</file>
         <file>qml/infoSetting/SettingView.qml</file>
-        <file>qml/infoSetting/SettingWindow.qml</file>
         <file>qml/infoSetting/SysArchitePlanSetting.qml</file>
         <file>qml/itemSetting/GraphicsItemEditor.qml</file>
         <file>qml/itemSetting/ItemIconSetting.qml</file>
@@ -28,5 +27,6 @@
         <file>qml/logInWindow/ResetLoginItem.qml</file>
         <file>qml/infoSetting/ControlCenterSetting.qml</file>
         <file>qml/deviceOnline/DeviceOnline.qml</file>
+        <file>qml/infoSetting/MyTabButton.qml</file>
     </qresource>
 </RCC>

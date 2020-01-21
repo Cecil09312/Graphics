@@ -8,13 +8,7 @@
  * 用来保存不同类型的报警数据
  */
 
-struct DataInfo
-{
-    QString m_extNum;//分机号
-    QString m_loopNum;//回路号
-    QString m_addrNum;//地址号
-    QString m_networkNum;//网络号
-};
+
 class DataStore
 {
 public:
@@ -28,16 +22,15 @@ public:
      static void deleteTypeItem(const QString &type,QGraphicsItem*item);
      static void deleteTypeItem(const QString &type,int pos);
      static void insertTypeItem(const QString &type,QGraphicsItem*item);
-     static bool deleteType(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum);
+     static void deleteType(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum);
      static void deleteTypeItem(const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum);
+     static void deleteTypeNoItem(const QString&extNum);
      static void insertTypeNoItem(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum);
      static void clearTypeItem();
      static int numOfTypeItem(const QString &type);
      static GraphicsView *itemDisplayView(GraphicsItem *item);
      static bool haveTypeItem(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum);
-     static QHash<QString,QList<DataInfo*> >&getTypeNoItemHash();
-     static QString getTypeNoItemKey(DataInfo*dataInfo);
-     static void deleteDataInfo(DataInfo*dataInfo);
+     static QHash<QString,QList<QString> >&getTypeNoItemHash();
      static int indexOfItem(const QString &extNum,const QString &loopNum,const QString &addrNum,const QString &networkNum,const QString &alarmType);
      static int &itemNum();
      static void setItemNum(int num);
@@ -53,7 +46,7 @@ public:
 
 private:
      static QHash<QString,QList<QGraphicsItem*> >m_typeItemHash;
-     static QHash<QString,QList<DataInfo*> >m_typeNoItemHash;
+     static QHash<QString,QList<QString> >m_typeNoItemHash;
      static int s_itemNum;
      static QString m_loopNum;
      static QString m_extNum;

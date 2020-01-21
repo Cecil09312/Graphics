@@ -12,8 +12,8 @@ import operatorInfo 1.0
 
 Item {
 
-    //    width: 420
-    //    height: 360
+    width: 800
+    height: 640
     property real currentValue: 5
     property url filePath: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
     ColumnLayout {

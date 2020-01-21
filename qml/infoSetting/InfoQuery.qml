@@ -2,253 +2,184 @@
 import QtQuick.Controls 2.2
 import QtQuick.Controls 1.4 as Controls1_4
 import qmlTableModel 1.0
+import QtQuick.Layouts 1.3
 import "../qmlTable"
 import QtQuick.Controls.Styles 1.4
 
 Item {
 
     id: root
-    width: 980
-    height: 680
+    width: 800
+    height: 640
 
     Row {
 
         anchors.top: parent.top
-        anchors.topMargin: 10
+        anchors.topMargin: 20
         id: btnRow
         spacing: 10
         NaviButton {
             id: saveToPdfBtn
             text: qsTr("保存成pdf")
             height: 30
+            onClicked:
+            {
+
+                switch(bar.currentIndex)
+                {
+                case 0:
+                    alarmInfo.saveToPdf()
+                    break;
+                case 1:
+                    deviceState.saveToPdf()
+                    break;
+                case 2:
+                    maintInfo.saveToPdf()
+                    break;
+                case 3:
+                    operaEvent.saveToPdf()
+                    break;
+                case 4:
+                    analogInfo.saveToPdf()
+                    break;
+                default:
+                    break;
+
+                }
+
+            }
         }
         NaviButton {
             id: printPreviewBtn
             text: qsTr("打印预览")
             height: 30
+            onClicked:
+            {
+
+                switch(bar.currentIndex)
+                {
+                case 0:
+                    alarmInfo.printPreview()
+                    break;
+                case 1:
+                    deviceState.printPreview()
+                    break;
+                case 2:
+                    maintInfo.printPreview()
+                    break;
+                case 3:
+                    operaEvent.printPreview()
+                    break;
+                case 4:
+                    analogInfo.printPreview()
+                    break;
+                default:
+                    break;
+
+                }
+
+
+            }
         }
         NaviButton {
             id: printBtn
             text: qsTr("打印")
             height: 30
+            onClicked:
+            {
+
+                switch(bar.currentIndex)
+                {
+                case 0:
+                    alarmInfo.startPrint()
+                    break;
+                case 1:
+                    deviceState.startPrint()
+                    break;
+                case 2:
+                    maintInfo.startPrint()
+                    break;
+                case 3:
+                    operaEvent.startPrint()
+                    break;
+                case 4:
+                    analogInfo.startPrint()
+                    break;
+                default:
+                    break;
+
+                }
+
+
+            }
         }
     }
-    Controls1_4.TabView {
-        id: tabView
+
+    TabBar {
+        id: bar
         anchors.top: btnRow.bottom
         anchors.left: root.left
         anchors.right: root.right
         anchors.bottom: root.bottom
         width: root.width
         anchors.topMargin: 20
-        frameVisible: true
-
-        Controls1_4.Tab {
-            id: tab1
-            title: qsTr("报警历史查询")
-            anchors.topMargin: 20
-            AlarmInfoTableItem {
-                id: alarmInfo
-                Connections {
-                    target: printBtn
-                    onClicked: {
-                        if (tabView.currentIndex == 0) {
-                            alarmInfo.startPrint()
-                        }
-                    }
-                }
-
-                Connections {
-                    target: printPreviewBtn
-                    onClicked: {
-                        if (tabView.currentIndex == 0) {
-                            alarmInfo.printPreview()
-                        }
-                    }
-                }
-
-                Connections {
-                    target: saveToPdfBtn
-                    onClicked: {
-                        if (tabView.currentIndex == 0) {
-                            alarmInfo.saveToPdf()
-                        }
-                    }
-                }
-            }
+        MyTabButton {
+            text: qsTr("报警历史查询")
+        }
+        MyTabButton {
+            text: qsTr("设备信息查询")
+        }
+        MyTabButton {
+            text:  qsTr("维保信息查询")
         }
 
-        Controls1_4.Tab {
-            title: qsTr("设备信息查询")
-            anchors.topMargin: 20
-
-            DeviceStateTableItem {
-                id: deviceState
-                Connections {
-                    target: printBtn
-                    onClicked: {
-                        if (tabView.currentIndex == 1) {
-                            deviceState.startPrint()
-                        }
-                    }
-                }
-
-                Connections {
-                    target: printPreviewBtn
-                    onClicked: {
-                        if (tabView.currentIndex == 1) {
-                            deviceState.printPreview()
-                        }
-                    }
-                }
-
-                Connections {
-                    target: saveToPdfBtn
-                    onClicked: {
-                        if (tabView.currentIndex == 1) {
-                            deviceState.saveToPdf()
-                        }
-                    }
-                }
-            }
+        MyTabButton {
+            text: qsTr("操作事件查询")
+        }
+        MyTabButton {
+            text: qsTr("模拟量查询")
         }
 
-        Controls1_4.Tab {
-            title: qsTr("维保信息查询")
-            anchors.topMargin: 20
-
-            MaintInfoTableItem {
-                anchors.topMargin: 20
-                id: maintInfo
-                Connections {
-                    target: printBtn
-                    onClicked: {
-                        if (tabView.currentIndex == 2) {
-                            maintInfo.startPrint()
-                        }
-                    }
-                }
-
-                Connections {
-                    target: printPreviewBtn
-                    onClicked: {
-                        if (tabView.currentIndex == 2) {
-                            maintInfo.printPreview()
-                        }
-                    }
-                }
-
-                Connections {
-                    target: saveToPdfBtn
-                    onClicked: {
-                        if (tabView.currentIndex == 2) {
-                            maintInfo.saveToPdf()
-                        }
-                    }
-                }
-            }
-        }
-
-        Controls1_4.Tab {
-            title: qsTr("操作事件查询")
-            anchors.topMargin: 20
-            OperaEventTableItem {
-                anchors.topMargin: 20
-
-                id: operaEvent
-                Connections {
-                    target: printBtn
-                    onClicked: {
-                        if (tabView.currentIndex == 3) {
-                            operaEvent.startPrint()
-                        }
-                    }
-                }
-
-                Connections {
-                    target: printPreviewBtn
-                    onClicked: {
-                        if (tabView.currentIndex == 3) {
-                            operaEvent.printPreview()
-                        }
-                    }
-                }
-
-                Connections {
-                    target: saveToPdfBtn
-                    onClicked: {
-                        if (tabView.currentIndex == 3) {
-                            operaEvent.saveToPdf()
-                        }
-                    }
-                }
-            }
-        }
-
-        Controls1_4.Tab {
-            title: qsTr("模拟量查询")
-            anchors.topMargin: 20
-            AnalogTableItem {
-                anchors.topMargin: 20
-
-                id: analogTable
-                Connections {
-                    target: printBtn
-                    onClicked: {
-                        if (tabView.currentIndex == 4) {
-                            analogTable.startPrint()
-                        }
-                    }
-                }
-
-                Connections {
-                    target: printPreviewBtn
-                    onClicked: {
-                        if (tabView.currentIndex == 4) {
-                            analogTable.printPreview()
-                        }
-                    }
-                }
-
-                Connections {
-                    target: saveToPdfBtn
-                    onClicked: {
-                        if (tabView.currentIndex == 4) {
-                            analogTable.saveToPdf()
-                        }
-                    }
-                }
-            }
-        }
-
-        style: TabViewStyle {
-            frameOverlap: 1
-            tab: Rectangle {
-                color: styleData.selected ? "steelblue" : "lightsteelblue"
-                border.color: "steelblue"
-                implicitWidth: Math.max(text.width + 4, 80)
-                implicitHeight: 40
-                radius: 2
-                Text {
-                    id: text
-                    anchors.centerIn: parent
-                    text: styleData.title
-                    color: styleData.selected ? "white" : "black"
-                }
-            }
-            frame: Rectangle {
-                id: rec
-                color: "white"
-                transitions: Transition {
-                    PropertyAnimation {
-                        target: rec
-                        property: "opacity"
-                        duration: 100
-                        from: 0
-                        to: 1
-                    }
-                }
-            }
-        }
     }
+
+    StackLayout {
+        width: parent.width
+        currentIndex: bar.currentIndex
+
+        AlarmInfoTableItem {
+             width: 800
+             height: 640
+            anchors.topMargin:120
+            id: alarmInfo
+        }
+        DeviceStateTableItem {
+            id: deviceState
+            anchors.topMargin:120
+            width: 800
+            height: 640
+        }
+
+        MaintInfoTableItem {
+            anchors.topMargin: 120
+            id: maintInfo
+            width: 800
+            height: 640
+        }
+
+        OperaEventTableItem {
+            id: operaEvent
+            width: 800
+            height: 640
+            anchors.topMargin:120
+
+        }
+        AnalogTableItem {
+            id:analogInfo
+            width: 800
+            height: 640
+            anchors.topMargin:120
+        }
+
+    }
+
 }

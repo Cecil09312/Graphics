@@ -56,7 +56,7 @@ FirstFireAlarmInfoWidget::FirstFireAlarmInfoWidget(QWidget *parent)
     formLayout->addRow(tr("位置:"),m_locationLabel);
     formLayout->addRow(tr("系统:"),m_sysLabel);
     formLayout->addRow(tr("建筑名称:"),m_buildingNameLabel);
-    formLayout->addRow(tr("报警时间:"),m_alarmTimeLabel);
+    formLayout->addRow(tr("时间:"),m_alarmTimeLabel);
 
     QVBoxLayout *vLayout = new QVBoxLayout;
     vLayout->addWidget(titleLabel);

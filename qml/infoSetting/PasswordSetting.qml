@@ -7,8 +7,35 @@ import operatorInfo 1.0
 
 Item {
 
+    width: 800
+    height: 640
     ListModel {
         id: addUserModel
+        ListElement {
+            value: qsTr("管理员")
+        }
+
+        ListElement {
+            value: qsTr("普通用户")
+        }
+    }
+
+    ListModel {
+        id: managerRightModel
+        ListElement {
+            value: qsTr("超级用户")
+        }
+
+        ListElement {
+            value: qsTr("管理员")
+        }
+    }
+
+    ListModel {
+        id: changePasswordModel
+        ListElement {
+            value: qsTr("超级用户")
+        }
         ListElement {
             value: qsTr("管理员")
         }
@@ -68,7 +95,7 @@ Item {
             }
             ComboBox {
                 id: userRightComboBox
-                model: ["超级用户", "管理员", "普通用户"]
+                model: changePasswordModel
                 Layout.row: 0
                 Layout.column: 1
                 Layout.fillWidth: true
@@ -152,7 +179,7 @@ Item {
             }
             ComboBox {
                 id: managerRightComboBox
-                model: ["超级用户", "管理员"]
+                model: managerRightModel
                 Layout.row: 0
                 Layout.column: 1
                 Layout.fillWidth: true
@@ -349,5 +376,35 @@ Item {
     Component.onCompleted: {
         userName.visible = false
         userNameTextField.visible = false
+        initSetting()
+
+    }
+
+    function initSetting()
+    {
+        addUserModel.clear()
+        changePasswordModel.clear()
+        managerRightModel.clear()
+        if(UserManager.userRight()===UserManager.Super)
+        {
+            addUserModel.append({value:qsTr("管理员")})
+            addUserModel.append({value:qsTr("普通用户")})
+            changePasswordModel.append({value:qsTr("超级用户")})
+            changePasswordModel.append({value:qsTr("管理员")})
+            changePasswordModel.append({value:qsTr("普通用户")})
+            managerRightModel.append({value:qsTr("超级用户")})
+            managerRightModel.append({value:qsTr("管理员")})
+        }
+        else if(UserManager.userRight()===UserManager.Administrator)
+        {
+            addUserModel.append({value:qsTr("普通用户")})
+            changePasswordModel.append({value:qsTr("管理员")})
+            changePasswordModel.append({value:qsTr("普通用户")})
+            managerRightModel.append({value:qsTr("管理员")})
+        }
+
+        userRightComboBox.currentIndex=0
+        managerRightComboBox.currentIndex=0
+
     }
 }

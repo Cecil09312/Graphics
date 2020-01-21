@@ -31,7 +31,6 @@ TcpLink::TcpLink(QObject *parent)
        if(!isListened)
        {
            emit isConnected(false);
-           qDebug() << "**********";
        }
 
     });
@@ -41,6 +40,7 @@ TcpLink::TcpLink(QObject *parent)
 
       m_tcpServer->close();
       emit isConnected(false);
+      m_tcpServer->cleanSendData();
 
     });
 

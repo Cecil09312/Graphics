@@ -8,6 +8,8 @@ import qmlForJson 1.0
 import operatorInfo 1.0
 
 Item {
+    width: 800
+    height: 640
     property var textFieldName: fireAlarmTxt
     property string txtName: ""
     property url filePath: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)

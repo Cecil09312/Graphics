@@ -20,7 +20,7 @@ void Print::saveToPdf(QList<QString> roleNameList, QList<QVariant> valueList)
     {
         printer.setOutputFileName(fileName);
         QTextDocument text_document;
-        text_document.setHtml(createHtml(roleNameList,valueList,650));
+        text_document.setHtml(createHtml(roleNameList,valueList,580));
         text_document.print(&printer);
         text_document.end();
     }
@@ -63,7 +63,7 @@ void Print::startPrint(QList<QString> roleNameList, QList<QVariant> valueList)
     QPrinter printer(QPrinter::HighResolution);
     printer.setPageSize(QPageSize(QPageSize::A4));
     QTextDocument text_document;
-    text_document.setHtml(createHtml(roleNameList,valueList,650));
+    text_document.setHtml(createHtml(roleNameList,valueList,580));
     text_document.print(&printer);
     text_document.end();
 }
@@ -74,11 +74,11 @@ void Print::printPreview(QList<QString> roleNameList, QList<QVariant> valueList)
     //纸张大小
     printer.setPageSize(QPageSize(QPageSize::A4));
     QPrintPreviewDialog previewDialog(&printer, nullptr);
-    previewDialog.setMinimumSize(960,800);
+    previewDialog.setMinimumSize(960,720);
     connect(&previewDialog,&QPrintPreviewDialog::paintRequested,this,[=](QPrinter *printer)
     {
         QTextDocument text_document;
-        text_document.setHtml(createHtml(roleNameList,valueList,650));
+        text_document.setHtml(createHtml(roleNameList,valueList,580));
         text_document.print(printer);
         text_document.end();
     });

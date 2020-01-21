@@ -9,22 +9,14 @@ Button {
     background: Rectangle
     {
         id:backRect
+
         implicitWidth: 100
         implicitHeight: 40
-        color: "lightgray"
+        color: highlighted ? "gray" : "lightgray"
         radius:10
-//        layer.enabled: button.enabled
-//        layer.effect: DropShadow {
-//            verticalOffset: 1
-//            //color: firmAlarmBtn.visualFocus ? "#330066ff" : "#aaaaaa"
-//            samples: 4
-//            spread: 0.2
-//        }
+
     }
 
-    //                onClicked: {
-    //                    ArchitePlanView.firstFireAlarm()
-    //                }
     onPressed: {
         highlighted = true
     }
@@ -33,15 +25,4 @@ Button {
 
     }
 
-    onHighlightedChanged:
-    {
-       if(highlighted)
-       {
-          backRect.color="gray"
-       }
-       else
-       {
-          backRect.color="lightgray"
-       }
-    }
 }

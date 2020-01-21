@@ -80,8 +80,8 @@ Rectangle {
                                             loopNumTextField.text,
                                             addrNumTextField.text,
                                             networkNumTextField.text,
-                                            qsTr("模拟")+alarmStateComboBox.currentText,
-                                            alarmStateComboBox.currentText)
+                                            alarmStateComboBox.currentText,
+                                            qsTr("模拟")+alarmStateComboBox.currentText)
 
             }
         }
@@ -101,7 +101,7 @@ Rectangle {
 
                     ArchitePlanView.eliminateAlarm(extNumTextField.text,
                                                    loopNumTextField.text, addrNumTextField.text,
-                                                   networkNumTextField.text,qsTr("模拟")+alarmStateComboBox.currentText)
+                                                   networkNumTextField.text,alarmStateComboBox.currentText)
                 }
             }
 

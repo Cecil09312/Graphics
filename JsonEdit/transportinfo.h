@@ -12,8 +12,10 @@ public:
     ~TransportInfo();
     Q_INVOKABLE void setTransportInfo(const QString&name,const QString&value);
     Q_INVOKABLE void saveTransportInfoToJson();
-    Q_INVOKABLE QString transportInfoFromJson(const QString&name);
-    QString transportInfo(const QString &name);
+    Q_INVOKABLE QVariant transportInfoFromJson(const QString&name);
+   // Q_INVOKABLE QString transportInfoStr(const QString&name);
+    Q_INVOKABLE QString transportInfo(const QString &name);
+    Q_INVOKABLE bool controlCentrolEnable();
 
 signals:
 

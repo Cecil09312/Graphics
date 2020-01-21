@@ -9,9 +9,11 @@ class SerialDataProtocol : public AbstractDataProtocol
 public:
     SerialDataProtocol();
     ~SerialDataProtocol();
-    QByteArray dataPackage(const QList<QByteArray> &arrayList,int start=1);
+
     QList<QByteArray>frameData(const QByteArray &array);
     int dataPackageNum(const QByteArray &dataArray);
+private:
+    QByteArray dataPackage(const QList<QByteArray> &arrayList,int start);
 
 private:
     QByteArray m_receiveDataArray;

@@ -112,7 +112,6 @@ QStringList SqlManager::executeQuery(const QString &sql)
         {
             QSqlQuery query(d->m_database);
             isTransaction=d->m_database.transaction();
-            QThread::msleep(10);
             if(isTransaction)
             {
                 query.prepare(sql);
@@ -128,10 +127,10 @@ QStringList SqlManager::executeQuery(const QString &sql)
                 d->m_database.commit();
                 query.finish();
             }
-            else
-            {
-                QThread::msleep(200);
-            }
+//            else
+//            {
+//                QThread::msleep(200);
+//            }
 //            else
 //            {
 //                close();
@@ -139,10 +138,10 @@ QStringList SqlManager::executeQuery(const QString &sql)
 
         }
 
-        if(sql.startsWith("insert")||sql.startsWith("update"))
-        {
-            emit dataCommitSuccess(isTransaction);
-        }
+//        if(sql.startsWith("insert")||sql.startsWith("update"))
+//        {
+//            emit dataCommitSuccess(isTransaction);
+//        }
     });
 
     future.waitForFinished();

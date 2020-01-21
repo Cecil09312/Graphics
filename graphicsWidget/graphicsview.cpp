@@ -59,6 +59,7 @@ GraphicsView::GraphicsView(QWidget *parent, int type):
         setScene(m_sysViewScene);
     }
 
+
 }
 
 GraphicsView::~GraphicsView()

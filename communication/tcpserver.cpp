@@ -135,6 +135,11 @@ void TcpServer::removeSocket()
     }
 }
 
+void TcpServer::cleanSendData()
+{
+    m_sendArrayList.clear();
+}
+
 void TcpServer::incomingConnection(qintptr socketDescriptor)
 {
     QTcpSocket*tcpSocket = new QTcpSocket();

@@ -113,10 +113,10 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
                 GraphicsItem *currentItem= dynamic_cast<GraphicsItem *> (scene->itemAt(scene->currentScenePos(),QTransform()));
                 if(currentItem!=nullptr)
                 {
-                      if(currentItem->channelNum()==0)
-                      {
-                          emit sendAnalogValue(currentItem,0);
-                      }
+                    if(currentItem->channelNum()==0)
+                    {
+                        emit sendAnalogValue(currentItem,0);
+                    }
                 }
             }
         }
@@ -484,9 +484,6 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item, const QString &alarmTyp
         }
     }
 
-
-
-
     emit eliminateAlarmFromTable(item,alarmType);
     item->removeAlarmRecord(alarmType,alarmReplyTime);
     item->stopAnimations();
@@ -501,7 +498,6 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item, const QString &alarmTyp
     GraphicsView*curView = DataStore::itemDisplayView(item);
     if(curView!=nullptr)
     {
-
         curView->removeGraphicsTextItem(oldState);
     }
     filterAlarm(item);
@@ -1247,7 +1243,7 @@ void ArchitePlanView::initFromJsonFile()
         GlobalGraphicsItem*globalGraphicsItem=globalScene->itemFromBuildingName(name);
         if(globalGraphicsItem!=nullptr)
         {
-          m_globalToArchitePlanHash[globalGraphicsItem] = parentItem;
+            m_globalToArchitePlanHash[globalGraphicsItem] = parentItem;
         }
         for(QVariant curValue:jsonValueList)
         {
@@ -1433,15 +1429,13 @@ void ArchitePlanView::createAlarm(GraphicsItem *item,const QString &alarmType,co
             return;
         }
         item->setAlarmRecord(alarmType,alarmTime,alarmState);
-        QString curAlarmType;
+        QString curAlarmType=alarmType;
+
         if(alarmType.startsWith(tr("模拟")))
         {
-            curAlarmType = item->alarmState(alarmType);
+            curAlarmType.remove(tr("模拟"));
         }
-        else
-        {
-            curAlarmType = alarmType;
-        }
+
         item->stopAnimations();
 
         DataStore::insertTypeItem(curAlarmType,item);
@@ -1731,15 +1725,20 @@ void ArchitePlanView::startAlarmAnimation(GraphicsItem *item)
 
                 if(view!=nullptr)
                 {
-                    view->addGraphicsTextItem(QPointF(item->pos().x()-20,item->pos().y()+20),curState);
+                    view->addGraphicsTextItem(QPointF(item->pos().x()-item->radius(),item->pos().y()+item->radius()),curState);
                     QGraphicsTextItem *textItem = view->textItem(curState);
                     if(textItem!=nullptr)
                     {
                         connect(item,&GraphicsItem::moveToPos,this,[=](const QPointF &pos)
                         {
-                            textItem->setPos(QPointF(pos.x()-20,pos.y()+20));
+                            textItem->setPos(QPointF(pos.x()-item->radius(),pos.y()+item->radius()));
                         });
-                    }
+                        connect(item,&GraphicsItem::sizeChanged,this,[=](qreal size)
+                        {
+                            textItem->setPos(QPointF(item->scenePos().x()-size,item->scenePos().y()+size));
+                        });
+                        //connect(item,&GraphicsItem::)
+                    }      
 
                 }
             }
@@ -2025,19 +2024,8 @@ void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum,const QString &
                 }
             }
         }
+        DataStore::deleteTypeNoItem(extNum);
 
-        QList<QString>typeNoItemList= DataStore::getTypeNoItemHash().keys();
-        foreach (QString dataInfo, typeNoItemList)
-        {
-            QList<DataInfo *> infoList=  DataStore::getTypeNoItemHash().value(dataInfo);
-            foreach (DataInfo *info, infoList)
-            {
-                if(info->m_extNum==extNum)
-                {
-                    DataStore::deleteDataInfo(info);
-                }
-            }
-        }
     }
 
     int totalNum = DataStore::numOfTypeItem(m_currentAlarmType);
@@ -2047,7 +2035,7 @@ void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum,const QString &
         alarmHappend(curAlarm);
         // updateAlarmText(curAlarm);
     }
-    emit alarmStateUpdate(extNum,rebackAlarmTime);
+    emit alarmStateUpdate(extNum);
 
 }
 

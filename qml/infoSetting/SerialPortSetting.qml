@@ -7,9 +7,9 @@ import serialLink 1.0
 import indicatorConfigurationManager 1.0
 import indicatorLightCom 1.0
 
-Rectangle {
-    //    width: 420
-    //    height: 360
+Item {
+    width: 800
+    height: 640
     property int baudRatesIndex: 0
     property int portNameIndex: 0
     property int dataBitsIndex: 0

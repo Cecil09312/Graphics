@@ -36,3 +36,8 @@ QByteArray AbstractDataProtocol::dataBytes(QByteArray frameArray, int start, int
         return QByteArray();
     }
 }
+
+QByteArray AbstractDataProtocol::dataArray(const QList<QByteArray> &arrayList, int start)
+{
+    return dataPackage(arrayList,start);
+}

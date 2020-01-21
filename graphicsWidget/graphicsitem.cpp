@@ -92,6 +92,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
 
 //    });
 
+
 }
 
 GraphicsItem::~GraphicsItem()
@@ -108,7 +109,7 @@ QRectF GraphicsItem::boundingRect() const
     if(m_radius>0)
     {
         return QRectF(-m_radius - penWidth / 2, -m_radius - penWidth / 2,
-                      m_radius*2.5 + penWidth, m_radius*2.5 + penWidth);
+                      m_radius*3 + penWidth, m_radius*3 + penWidth);
     }
     else
     {
@@ -124,19 +125,33 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*optio
 
     if(m_itemTextIsVisiable)
     {
-        m_itemTextFont.setPointSize(qFloor(m_radius/3));
+        int fontSize =0;
+        if(m_radius<=10)
+        {
+            fontSize = qFloor(m_radius/2.5);
+        }
+        else
+        {
+            fontSize = qFloor(m_radius/3);
+        }
+        m_itemTextFont.setPointSize(fontSize);
         painter->setFont(m_itemTextFont);
     }
 
+//    QString curDeviceNum =m_itemInfo.m_deviceNum;
+//    if(curDeviceNum.size()>9)
+//    {
+//        curDeviceNum.insert(9,"\n");
+//    }
 
     if(m_radius>0)
     {
         if(m_itemTextIsVisiable)
         {
-            painter->drawText(QRect(-m_radius,-m_radius,2*m_radius,2*m_radius),m_itemInfo.m_addrNum);
+            painter->drawText(QRect(-m_radius,-m_radius,3*m_radius,3*m_radius),m_itemInfo.m_deviceNum);
         }
 
-        QRectF rectF = QRectF(-m_radius/1.25,-m_radius/1.25,m_radius*2,m_radius*2);
+        QRectF rectF = QRectF(-m_radius/2,-m_radius/2,m_radius*1.5,m_radius*1.5);
         if(m_iconName.endsWith(".svg"))
         {
             QSvgRenderer renderer(m_iconName);
@@ -170,14 +185,14 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*optio
     {
         painter->setPen(QPen(Qt::red));
         painter->setBrush(Qt::red);
-        painter->drawEllipse(m_radius,m_radius,m_radius/4,m_radius/4);
+        painter->drawEllipse(m_radius,m_radius,m_radius/5,m_radius/5);
     }
 
     if (option->state & QStyle::State_Selected)
     {
         painter->setPen(QPen(Qt::black, 0, Qt::DashLine));
         painter->setBrush(Qt::NoBrush);
-        painter->drawRect(boundingRect().adjusted(m_radius*2.5, m_radius*2.5, -m_radius*2.5, -m_radius*2.5));
+        painter->drawRect(boundingRect().adjusted(m_radius*2.25, m_radius*2.25, -m_radius*2.65, -m_radius*2.65));
     }
 }
 
@@ -337,6 +352,7 @@ void GraphicsItem::setRadius(qreal radius)
 {
     DataStore::iconSize() =radius;
     m_radius = radius;
+    emit sizeChanged(radius);
     update();
 }
 
@@ -853,9 +869,9 @@ void GraphicsItem::updateHoverText()
                                 "网络号:%4\n"
                                 "设备编码:%5\n"
                                 "设备:%6\n"
-                                "类型:%7\n"
+                                "事件类型:%7\n"
                                 "状态:%8\n"
-                                "报警时间:%9\n"
+                                "时间:%9\n"
                                 "系统:%10\n"
                                 "建筑名称:%11\n"
                                 "楼层:%12\n"

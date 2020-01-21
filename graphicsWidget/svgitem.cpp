@@ -5,8 +5,8 @@
 SvgItem::SvgItem(QGraphicsItem *parent):
     QGraphicsItem(parent)
 {
-   setCacheMode(QGraphicsItem::DeviceCoordinateCache);
-   m_rectF = QRectF(0, 0, 1024, 768);
+    setCacheMode(QGraphicsItem::DeviceCoordinateCache);
+    m_rectF = QRectF(0, 0, 1024, 768);
 }
 
 SvgItem::~SvgItem()
@@ -22,9 +22,10 @@ QRectF SvgItem::boundingRect() const
 void SvgItem::setSvgName(const QString &svgName)
 {
     m_svgName = svgName;
+    QPixmap pixMap = QPixmap(svgName);
+    m_rectF=QRectF(0,0,pixMap.width(),pixMap.height());
     update();
 }
-
 
 
 void SvgItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)

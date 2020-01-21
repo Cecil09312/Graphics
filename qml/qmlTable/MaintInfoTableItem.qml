@@ -6,6 +6,13 @@ import operatorInfo 1.0
 import "../infoSetting"
 Item {
 
+    width: 800
+    height: 640
+    anchors.top: parent.top
+    anchors.bottom: parent.bottom
+    Column
+    {
+        anchors.fill: parent
     Row {
         id: operaEventQuery
         spacing: 5
@@ -113,11 +120,10 @@ Item {
     }
 
     Controls1_4.TableView {
-        anchors.top: operaEventQuery.bottom
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.topMargin: 5
+
+        width: parent.width
+        height: 800
+        anchors.topMargin: 10
 
         Controls1_4.TableViewColumn {
             role: "equipmentCode"
@@ -201,17 +207,19 @@ Item {
         }
         model: maintInfoQueryModel
 
-        QmlTableModel {
-            id: maintInfoQueryModel
-            dbDriver: qsTr("QSQLITE")
-            dbName: OperatorInfo.operatorInfoDbPath()
-            dbConnectionName: "maintInfo"
-            dbPort: 6688
-            roleNameList: ["equipmentCode", "maintTime", "state", "methods", "contentDesc", "maintEngineer", "floor", "position", "system", "buildingName", "personOnDuty", "operator"]
-            titleList: [qsTr("设备编码"), qsTr("维保时间"), qsTr("状态现象"), qsTr(
-                    "维保方法"), qsTr("内容描述"), qsTr("维保员"), qsTr("楼层"), qsTr(
-                    "部位"), qsTr("系统"), qsTr("建筑名称"), qsTr("值班人员"), qsTr("操作人员")]
-        }
+
+    }
+    }
+    QmlTableModel {
+        id: maintInfoQueryModel
+        dbDriver: qsTr("QSQLITE")
+        dbName: OperatorInfo.operatorInfoDbPath()
+        dbConnectionName: "maintInfo"
+        dbPort: 6688
+        roleNameList: ["equipmentCode", "maintTime", "state", "methods", "contentDesc", "maintEngineer", "floor", "position", "system", "buildingName", "personOnDuty", "operator"]
+        titleList: [qsTr("设备编码"), qsTr("维保时间"), qsTr("状态现象"), qsTr(
+                "维保方法"), qsTr("内容描述"), qsTr("维保员"), qsTr("楼层"), qsTr(
+                "部位"), qsTr("系统"), qsTr("建筑名称"), qsTr("值班人员"), qsTr("操作人员")]
     }
 
     Component.onCompleted: {

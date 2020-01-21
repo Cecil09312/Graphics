@@ -22,13 +22,18 @@ void TransportInfo::saveTransportInfoToJson()
     qmlForJson.writeFile(m_transportInfoHash,c_jsonFilePath);
 }
 
-QString TransportInfo::transportInfoFromJson(const QString &name)
+QVariant TransportInfo::transportInfoFromJson(const QString &name)
 {
 
-    return m_transportInfoHash.value(name).toString();
+    return m_transportInfoHash.value(name);
 }
 
 QString TransportInfo::transportInfo(const QString &name)
 {
     return m_transportInfoHash.value(name).toString();
+}
+
+bool TransportInfo::controlCentrolEnable()
+{
+    m_transportInfoHash.value(tr("控制中心权限")).toBool();
 }

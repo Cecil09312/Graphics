@@ -14,6 +14,7 @@ public:
     void sendAllData();
     bool dataSendSuccess();
     void removeSocket();
+    void cleanSendData();
 signals:
     void readData(const QByteArray &array);
     void closeSocket();

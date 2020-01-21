@@ -5,28 +5,28 @@ import ftpConfigurationManager 1.0
 import tcpConfigurationManager 1.0
 import tcpLink 1.0
 import "../databaseSetting"
+import transportInfo 1.0
 
 
 Item {
 
-    signal setControlCenterEnable(bool enable)
+    signal controlCenterCheckBoxChecked(bool enable)
     signal closeControlCenterHeartbeat();
     CheckBox
     {
         id:controlCenterCheckBox
         anchors.top: parent.top
+        anchors.topMargin: 30
         anchors.bottom: row.top
         anchors.left: row.left
         text: qsTr("中心通信权限打开")
         checked: true
-        onClicked:
+        onCheckedChanged:
         {
-            tcpSettingGroupBox.enabled=checked
-            ftpSettingGroupBox.enabled = checked
-           // mysqlSetting.setGropBoxEnable(checked)
-            emit:setControlCenterEnable(checked)
-           // mysqlSetting.setConnectStateText(qsTr("数据库连接:"),"black")
-           // CrtWidget.setControlCenterEnable(checked)
+            enableControlCenter(checked)
+            emit:controlCenterCheckBoxChecked(checked)
+            TransportInfo.setTransportInfo(qsTr("控制中心权限"),checked)
+
         }
     }
     Row
@@ -190,10 +190,6 @@ Item {
 
 
         }
-//        MySqlSetting
-//        {
-//            id:mysqlSetting
-//        }
 
     }
     Component.onCompleted: {
@@ -205,9 +201,8 @@ Item {
         setFtpPassword(FtpInfo.ftpPassword())
         setTcpAddr(TcpInfo.tcpAddr())
         setTcpPort(String("%1").arg(TcpInfo.tcpPort()))
-//        tcpSettingGroupBox.enabled=false
-//        ftpSettingGroupBox.enabled = false
-//       mysqlSetting.setGropBoxEnable(false)
+
+
     }
     function setFtpHost(host) {
         ftpAddrTextField.text = host
@@ -232,4 +227,16 @@ Item {
     function setTcpPort(port) {
         tcpPortTextField.text = port
     }
+
+    function enableControlCenter(enable)
+    {
+        tcpSettingGroupBox.enabled=enable
+        ftpSettingGroupBox.enabled = enable 
+    }
+
+    function controlCenterEnable(enable)
+    {
+       controlCenterCheckBox.checked =enable
+    }
+
 }

@@ -4,6 +4,7 @@
 #include "globalgraphicsitem.h"
 #include "globalgraphicsscene.h"
 #include <QSvgRenderer>
+#include "svgitem.h"
 
 class GlobalGraphicsView : public QGraphicsView
 {
@@ -16,8 +17,9 @@ public:
     GlobalGraphicsScene *currentScene();
 
 private:
+    SvgItem *m_item;
    // QGraphicsSvgItem *m_svgItem;
-    QGraphicsPixmapItem *m_pixmapItem;
+   // QGraphicsPixmapItem *m_pixmapItem;
     GlobalGraphicsScene *m_graphicsScene;
     QString m_pictureName;
 };

@@ -65,7 +65,7 @@ public slots:
     void logWidgetClose();
     void alarmChanged(QString alarm);
     void alarmStatistics(const QString &type);
-    void communicationStatus(const QString &status,bool isOK);
+    void communicationStatus(const QString &status, bool isOK, const QString &extNum="", const QString &networkNum="");
     void serialDataProcessing(const QByteArray&arrayValue);
     void tcpDataProcessing(const QByteArray&arrayValue);
     void openHelpFile();
@@ -81,6 +81,7 @@ public slots:
     void reSendAllCmd();
     void closeAll();
     void clearCurrentAlarm();
+    void setDeviceOnlineState(QString sNetworkNum);
    /*测试*/
     void sendSeralData();
 
@@ -101,7 +102,8 @@ private:
     void setTransportState();
     void setIndicator(bool state);
     void closeAllOnlineState();
-    void insertOtherAlarmInfo(const QString &info,const QString&extNum="");
+    void insertOtherAlarmInfo(const QString &info,const QString&extNum="",const QString&networkNum="");
+    void updateOtherAlarmInfo(const QString &alarmType, const QString &curState, const QString &extNum="", const QString &networkNum="");
 
 private slots:
     void processViewsData();
@@ -154,10 +156,12 @@ private:
     bool m_serialCurState;
    // QTcpSocket *m_controlCenterSocket;
     QHash<quint8,QString>m_sysNameHash;
-    QHash<quint8,bool>m_extNumStateHash;
-    QHash<quint8,CustomTimer*>m_checkExtNumHash;
-    QHash<quint8,int>m_extNumTimesHash;
-    QHash<quint8,SerialState> m_extOnlineStateHash;
+
+    QHash<QString,bool>m_extNumStateHash;
+    QHash<QString,bool>m_extAndNetworkStateHash;
+    QHash<QString,CustomTimer*>m_checkExtNumHash;
+    QHash<QString,int>m_extNumTimesHash;
+    QHash<QString,SerialState> m_extOnlineStateHash;
     //QHash<int,QDateTime> m_dataTimeHash;
     bool m_sendDataResult;
     QList<QByteArray>m_readSerialDataList;
@@ -165,6 +169,9 @@ private:
     QMutex m_mutex;
     const int c_mainHeartBeatTimeOut {90000};
     const int c_mainHeartBeatTime {30000};
+    QHash<QString,QString>m_handOrAutoHash;
+    QHash<QString,QString>m_mainPowerHash;
+    QHash<QString,QString>m_standbyPowerHash;
 
 };
 

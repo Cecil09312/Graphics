@@ -6,6 +6,13 @@ import architePlanView 1.0
 import "../infoSetting"
 Item {
 
+    width: 800
+    height: 640
+    anchors.top: parent.top
+    anchors.bottom: parent.bottom
+    Column
+    {
+        anchors.fill: parent
     Grid {
         id: deviceStateQuery
         spacing: 5
@@ -117,11 +124,10 @@ Item {
     }
 
     Controls1_4.TableView {
-        anchors.top: deviceStateQuery.bottom
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.topMargin: 2
+
+        width: parent.width
+        height: 800
+        anchors.topMargin: 10
         Controls1_4.TableViewColumn {
             role: qsTr("extNum")
             title: qsTr("分机号")
@@ -210,6 +216,7 @@ Item {
             ArchitePlanView.toArchitePlan(curExtNum, curLoopNum, curAddrNum,
                                           curNetworkNum)
         }
+    }
     }
     QmlTableModel {
         id: deviceStateModel

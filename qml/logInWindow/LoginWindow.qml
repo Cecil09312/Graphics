@@ -80,7 +80,7 @@ Rectangle {
             spacing: 5
             Layout.topMargin: 10
             NaviButton {
-                text: qsTr("登陆")
+                text: qsTr("登录")
                 onClicked: {
                     var passwordStr = new String
                     var userRight = new Number
@@ -140,7 +140,7 @@ Rectangle {
         id: infoMessageDialog
         standardButtons: StandardButton.Yes | StandardButton.No
         title: qsTr("信息提示")
-        text: qsTr("密码输入正确!登陆成功!")
+        text: qsTr("密码输入正确!登录成功!")
         icon: StandardIcon.Information
         onYes: {
             //CrtWidget.logWidgetClose()

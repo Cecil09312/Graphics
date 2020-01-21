@@ -144,6 +144,7 @@ protected:
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
 signals:
     void moveToPos(const QPointF&pos);
+    void sizeChanged(qreal size);
 private:
     void updateHoverText();
 

@@ -3,7 +3,7 @@
 #include "control/controller.h"
 #include <QDebug>
 GlobalGraphicsItem::GlobalGraphicsItem(GlobalGraphicsScene *scene)
-    :m_radius(40.0)
+    :m_radius(25.0)
 {
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);

@@ -68,7 +68,7 @@ ToolBar {
 
                 id: logInBtnToolTip
                 visible: logInBtn.hovered
-                text: qsTr("登陆")
+                text: qsTr("登录")
                 contentItem: Text {
                     text: logInBtnToolTip.text
                     font.family: "宋体"

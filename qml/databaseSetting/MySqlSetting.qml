@@ -86,7 +86,7 @@ Item {
                 spacing: 5
 
 
-                NaviButton {
+                Button {
                     id: connectBtn
                     text: qsTr("保存并连接")
                     onClicked: {
@@ -141,7 +141,7 @@ Item {
                     }
                 }
 
-                NaviButton {
+                Button {
                     id: closeBtn
                     text: qsTr("关闭")
                     onClicked: {

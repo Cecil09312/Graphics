@@ -9,6 +9,7 @@ import speechObj 1.0
 import crtWidget 1.0
 import operatorInfo 1.0
 import QtGraphicalEffects 1.0
+import QtQuick.Window 2.3
 
 import "../infoSetting"
 //import QtQuick.Controls 1.4 as Controls1_4
@@ -23,6 +24,7 @@ Rectangle {
     property bool curState: false
     property int totalNum: 0
     property int curNum: 0
+
     RowLayout {
         id: alarmBtnLayout
         height: 50
@@ -274,14 +276,44 @@ Rectangle {
                 loops: Animation.Infinite
                 running: false
             }
+
+            MouseArea
+            {
+                anchors.fill: parent
+               acceptedButtons: Qt.LeftButton|Qt.RightButton
+               onClicked:
+               {
+                   //console.log("*************")
+
+                   popup.x=mouseX
+                   popup.y=mouseY
+                   //if(pressedButtons==Qt.LeftButton)
+                   //{
+                     popup.open()
+                   //}
+//                   else
+//                   {
+//                     popup.close()
+//                   }
+
+
+               }
+
+            }
+
         }
         Text {
             id: handOrAutoTxt
+            //flat: true
             Layout.column: 1
             Layout.row: 8
             text: qsTr("自动")
             font.pointSize: 12
             font.family: qsTr("宋体")
+
+
+
+
         }
 
 
@@ -336,13 +368,13 @@ Rectangle {
                 running: false
             }
 
-//            onColorChanged:
-//            {
-//                if(color=="#008000")
-//                {
-//                    emit:reSendCmd()
-//                }
-//            }
+            //            onColorChanged:
+            //            {
+            //                if(color=="#008000")
+            //                {
+            //                    emit:reSendCmd()
+            //                }
+            //            }
         }
 
         Text {
@@ -368,6 +400,8 @@ Rectangle {
                 loops: Animation.Infinite
                 running: false
             }
+
+
         }
         Text {
             id: centerComTxt
@@ -415,29 +449,29 @@ Rectangle {
                 ArchitePlanView.toAlarmView()
 
                 /*测试*/
-                // CrtWidget.sendSeralData()
+               // CrtWidget.sendSeralData()
             }
 
         }
-//        ComboBox {
-//            id: alarmTypeComboBox
-//            anchors.leftMargin: 20
-//            font.pointSize: 14
-//            font.family: qsTr("宋体")
-//            width: parent.width
-//            model:["火警"] /*["全部", "火警", "监管","启动", "反馈","故障",  "屏蔽"]*/
-//            onCurrentTextChanged: {
-//                emit: currentAlarmType(currentText)
-//                if(currentText===qsTr("全部"))
-//                {
-//                    numTxt.visible=false
-//                }
-//                else
-//                {
-//                    numTxt.visible = true;
-//                }
-//            }
-//        }
+        //        ComboBox {
+        //            id: alarmTypeComboBox
+        //            anchors.leftMargin: 20
+        //            font.pointSize: 14
+        //            font.family: qsTr("宋体")
+        //            width: parent.width
+        //            model:["火警"] /*["全部", "火警", "监管","启动", "反馈","故障",  "屏蔽"]*/
+        //            onCurrentTextChanged: {
+        //                emit: currentAlarmType(currentText)
+        //                if(currentText===qsTr("全部"))
+        //                {
+        //                    numTxt.visible=false
+        //                }
+        //                else
+        //                {
+        //                    numTxt.visible = true;
+        //                }
+        //            }
+        //        }
         NaviButton {
             id: previousBtn
             anchors.leftMargin: 20
@@ -506,6 +540,18 @@ Rectangle {
         }
     }
 
+
+    Popup {
+           id: popup
+//           x: 100
+//           y: 100
+           width: 60
+           height: 100
+           modal: true
+           focus: true
+           closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+       }
+
     function currentAlarm() {
         return alarmTypeComboBox.currentText
     }
@@ -541,63 +587,109 @@ Rectangle {
     }
 
     function setFireAlarmColor(isActived, currentColor) {
-        fireAlarmStatusIndicator.color = currentColor
-        fireAlarmStatusIndicator.active = isActived
+        if(!Qt.colorEqual(fireAlarmStatusIndicator.color,currentColor))
+        {
+            fireAlarmStatusIndicator.color = currentColor
+            fireAlarmStatusIndicator.active = isActived
+        }
+
     }
 
     function setLinkageAlarmColor(isActived, currentColor) {
-        linkageStatusIndicator.color = currentColor
-        linkageStatusIndicator.active = isActived
+        if(!Qt.colorEqual(linkageStatusIndicator.color,currentColor))
+        {
+            linkageStatusIndicator.color = currentColor
+            linkageStatusIndicator.active = isActived
+        }
     }
 
     function setSuperviseAlarmColor(isActived, currentColor) {
-        superviseStatusIndicator.color = currentColor
-        superviseStatusIndicator.active = isActived
+        if(!Qt.colorEqual(superviseStatusIndicator.color,currentColor))
+        {
+            superviseStatusIndicator.color = currentColor
+            superviseStatusIndicator.active = isActived
+        }
     }
 
     function setfaultAlarmColor(isActived, currentColor) {
-        faultStatusIndicator.color = currentColor
-        faultStatusIndicator.active = isActived
+        if(!Qt.colorEqual(faultStatusIndicator.color,currentColor))
+        {
+            faultStatusIndicator.color = currentColor
+            faultStatusIndicator.active = isActived
+        }
     }
 
     function setFeedbackColor(isActived, currentColor) {
-        feedbackStatusIndicator.color = currentColor
-        feedbackStatusIndicator.active = isActived
+        if(!Qt.colorEqual(feedbackStatusIndicator.color,currentColor))
+        {
+            feedbackStatusIndicator.color = currentColor
+            feedbackStatusIndicator.active = isActived
+        }
     }
 
     function setShieldAlarmColor(isActived, currentColor) {
-        shieldStatusIndicator.color = currentColor
-        shieldStatusIndicator.active = isActived
+        if(!Qt.colorEqual(shieldStatusIndicator.color,currentColor))
+        {
+            shieldStatusIndicator.color = currentColor
+            shieldStatusIndicator.active = isActived
+        }
     }
 
     function setMainPowerColor(isActived, currentColor) {
-        mainPowerIndicator.color = currentColor
-        mainPowerIndicator.active = isActived
+
+        if(!Qt.colorEqual(mainPowerIndicator.color,currentColor))
+        {
+            mainPowerIndicator.color = currentColor
+            mainPowerIndicator.active = isActived
+        }
+
+
     }
 
     function setStandbyPowerColor(isActived, currentColor) {
-        standbyPowerIndicator.color = currentColor
-        standbyPowerIndicator.active = isActived
+
+        if(!Qt.colorEqual(standbyPowerIndicator.color,currentColor))
+        {
+            standbyPowerIndicator.color = currentColor
+            standbyPowerIndicator.active = isActived
+        }
+
     }
 
     function setEquiComColor(isActived, currentColor) {
-        equiComIndicator.color = currentColor
-        equiComIndicator.active = isActived
+        if(!Qt.colorEqual(equiComIndicator.color,currentColor))
+        {
+            equiComIndicator.color = currentColor
+            equiComIndicator.active = isActived
+        }
+
     }
 
     function setCenterComColor(isActived, currentColor) {
-        centerComIndictor.color = currentColor
-        centerComIndictor.active = isActived
+        if(!Qt.colorEqual(centerComIndictor.color,currentColor))
+        {
+            centerComIndictor.color = currentColor
+            centerComIndictor.active = isActived
+        }
+
     }
 
     function setHandOrAutoColor(isActived, currentColor) {
-        handOrAutoIndicator.color = currentColor
-        handOrAutoIndicator.active = isActived
+         if(!Qt.colorEqual(handOrAutoIndicator.color,currentColor))
+         {
+             handOrAutoIndicator.color = currentColor
+             handOrAutoIndicator.active = isActived
+         }
+
     }
 
     function setTransformColor(isActived, currentColor) {
-        transformIndicator.color = currentColor
-        transformIndicator.active = isActived
+        //if(!Qt.colorEqual(transformIndicator.color,currentColor))
+       // {
+            transformIndicator.color = currentColor
+            transformIndicator.active = isActived
+        //}
+
     }
 
     function startFireAnimation(isRunning) {
@@ -682,33 +774,63 @@ Rectangle {
     }
 
     function setFireAlarmText(value) {
-        var txt = qsTr("火警 ") + value
+        var txt = qsTr("火警 ") + String("%1").arg(value)
         fireAlarmNum.text = txt
     }
 
     function setLinkageText(value) {
-        var txt = qsTr("启动 ") + value
+        var txt = qsTr("启动 ") + String("%1").arg(value)
         linkageNum.text = txt
     }
 
     function setSuperviseText(value) {
-        var txt = qsTr("监管 ") + value
+        var txt = qsTr("监管 ") + String("%1").arg(value)
         superviseNum.text = txt
     }
 
     function setFaultText(value) {
-        var txt = qsTr("故障 ") + value
+        var txt = qsTr("故障 ") + String("%1").arg(value)
         faultNum.text = txt
     }
 
     function setFeedbackText(value) {
-        var txt = qsTr("反馈 ") + value
+        var txt = qsTr("反馈 ") + String("%1").arg(value)
         feedbackNum.text = txt
     }
 
     function setShieldText(value) {
-        var txt = qsTr("屏蔽 ") + value
+        var txt = qsTr("屏蔽 ") + String("%1").arg(value)
         shieldNum.text = txt
+    }
+
+
+    function setAlarmText(type,value)
+    {
+        if(type==qsTr("火警"))
+        {
+            setFireAlarmText(value)
+        }
+        else if(type==qsTr("监管"))
+        {
+            setSuperviseText(value)
+        }
+        else if(type==qsTr("启动"))
+        {
+            setLinkageText(value)
+        }
+        else if(type==qsTr("故障"))
+        {
+            setFaultText(value)
+        }
+        else if(type==qsTr("反馈"))
+        {
+            setFeedbackText(value)
+        }
+        else if(type==qsTr("屏蔽"))
+        {
+            setShieldText(value)
+        }
+
     }
 
     function setHandOrAutoText(value)
@@ -754,3 +876,4 @@ Rectangle {
         autoSwitchCheckBox.checked = isChecked
     }
 }
+

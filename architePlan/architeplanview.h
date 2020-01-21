@@ -33,7 +33,7 @@ public:
     int totalPage();//总页数
     int currentPage();//当前页
 
-    void eliminateAlarm(GraphicsItem *item, const QString &alarmType, const QString &alarmReplyTime);//消除报警
+    void eliminateAlarm(GraphicsItem *item, const QString &alarmType, const QString &alarmReplyTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));//消除报警
     void generateAlarm(const QString &alarmTypeName, const QString&alarmTime, GraphicsItem*item, bool isAnalog=false);
     void insertAlarmWidget(const QString &type,GraphicsView*view);
     void deleteAlarmWidget(const QString &type, GraphicsView *view);
@@ -93,14 +93,14 @@ signals:
     void normalPage();
     void alarmItem(GraphicsItem *item,const QString &alarmType);
     void eliminateAlarmFromTable(GraphicsItem *item,const QString &alarmState);
-    void eliminateNoItemAlarm(const QString&extNum,const QString &loopNum,const QString &addrNum,const QString networkNum,const QString &type,const QString &time);
+    //void eliminateNoItemAlarm(const QString&extNum,const QString &loopNum,const QString &addrNum,const QString networkNum,const QString &type,const QString &time);
     void clearAlarmFromTable();
     void editGlobalItem();
     void reduInstruction(bool isOk);
     void tabIndex(int index);
     void keepStartState();
     void clearTableAlarm();
-    void alarmStateUpdate(const QString &extNum,const QString &alarmReplyTime);
+    void alarmStateUpdate(const QString &extNum);
     void findAlarmNum(int totalNum,int currentNum);
     void showExtNumState();
     void sendAnalogValue(GraphicsItem*curItem,quint8 channelNum);

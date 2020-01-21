@@ -463,6 +463,7 @@ void SpeechObj::speechStop()
 #ifdef Q_OS_WIN
     m_textToSpeech->pause();
 #elif defined Q_OS_LINUX
+    m_textToSpeechProcess->terminate();
     m_startTimer->stop();
 #endif
 }

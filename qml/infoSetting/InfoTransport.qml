@@ -5,6 +5,8 @@ import Qt.labs.platform 1.0
 import transportInfo 1.0
 
 Item {
+    width: 800
+    height: 640
     property string fileType: ""
     property url filePath: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
     Grid {
@@ -222,22 +224,22 @@ Item {
     }
 
     Component.onCompleted: {
-        managInstitutionsTextField.text = TransportInfo.transportInfoFromJson(
+        managInstitutionsTextField.text = TransportInfo.transportInfo(
                     qsTr("消防控制室的管理机构"))
-        sysAsbuiltDrawingsTextField.text = TransportInfo.transportInfoFromJson(
+        sysAsbuiltDrawingsTextField.text = TransportInfo.transportInfo(
                     qsTr("系统竣工图纸"))
-        logicalThatTextField.text = TransportInfo.transportInfoFromJson(
+        logicalThatTextField.text = TransportInfo.transportInfo(
                     qsTr("各分系统控制逻辑关系说明"))
-        equipmentInstTextField.text = TransportInfo.transportInfoFromJson(
+        equipmentInstTextField.text = TransportInfo.transportInfo(
                     qsTr("设备使用说明书"))
-        sysProceduresTextField.text = TransportInfo.transportInfoFromJson(
+        sysProceduresTextField.text = TransportInfo.transportInfo(
                     qsTr("系统操作规程"))
-        emergencyPlanTextField.text = TransportInfo.transportInfoFromJson(
+        emergencyPlanTextField.text = TransportInfo.transportInfo(
                     qsTr("应急预案"))
-        onDutySysTextField.text = TransportInfo.transportInfoFromJson(qsTr("值班制度"))
-        maintainSysTextField.text = TransportInfo.transportInfoFromJson(
+        onDutySysTextField.text = TransportInfo.transportInfo(qsTr("值班制度"))
+        maintainSysTextField.text = TransportInfo.transportInfo(
                     qsTr("维护保养制度"))
-        maintainRecordTextField.text = TransportInfo.transportInfoFromJson(
+        maintainRecordTextField.text = TransportInfo.transportInfo(
                     qsTr("维护保养记录"))
         TransportInfo.setTransportInfo(qsTr("消防控制室的管理机构"),
                                        managInstitutionsTextField.text)
