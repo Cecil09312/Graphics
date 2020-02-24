@@ -28,5 +28,8 @@
         <file>qml/infoSetting/ControlCenterSetting.qml</file>
         <file>qml/deviceOnline/DeviceOnline.qml</file>
         <file>qml/infoSetting/MyTabButton.qml</file>
+        <file>qml/alarmItem/MainPowerItem.qml</file>
+        <file>qml/alarmItem/StandbyPowerItem.qml</file>
+        <file>qml/alarmItem/HandOrAutoStateItem.qml</file>
     </qresource>
 </RCC>

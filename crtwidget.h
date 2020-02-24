@@ -109,6 +109,9 @@ private slots:
     void processViewsData();
     void showOnlineView();
     void alarmDataOnTable();
+    void showMainPowerView();
+    void showStandbyPowerView();
+    void showHandOrAutoView();
 
 
 private:
@@ -126,6 +129,14 @@ private:
     QObject *m_toolBarObj;
     QObject*m_extNumObj;
     QObject *m_settingObj;
+
+    QQuickView *m_mainPowerView;
+    QQuickView *m_standbyPowerView;
+    QQuickView *m_handOrAutoView;
+    QObject *m_mainPowerObj;
+    QObject*m_standbyPowerObj;
+    QObject *m_handOrAutoObj;
+
     SqlManager *m_sqliteManager;
     QObject *m_alarmObj;
     QObject *m_resetLoginObj;
@@ -169,9 +180,6 @@ private:
     QMutex m_mutex;
     const int c_mainHeartBeatTimeOut {90000};
     const int c_mainHeartBeatTime {30000};
-    QHash<QString,QString>m_handOrAutoHash;
-    QHash<QString,QString>m_mainPowerHash;
-    QHash<QString,QString>m_standbyPowerHash;
 
 };
 

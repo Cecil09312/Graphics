@@ -4,8 +4,10 @@ import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.0
 import itemIconInfoToJson 1.0
 import "../infoSetting"
+import controller 1.0
+
 Item {
-    width: 1040
+    width: 1060
     height: 560
     signal setSize(real size)
     signal setIcon(string icon)
@@ -15,6 +17,11 @@ Item {
     signal setItemsIcon(int index, string iconName)
     signal setItemsDeviceName(int index, string deviceName)
     signal setDeviceInstallTime(int index,string devideInstallTime)
+    signal startBatch()
+    signal changeInfoFromFloor()
+    signal importExcelFile(string filePath)
+    signal setExcelFileAvailable(bool isAvailable)
+
 
     ListModel {
         id: deviceTypeModel
@@ -44,259 +51,501 @@ Item {
 
             antialiasing: true
 
-            Grid {
-                id: grid
-                // anchors.fill: parent
-                anchors.bottomMargin: 40
-                anchors.topMargin: 60
+            Row
+            {
+                spacing: 10
+                Column
+                {
+                    spacing: 10
 
-                columnSpacing: 5
-                rowSpacing: 5
-                columns: 4
-                Text {
-                    text: qsTr("设备:")
-                    height: 40
-                    verticalAlignment: Text.AlignVCenter
-                }
-                ComboBox {
-                    id: equipmentModelComboBox
-                    width: 180
-                    height: 40
-                    model: deviceTypeModel
-                    onCurrentTextChanged: {
-                        if (currentIndex >= 0) {
-                            itemIconInfo.setCurrentIconIndex(currentIndex)
+                    Grid {
+                        id: grid
+                        // anchors.fill: parent
+                        anchors.bottomMargin: 40
+                        anchors.topMargin: 60
 
-                            emit: setIcon(itemIconInfo.getIconName(
-                                              currentIndex))
-                            emit: setItemInfo("equipmentModel", currentText)
+                        columnSpacing: 5
+                        rowSpacing: 5
+                        columns: 4
 
-                            emit: setItemInfo("manufacturers",
-                                              manufacturersValue(currentIndex))
-                            emit: setItemInfo("periodOfValidity",
-                                              periodOfvalidityValue(
-                                                  currentIndex))
-                            emit:setItemInfo("deviceInstallTime",getDeviceInstallTime(currentIndex))
+                        Text {
+                            text: qsTr("分机号:")
+                            height: 40
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        TextField {
+                            id: extNumTextField
+                            validator: IntValidator {bottom: 0; top: 255;}
+                            width: 180
+                            height: 40
+                            onTextEdited: {
+                                emit: setItemInfo("extNum", extNumTextField.text)
+                            }
+                        }
 
-                            manufacturersText.text = manufacturersValue(
-                                        currentIndex)
-                            periodOfValidityText.text = periodOfvalidityValue(
-                                        currentIndex)
+                        Text {
+                            text: qsTr("回路号:")
+                            height: 40
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        TextField {
+                            id: loopNumTextField
+                            validator: IntValidator {bottom: 0; top: 255;}
+                            width: 180
+                            height: 40
+                            onTextEdited: {
+                                emit: setItemInfo("loopNum", loopNumTextField.text)
+                            }
+                        }
+
+                        Text {
+                            text: qsTr("地址号:")
+                            height: 40
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        TextField {
+                            id: addrNumTextField
+                            validator: IntValidator {bottom: 0; top: 255;}
+                            width: 180
+                            height: 40
+                            onTextEdited: {
+                                emit: setItemInfo("addrNum", addrNumTextField.text)
+                            }
+                        }
+
+                        Text {
+                            text: qsTr("网络号:")
+                            height: 40
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        TextField {
+                            id: networkNumTextField
+                            validator: IntValidator {bottom: 0; top: 255;}
+                            width: 180
+                            height: 40
+                            text: "0"
+                            onTextEdited: {
+                                emit: setItemInfo("networkNum", networkNumTextField.text)
+                            }
+                        }
+
+                        Text {
+                            id: deviceNumTxt
+                            text: qsTr("设备编码:")
+                            height: 40
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        TextField {
+                            id: deviceNumTextField
+                            Layout.fillWidth: true
+                            width: 180
+                            height: 40
+                            onTextEdited: {
+                                emit: setItemInfo("deviceNum", deviceNumTextField.text)
+                            }
+                        }
+
+
+
+                        Text {
+
+                            text: qsTr("位置:")
+                            height: 40
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        TextField {
+                            id: deviceLocationTextField
+                            Layout.fillWidth: true
+                            width: 180
+                            height: 40
+                            onTextEdited: {
+                                emit: setItemInfo("deviceLocation",
+                                                  deviceLocationTextField.text)
+                            }
+                        }
+
+
+
+
+                        Text {
+                            text: qsTr("设备:")
+                            height: 40
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        ComboBox {
+                            id: equipmentModelComboBox
+                            width: 180
+                            height: 40
+                            model: deviceTypeModel
+                            onCurrentTextChanged: {
+                                if (currentIndex >= 0) {
+                                    itemIconInfo.setCurrentIconIndex(currentIndex)
+
+                                    emit: setIcon(itemIconInfo.getIconName(
+                                                      currentIndex))
+                                    emit: setItemInfo("equipmentModel", currentText)
+
+                                    emit: setItemInfo("manufacturers",
+                                                      manufacturersValue(currentIndex))
+                                    emit: setItemInfo("periodOfValidity",
+                                                      periodOfvalidityValue(
+                                                          currentIndex))
+                                    emit:setItemInfo("deviceInstallTime",getDeviceInstallTime(currentIndex))
+
+                                    manufacturersText.text = manufacturersValue(
+                                                currentIndex)
+                                    periodOfValidityText.text = periodOfvalidityValue(
+                                                currentIndex)
+                                }
+                            }
+                        }
+                        Text {
+                            text: qsTr("系统:")
+                            height: 40
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        ComboBox {
+                            id: deviceSysComBox
+                            Layout.fillWidth: true
+                            width: 180
+                            height: 40
+                            currentIndex: -1
+                            model: [qsTr("电气火灾监控系统"),qsTr("火灾探测报警系统"), qsTr("消防联动系统"), qsTr("自动喷水灭火系统"), qsTr("水喷雾灭火系统"), qsTr("消火栓系统"), qsTr("气体灭火系统"), qsTr("泡沫灭火系统"), qsTr("干粉灭火系统"), qsTr("防烟排烟系统"), qsTr("防火及卷帘系统"), qsTr("电梯系统"), qsTr("消防电话系统"), qsTr("消防应急广播系统"), qsTr("消防应急照明和疏散指示系统"), qsTr("消防电源系统")]
+                            onCurrentTextChanged: {
+                                emit: setItemInfo("sysOfDevice", currentText)
+                            }
+                        }
+
+
+                        Text {
+
+                            text: qsTr("通道数:")
+                            height: 40
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        TextField {
+                            id: channelNumTextField
+                            validator: IntValidator {bottom: 0; top: 1000;}
+                            Layout.fillWidth: true
+                            width: 180
+                            height: 40
+                            onTextEdited: {
+                                emit: setItemInfo("channelNum",
+                                                  channelNumTextField.text)
+                            }
+                        }
+
+                        Text {
+
+                            text: qsTr("模拟量:")
+                            height: 40
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        ComboBox {
+                            id: analogComboBox
+                            Layout.fillWidth: true
+                            width: 180
+                            height: 40
+                            model: [qsTr("无"), qsTr("有")]
+                            onCurrentTextChanged: {
+                                emit: setItemInfo("analogType", currentText)
+                            }
+                        }
+
+                        Text {
+
+                            text: qsTr("操作员:")
+                            height: 40
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        TextField {
+                            id: operatorTextField
+                            Layout.fillWidth: true
+                            width: 180
+                            height: 40
+                            verticalAlignment: Text.AlignVCenter
+                            onTextEdited: {
+                                emit: setItemInfo("operator", operatorTextField.text)
+                            }
+                        }
+
+                        Text {
+                            id: sizeLabel
+                            text: qsTr("大小:")
+                            height: 40
+                            verticalAlignment: Text.AlignVCenter
+                        }
+
+
+                        SpinBox {
+                            id: sizeSpinBox
+                            Layout.fillWidth: true
+                            width: 180
+                            height: 40
+                            from: 5
+                            to: 100
+                            stepSize: 1
+                            value: 10
+                            onValueChanged: {
+                                emit: setSize(value)
+                            }
+                        }
+
+
+
+                        Text {
+
+                            text: qsTr("有效期:")
+                            height: 40
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        Text {
+                            id: periodOfValidityText
+                            Layout.fillWidth: true
+                            width: 180
+                            height: 40
+                            verticalAlignment: Text.AlignVCenter
+                        }
+
+                        Text {
+
+                            text: qsTr("制造商:")
+                            height: 40
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        Text {
+                            id: manufacturersText
+                            Layout.fillWidth: true
+                            width: 180
+                            height: 40
+                            verticalAlignment: Text.AlignVCenter
+                            text: qsTr("北京利达华信电子有限公司")
                         }
                     }
-                }
-                Text {
-                    text: qsTr("分机号:")
-                    height: 40
-                    verticalAlignment: Text.AlignVCenter
-                }
-                TextField {
-                    id: extNumTextField
-                    width: 180
-                    height: 40
-                    onTextEdited: {
-                        emit: setItemInfo("extNum", extNumTextField.text)
+
+
+                    Text {
+                        color: "red"
+                        font.pointSize: 12
+                        text: qsTr("注意：当设备为光纤时，源地址对应分机号、通道号对\n应回路号、分区号对应地址号。当设备属于应急疏散系\n统时，电源地址对应网络号。")
                     }
                 }
 
-                Text {
-                    text: qsTr("回路号:")
-                    height: 40
-                    verticalAlignment: Text.AlignVCenter
-                }
-                TextField {
-                    id: loopNumTextField
-                    width: 180
-                    height: 40
-                    onTextEdited: {
-                        emit: setItemInfo("loopNum", loopNumTextField.text)
+                Column
+                {
+                    spacing: 10
+                    GroupBox
+                    {
+                        title: qsTr("批量设置")
+                        Grid
+                        {
+                            anchors.fill: parent
+                            spacing: 5
+                            columns: 4
+                            Text {
+
+                                text: qsTr("最小网络号:")
+                                height: 40
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                            TextField
+                            {
+                                id:minNetworkTextField
+                                validator: IntValidator {bottom: 0; top: 255;}
+                                width: 100
+
+                            }
+
+                            Text {
+
+                                text: qsTr("最大网络号:")
+                                height: 40
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                            TextField
+                            {
+                                id:maxNetworkTextField
+                                validator: IntValidator {bottom: 0; top: 255;}
+                                width: 100
+
+                            }
+
+
+                            Text {
+
+                                text: qsTr("最小分机号:")
+                                height: 40
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                            TextField
+                            {
+                                id:minExtNumTextField
+                                validator: IntValidator {bottom: 0; top: 255;}
+                                width: 100
+
+                            }
+
+                            Text {
+
+                                text: qsTr("最大分机号:")
+                                height: 40
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                            TextField
+                            {
+                                id:maxExtNumTextField
+                                validator: IntValidator {bottom: 0; top: 255;}
+                                width: 100
+
+                            }
+
+
+
+                            Text {
+
+                                text: qsTr("最小回路号:")
+                                height: 40
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                            TextField
+                            {
+                                id:minLoopNumTextField
+                                validator: IntValidator {bottom: 0; top: 255;}
+                                width: 100
+
+                            }
+
+                            Text {
+
+                                text: qsTr("最大回路号:")
+                                height: 40
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                            TextField
+                            {
+                                id:maxLoopNumTextField
+                                validator: IntValidator {bottom: 0; top: 255;}
+                                width: 100
+
+                            }
+
+                            Text {
+
+                                text: qsTr("最小地址号:")
+                                height: 40
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                            TextField
+                            {
+                                id:minAddrNumTextField
+                                validator: IntValidator {bottom: 0; top: 255;}
+                                width: 100
+
+                            }
+
+                            Text {
+
+                                text: qsTr("最大地址号:")
+                                height: 40
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                            TextField
+                            {
+                                id:maxAddrNumTextField
+                                validator: IntValidator {bottom: 0; top: 255;}
+                                width: 100
+
+                            }
+                            NaviButton
+                            {
+                                id:batchAmendBtn
+                                text: qsTr("批量修改")
+                                onClicked: startBatch()
+
+                            }
+                            NaviButton
+                            {
+                                id:asFloorAmendBtn
+                                text: qsTr("按当前楼层修改")
+                                onClicked: changeInfoFromFloor()
+
+                            }
+
+
+                        }
+                    }
+                    GroupBox
+                    {
+                        id:importExcelGroupBox
+                        visible: Controller.hideOnLinux()
+                        title: qsTr("导入excel文件")
+                        Column
+                        {
+                            spacing: 5
+                            anchors.fill: parent
+                            Row
+                            {
+                                id:excelRow
+                                spacing: 5
+                                CheckBox
+                                {
+                                    id:excelSelectCheckBox
+                                    text: qsTr("使用excel数据")
+                                    onCheckedChanged:
+                                    {
+                                        if(checked)
+                                        {
+                                            excelTextField.enabled = true
+                                            selectExcelBtn.enabled = true
+
+                                        }
+                                        else
+                                        {
+                                            excelTextField.enabled = false
+                                            selectExcelBtn.enabled = false
+
+                                        }
+                                        emit:setExcelFileAvailable(checked)
+
+                                    }
+                                }
+                                TextField
+                                {
+                                    id:excelTextField
+                                    readOnly: true
+                                    enabled: false
+                                }
+
+                                NaviButton
+                                {
+                                    id:selectExcelBtn
+                                    text:qsTr("选择文件")
+                                    onClicked:
+                                    {
+                                        excelImportStateTxt.text=""
+                                        chooseFileDialog.open()
+                                    }
+                                    enabled: false
+
+                                }
+                            }
+
+                            Text {
+                                id: excelImportStateTxt
+                                width: 300
+                                horizontalAlignment: Text.AlignHCenter
+                                font.pointSize:12
+                                color: "green"
+
+                            }
+
+
+                        }
+
+
                     }
                 }
 
-                Text {
-                    text: qsTr("地址号:")
-                    height: 40
-                    verticalAlignment: Text.AlignVCenter
-                }
-                TextField {
-                    id: addrNumTextField
-                    width: 180
-                    height: 40
-                    onTextEdited: {
-                        emit: setItemInfo("addrNum", addrNumTextField.text)
-                    }
-                }
-
-                Text {
-                    text: qsTr("网络号:")
-                    height: 40
-                    verticalAlignment: Text.AlignVCenter
-                }
-                TextField {
-                    id: networkNumTextField
-                    width: 180
-                    height: 40
-                    onTextEdited: {
-                        emit: setItemInfo("networkNum", networkNumTextField.text)
-                    }
-                }
-
-                Text {
-                    id: deviceNumTxt
-                    text: qsTr("设备编码:")
-                    height: 40
-                    verticalAlignment: Text.AlignVCenter
-                }
-                TextField {
-                    id: deviceNumTextField
-                    Layout.fillWidth: true
-                    width: 180
-                    height: 40
-                    onTextEdited: {
-                        emit: setItemInfo("deviceNum", deviceNumTextField.text)
-                    }
-                }
-
-                Text {
-                    text: qsTr("系统:")
-                    height: 40
-                    verticalAlignment: Text.AlignVCenter
-                }
-                ComboBox {
-                    id: deviceSysComBox
-                    Layout.fillWidth: true
-                    width: 180
-                    height: 40
-                    currentIndex: -1
-                    model: [qsTr("电气火灾监控系统"),qsTr("火灾探测报警系统"), qsTr("消防联动系统"), qsTr("自动喷水灭火系统"), qsTr("水喷雾灭火系统"), qsTr("消火栓系统"), qsTr("气体灭火系统"), qsTr("泡沫灭火系统"), qsTr("干粉灭火系统"), qsTr("防烟排烟系统"), qsTr("防火及卷帘系统"), qsTr("电梯系统"), qsTr("消防电话系统"), qsTr("消防应急广播系统"), qsTr("消防应急照明和疏散指示系统"), qsTr("消防电源系统")]
-                    onCurrentTextChanged: {
-                        emit: setItemInfo("sysOfDevice", currentText)
-                    }
-                }
-
-                Text {
-
-                    text: qsTr("位置:")
-                    height: 40
-                    verticalAlignment: Text.AlignVCenter
-                }
-                TextField {
-                    id: deviceLocationTextField
-                    Layout.fillWidth: true
-                    width: 180
-                    height: 40
-                    onTextEdited: {
-                        emit: setItemInfo("deviceLocation",
-                                          deviceLocationTextField.text)
-                    }
-                }
-
-                Text {
-
-                    text: qsTr("通道数:")
-                    height: 40
-                    verticalAlignment: Text.AlignVCenter
-                }
-                TextField {
-                    id: channelNumTextField
-                    Layout.fillWidth: true
-                    width: 180
-                    height: 40
-                    onTextEdited: {
-                        emit: setItemInfo("channelNum",
-                                          channelNumTextField.text)
-                    }
-                }
-
-                Text {
-
-                    text: qsTr("模拟量:")
-                    height: 40
-                    verticalAlignment: Text.AlignVCenter
-                }
-                ComboBox {
-                    id: analogComboBox
-                    Layout.fillWidth: true
-                    width: 180
-                    height: 40
-                    model: [qsTr("无"), qsTr("有")]
-                    onCurrentTextChanged: {
-                        emit: setItemInfo("analogType", currentText)
-                    }
-                }
-
-                Text {
-
-                    text: qsTr("有效期:")
-                    height: 40
-                    verticalAlignment: Text.AlignVCenter
-                }
-                Text {
-                    id: periodOfValidityText
-                    Layout.fillWidth: true
-                    width: 180
-                    height: 40
-                    verticalAlignment: Text.AlignVCenter
-                }
-
-                Text {
-
-                    text: qsTr("制造商:")
-                    height: 40
-                    verticalAlignment: Text.AlignVCenter
-                }
-                Text {
-                    id: manufacturersText
-                    Layout.fillWidth: true
-                    width: 180
-                    height: 40
-                    verticalAlignment: Text.AlignVCenter
-                    text: qsTr("北京利达华信电子有限公司")
-                }
-
-                Text {
-
-                    text: qsTr("操作员:")
-                    height: 40
-                    verticalAlignment: Text.AlignVCenter
-                }
-                TextField {
-                    id: operatorTextField
-                    Layout.fillWidth: true
-                    width: 180
-                    height: 40
-                    verticalAlignment: Text.AlignVCenter
-                    onTextEdited: {
-                        emit: setItemInfo("operator", operatorTextField.text)
-                    }
-                }
-
-                Text {
-                    id: sizeLabel
-                    text: qsTr("大小:")
-                    height: 40
-                    verticalAlignment: Text.AlignVCenter
-                }
-                SpinBox {
-                    id: sizeSpinBox
-                    Layout.fillWidth: true
-                    width: 180
-                    height: 40
-                    from: 5
-                    to: 100
-                    stepSize: 1
-                    onValueChanged: {
-                        emit: setSize(value)
-                    }
-                }
-            }
-
-            Text {
-                anchors.top: grid.bottom
-                anchors.topMargin: 10
-                color: "red"
-                font.pointSize: 12
-                text: qsTr("注意:当设备为光纤时，源地址对应分机号、通道号对应回路号、分区号对应地址号。\n当设备属于应急疏散系统时，电源地址对应网络号。")
             }
         }
 
@@ -316,8 +565,8 @@ Item {
             }
             onDeviceInstallTimeChanged:
             {
-              itemIconInfo.setCurrentIconIndex(index)
-              emit: setDeviceInstallTime(index, deviceInstallTime)
+                itemIconInfo.setCurrentIconIndex(index)
+                emit: setDeviceInstallTime(index, deviceInstallTime)
             }
             onDeviceNameChanged: {
                 var currentDeviceObj = new Object
@@ -393,6 +642,25 @@ Item {
         id: itemIconInfo
     }
 
+
+    FileDialog
+    {
+        id: chooseFileDialog
+        //folder: filePath
+        //folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
+        nameFilters: "Excel Files(*.xls *.xlsx)"
+        onAccepted: {
+            excelTextField.text = file.toString()
+            emit:importExcelFile(excelTextField.text)
+        }
+
+    }
+
+    function curIconName()
+    {
+        return itemIconInfo.getIconName(equipmentModelComboBox.currentIndex)
+    }
+
     function setExtNum(extNum) {
         extNumTextField.text = extNum
     }
@@ -422,6 +690,7 @@ Item {
         deviceSysComBox.currentIndex = deviceSysComBox.find(sysOfDevice)
     }
 
+
     function setDeviceLocation(deviceLocation) {
         deviceLocationTextField.text = deviceLocation
     }
@@ -446,6 +715,16 @@ Item {
         channelNumTextField.text = channelNum
     }
 
+    function getLoopNum()
+    {
+       return loopNumTextField.text
+    }
+
+    function getAddrNum()
+    {
+       return addrNumTextField.text
+    }
+
     function setAnalogType(analogType) {
         analogComboBox.currentIndex = analogComboBox.find(analogType)
     }
@@ -466,16 +745,108 @@ Item {
 
     function manufacturersValue(pos)
     {
-     return itemIconInfo.getValue(String("%1").arg(pos),"manufacturers")
+        return itemIconInfo.getValue(String("%1").arg(pos),"manufacturers")
     }
 
     function periodOfvalidityValue(pos)
     {
         return  itemIconInfo.getValue(String("%1").arg(pos),"periodOfvalidity")
     }
+
+    function getChannelNum()
+    {
+
+        return channelNumTextField.text
+    }
+    function getAnalogType()
+    {
+        return analogComboBox.currentText
+
+    }
     function getDeviceInstallTime(pos)
     {
-       return  itemIconInfo.getValue(String("%1").arg(pos),"deviceInstallTime")
+        return  itemIconInfo.getValue(String("%1").arg(pos),"deviceInstallTime")
+    }
+
+    function getEquipmentModel()
+    {
+        return equipmentModelComboBox.currentText
+
+    }
+    function getSysName()
+    {
+        return deviceSysComBox.currentText
+    }
+    function getOperator()
+    {
+        return operatorTextField.text
+
+    }
+    function getIconSize()
+    {
+        return  sizeSpinBox.value
+    }
+
+    function getMinNetworkNum()
+    {
+        return minNetworkTextField.text
+    }
+
+    function getMaxNetworkNum()
+    {
+        return maxNetworkTextField.text
+    }
+
+    function getMinExtNum()
+    {
+        return minExtNumTextField.text
+    }
+
+    function getMaxExtNum()
+    {
+        return maxExtNumTextField.text
+    }
+
+    function getMinLoopNum()
+    {
+        return minLoopNumTextField.text
+    }
+
+    function getMaxLoopNum()
+    {
+        return maxLoopNumTextField.text
+    }
+
+    function getMinAddrNum()
+    {
+        return minAddrNumTextField.text
+    }
+
+    function getMaxAddrNum()
+    {
+        return maxAddrNumTextField.text
+    }
+
+    function setImportExcelState(isOk)
+    {
+        if(isOk)
+        {
+            excelImportStateTxt.text = qsTr("导入成功");
+            excelImportStateTxt.color ="green"
+
+        }
+        else
+        {
+            excelImportStateTxt.text = qsTr("导入失败");
+            excelImportStateTxt.color ="red"
+
+        }
+
+
+    }
+    function canImportExcel()
+    {
+       return excelSelectCheckBox.checked
     }
 
     function readInfo() {

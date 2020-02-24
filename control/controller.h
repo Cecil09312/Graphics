@@ -35,6 +35,7 @@ public:
     ~Controller();
     Q_INVOKABLE QString fileNameFromQml(const QString &name);
     Q_INVOKABLE QString getFileNameFromUrl(const QString &url, bool isHasSuffix=false);
+    Q_INVOKABLE bool hideOnLinux();
 
     AbstractLink *getCommObj();
     void setSysArchitePlanView(SysArchitePlanView*sysArchitePlanView);

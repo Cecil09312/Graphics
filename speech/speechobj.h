@@ -11,7 +11,7 @@
 /**
  * @brief The SpeechObj class
  * windows平台使用系统默认
- * linux系统使用ekho,使用版本ekho-7.7.1或者ekho-7.6
+ * linux系统使用ekho,使用版本ekho-8.0或者ekho-7.7.1
  */
 class SpeechObj : public QObject
 {
@@ -19,6 +19,7 @@ class SpeechObj : public QObject
     Q_PROPERTY(double pitch READ pitch WRITE setPitch)
     Q_PROPERTY(double rate READ rate WRITE setRate)
     Q_PROPERTY(double volume READ volume WRITE setVolume)
+
     Q_PROPERTY(QStringList engineNameList READ engineNameList WRITE setEngineNameList)
 public:
     SpeechObj(QObject*parent=nullptr);
@@ -32,6 +33,18 @@ public:
     void setRate(double rate);
     void setVolume(double volume);
     void setPitch(double pitch);
+   Q_INVOKABLE double pitchMin();
+   Q_INVOKABLE double pitchMax();
+   Q_INVOKABLE double pitchStep();
+   Q_INVOKABLE double rateMin();
+   Q_INVOKABLE double rateMax();
+   Q_INVOKABLE double rateStep();
+
+   Q_INVOKABLE double volumeMin();
+   Q_INVOKABLE double volumeMax();
+   Q_INVOKABLE double volumeStep();
+
+
     Q_INVOKABLE bool alarmTextExist(const QString &alarmText);
     Q_INVOKABLE void engineSelected(const QString &engineName);
     QStringList engineNameList();

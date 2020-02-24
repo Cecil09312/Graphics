@@ -35,21 +35,22 @@ CrtWidget::CrtWidget(QWidget *parent) :
     m_alarmInfoDbName = dbName;
 
     m_sysNameHash[0] = "";
-    m_sysNameHash[1]="火灾探测报警系统";
-    m_sysNameHash[2]="消防联动系统";
-    m_sysNameHash[3]="自动喷水灭火系统";
-    m_sysNameHash[4]="水喷雾灭火系统";
-    m_sysNameHash[5]="消火栓系统";
-    m_sysNameHash[6]="气体灭火系统";
-    m_sysNameHash[7]="泡沫灭火系统";
-    m_sysNameHash[8]="干粉灭火系统";
-    m_sysNameHash[9]="防烟排烟系统";
-    m_sysNameHash[10]="防火及卷帘系统";
-    m_sysNameHash[11]="电梯系统";
-    m_sysNameHash[12]="消防电话系统";
-    m_sysNameHash[13]="消防应急广播系统";
-    m_sysNameHash[14]="消防应急照明和疏散指示系统";
-    m_sysNameHash[15]="消防电源系统";
+    m_sysNameHash[1]=tr("电气火灾监控系统");
+    m_sysNameHash[2]=tr("火灾探测报警系统");
+    m_sysNameHash[3]=tr("消防联动系统");
+    m_sysNameHash[4]=tr("自动喷水灭火系统");
+    m_sysNameHash[5]=tr("水喷雾灭火系统");
+    m_sysNameHash[6]=tr("消火栓系统");
+    m_sysNameHash[7]=tr("气体灭火系统");
+    m_sysNameHash[8]=tr("泡沫灭火系统");
+    m_sysNameHash[9]=tr("干粉灭火系统");
+    m_sysNameHash[10]=tr("防烟排烟系统");
+    m_sysNameHash[11]=tr("防火及卷帘系统");
+    m_sysNameHash[12]=tr("电梯系统");
+    m_sysNameHash[13]=tr("消防电话系统");
+    m_sysNameHash[14]=tr("消防应急广播系统");
+    m_sysNameHash[15]=tr("消防应急照明和疏散指示系统");
+    m_sysNameHash[16]=tr("消防电源系统");
 
 
     initWidget();
@@ -218,9 +219,10 @@ CrtWidget::CrtWidget(QWidget *parent) :
     {
         clearCurrentAlarm();
         alarmDataOnTable();
-        m_handOrAutoHash.clear();
-        m_mainPowerHash.clear();
-        m_standbyPowerHash.clear();
+        QMetaObject::invokeMethod(m_mainPowerObj,"clearMainPowerState");
+        QMetaObject::invokeMethod(m_standbyPowerObj,"clearStandbyPowerState");
+        QMetaObject::invokeMethod(m_handOrAutoObj,"clearHandOrAutoState");
+
     });
 
     connect(m_architePlanView,&ArchitePlanView::tabIndex,this,[=](int index)
@@ -293,20 +295,11 @@ CrtWidget::CrtWidget(QWidget *parent) :
     {
         m_sqliteManager->executeQuery(QString("update AlarmInfo set 状态 = '正常',where 状态 != '正常' and 分机号= '%1'").arg(extNum));
         alarmDataOnTable();
-        if(m_handOrAutoHash.contains(extNum))
-        {
-            m_handOrAutoHash.remove(extNum);
-        }
 
-        if(m_mainPowerHash.contains(extNum))
-        {
-            m_mainPowerHash.remove(extNum);
-        }
+        QMetaObject::invokeMethod(m_mainPowerObj,"deleteMainPowerState",Q_ARG(QVariant,extNum));
+        QMetaObject::invokeMethod(m_standbyPowerObj,"deleteStandbyPowerState",Q_ARG(QVariant,extNum));
+        QMetaObject::invokeMethod(m_handOrAutoObj,"deleteHandOrAutoState",Q_ARG(QVariant,extNum));
 
-        if(m_standbyPowerHash.contains(extNum))
-        {
-            m_standbyPowerHash.remove(extNum);
-        }
     });
 
     connect(m_architePlanView,&ArchitePlanView::keepStartState,this,[=]()
@@ -624,6 +617,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
 
     connect(m_mainHeartBeatTimer,&CustomTimer::timeout,this,[=]()
     {
+
         static quint8 num =0;
         if(m_serialConnected)
         {
@@ -731,6 +725,8 @@ CrtWidget::CrtWidget(QWidget *parent) :
     //    });
 
     Controller::instance()->getCommObj()->connectLink();
+    bool controlCenterEnable= Controller::instance()->getTransportInfo()->transportInfoFromJson(tr("控制中心权限")).toBool();
+    QMetaObject::invokeMethod(m_settingObj,"startEnableControlCenter",Q_ARG(QVariant,controlCenterEnable));
     if(m_sendEnable)
     {
         Controller::instance()->getSpeechObj()->insertText(tr("中心通信故障"));
@@ -745,8 +741,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
         setIndicatorState(true);
     });
 
-    bool controlCenterEnable= Controller::instance()->getTransportInfo()->transportInfoFromJson(tr("控制中心权限")).toBool();
-    QMetaObject::invokeMethod(m_settingObj,"startEnableControlCenter",Q_ARG(QVariant,controlCenterEnable));
+
 #ifdef Q_OS_LINUX
     startProcess("sh -c \"echo rpdzkj|sudo -S su\"");
     startProcess("sh -c \"echo rpdzkj|sudo -S setled.sh 0 1\"");
@@ -902,7 +897,16 @@ void CrtWidget::setDeviceOnlineState(QString sNetworkNum)
             }
             if(sNetworkNum==networkNum)
             {
-                QMetaObject::invokeMethod(m_extNumObj,"setIndicatorState",Q_ARG(QVariant,extNum.toInt()),Q_ARG(QVariant,m_extAndNetworkStateHash.value(curValue)));
+                QString colorName="gray";
+                if(m_extAndNetworkStateHash.value(curValue))
+                {
+                    colorName = "green";
+                }
+                else
+                {
+                    colorName = "yellow";
+                }
+                QMetaObject::invokeMethod(m_extNumObj,"setIndicatorState",Q_ARG(QVariant,extNum.toInt()),Q_ARG(QVariant,colorName));
             }
         }
 
@@ -931,6 +935,9 @@ void CrtWidget::closeQuickView()
     m_resetLoginQuickView->close();
     m_closeLoginView->close();
     m_extNumStateView->close();
+    m_mainPowerView->close();
+    m_standbyPowerView->close();
+    m_handOrAutoView->close();
 
 }
 
@@ -1169,7 +1176,8 @@ void CrtWidget::communicationStatus(const QString &status, bool isOK,const QStri
 
             QMetaObject::invokeMethod(m_alarmObj,"setMainPowerColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
             updateOtherAlarmInfo(status,status+tr("正常"),extNum,networkNum);
-            m_mainPowerHash[extNum] = status+tr("正常");
+            QMetaObject::invokeMethod(m_mainPowerObj,"addMainPowerState",Q_ARG(QVariant,extNum),Q_ARG(QVariant,networkNum),Q_ARG(QVariant,status+tr("正常")));
+
             // QMetaObject::invokeMethod(m_alarmObj,"startMainPowerAnimation",Q_ARG(QVariant,false));
         }
         else
@@ -1181,7 +1189,8 @@ void CrtWidget::communicationStatus(const QString &status, bool isOK,const QStri
                 Controller::instance()->getSpeechObj()->insertAlarmText(status+tr("故障"));
             }
             insertOtherAlarmInfo(status+tr("故障"),extNum,networkNum);
-            m_mainPowerHash[extNum] = status+tr("故障");
+           // m_mainPowerHash[extNum] = status+tr("故障");
+            QMetaObject::invokeMethod(m_mainPowerObj,"addMainPowerState",Q_ARG(QVariant,extNum),Q_ARG(QVariant,networkNum),Q_ARG(QVariant,status+tr("故障")));
 
         }
 
@@ -1198,7 +1207,8 @@ void CrtWidget::communicationStatus(const QString &status, bool isOK,const QStri
             QMetaObject::invokeMethod(m_alarmObj,"setStandbyPowerColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
             updateOtherAlarmInfo(status,status+tr("正常"),extNum,networkNum);
             // QMetaObject::invokeMethod(m_alarmObj,"startStandbyPowerAnimation",Q_ARG(QVariant,false));
-            m_standbyPowerHash[extNum] = status+tr("正常");
+
+            QMetaObject::invokeMethod(m_standbyPowerObj,"addStandbyPowerState",Q_ARG(QVariant,extNum),Q_ARG(QVariant,networkNum),Q_ARG(QVariant,status+tr("正常")));
         }
         else
         {
@@ -1211,7 +1221,7 @@ void CrtWidget::communicationStatus(const QString &status, bool isOK,const QStri
             }
 
             insertOtherAlarmInfo(status+tr("故障"),extNum,networkNum);
-            m_standbyPowerHash[extNum] = status+tr("故障");
+            QMetaObject::invokeMethod(m_standbyPowerObj,"addStandbyPowerState",Q_ARG(QVariant,extNum),Q_ARG(QVariant,networkNum),Q_ARG(QVariant,status+tr("故障")));
 
         }
     }
@@ -1430,6 +1440,9 @@ void CrtWidget::initWidget()
 
     m_resetLoginObj = m_resetLoginQuickView->rootObject();
 
+
+
+
     m_infoQueryView = new QQuickView;
     m_infoQueryView->setSource(QUrl("qrc:/qml/infoSetting/InfoQuery.qml"));
     m_infoQueryView->setGeometry(300,50,m_infoQueryView->width(),m_infoQueryView->height());
@@ -1443,6 +1456,36 @@ void CrtWidget::initWidget()
     m_extNumStateView->setMaximumSize(QSize(660,640));
     m_extNumStateView->setMinimumSize(QSize(660,640));
     m_extNumStateView->setGeometry(300,120,660,640);
+
+
+    m_mainPowerView = new QQuickView;
+    m_mainPowerView->setSource(QUrl("qrc:/qml/alarmItem/MainPowerItem.qml"));
+    m_mainPowerView->setTitle(tr("主电状态"));
+    m_mainPowerView->setMinimumSize(QSize(240,300));
+    m_mainPowerView->setMaximumSize(QSize(240,300));
+   // m_mainPowerView->setFlags(Qt::WindowStaysOnTopHint);
+    m_mainPowerObj = m_mainPowerView->rootObject();
+    m_mainPowerView->setGeometry(300,300,240,300);
+
+    m_standbyPowerView= new QQuickView;
+    m_standbyPowerView->setSource(QUrl("qrc:/qml/alarmItem/StandbyPowerItem.qml"));
+    m_standbyPowerView->setTitle(tr("备电状态"));
+    m_standbyPowerView->setMinimumSize(QSize(240,300));
+    m_standbyPowerView->setMaximumSize(QSize(240,300));
+   // m_standbyPowerView->setFlags(Qt::WindowStaysOnTopHint);
+    m_standbyPowerObj = m_standbyPowerView->rootObject();
+    m_standbyPowerView->setGeometry(550,300,240,300);
+
+    m_handOrAutoView= new QQuickView;
+    m_handOrAutoView->setSource(QUrl("qrc:/qml/alarmItem/HandOrAutoStateItem.qml"));
+    m_handOrAutoView->setTitle(tr("手自动状态"));
+    m_handOrAutoView->setMinimumSize(QSize(240,300));
+    m_handOrAutoView->setMaximumSize(QSize(240,300));
+   // m_handOrAutoView->setFlags(Qt::WindowStaysOnTopHint);
+
+    m_handOrAutoObj=m_handOrAutoView->rootObject();
+    m_handOrAutoView->setGeometry(800,300,240,300);
+
 
 
     QHBoxLayout *globalHLayout = new QHBoxLayout;
@@ -1464,7 +1507,10 @@ void CrtWidget::initWidget()
     // setMySqlInfo();
     Q_ASSERT(m_alarmObj);
     connect(m_alarmObj,SIGNAL(clearVoice()),this,SLOT(clearVoice()));
-    //connect(m_alarmObj,SIGNAL(reSendCmd()),this,SLOT(reSendAllCmd()));
+    connect(m_alarmObj,SIGNAL(mainPowerViewShow()),this,SLOT(showMainPowerView()));
+    connect(m_alarmObj,SIGNAL(standbyPowerViewShow()),this,SLOT(showStandbyPowerView()));
+    connect(m_alarmObj,SIGNAL(handOrAutoStateViewShow()),this,SLOT(showHandOrAutoView()));
+
     Q_ASSERT(m_resetLoginObj);
     connect(m_resetLoginObj,SIGNAL(curLoginState(bool)),this,SLOT(resetLoginState(bool)));
     Q_ASSERT(m_settingObj);
@@ -1500,6 +1546,24 @@ void CrtWidget::alarmDataOnTable()
     //    }
     //m_infoTableView->tableModel()->sqlCommit(QString("select %1 from AlarmInfo").arg(alarmInfoList.join(",")));
     //m_infoTableView->toMaxPosition();
+}
+
+void CrtWidget::showMainPowerView()
+{
+    m_mainPowerView->close();
+    m_mainPowerView->show();
+}
+
+void CrtWidget::showStandbyPowerView()
+{
+    m_standbyPowerView->close();
+    m_standbyPowerView->show();
+}
+
+void CrtWidget::showHandOrAutoView()
+{
+    m_handOrAutoView->close();
+    m_handOrAutoView->show();
 }
 
 bool CrtWidget::setSysTime(const QDateTime &dateTime)
@@ -1583,8 +1647,6 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
         quint8 date = m_serialDataProtocol->dataByte(array,6);
         QString extNum = QString("%1").arg((type>>2)&0x3f);
         quint8 month= m_serialDataProtocol->dataByte(array,5);
-
-
 
         if((minuteValue&0x80)!=0)
         {
@@ -1846,37 +1908,37 @@ void CrtWidget::resetLoginState(bool isOk)
 
 void CrtWidget::sendSeralData()
 {
-    //    for(int i=0;i<255;i++)
-    //    {
+      //  for(int i=0;i<255;i++)
+        {
 
 
-    //        QByteArray array;
-    //        array.resize(15);
-    //        quint8 extNum=0;
-    //        array[0] =0x7e;
-    //        array[1] =0x01;
-    //        array[2] =0x0a;
-    //        array[3] =0x03;//事件类型
-    //        array[4] =0x00;
-    //        array[5] =0x00;
-    //        array[6] =extNum<<2;
-    //        array[7] =0x15;
-    //        array[8] =0x06;
-    //        array[9] =0x12;
-    //        array[10] =0x18;
-    //        array[11] =0x19;
-    //        array[12] =0x09;
-    //        quint8 sum = 0;
-    //        for(int i=3;i<=12;i++)
-    //        {
-    //            sum += (quint8)array.at(i);
-    //        }
-    //        array[13] =sum;
-    //        array[14] =0x7e;
-    //        serialDataProcessing(array);
-    //    extNum++;
-    //    //Controller::instance()->delayMs(5);
-    //    }
+            QByteArray array;
+            array.resize(15);
+            quint8 extNum=0;
+            array[0] =0x7e;
+            array[1] =0x01;
+            array[2] =0x0a;
+            array[3] =0x99;//事件类型
+            array[4] =0x00;
+            array[5] =0x00;
+            array[6] =extNum<<2;
+            array[7] =0x15;
+            array[8] =0x06;
+            array[9] =0x12;
+            array[10] =0x18;
+            array[11] =0x89;
+            array[12] =0x09;
+            quint8 sum = 0;
+            for(int i=3;i<=12;i++)
+            {
+                sum += (quint8)array.at(i);
+            }
+            array[13] =sum;
+            array[14] =0x7e;
+            serialDataProcessing(array);
+        extNum++;
+        //Controller::instance()->delayMs(5);
+        }
     // Controller::instance()->getCommObj()->sendData(array);
 
 }
@@ -2664,7 +2726,7 @@ void CrtWidget::processViewsData()
         sendHandOrAutoState(sysNum,handOrAutoStateNum,0,timeStr);
 
         insertOtherAlarmInfo(handOrAutoState,extNum);
-        m_handOrAutoHash[extNum]=handOrAutoState;
+        QMetaObject::invokeMethod(m_handOrAutoObj,"addHandOrAutoState",Q_ARG(QVariant,extNum),Q_ARG(QVariant,networkNum),Q_ARG(QVariant,handOrAutoState));
     }
         break;
     case 0x35:
@@ -3061,7 +3123,16 @@ void CrtWidget::showOnlineView()
             }
             if(curNetworkNum.toString()==networkNum)
             {
-                QMetaObject::invokeMethod(m_extNumObj,"setIndicatorState",Q_ARG(QVariant,extNum.toInt()),Q_ARG(QVariant,m_extAndNetworkStateHash.value(curValue)));
+                QString colorName = "gray";
+                if(m_extAndNetworkStateHash.value(curValue))
+                {
+                    colorName = "green";
+                }
+                else
+                {
+                    colorName = "yellow";
+                }
+                QMetaObject::invokeMethod(m_extNumObj,"setIndicatorState",Q_ARG(QVariant,extNum.toInt()),Q_ARG(QVariant,colorName));
             }
         }
         m_extNumStateView->close();

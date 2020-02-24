@@ -20,6 +20,9 @@ Rectangle {
     signal reset
     signal clearVoice()
     signal reSendCmd()
+    signal mainPowerViewShow()
+    signal standbyPowerViewShow()
+    signal handOrAutoStateViewShow()
     property int colorChangeNum:0
     property bool curState: false
     property int totalNum: 0
@@ -71,15 +74,6 @@ Rectangle {
             Layout.row: 0
             color: "gray" //火警:绿色:正常,红色:报警
             active: true
-
-            ColorAnimation on color {
-                id: fireAlarmAnimation
-                from: "red"
-                to: "black"
-                duration: 1000
-                loops: Animation.Infinite
-                running: false
-            }
         }
         Text {
             id: fireAlarmNum
@@ -96,14 +90,7 @@ Rectangle {
             Layout.row: 1
             color: "gray" //监管:绿色:正常
             active: true
-            ColorAnimation on color {
-                id: superviseAnimation
-                from: "orange"
-                to: "black"
-                duration: 1000
-                loops: Animation.Infinite
-                running: false
-            }
+
         }
         Text {
             id: superviseNum
@@ -120,14 +107,7 @@ Rectangle {
             Layout.row: 2
             color: "gray" //启动:绿色:正常,红色:报警
             active: true
-            ColorAnimation on color {
-                id: linkageAnimation
-                from: "red"
-                to: "black"
-                duration: 1000
-                loops: Animation.Infinite
-                running: false
-            }
+
         }
         Text {
             id: linkageNum
@@ -144,15 +124,7 @@ Rectangle {
             Layout.row: 3
             color: "gray" //反馈:绿色:正常
             active: true
-            ColorAnimation on color {
 
-                id: feedbackAnimation
-                from: "blue"
-                to: "black"
-                duration: 1000
-                loops: Animation.Infinite
-                running: false
-            }
         }
         Text {
             id: feedbackNum
@@ -169,14 +141,7 @@ Rectangle {
             Layout.row: 4
             color: "gray" //故障:绿色:正常,黄色:故障
             active: true
-            ColorAnimation on color {
-                id: faultAnimation
-                from: "yellow"
-                to: "black"
-                duration: 1000
-                loops: Animation.Infinite
-                running: false
-            }
+
         }
         Text {
             id: faultNum
@@ -195,14 +160,7 @@ Rectangle {
             Layout.row: 5
             color: "gray" //屏蔽:绿色:正常
             active: true
-            ColorAnimation on color {
-                id: shieldAnimation
-                from: "#c93756"
-                to: "black"
-                duration: 1000
-                loops: Animation.Infinite
-                running: false
-            }
+
         }
         Text {
             id: shieldNum
@@ -219,13 +177,17 @@ Rectangle {
             Layout.row: 6
             color: "green"
             active: true
-            ColorAnimation on color {
-                id: mainPowerAnimation
-                from: "yellow"
-                to: "black"
-                duration: 1000
-                loops: Animation.Infinite
-                running: false
+
+
+            MouseArea
+            {
+                anchors.fill: parent
+                acceptedButtons: Qt.LeftButton
+                onClicked:
+                {
+                    emit:mainPowerViewShow()
+                }
+
             }
         }
         Text {
@@ -243,13 +205,16 @@ Rectangle {
             Layout.row: 7
             color: "green"
             active: true
-            ColorAnimation on color {
-                id: standbyPowerAnimation
-                from: "yellow"
-                to: "black"
-                duration: 1000
-                loops: Animation.Infinite
-                running: false
+
+            MouseArea
+            {
+                anchors.fill: parent
+                acceptedButtons: Qt.LeftButton
+                onClicked:
+                {
+                    emit:standbyPowerViewShow()
+                }
+
             }
         }
         Text {
@@ -268,36 +233,15 @@ Rectangle {
             Layout.row: 8
             color: "green"
             active: true
-            ColorAnimation on color {
-                id: handOrAutoAnimation
-                from: "green"
-                to: "black"
-                duration: 1000
-                loops: Animation.Infinite
-                running: false
-            }
 
             MouseArea
             {
                 anchors.fill: parent
-               acceptedButtons: Qt.LeftButton|Qt.RightButton
-               onClicked:
-               {
-                   //console.log("*************")
-
-                   popup.x=mouseX
-                   popup.y=mouseY
-                   //if(pressedButtons==Qt.LeftButton)
-                   //{
-                     popup.open()
-                   //}
-//                   else
-//                   {
-//                     popup.close()
-//                   }
-
-
-               }
+                acceptedButtons: Qt.LeftButton
+                onClicked:
+                {
+                    emit:handOrAutoStateViewShow()
+                }
 
             }
 
@@ -310,9 +254,6 @@ Rectangle {
             text: qsTr("自动")
             font.pointSize: 12
             font.family: qsTr("宋体")
-
-
-
 
         }
 
@@ -359,22 +300,6 @@ Rectangle {
             Layout.row: 10
             color: "yellow"
             active: true
-            ColorAnimation on color {
-                id: equiComAnimation
-                from: "yellow"
-                to: "black"
-                duration: 1000
-                loops: Animation.Infinite
-                running: false
-            }
-
-            //            onColorChanged:
-            //            {
-            //                if(color=="#008000")
-            //                {
-            //                    emit:reSendCmd()
-            //                }
-            //            }
         }
 
         Text {
@@ -392,15 +317,6 @@ Rectangle {
             Layout.row: 11
             color: "yellow"
             active: true
-            ColorAnimation on color {
-                id: centerComAnimation
-                from: "yellow"
-                to: "black"
-                duration: 1000
-                loops: Animation.Infinite
-                running: false
-            }
-
 
         }
         Text {
@@ -541,16 +457,7 @@ Rectangle {
     }
 
 
-    Popup {
-           id: popup
-//           x: 100
-//           y: 100
-           width: 60
-           height: 100
-           modal: true
-           focus: true
-           closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
-       }
+
 
     function currentAlarm() {
         return alarmTypeComboBox.currentText
@@ -692,77 +599,7 @@ Rectangle {
 
     }
 
-    function startFireAnimation(isRunning) {
-        if (isRunning) {
-            if (!fireAlarmAnimation.running)
-                fireAlarmAnimation.start()
-        } else {
-            fireAlarmAnimation.stop()
-        }
-    }
 
-    function startLinkageAnimation(isRunning) {
-        if (isRunning) {
-            if (!linkageAnimation.running)
-                linkageAnimation.start()
-        } else {
-            linkageAnimation.stop()
-        }
-    }
-
-    function startSuperviseAnimation(isRunning) {
-        if (isRunning) {
-            if (!superviseAnimation.running)
-                superviseAnimation.start()
-        } else {
-            superviseAnimation.stop()
-        }
-    }
-
-    function startFaultAnimation(isRunning) {
-        if (isRunning) {
-            if (!faultAnimation.running)
-                faultAnimation.start()
-        } else {
-            faultAnimation.stop()
-        }
-    }
-
-    function startFeedbackAnimation(isRunning) {
-        if (isRunning) {
-            if (!feedbackAnimation.running)
-                feedbackAnimation.start()
-        } else {
-            feedbackAnimation.stop()
-        }
-    }
-
-    function startShieldAnimation(isRunning) {
-        if (isRunning) {
-            if (!shieldAnimation.running)
-                shieldAnimation.start()
-        } else {
-            shieldAnimation.stop()
-        }
-    }
-
-    function startMainPowerAnimation(isRunning) {
-        if (isRunning) {
-            if (!mainPowerAnimation.running)
-                mainPowerAnimation.start()
-        } else {
-            mainPowerAnimation.stop()
-        }
-    }
-
-    function startStandbyPowerAnimation(isRunning) {
-        if (isRunning) {
-            if (!standbyPowerAnimation.running)
-                standbyPowerAnimation.start()
-        } else {
-            standbyPowerAnimation.stop()
-        }
-    }
 
     function startTransformAnimation(isRunning) {
         if (isRunning) {
@@ -804,49 +641,13 @@ Rectangle {
     }
 
 
-    function setAlarmText(type,value)
-    {
-        if(type==qsTr("火警"))
-        {
-            setFireAlarmText(value)
-        }
-        else if(type==qsTr("监管"))
-        {
-            setSuperviseText(value)
-        }
-        else if(type==qsTr("启动"))
-        {
-            setLinkageText(value)
-        }
-        else if(type==qsTr("故障"))
-        {
-            setFaultText(value)
-        }
-        else if(type==qsTr("反馈"))
-        {
-            setFeedbackText(value)
-        }
-        else if(type==qsTr("屏蔽"))
-        {
-            setShieldText(value)
-        }
-
-    }
-
     function setHandOrAutoText(value)
     {
         handOrAutoTxt.text = value
     }
 
     function allAlarmClear(fireAlarmClear) {
-        startFireAnimation(false)
-        startLinkageAnimation(false)
-        startSuperviseAnimation(false)
-        startFaultAnimation(false)
-        startFeedbackAnimation(false)
-        startShieldAnimation(false)
-        startMainPowerAnimation(false)
-        startStandbyPowerAnimation(false)
+
         if(fireAlarmClear)
         {
             setFireAlarmColor(true, "gray")

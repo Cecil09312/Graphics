@@ -20,6 +20,7 @@
 #include "customTimer/customtimer.h"
 #include "firstfirealarminfowidget.h"
 #include "dataStore/datastore.h"
+#include "excelManager/excelmanager.h"
 
 
 class ArchitePlanView : public QWidget
@@ -129,6 +130,10 @@ public slots:
     void setDeviceInstallTime(int index,QString deviceInstallTime);
     void saveGeneralLayoutInfo();
     void updateTreeItems();
+    void batchItems();
+    void changeItemsInfoFromFloor();
+    void excelFileProcess(QString filePath);
+    void excelFileAvailable(bool isAvailable);
 
 private:
     void initWidget();
@@ -198,6 +203,11 @@ private:
     QObject *m_analogAlarmObj;
     FirstFireAlarmInfoWidget*m_firstFireWidget;
     static bool m_itemLimit;
+    ExcelManager *m_excelManager;
+    QHash<quint32,QString>m_loopAddrExtHash;
+    QHash<quint32,QString>m_loopAddrDeviceHash;
+    QHash<quint32,QString>m_loopAddrFloorHash;
+
 
 };
 

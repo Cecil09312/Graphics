@@ -3,7 +3,7 @@ import QtQuick.Controls 2.2
 import QtQuick.Extras 1.4
 
 Item {
-    width: 660
+    width: 680
     height: 640
     property int indicatorNum: 256
     signal editIndicatorState(string networkNum)

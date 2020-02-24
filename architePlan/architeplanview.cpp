@@ -298,6 +298,12 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
     connect(m_itemSettingObj,SIGNAL(setItemsPeriodOfValidity(int,QString)),this,SLOT(setItemsPeriodOfValidity(int,QString)));
     connect(m_itemSettingObj,SIGNAL(setItemsDeviceName(int,QString)),this,SLOT(setItemsEquipmentModel(int,QString)));
 
+
+    connect(m_itemSettingObj,SIGNAL(startBatch()),this,SLOT(batchItems()));
+    connect(m_itemSettingObj,SIGNAL(changeInfoFromFloor()),this,SLOT(changeItemsInfoFromFloor()));
+    connect(m_itemSettingObj,SIGNAL(importExcelFile(QString)),this,SLOT(excelFileProcess(QString)));
+    connect(m_itemSettingObj,SIGNAL(setExcelFileAvailable(bool)),this,SLOT(excelFileAvailable(bool)));
+
     connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::addGlobalItem,this,[=](GlobalGraphicsItem*item)
     {
         if(item!=nullptr)
@@ -636,6 +642,7 @@ void ArchitePlanView::initWidget()
     m_sysArchitePlanView = new SysArchitePlanView(this);
     m_autoSwitchTimer = new CustomTimer();
     m_firstFireWidget = new FirstFireAlarmInfoWidget();
+    m_excelManager = new ExcelManager(this);
     m_treeView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     m_treeView->setMaximumWidth(180);
     m_stackedWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
@@ -1738,7 +1745,7 @@ void ArchitePlanView::startAlarmAnimation(GraphicsItem *item)
                             textItem->setPos(QPointF(item->scenePos().x()-size,item->scenePos().y()+size));
                         });
                         //connect(item,&GraphicsItem::)
-                    }      
+                    }
 
                 }
             }
@@ -2331,12 +2338,35 @@ void ArchitePlanView::setItemIcon(QString iconName)
 
 void ArchitePlanView::setItemInfoFromType(const QString &type, const QString &info)
 {
+
     GraphicsView *view= currentGraphicsView();
     if(view!=nullptr)
     {
         GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
         if(scene!=nullptr)
         {
+            if(type=="loopNum"|| type=="addrNum")
+            {
+                QVariant loopNumValue,addrNumValue;
+                QMetaObject::invokeMethod(m_itemSettingObj,"getLoopNum",Q_RETURN_ARG(QVariant,loopNumValue));
+                QMetaObject::invokeMethod(m_itemSettingObj,"getAddrNum",Q_RETURN_ARG(QVariant,addrNumValue));
+                if(!loopNumValue.toString().isEmpty() && !addrNumValue.toString().isEmpty())
+                {
+
+
+                quint32 loopAddrValue= loopNumValue.toUInt()*1000+addrNumValue.toUInt();
+                if(m_loopAddrDeviceHash.contains(loopAddrValue))
+                {
+                    QMetaObject::invokeMethod(m_itemSettingObj,"setExtNum",Q_ARG(QVariant,m_loopAddrExtHash.value(loopAddrValue)));
+                    QMetaObject::invokeMethod(m_itemSettingObj,"setEquipmentModel",Q_ARG(QVariant,m_loopAddrDeviceHash.value(loopAddrValue)));
+
+                    scene->setItemInfoFromType("extNum",m_loopAddrExtHash.value(loopAddrValue));
+                    scene->setItemInfoFromType("equipmentModel",m_loopAddrDeviceHash.value(loopAddrValue));
+
+
+                }
+                }
+            }
             scene->setItemInfoFromType(type,info);
         }
     }
@@ -2460,6 +2490,441 @@ void ArchitePlanView::updateTreeItems()
     }
 
     JsonEdit::instance()->writeFile(c_jsonFilePath);
+}
+
+void ArchitePlanView::batchItems()
+{
+    QVariant sysValue,operatorValue,iconSizeValue,minNetworkNumValue,
+            maxNetworkNumValue,minExtNumValue,maxExtNumValue,minLoopNumValue,maxLoopNumValue,
+            minAddrNumValue,maxAddrNumValue,iconName,channelNum,analogType;
+    int minNetworkNum,maxNetworkNum,minExtNum,maxExtNum,minLoopNum,maxLoopNum,minAddrNum,maxAddrNum;
+    QMetaObject::invokeMethod(m_itemSettingObj,"getSysName",Q_RETURN_ARG(QVariant,sysValue));
+    QMetaObject::invokeMethod(m_itemSettingObj,"getOperator",Q_RETURN_ARG(QVariant,operatorValue));
+    QMetaObject::invokeMethod(m_itemSettingObj,"getIconSize",Q_RETURN_ARG(QVariant,iconSizeValue));
+
+
+    QMetaObject::invokeMethod(m_itemSettingObj,"getMinNetworkNum",Q_RETURN_ARG(QVariant,minNetworkNumValue));
+    QMetaObject::invokeMethod(m_itemSettingObj,"getMaxNetworkNum",Q_RETURN_ARG(QVariant,maxNetworkNumValue));
+    QMetaObject::invokeMethod(m_itemSettingObj,"getMinExtNum",Q_RETURN_ARG(QVariant,minExtNumValue));
+    QMetaObject::invokeMethod(m_itemSettingObj,"getMaxExtNum",Q_RETURN_ARG(QVariant,maxExtNumValue));
+
+    QMetaObject::invokeMethod(m_itemSettingObj,"getMinLoopNum",Q_RETURN_ARG(QVariant,minLoopNumValue));
+    QMetaObject::invokeMethod(m_itemSettingObj,"getMaxLoopNum",Q_RETURN_ARG(QVariant,maxLoopNumValue));
+    QMetaObject::invokeMethod(m_itemSettingObj,"getMinAddrNum",Q_RETURN_ARG(QVariant,minAddrNumValue));
+    QMetaObject::invokeMethod(m_itemSettingObj,"getMaxAddrNum",Q_RETURN_ARG(QVariant,maxAddrNumValue));
+    QMetaObject::invokeMethod(m_itemSettingObj,"curIconName",Q_RETURN_ARG(QVariant,iconName));
+
+    QMetaObject::invokeMethod(m_itemSettingObj,"getChannelNum",Q_RETURN_ARG(QVariant,channelNum));
+    QMetaObject::invokeMethod(m_itemSettingObj,"getAnalogType",Q_RETURN_ARG(QVariant,analogType));
+    minNetworkNum = minNetworkNumValue.toInt();
+    maxNetworkNum=maxNetworkNumValue.toInt();
+    minExtNum=minExtNumValue.toInt();
+    maxExtNum=maxExtNumValue.toInt();
+    minLoopNum= minLoopNumValue.toInt();
+    maxLoopNum=maxLoopNumValue.toInt();
+    minAddrNum= minAddrNumValue.toInt();
+    maxAddrNum= maxAddrNumValue.toInt();
+    quint8 curValue=0;
+    if(!minNetworkNumValue.toString().isEmpty()&&!maxNetworkNumValue.toString().isEmpty())
+    {
+        curValue= curValue|0x01;
+    }
+    else
+    {
+        curValue= curValue&0xfe;
+    }
+
+    if(!minAddrNumValue.toString().isEmpty()&&!maxAddrNumValue.toString().isEmpty())
+    {
+        curValue= curValue|0x02;
+    }
+    else
+    {
+        curValue= curValue&0xfd;
+    }
+
+    if(!minLoopNumValue.toString().isEmpty()&&!maxLoopNumValue.toString().isEmpty())
+    {
+        curValue= curValue|0x04;
+    }
+    else
+    {
+        curValue= curValue&0xfb;
+    }
+
+    if(!minExtNumValue.toString().isEmpty()&&!maxExtNumValue.toString().isEmpty())
+    {
+        curValue= curValue|0x08;
+    }
+    else
+    {
+        curValue= curValue&0xf7;
+    }
+    if(curValue==0)
+    {
+        return;
+    }
+
+    QList<GraphicsView *>viewList = m_widgetHash.values();
+
+    foreach (GraphicsView *currentView, viewList)
+    {
+
+        QList<QGraphicsItem*> itemList= currentView->getItemList();
+        foreach (QGraphicsItem*item, itemList)
+        {
+            GraphicsItem *curItem = dynamic_cast<GraphicsItem *>(item);
+            if(curItem!=nullptr)
+            {
+                int curNetworkNum = curItem->networkNum().toInt();
+                int curExtNum = curItem->extNum().toInt();
+                int curLoopNum = curItem->loopNum().toInt();
+                int curAddrNum = curItem->addrNum().toInt();
+                switch (curValue&0x0f) {
+                case 0x01:
+                    if(curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
+                    {
+                        curItem->setIconName(iconName.toString());
+                        curItem->setRadius(iconSizeValue.toReal());
+                        curItem->sysOfDevice() = sysValue.toString();
+                        curItem->deviceOperator() = operatorValue.toString();
+                        if(!channelNum.toString().isEmpty())
+                        {
+                            curItem->setChannelNum(channelNum.toInt());
+                        }
+
+                        curItem->analogType() = analogType.toString();
+                    }
+                    break;
+                case 0x02:
+                    if(curAddrNum>=minAddrNum&&curAddrNum<=maxAddrNum)
+                    {
+                        curItem->setIconName(iconName.toString());
+                        curItem->setRadius(iconSizeValue.toReal());
+                        curItem->sysOfDevice() = sysValue.toString();
+                        curItem->deviceOperator() = operatorValue.toString();
+                        if(!channelNum.toString().isEmpty())
+                        {
+                            curItem->setChannelNum(channelNum.toInt());
+                        }
+
+                        curItem->analogType() = analogType.toString();
+                    }
+                    break;
+                case 0x03:
+                    if(curAddrNum>=minAddrNum&&curAddrNum<=maxAddrNum&&curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
+                    {
+                        curItem->setIconName(iconName.toString());
+                        curItem->setRadius(iconSizeValue.toReal());
+                        curItem->sysOfDevice() = sysValue.toString();
+                        curItem->deviceOperator() = operatorValue.toString();
+                        if(!channelNum.toString().isEmpty())
+                        {
+                            curItem->setChannelNum(channelNum.toInt());
+                        }
+
+                        curItem->analogType() = analogType.toString();
+                    }
+                    break;
+
+                case 0x04:
+                    if(curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum)
+                    {
+                        curItem->setIconName(iconName.toString());
+                        curItem->setRadius(iconSizeValue.toReal());
+                        curItem->sysOfDevice() = sysValue.toString();
+                        curItem->deviceOperator() = operatorValue.toString();
+                        if(!channelNum.toString().isEmpty())
+                        {
+                            curItem->setChannelNum(channelNum.toInt());
+                        }
+
+                        curItem->analogType() = analogType.toString();
+                    }
+                    break;
+                case 0x05:
+                    if(curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum&&curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
+                    {
+                        curItem->setIconName(iconName.toString());
+                        curItem->setRadius(iconSizeValue.toReal());
+                        curItem->sysOfDevice() = sysValue.toString();
+                        curItem->deviceOperator() = operatorValue.toString();
+                        if(!channelNum.toString().isEmpty())
+                        {
+                            curItem->setChannelNum(channelNum.toInt());
+                        }
+
+                        curItem->analogType() = analogType.toString();
+                    }
+                    break;
+                case 0x06:
+                    if(curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum&&curAddrNum>=minAddrNum&&curAddrNum<=maxAddrNum)
+                    {
+                        curItem->setIconName(iconName.toString());
+                        curItem->setRadius(iconSizeValue.toReal());
+                        curItem->sysOfDevice() = sysValue.toString();
+                        curItem->deviceOperator() = operatorValue.toString();
+                        if(!channelNum.toString().isEmpty())
+                        {
+                            curItem->setChannelNum(channelNum.toInt());
+                        }
+
+                        curItem->analogType() = analogType.toString();
+                    }
+                    break;
+                case 0x07:
+                    if(curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum&&curAddrNum>=minAddrNum&&curAddrNum<=maxAddrNum
+                            &&curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
+                    {
+                        curItem->setIconName(iconName.toString());
+                        curItem->setRadius(iconSizeValue.toReal());
+                        curItem->sysOfDevice() = sysValue.toString();
+                        curItem->deviceOperator() = operatorValue.toString();
+                        if(!channelNum.toString().isEmpty())
+                        {
+                            curItem->setChannelNum(channelNum.toInt());
+                        }
+
+                        curItem->analogType() = analogType.toString();
+                    }
+                    break;
+                case 0x08:
+                    if(curExtNum>=minExtNum&&curExtNum<=maxExtNum)
+                    {
+                        curItem->setIconName(iconName.toString());
+                        curItem->setRadius(iconSizeValue.toReal());
+                        curItem->sysOfDevice() = sysValue.toString();
+                        curItem->deviceOperator() = operatorValue.toString();
+                        if(!channelNum.toString().isEmpty())
+                        {
+                            curItem->setChannelNum(channelNum.toInt());
+                        }
+
+                        curItem->analogType() = analogType.toString();
+                    }
+                    break;
+                case 0x09:
+                    if(curExtNum>=minExtNum&&curExtNum<=maxExtNum&&curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
+                    {
+                        curItem->setIconName(iconName.toString());
+                        curItem->setRadius(iconSizeValue.toReal());
+                        curItem->sysOfDevice() = sysValue.toString();
+                        curItem->deviceOperator() = operatorValue.toString();
+                        if(!channelNum.toString().isEmpty())
+                        {
+                            curItem->setChannelNum(channelNum.toInt());
+                        }
+
+                        curItem->analogType() = analogType.toString();
+                    }
+                    break;
+                case 0x0a:
+                    if(curExtNum>=minExtNum&&curExtNum<=maxExtNum&&curAddrNum>=minAddrNum&&curAddrNum<=maxAddrNum)
+                    {
+                        curItem->setIconName(iconName.toString());
+                        curItem->setRadius(iconSizeValue.toReal());
+                        curItem->sysOfDevice() = sysValue.toString();
+                        curItem->deviceOperator() = operatorValue.toString();
+                        if(!channelNum.toString().isEmpty())
+                        {
+                            curItem->setChannelNum(channelNum.toInt());
+                        }
+
+                        curItem->analogType() = analogType.toString();
+                    }
+                    break;
+                case 0x0b:
+                    if(curExtNum>=minExtNum&&curExtNum<=maxExtNum&&curAddrNum>=minAddrNum
+                            &&curAddrNum<=maxAddrNum&&curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
+                    {
+                        curItem->setIconName(iconName.toString());
+                        curItem->setRadius(iconSizeValue.toReal());
+                        curItem->sysOfDevice() = sysValue.toString();
+                        curItem->deviceOperator() = operatorValue.toString();
+                        if(!channelNum.toString().isEmpty())
+                        {
+                            curItem->setChannelNum(channelNum.toInt());
+                        }
+
+                        curItem->analogType() = analogType.toString();
+                    }
+                    break;
+
+                case 0x0c:
+                    if(curExtNum>=minExtNum&&curExtNum<=maxExtNum&&curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum)
+                    {
+                        curItem->setIconName(iconName.toString());
+                        curItem->setRadius(iconSizeValue.toReal());
+                        curItem->sysOfDevice() = sysValue.toString();
+                        curItem->deviceOperator() = operatorValue.toString();
+                        if(!channelNum.toString().isEmpty())
+                        {
+                            curItem->setChannelNum(channelNum.toInt());
+                        }
+
+                        curItem->analogType() = analogType.toString();
+                    }
+                    break;
+                case 0x0d:
+                    if(curExtNum>=minExtNum&&curExtNum<=maxExtNum&&curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum&&curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
+                    {
+                        curItem->setIconName(iconName.toString());
+                        curItem->setRadius(iconSizeValue.toReal());
+                        curItem->sysOfDevice() = sysValue.toString();
+                        curItem->deviceOperator() = operatorValue.toString();
+                        if(!channelNum.toString().isEmpty())
+                        {
+                            curItem->setChannelNum(channelNum.toInt());
+                        }
+
+                        curItem->analogType() = analogType.toString();
+                    }
+                    break;
+                case 0x0e:
+                    if(curExtNum>=minExtNum&&curExtNum<=maxExtNum&&curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum&&curAddrNum>=minAddrNum&&curAddrNum<=maxAddrNum)
+                    {
+                        curItem->setIconName(iconName.toString());
+                        curItem->setRadius(iconSizeValue.toReal());
+                        curItem->sysOfDevice() = sysValue.toString();
+                        curItem->deviceOperator() = operatorValue.toString();
+                        if(!channelNum.toString().isEmpty())
+                        {
+                            curItem->setChannelNum(channelNum.toInt());
+                        }
+
+                        curItem->analogType() = analogType.toString();
+                    }
+                    break;
+                case 0x0f:
+                    if(curExtNum>=minExtNum&&curExtNum<=maxExtNum&&curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum&&curAddrNum>=minAddrNum&&curAddrNum<=maxAddrNum&&curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
+                    {
+                        curItem->setIconName(iconName.toString());
+                        curItem->setRadius(iconSizeValue.toReal());
+                        curItem->sysOfDevice() = sysValue.toString();
+                        curItem->deviceOperator() = operatorValue.toString();
+                        if(!channelNum.toString().isEmpty())
+                        {
+                            curItem->setChannelNum(channelNum.toInt());
+                        }
+
+                        curItem->analogType() = analogType.toString();
+                    }
+                    break;
+                default:
+                    break;
+                }
+            }
+
+        }
+    }
+
+}
+
+void ArchitePlanView::changeItemsInfoFromFloor()
+{
+    QVariant sysValue,operatorValue,iconSizeValue,iconName,channelNum,analogType;
+
+    QMetaObject::invokeMethod(m_itemSettingObj,"getSysName",Q_RETURN_ARG(QVariant,sysValue));
+    QMetaObject::invokeMethod(m_itemSettingObj,"getOperator",Q_RETURN_ARG(QVariant,operatorValue));
+    QMetaObject::invokeMethod(m_itemSettingObj,"getIconSize",Q_RETURN_ARG(QVariant,iconSizeValue));
+    QMetaObject::invokeMethod(m_itemSettingObj,"curIconName",Q_RETURN_ARG(QVariant,iconName));
+    QMetaObject::invokeMethod(m_itemSettingObj,"getChannelNum",Q_RETURN_ARG(QVariant,channelNum));
+    QMetaObject::invokeMethod(m_itemSettingObj,"getAnalogType",Q_RETURN_ARG(QVariant,analogType));
+    GraphicsView *curView =currentGraphicsView();
+    if(curView!=nullptr)
+    {
+        QList<QGraphicsItem*> itemList=  curView->getItemList();
+        foreach (QGraphicsItem*item, itemList)
+        {
+            GraphicsItem *curItem = dynamic_cast<GraphicsItem *>(item);
+            if(curItem!=nullptr)
+            {
+                curItem->setIconName(iconName.toString());
+                curItem->setRadius(iconSizeValue.toReal());
+                curItem->sysOfDevice() = sysValue.toString();
+                curItem->deviceOperator() = operatorValue.toString();
+                if(!channelNum.toString().isEmpty())
+                {
+                    curItem->setChannelNum(channelNum.toInt());
+                }
+
+                curItem->analogType() = analogType.toString();
+            }
+        }
+    }
+}
+
+void ArchitePlanView::excelFileProcess(QString filePath)
+{
+
+    QString curFileName = Controller::instance()->fileNameFromQml(filePath);
+    bool excelIsOpen=  m_excelManager->openExcel(curFileName);
+    if(excelIsOpen)
+    {
+        m_loopAddrExtHash.clear();
+        m_loopAddrDeviceHash.clear();
+        m_loopAddrFloorHash.clear();
+        QVariant bus=  m_excelManager->readExcel("总线");//
+        QVariant dataMapping=  m_excelManager->readExcel("数据映射表");//
+        QList<QVariant> dataMappingList= dataMapping.toList();
+        // qDebug() << dataMappingList.size();
+        QHash<quint8,QPair<quint8,quint8> >dataMappingHash;
+        for(int i=1;i<dataMappingList.size();i++)
+        {
+            QList<QVariant>curList= dataMappingList.at(i).toList();
+            if(curList.size()>4)
+            {
+                QString type=  curList.at(1).toString();
+                if(!type.isEmpty())
+                {
+                    QPair<quint8,quint8>pair;
+                    pair.first = curList.at(2).toUInt();
+                    pair.second = curList.at(3).toUInt();
+                    dataMappingHash[curList.at(0).toUInt()]=pair;
+                }
+            }
+        }
+
+        QList<QVariant>busList=  bus.toList();
+        for (int j=1;j<busList.size();j++) {
+            QList<QVariant>curBusList=  busList.at(j).toList();
+            if(curBusList.size()>=6)
+            {
+                QString loopAddr = curBusList.at(0).toString();
+                if(!loopAddr.isEmpty())
+                {
+                    quint32 loopAddrValue = loopAddr.toUInt();
+                    m_loopAddrDeviceHash[loopAddrValue]=curBusList.at(1).toString();
+                    m_loopAddrFloorHash[loopAddrValue]=curBusList.at(5).toString();
+                    quint8 loopNum = loopAddrValue/1000;
+                    QList<QPair<quint8,quint8> >pairList=dataMappingHash.values();
+                    for (int m=0;m< pairList.size();m++)
+                    {
+                        QPair<quint8,quint8>curPair = pairList.at(m);
+                        if(loopNum>=curPair.first&&loopNum<=curPair.second)
+                        {
+                            m_loopAddrExtHash[loopAddrValue] =QString::number(dataMappingHash.key(curPair));
+                        }
+                    }
+
+                }
+
+            }
+        }
+        QMetaObject::invokeMethod(m_itemSettingObj,"setImportExcelState",Q_ARG(QVariant,true));
+        m_excelManager->closeExcel();
+        m_excelManager->quitExcel();
+
+    }
+    else
+    {
+        QMetaObject::invokeMethod(m_itemSettingObj,"setImportExcelState",Q_ARG(QVariant,false));
+    }
+}
+
+void ArchitePlanView::excelFileAvailable(bool isAvailable)
+{
+    qDebug() << isAvailable;
 }
 
 

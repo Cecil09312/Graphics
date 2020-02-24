@@ -6,8 +6,9 @@
 #include <QTransform>
 int main(int argc, char *argv[])
 {
-    qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
+
 #ifdef Q_OS_LINUX
+    qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
     QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
 #endif
     QApplication a(argc, argv);

@@ -64,9 +64,9 @@ Item {
 
         Slider {
             id: volumeSlider
-            from: 0
-            to: 1.0
-            stepSize: 0.1
+            from: SpeechObj.volumeMin()
+            to: SpeechObj.volumeMax()
+            stepSize: SpeechObj.volumeStep()
             width: 300
             ToolTip {
                 parent: volumeSlider.handle
@@ -88,9 +88,9 @@ Item {
 
         Slider {
             id: rateSlider
-            from: -1.0
-            to: 1.0
-            stepSize: 0.1
+            from: SpeechObj.rateMin()
+            to: SpeechObj.rateMax()
+            stepSize: SpeechObj.rateStep()
             width: 300
             ToolTip {
                 parent: rateSlider.handle
@@ -112,9 +112,9 @@ Item {
 
         Slider {
             id: pitchSlider
-            from: -1.0
-            to: 1.0
-            stepSize: 0.1
+            from: SpeechObj.pitchMin()
+            to: SpeechObj.pitchMax()
+            stepSize: SpeechObj.pitchStep()
 
             width: 300
             ToolTip {
@@ -134,6 +134,7 @@ Item {
         volumeSlider.value = SpeechObj.volume
         rateSlider.value = SpeechObj.rate
         pitchSlider.value = SpeechObj.pitch
+
 
         engineModel.append({value:"default"})
         for(var i=0;i<SpeechObj.engineNameNum();i++)

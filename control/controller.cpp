@@ -63,6 +63,17 @@ QString Controller::getFileNameFromUrl(const QString &url, bool isHasSuffix)
     }
 }
 
+bool Controller::hideOnLinux()
+{
+    bool isHide = false;
+#ifdef Q_OS_WIN
+    isHide= true;
+#elif defind Q_OS_LINUX
+    isHide= false;
+#endif
+    return isHide;
+}
+
 
 
 AbstractLink*Controller::getCommObj()

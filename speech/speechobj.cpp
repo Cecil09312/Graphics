@@ -20,8 +20,11 @@ SpeechObj::SpeechObj(QObject *parent):
     this->moveToThread(m_thread);
     m_thread->start();
 
-
-#ifdef Q_OS_LINUX
+#ifdef Q_OS_WIN
+    m_pitch = 0;
+    m_volume = 0.5;
+    m_rate = 0.7;
+#elif defined (Q_OS_LINUX)
     m_languageHash["粤语"] = "Cantonese";
     m_languageHash["普通话"] = "Mandarin";
     m_languageHash["台山话"] = "Toisanese";
@@ -31,15 +34,15 @@ SpeechObj::SpeechObj(QObject *parent):
     m_startTimer->setInterval(100);
     m_textToSpeechProcess->moveToThread(m_thread);
     m_pitch = 0;
-    m_volume = 0.5;
-    m_rate = 0.7;
+    m_volume = 70;
+    m_rate = 10;
     m_currentLanguage = "Mandarin";
 
     connect(m_startTimer,&QTimer::timeout,this,&SpeechObj::repeatSpeak);
     connect(m_thread,SIGNAL(started()),m_startTimer,SLOT(start()));
     connect(m_thread,&QThread::finished,m_startTimer,&QTimer::stop);
-
 #endif
+
     connect(this,&SpeechObj::speechStart,this,&SpeechObj::runSpeech);
     connect(this,&SpeechObj::textToSpeechStop,this,&SpeechObj::speechStop);
     connect(this,&SpeechObj::insertText,this,[&](const QString &alarmText)
@@ -198,6 +201,89 @@ void SpeechObj::setPitch(double pitch)
     m_pitch = pitch;
 #ifdef Q_OS_WIN
     m_textToSpeech->setPitch(pitch);
+#endif
+}
+
+double SpeechObj::pitchMin()
+{
+#ifdef Q_OS_WIN
+    return -1.0;
+#elif defined Q_OS_LINUX
+    return -100.0;
+#endif
+
+
+}
+
+double SpeechObj::pitchMax()
+{
+#ifdef Q_OS_WIN
+    return 1.0;
+#elif defined Q_OS_LINUX
+    return 100.0;
+#endif
+}
+
+double SpeechObj::pitchStep()
+{
+#ifdef Q_OS_WIN
+    return 0.1;
+#elif defined Q_OS_LINUX
+    return 1.0;
+#endif
+}
+
+double SpeechObj::rateMin()
+{
+#ifdef Q_OS_WIN
+    return -1.0;
+#elif defined Q_OS_LINUX
+    return -50.0;
+#endif
+}
+
+double SpeechObj::rateMax()
+{
+#ifdef Q_OS_WIN
+    return 1.0;
+#elif defined Q_OS_LINUX
+    return 300.0;
+#endif
+}
+
+double SpeechObj::rateStep()
+{
+#ifdef Q_OS_WIN
+    return 0.1;
+#elif defined Q_OS_LINUX
+    return 1.0;
+#endif
+}
+
+double SpeechObj::volumeMin()
+{
+#ifdef Q_OS_WIN
+    return 0;
+#elif defined Q_OS_LINUX
+    return -100.0;
+#endif
+}
+
+double SpeechObj::volumeMax()
+{
+#ifdef Q_OS_WIN
+    return 1;
+#elif defined Q_OS_LINUX
+    return 100.0;
+#endif
+}
+
+double SpeechObj::volumeStep()
+{
+#ifdef Q_OS_WIN
+    return 0.1;
+#elif defined Q_OS_LINUX
+    return 1.0;
 #endif
 }
 
@@ -384,25 +470,6 @@ void SpeechObj::repeatSpeak()
             {
                 curSpeechText = curSpeechText.left(index);
             }
-#ifdef Q_OS_WIN
-            m_textToSpeech->say(curSpeechText);
-
-#elif defined Q_OS_LINUX
-            double curRate;
-            if(m_rate<0)
-            {
-                curRate = m_rate *50;
-            }
-            else
-            {
-                curRate = m_rate *200;
-            }
-
-            m_textToSpeechProcess->start(QString("ekho -v %1 -p %2 -a %3 -s %4 '%5'").arg(m_currentLanguage).arg(m_pitch*100).arg(m_volume*100).arg(curRate).arg(curSpeechText));
-            m_textToSpeechProcess->waitForStarted();
-            m_textToSpeechProcess->waitForFinished();
-
-#endif
 
             if((!curSpeechText.startsWith("首火警"))&&(!curSpeechText.startsWith("火警")))
             {
@@ -417,7 +484,17 @@ void SpeechObj::repeatSpeak()
             {
                 m_alarmPos =0;
             }
+#ifdef Q_OS_WIN
+            m_textToSpeech->say(curSpeechText);
 
+#elif defined Q_OS_LINUX
+
+            //if(m_textToSpeechProcess->state()==QProcess::NotRunning)
+            m_textToSpeechProcess->start(QString("ekho -v %1 -p %2 -a %3 -s %4 '%5'").arg(m_currentLanguage).arg(m_pitch).arg(m_volume).arg(m_rate).arg(curSpeechText));
+           // m_textToSpeechProcess->waitForStarted();
+           // m_textToSpeechProcess->waitForFinished();
+
+#endif
         }
     }
     else {
@@ -463,6 +540,7 @@ void SpeechObj::speechStop()
 #ifdef Q_OS_WIN
     m_textToSpeech->pause();
 #elif defined Q_OS_LINUX
+    //m_textToSpeechProcess->kill();
     m_textToSpeechProcess->terminate();
     m_startTimer->stop();
 #endif

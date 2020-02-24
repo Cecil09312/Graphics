@@ -8,6 +8,14 @@ QT       += core gui quick svg  concurrent sql texttospeech serialport  printsup
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+win32{
+ contains(QT_ARCH, i386)
+  {
+   QT +=  axcontainer
+  }
+
+}
+
 TARGET = GraphicsDisplay
 TEMPLATE = app
 # The following define makes your compiler emit warnings if you use
@@ -81,7 +89,8 @@ SOURCES += \
     LogMsg/infologmsg.cpp \
     LogMsg/logmsg.cpp \
     communication/tcpserver.cpp \
-    graphicsWidget/svgitem.cpp
+    graphicsWidget/svgitem.cpp \
+    excelManager/excelmanager.cpp
 
 
 HEADERS += \
@@ -137,7 +146,8 @@ HEADERS += \
     LogMsg/infologmsg.h \
     LogMsg/logmsg.h \
     communication/tcpserver.h \
-    graphicsWidget/svgitem.h
+    graphicsWidget/svgitem.h \
+    excelManager/excelmanager.h
 
 FORMS +=
 
