@@ -35,7 +35,7 @@ SpeechObj::SpeechObj(QObject *parent):
     m_textToSpeechProcess->moveToThread(m_thread);
     m_pitch = 0;
     m_volume = 70;
-    m_rate = 10;
+    m_rate = 100;
     m_currentLanguage = "Mandarin";
 
     connect(m_startTimer,&QTimer::timeout,this,&SpeechObj::repeatSpeak);
@@ -135,6 +135,8 @@ SpeechObj::~SpeechObj()
 
 #elif defined Q_OS_LINUX
     m_startTimer->deleteLater();
+    m_textToSpeechProcess->terminate();
+    m_textToSpeechProcess->close();
     m_textToSpeechProcess->deleteLater();
 #endif
     m_thread->quit();

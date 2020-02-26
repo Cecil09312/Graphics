@@ -11,7 +11,7 @@
 /**
  * @brief The SpeechObj class
  * windows平台使用系统默认
- * linux系统使用ekho,使用版本ekho-8.0或者ekho-7.7.1
+ * linux系统使用ekho,使用版本ekho-7.7.1
  */
 class SpeechObj : public QObject
 {
