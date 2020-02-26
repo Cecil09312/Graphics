@@ -265,7 +265,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
             setIndicatorState(isOk);
             if(!isOk)
             {
-                sendAlarmInfo(0,4,12,0,QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
+                sendAlarmInfo(0,3,4,0,QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
             }
 
         }
@@ -278,7 +278,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
         if(m_sendEnable)
         {
             setIndicatorState(false);
-            sendAlarmInfo(0,4,12,0,QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
+            sendAlarmInfo(0,3,4,0,QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
         }
 
     });
@@ -561,7 +561,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
             QString curTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss");
             insertOtherAlarmInfo(tr("主机通信故障"));
             m_serialCurState= false;
-            sendAlarmInfo(0,4,11,0,curTime);
+            sendAlarmInfo(0,3,5,0,curTime);
             m_mainHeartBeatTimer->stop();
             closeAllOnlineState();
             // Controller::instance()->getCommObj()->connectLink();//重新连接
@@ -655,7 +655,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
                     insertOtherAlarmInfo(tr("主机通信故障"));
                     m_serialCurState= false;
                     QString curTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss");
-                    sendAlarmInfo(0,4,11,0,curTime);
+                    sendAlarmInfo(0,3,5,0,curTime);
 
                     closeAllOnlineState();
 
@@ -2361,6 +2361,7 @@ void CrtWidget::processViewsData()
         if(eventNum==0x03)
         {
             quint8 fireDoor=  (month&0xe0)>>5;
+            alarmState=fireDoor;
             switch (fireDoor)
             {
             case 0x03:
@@ -2379,12 +2380,15 @@ void CrtWidget::processViewsData()
             {
             case 0:
                 currentState += tr("门故障");
+                alarmState+=0xb0;
                 break;
             case 1:
                 currentState += tr("模块故障");
+                alarmState+=0xc0;
                 break;
             case 2:
                 currentState += tr("线路故障");
+                alarmState+=0xd0;
             default:
                 break;
             }
@@ -2395,7 +2399,7 @@ void CrtWidget::processViewsData()
             if((type&0x03)==0x01)
             {
                 currentState = tr("常开门关闭");
-                alarmState=4;
+                alarmState=6;
             }
         }
         else if(eventNum==0x01)
@@ -2427,41 +2431,13 @@ void CrtWidget::processViewsData()
                     currentState =tr("A3通道");
                 }
                 currentState = currentState+faultStateHash.value(month);
-                alarmState = year+month;
+                alarmState = year+month+3;
 
             }
 
         }
 
-        quint8 alarmTypeNum = 6;
-        QString curAlarmType = alarmTypeHash.value(eventNum);
-
-        if(curAlarmType==tr("火警"))
-        {
-            alarmTypeNum=0;
-        }
-        else if(curAlarmType==tr("监管"))
-        {
-            alarmTypeNum=1;
-        }
-        else if(curAlarmType==tr("启动"))
-        {
-            alarmTypeNum=2;
-        }
-        else if(curAlarmType==tr("反馈"))
-        {
-            alarmTypeNum=3;
-        }
-        else if(curAlarmType==tr("故障"))
-        {
-            alarmTypeNum=4;
-        }
-        else if(curAlarmType==tr("屏蔽"))
-        {
-            alarmTypeNum=5;
-        }
-
-        sendAlarmInfo(sysNum,alarmTypeNum,alarmState,0,timeStr);
+        sendAlarmInfo(sysNum,eventNum,alarmState,0,timeStr);
         if(item!=nullptr)
         {
 
@@ -2525,12 +2501,10 @@ void CrtWidget::processViewsData()
     {
 
         QString eliminateAlarmType,currentState;
-        quint8 alarmType =6;
         currentState = alarmTypeHash.value(eventNum);
-        //  QString currentState=eliminateAlarmType;
         if(eventNum==0x04)
         {
-            quint8 curStateNum=0;
+
             quint8 fireDoor=  (month&0xe0)>>5;
             switch (fireDoor)
             {
@@ -2562,40 +2536,33 @@ void CrtWidget::processViewsData()
             }
 
             eliminateAlarmType=tr("故障");
-            alarmType =4;
-            sendAlarmInfo(sysNum,4,curStateNum,0,timeStr);
-
         }
         else if(eventNum==0x02)
         {
             eliminateAlarmType = tr("反馈");
-            alarmType =3;
             if((type&0x03)==0x01)
             {
-                sendAlarmInfo(sysNum,3,9,0,timeStr);
                 currentState =tr("常开门打开");
             }
         }
         else if(eventNum==0x06)
         {
             eliminateAlarmType=tr("启动");
-            alarmType =2;
         }
         else if(eventNum==0x0c)
         {
             eliminateAlarmType=tr("屏蔽");
-            alarmType =5;
         }
 
         if(item!=nullptr)
         {
             item->setAlarmState(eliminateAlarmType,currentState);
             m_architePlanView->eliminateAlarm(item,eliminateAlarmType);
-            sendAlarmInfo(sysNum,alarmType,1,0,timeStr);
+            sendAlarmInfo(sysNum,eventNum,0,0,timeStr);
         }
         else
         {
-            sendAlarmInfo(0,alarmType,1,0,timeStr);
+            sendAlarmInfo(0,eventNum,0,0,timeStr);
 
             m_sqliteManager->executeQuery(m_alarmSqlInfo.arg(extNum).arg(QString::number(loopNum)).arg(QString::number(addrNum)).arg(networkNum).arg(tr("未定义设备"))
                                           .arg(tr("未定义设备")).arg(alarmTypeHash.value(eventNum)).arg(currentState).arg(timeStr)
@@ -2751,7 +2718,7 @@ void CrtWidget::processViewsData()
                 m_architePlanView->createAlarm(currentItem,tr("火警"),tr("光纤火警")+curAlarmState);
                 QString str= currentItem->sysOfDevice();
                 quint8 alarmSysNum= m_sysNameHash.key(str);
-                sendAlarmInfo(alarmSysNum,0,5,0,currentTime);//光纤火警
+                sendAlarmInfo(alarmSysNum,1,2,0,currentTime);//光纤火警
 
             }
             else
@@ -2765,7 +2732,7 @@ void CrtWidget::processViewsData()
 
                 QString speechTxt = tr("火警")+";"+QString("%1,%2,%3,%4").arg(QString::number(date)).arg(QString::number(addrNum)).arg(QString::number(month)).arg("0");
                 Controller::instance()->getSpeechObj()->insertAlarmText(speechTxt);
-                sendAlarmInfo(0,0,5,0,currentTime);//光纤火警
+                sendAlarmInfo(0,1,2,0,currentTime);//光纤火警
                 alarmDataOnTable();
                 alarmStatistics(tr("火警"));
                 // }
@@ -2778,7 +2745,7 @@ void CrtWidget::processViewsData()
             {
                 // currentItem->deviceLocation() = QString::number(type*256+year)+tr("米");
                 m_architePlanView->createAlarm(currentItem,tr("故障"),tr("光纤故障")+curAlarmState);
-                sendAlarmInfo(sysNum,4,10,0,currentTime);
+                sendAlarmInfo(sysNum,3,3,0,currentTime);
             }
             else
             {
@@ -2792,7 +2759,7 @@ void CrtWidget::processViewsData()
                 QString speechTxt = tr("故障")+";"+QString("%1,%2,%3,%4").arg(QString::number(date)).arg(QString::number(addrNum)).arg(QString::number(month)).arg("0");
                 Controller::instance()->getSpeechObj()->insertAlarmText(speechTxt);
                 alarmDataOnTable();
-                sendAlarmInfo(0,4,10,0,currentTime);
+                sendAlarmInfo(0,3,3,0,currentTime);
                 alarmStatistics("故障");
                 //}
             }
@@ -2800,10 +2767,11 @@ void CrtWidget::processViewsData()
             break;
         case 0x03:
         {
-            m_architePlanView->eliminateAlarm(QString::number(date),QString::number(addrNum),QString::number(month),"0",tr("故障"));
+            sendAlarmInfo(sysNum,4,0,0,currentTime);
             if(currentItem!=nullptr)
             {
-                sendAlarmInfo(sysNum,4,6,0,currentTime);
+                m_architePlanView->eliminateAlarm(QString::number(date),QString::number(addrNum),QString::number(month),"0",tr("故障"));
+
             }
             else
             {
@@ -2888,18 +2856,24 @@ void CrtWidget::processViewsData()
         case 0x19://屏蔽
         case 0x14://应急启动
         {
+            quint8 emergencyAlarmValue=0;
             if(month==0x19)
             {
                 emergencyAlarmType = tr("屏蔽");
+                emergencyAlarmValue=0x0b;
             }
             else if(month==0x14)
             {
                 emergencyAlarmType = tr("启动");
+                emergencyAlarmValue=0x05;
             }
             else
             {
                 emergencyAlarmType= tr("故障");
+                emergencyAlarmValue=0x03;
             }
+
+            sendAlarmInfo(15,emergencyAlarmValue,month,0,curAlarmTime);
 
             if(curGraphicsItem!=nullptr)
             {
@@ -2914,7 +2888,6 @@ void CrtWidget::processViewsData()
                 QString curAlarmSpeechText =emergencyAlarmReply+";"+QString("%1,%2,%3,%4").arg(emergencyExtNum).arg(emergencyLoopNum).arg(emergencyAddrNum).arg(emergencyPowerAddr);
                 Controller::instance()->getSpeechObj()->insertAlarmText(curAlarmSpeechText);
                 alarmDataOnTable();
-                //sendAlarmInfo(0,4,10,0,curAlarmTime);
                 alarmStatistics(emergencyAlarmType);
                 QString speechTxt = emergencyAlarmType+";"+QString("%1,%2,%3,%4").arg(emergencyExtNum).arg(emergencyLoopNum).arg(emergencyAddrNum).arg(emergencyPowerAddr);
                 Controller::instance()->getSpeechObj()->removeAlarmText(speechTxt);
@@ -2927,18 +2900,23 @@ void CrtWidget::processViewsData()
         case 0x99://屏蔽解除
         case 0x94://应急解除
         {
+            quint8 emergencyAlarmValue =0;
             if(month==0x99)
             {
                 emergencyAlarmReply = tr("屏蔽");
+                emergencyAlarmValue=0x0c;
             }
             else if(month==0x94)
             {
                 emergencyAlarmReply = tr("启动");
+                emergencyAlarmValue=0x06;
             }
             else
             {
                 emergencyAlarmReply = tr("故障");
+                emergencyAlarmValue=0x04;
             }
+            sendAlarmInfo(15,emergencyAlarmValue,month,0,curAlarmTime);
 
             if(curGraphicsItem!=nullptr)
             {

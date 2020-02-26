@@ -23,7 +23,7 @@ SpeechObj::SpeechObj(QObject *parent):
 #ifdef Q_OS_WIN
     m_pitch = 0;
     m_volume = 0.5;
-    m_rate = 0.7;
+    m_rate = 0;
 #elif defined (Q_OS_LINUX)
     m_languageHash["粤语"] = "Cantonese";
     m_languageHash["普通话"] = "Mandarin";

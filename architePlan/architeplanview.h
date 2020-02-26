@@ -206,7 +206,7 @@ private:
     ExcelManager *m_excelManager;
     QHash<quint32,QString>m_loopAddrExtHash;
     QHash<quint32,QString>m_loopAddrDeviceHash;
-    QHash<quint32,QString>m_loopAddrFloorHash;
+   // QHash<quint32,QString>m_loopAddrFloorHash;
 
 
 };

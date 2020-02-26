@@ -2863,7 +2863,7 @@ void ArchitePlanView::excelFileProcess(QString filePath)
     {
         m_loopAddrExtHash.clear();
         m_loopAddrDeviceHash.clear();
-        m_loopAddrFloorHash.clear();
+        //m_loopAddrFloorHash.clear();
         QVariant bus=  m_excelManager->readExcel("总线");//
         QVariant dataMapping=  m_excelManager->readExcel("数据映射表");//
         QList<QVariant> dataMappingList= dataMapping.toList();
@@ -2895,7 +2895,7 @@ void ArchitePlanView::excelFileProcess(QString filePath)
                 {
                     quint32 loopAddrValue = loopAddr.toUInt();
                     m_loopAddrDeviceHash[loopAddrValue]=curBusList.at(1).toString();
-                    m_loopAddrFloorHash[loopAddrValue]=curBusList.at(5).toString();
+                    //m_loopAddrFloorHash[loopAddrValue]=curBusList.at(5).toString();
                     quint8 loopNum = loopAddrValue/1000;
                     QList<QPair<quint8,quint8> >pairList=dataMappingHash.values();
                     for (int m=0;m< pairList.size();m++)
