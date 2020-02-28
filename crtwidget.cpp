@@ -1918,16 +1918,16 @@ void CrtWidget::sendSeralData()
             array[0] =0x7e;
             array[1] =0x01;
             array[2] =0x0a;
-            array[3] =0x99;//事件类型
-            array[4] =0x00;
+            array[3] =0x32;//事件类型
+            array[4] =0x01;
             array[5] =0x00;
             array[6] =extNum<<2;
-            array[7] =0x15;
-            array[8] =0x06;
-            array[9] =0x12;
-            array[10] =0x18;
-            array[11] =0x89;
-            array[12] =0x09;
+            array[7] =0x00;
+            array[8] =0x00;
+            array[9] =0x00;
+            array[10] =0x00;
+            array[11] =0x00;
+            array[12] =0x00;
             quint8 sum = 0;
             for(int i=3;i<=12;i++)
             {
@@ -2587,15 +2587,13 @@ void CrtWidget::processViewsData()
 
         if(loopNum==0)
         {
-            communicationStatus(commuStatusHash.value(eventNum),true);
-            insertOtherAlarmInfo(commuStatusHash.value(eventNum)+tr("故障恢复"));
+            communicationStatus(commuStatusHash.value(eventNum),true,extNum,networkNum);
             powerState = tr("正常");
             powerStateNum =0;
         }
         else if(loopNum==1)
         {
-            communicationStatus(commuStatusHash.value(eventNum),false);
-            insertOtherAlarmInfo(commuStatusHash.value(eventNum)+tr("故障"));
+            communicationStatus(commuStatusHash.value(eventNum),false,extNum,networkNum);
             powerState = tr("故障");
             powerStateNum =1;
 
@@ -2690,9 +2688,9 @@ void CrtWidget::processViewsData()
         }
 
         quint8 sysNum = m_sysNameHash.key(sysName);
-        sendHandOrAutoState(sysNum,handOrAutoStateNum,0,timeStr);
+        sendHandOrAutoState(sysNum,handOrAutoStateNum,networkNum.toUShort(),timeStr);
 
-        insertOtherAlarmInfo(handOrAutoState,extNum);
+        insertOtherAlarmInfo(handOrAutoState,extNum,networkNum);
         QMetaObject::invokeMethod(m_handOrAutoObj,"addHandOrAutoState",Q_ARG(QVariant,extNum),Q_ARG(QVariant,networkNum),Q_ARG(QVariant,handOrAutoState));
     }
         break;
