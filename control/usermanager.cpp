@@ -24,11 +24,11 @@ UserManager::UserManager(QObject *parent)
             }
             else
             {
-                QStringList valueList=  m_sqliteManager->executeQuery("select password from UserInfo where userRight='普通用户'");
-                if(valueList.size()>0)
-                {
-                    m_password = valueList.at(0);
-                }
+               // QStringList valueList=  m_sqliteManager->executeQuery("select password from UserInfo where userRight='普通用户'");
+//                if(valueList.size()>0)
+//                {
+//                    m_password = valueList.at(0);
+//                }
             }
         }
 
@@ -37,6 +37,7 @@ UserManager::UserManager(QObject *parent)
 
 QString UserManager::password(const UserManager::UserRight &right,const QString &userName)
 {
+    QString customPassword ="";
     if(m_sqliteManager!=nullptr)
     {
         QStringList valueList;
@@ -57,10 +58,10 @@ QString UserManager::password(const UserManager::UserRight &right,const QString 
         }
         if(valueList.size()>0)
         {
-            m_password = valueList.at(0);
+            customPassword = valueList.at(0);
         }
     }
-    return m_password;
+    return customPassword;
 }
 
 void UserManager::setPassword(const UserManager::UserRight &right, const QString &userPassword,const QString &userName)
@@ -126,6 +127,57 @@ void UserManager::addUser(const QString &userName, const UserManager::UserRight 
             break;
         }
     }
+}
+
+void UserManager::removeUser(const QString &userName, const UserManager::UserRight &right, const QString &password)
+{
+    if(m_sqliteManager!=nullptr)
+    {
+        switch (right)
+        {
+        case UserManager::Super:
+
+            break;
+        case UserManager::Administrator:
+            m_sqliteManager->executeQuery(QString("delete from UserInfo where userRight = '管理员' and userName='%1' and password='%2'").arg(userName).arg(password));
+            break;
+        case UserManager::User:
+            m_sqliteManager->executeQuery(QString("delete from UserInfo where userRight = '普通用户' and userName='%1' and password='%2'").arg(userName).arg(password));
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+bool UserManager::userIsExist(const QString &userName, const UserManager::UserRight &right)
+{
+    //QString customPassword ="";
+    QStringList valueList;
+    if(m_sqliteManager!=nullptr)
+    {
+
+        switch (right)
+        {
+        case UserManager::Super:
+            valueList= m_sqliteManager->executeQuery(QString("select password from UserInfo where userRight='超级用户' and userName = '%1'").arg(userName));
+            break;
+        case UserManager::Administrator:
+            valueList= m_sqliteManager->executeQuery(QString("select password from UserInfo where userRight='管理员' and userName = '%1'").arg(userName));
+            break;
+        case UserManager::User:
+            valueList= m_sqliteManager->executeQuery(QString("select password from UserInfo where userRight='普通用户' and userName = '%1'").arg(userName));
+            break;
+        default:
+            break;
+        }
+//        if(valueList.size()>0)
+//        {
+//            customPassword = valueList.at(0);
+//        }
+    }
+    return !valueList.isEmpty();
+   // return customPassword;
 }
 
 UserManager::~UserManager()

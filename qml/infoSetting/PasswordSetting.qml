@@ -68,7 +68,7 @@ Item {
             }
             RadioButton {
                 id: addUserRadionBtn
-                text: qsTr("增加用户")
+                text: qsTr("增加或删除用户")
                 Layout.fillWidth: true
                 autoExclusive: true
                 onClicked: {
@@ -212,7 +212,7 @@ Item {
 
             Text {
                 id: newUserRight
-                text: qsTr("新用户权限")
+                text: qsTr("操作用户权限")
                 Layout.row: 1
                 Layout.column: 0
                 verticalAlignment: Text.AlignVCenter
@@ -257,39 +257,113 @@ Item {
                 echoMode: TextInput.Password
             }
 
-            NaviButton {
-                id: addNewUserconfineBtn
+            Row
+            {
                 Layout.row: 4
                 Layout.column: 1
-                text: qsTr("确认")
-                onClicked: {
-                    if (newUserComboBox.currentText === qsTr("管理员")) {
-                        UserManager.addUser(newUserTextField.text,
+                spacing: 10
+                NaviButton {
+                    id: addNewUserconfineBtn
+
+                    text: qsTr("增加")
+                    onClicked: {
+                        if(newUserPasswordTextField.text.length<=0)
+                        {
+                            warningMessageDialog.open()
+                        }
+                        else
+                        {
+                            if (newUserComboBox.currentText === qsTr("管理员")) {
+
+                                if(!UserManager.userIsExist(newUserTextField.text,UserManager.Administrator))
+                                {
+                                    UserManager.addUser(newUserTextField.text,
+                                                        UserManager.Administrator,
+                                                        newUserPasswordTextField.text)
+                                    addNewUserSuccessDialog.open()
+                                    OperatorInfo.insertEvent(qsTr("添加用户成功"))
+
+                                }
+                                else
+                                {
+                                    addNewUserFailureDialog.open()
+                                    OperatorInfo.insertEvent(qsTr("添加用户失败"),
+                                                             qsTr("添加用户失败,或者用户已经存在"))
+
+                                }
+
+                            } else if (newUserComboBox.currentText === qsTr("普通用户")) {
+                                if(!UserManager.userIsExist(newUserTextField.text,UserManager.User))
+
+                                {
+                                    UserManager.addUser(newUserTextField.text,
+                                                        UserManager.User,
+                                                        newUserPasswordTextField.text)
+                                    addNewUserSuccessDialog.open()
+                                    OperatorInfo.insertEvent(qsTr("添加用户成功"))
+
+                                }
+                                else
+                                {
+                                    addNewUserFailureDialog.open()
+                                    OperatorInfo.insertEvent(qsTr("添加用户失败"),
+                                                             qsTr("添加用户失败,或者用户已经存在"))
+
+                                }
+
+                            }
+                        }
+                    }
+
+                }
+
+
+                NaviButton
+                {
+                    id:removeBtn
+                    text: qsTr("删除")
+                    onClicked:
+                    {
+                        if(newUserPasswordTextField.text.length<=0)
+                        {
+                            warningMessageDialog.open()
+                        }
+                        else
+                        {
+                            if (newUserComboBox.currentText === qsTr("管理员")) {
+
+
+
+                                if (UserManager.password(
                                             UserManager.Administrator,
-                                            newUserPasswordTextField.text)
+                                            newUserTextField.text) === newUserPasswordTextField.text) {
+                                    UserManager.removeUser(newUserTextField.text,
+                                                           UserManager.Administrator,
+                                                           newUserPasswordTextField.text)
+                                    removeUserSuccessDialog.open()
+                                    OperatorInfo.insertEvent(qsTr("删除用户成功"))
+                                } else {
+                                    removeUserFailureDialog.open()
+                                    OperatorInfo.insertEvent(qsTr("删除失败(密码错误)或用户不存在"), qsTr("删除失败或用户不存在"))
+                                }
+                            } else if (newUserComboBox.currentText === qsTr("普通用户")) {
 
-                        if (UserManager.password(
-                                    UserManager.Administrator,
-                                    newUserTextField.text) === newUserPasswordTextField.text) {
-                            addNewUserSuccessDialog.open()
-                            OperatorInfo.insertEvent(qsTr("添加用户成功"))
-                        } else {
-                            addNewUserFailureDialog.open()
-                            OperatorInfo.insertEvent(qsTr("添加用户失败"),
-                                                     qsTr("添加用户失败,或者用户已经存在"))
-                        }
-                    } else if (newUserComboBox.currentText === qsTr("普通用户")) {
-                        UserManager.addUser(newUserTextField.text,
+
+                                if (UserManager.password(
                                             UserManager.User,
-                                            newUserPasswordTextField.text)
-
-                        if (UserManager.password(
-                                    UserManager.User,
-                                    newUserTextField.text) === newUserPasswordTextField.text) {
-                            addNewUserSuccessDialog.open()
-                        } else {
-                            addNewUserFailureDialog.open()
+                                            newUserTextField.text) === newUserPasswordTextField.text) {
+                                    UserManager.removeUser(newUserTextField.text,
+                                                           UserManager.User,
+                                                           newUserPasswordTextField.text)
+                                    removeUserSuccessDialog.open()
+                                    OperatorInfo.insertEvent(qsTr("删除用户成功"))
+                                } else {
+                                    removeUserFailureDialog.open()
+                                    OperatorInfo.insertEvent(qsTr("删除失败(密码错误)或用户不存在"), qsTr("删除失败或用户不存在"))
+                                }
+                            }
                         }
+
                     }
                 }
             }
@@ -316,25 +390,34 @@ Item {
                                                   currentUserName)
         }
 
-        if (oldPasswordTextFile.text === oldPasswordStr) {
-            if (newPasswordTextFiled.text.length > 0) {
-                if (currentUserRight === UserManager.Super) {
-                    UserManager.setPassword(currentUserRight,
-                                            newPasswordTextFiled.text, "super")
+
+        if(oldPasswordTextFile.text.length<=0)
+        {
+            OperatorInfo.insertEvent(qsTr("修改密码失败"), qsTr("旧密码为空"))
+            warningMessageDialog.open()
+        }
+        else
+        {
+            if (oldPasswordTextFile.text === oldPasswordStr) {
+                if (newPasswordTextFiled.text.length > 0) {
+                    if (currentUserRight === UserManager.Super) {
+                        UserManager.setPassword(currentUserRight,
+                                                newPasswordTextFiled.text, "super")
+                    } else {
+                        UserManager.setPassword(currentUserRight,
+                                                newPasswordTextFiled.text,
+                                                currentUserName)
+                    }
+                    OperatorInfo.insertEvent(qsTr("修改密码成功"))
+                    infoMessageDialog.open()
                 } else {
-                    UserManager.setPassword(currentUserRight,
-                                            newPasswordTextFiled.text,
-                                            currentUserName)
+                    OperatorInfo.insertEvent(qsTr("修改密码失败"), qsTr("新密码为空"))
+                    warningMessageDialog.open()
                 }
-                OperatorInfo.insertEvent(qsTr("修改密码成功"))
-                infoMessageDialog.open()
             } else {
-                OperatorInfo.insertEvent(qsTr("修改密码失败"), qsTr("新密码为空"))
-                warningMessageDialog.open()
+                OperatorInfo.insertEvent(qsTr("修改密码失败"), qsTr("初始密码错误"))
+                criticalMessageDialog.open()
             }
-        } else {
-            OperatorInfo.insertEvent(qsTr("修改密码失败"), qsTr("初始密码错误"))
-            criticalMessageDialog.open()
         }
     }
 
@@ -349,7 +432,7 @@ Item {
         id: warningMessageDialog
         icon: StandardIcon.Warning
         title: qsTr("警告信息")
-        text: qsTr("新密码为空，请重新设置......")
+        text: qsTr("有密码为空，请重新设置......")
     }
 
     MessageDialog {
@@ -371,6 +454,21 @@ Item {
         icon: StandardIcon.Critical
         title: qsTr("错误信息提示")
         text: qsTr("添加用户失败,或者用户已经存在")
+    }
+
+
+    MessageDialog {
+        id: removeUserSuccessDialog
+        icon: StandardIcon.Information
+        title: qsTr("信息提示")
+        text: qsTr("删除用户成功")
+    }
+
+    MessageDialog {
+        id: removeUserFailureDialog
+        icon: StandardIcon.Critical
+        title: qsTr("错误信息提示")
+        text: qsTr("删除失败或用户不存在")
     }
 
     Component.onCompleted: {

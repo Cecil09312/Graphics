@@ -24,6 +24,8 @@ public:
     Q_INVOKABLE  UserRight userRight();
     Q_INVOKABLE  void setUserRight(const UserRight& right);
     Q_INVOKABLE  void addUser(const QString &userName,const UserRight& right,const QString &password);
+    Q_INVOKABLE  void removeUser(const QString &userName,const UserRight& right,const QString &password);
+    Q_INVOKABLE  bool userIsExist(const QString &userName,const UserRight& right);
     ~UserManager();
 
 signals:
