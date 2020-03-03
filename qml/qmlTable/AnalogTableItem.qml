@@ -6,18 +6,18 @@ import crtWidget 1.0
 import QtQuick.Dialogs 1.2
 import architePlanView 1.0
 import "../infoSetting"
-Item {
 
-    width: 800
-    height: 640
-    anchors.top: parent.top
-    anchors.bottom: parent.bottom
+Item
+{
+    //anchors.fill: parent
     Column
     {
-        anchors.fill: parent
-        Grid {
-            id: row
-            columns: 8
+        id:column
+        spacing: 5
+        Row {
+            //id: grid
+            //columns: 10
+            //rows:2
             spacing: 5
             Text {
                 text: qsTr("分机号")
@@ -79,30 +79,33 @@ Item {
                 height: 30
                 width: 100
             }
+        }
 
-            Text {
-                text: qsTr("模拟量类型")
-                height: 30
-                horizontalAlignment: TextEdit.AlignLeft
-                verticalAlignment: TextEdit.AlignVCenter
-            }
-            //        ComboBox {
-            //            id: analogComboBox
-            //            height: 30
-            //            width: 150
-            //            model: [qsTr("高度(m)"), qsTr("温度(℃)"), qsTr(
-            //                    "压力(Mpa)"), qsTr("压力(Kpa)"), qsTr(
-            //                    "气体浓度(%LEL)"), qsTr("气体浓度(PPM)"), qsTr(
-            //                    "气体浓度(%V/V)"), qsTr("气体浓度(KPPM)"), qsTr(
-            //                    "气体浓度(Mg/m^3)"), qsTr("时间(s)"), qsTr(
-            //                    "电压(V)"), qsTr("电流(A)"), qsTr(
-            //                    "流量(L/s)"), qsTr("风量(m^3/min)"), qsTr(
-            //                    "风速(m/s)"), qsTr("剩余电流(mA)"), qsTr(
-            //                    "烟参量"), qsTr("距离(m)"), qsTr(
-            //                    "交流电流(mA)"), qsTr("直流电流(mA)"), qsTr(
-            //                    "交流电压(V)"), qsTr("直流电压(V)")]
-            //        }
-
+        //            Text {
+        //                text: qsTr("模拟量类型")
+        //                height: 30
+        //                horizontalAlignment: TextEdit.AlignLeft
+        //                verticalAlignment: TextEdit.AlignVCenter
+        //            }
+        //        ComboBox {
+        //            id: analogComboBox
+        //            height: 30
+        //            width: 150
+        //            model: [qsTr("高度(m)"), qsTr("温度(℃)"), qsTr(
+        //                    "压力(Mpa)"), qsTr("压力(Kpa)"), qsTr(
+        //                    "气体浓度(%LEL)"), qsTr("气体浓度(PPM)"), qsTr(
+        //                    "气体浓度(%V/V)"), qsTr("气体浓度(KPPM)"), qsTr(
+        //                    "气体浓度(Mg/m^3)"), qsTr("时间(s)"), qsTr(
+        //                    "电压(V)"), qsTr("电流(A)"), qsTr(
+        //                    "流量(L/s)"), qsTr("风量(m^3/min)"), qsTr(
+        //                    "风速(m/s)"), qsTr("剩余电流(mA)"), qsTr(
+        //                    "烟参量"), qsTr("距离(m)"), qsTr(
+        //                    "交流电流(mA)"), qsTr("直流电流(mA)"), qsTr(
+        //                    "交流电压(V)"), qsTr("直流电压(V)")]
+        //        }
+        Row
+        {
+            spacing: 5
             NaviButton {
                 id: infoQueryBtn
                 text: qsTr("查询")
@@ -166,73 +169,76 @@ Item {
                 }
             }
         }
+    }
 
-        Controls1_4.TableView {
-            id: infoTableView
-            width: parent.width
-            height: 800
-            anchors.topMargin: 10
 
-            Controls1_4.TableViewColumn {
-                role: "extNum"
-                title: qsTr("分机号")
-                width: 60
-            }
+    Controls1_4.TableView {
+        id: infoTableView
+        width: parent.width
+        anchors.topMargin: 10
+        clip: true
+        anchors.bottom: parent.bottom
+        anchors.top: column.bottom
 
-            Controls1_4.TableViewColumn {
-                role: "loopNum"
-                title: qsTr("回路号")
-                width: 60
-            }
+        Controls1_4.TableViewColumn {
+            role: "extNum"
+            title: qsTr("分机号")
+            width: 60
+        }
 
-            Controls1_4.TableViewColumn {
-                role: "addrNum"
-                title: qsTr("地址号")
-                width: 60
-            }
+        Controls1_4.TableViewColumn {
+            role: "loopNum"
+            title: qsTr("回路号")
+            width: 60
+        }
 
-            Controls1_4.TableViewColumn {
-                role: "networkNum"
-                title: qsTr("网络号")
-                width: 60
-            }
-            Controls1_4.TableViewColumn {
-                role: "curChannel"
-                title: qsTr("当前通道")
-                width: 60
-            }
+        Controls1_4.TableViewColumn {
+            role: "addrNum"
+            title: qsTr("地址号")
+            width: 60
+        }
 
-            Controls1_4.TableViewColumn {
-                role: "analogType"
-                title: qsTr("模拟量类型")
-                width: 100
-            }
+        Controls1_4.TableViewColumn {
+            role: "networkNum"
+            title: qsTr("网络号")
+            width: 60
+        }
+        Controls1_4.TableViewColumn {
+            role: "curChannel"
+            title: qsTr("当前通道")
+            width: 60
+        }
 
-            Controls1_4.TableViewColumn {
-                role: "result"
-                title: qsTr("结果")
-                width: 100
-            }
+        Controls1_4.TableViewColumn {
+            role: "analogType"
+            title: qsTr("模拟量类型")
+            width: 100
+        }
 
-            Controls1_4.TableViewColumn {
-                role: "time"
-                title: qsTr("时间")
-                width: 150
-            }
+        Controls1_4.TableViewColumn {
+            role: "result"
+            title: qsTr("结果")
+            width: 100
+        }
 
-            model: infoListModel
-            onDoubleClicked: {
-                var curExtNum = new String
-                var curLoopNum = new String
-                var curAddrNum = new String
-                var curNetworkNum = new String
-                curExtNum = infoListModel.getValue(row, "extNum")
-                curLoopNum = infoListModel.getValue(row, "loopNum")
-                curAddrNum = infoListModel.getValue(row, "addrNum")
-                curNetworkNum = infoListModel.getValue(row, "networkNum")
-                ArchitePlanView.toArchitePlan(curExtNum, curLoopNum, curAddrNum,
-                                              curNetworkNum)
-            }
+        Controls1_4.TableViewColumn {
+            role: "time"
+            title: qsTr("时间")
+            width: 150
+        }
+
+        model: infoListModel
+        onDoubleClicked: {
+            var curExtNum = new String
+            var curLoopNum = new String
+            var curAddrNum = new String
+            var curNetworkNum = new String
+            curExtNum = infoListModel.getValue(row, "extNum")
+            curLoopNum = infoListModel.getValue(row, "loopNum")
+            curAddrNum = infoListModel.getValue(row, "addrNum")
+            curNetworkNum = infoListModel.getValue(row, "networkNum")
+            ArchitePlanView.toArchitePlan(curExtNum, curLoopNum, curAddrNum,
+                                          curNetworkNum)
         }
     }
 

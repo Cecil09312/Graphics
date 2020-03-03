@@ -6,19 +6,12 @@ import crtWidget 1.0
 import QtQuick.Dialogs 1.2
 import architePlanView 1.0
 import "../infoSetting"
-Item {
 
-    width: 800
-    height: 640
-    anchors.top: parent.top
-    anchors.bottom: parent.bottom
-    Column
+    Item
     {
-        anchors.fill: parent
-
         Column {
             id: alarmInfoQuery
-            spacing: 5
+            spacing: 10
             Row {
                 spacing: 5
                 Text {
@@ -169,10 +162,11 @@ Item {
 
         Controls1_4.TableView {
             id: alarmInfoTableView
-
-            width:parent.width
-            height: 800
-            anchors.topMargin: 10
+           width: parent.width
+           anchors.topMargin: 10
+           clip: true
+           anchors.bottom: parent.bottom
+           anchors.top: alarmInfoQuery.bottom
 
             Controls1_4.TableViewColumn {
                 role: "extNum"
@@ -278,7 +272,6 @@ Item {
                                               curNetworkNum)
             }
         }
-    }
     QmlTableModel {
         id: alarmInfoListModel
         dbDriver: qsTr("QSQLITE")

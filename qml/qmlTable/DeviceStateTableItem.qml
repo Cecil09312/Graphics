@@ -4,15 +4,10 @@ import QtQuick.Controls 1.4 as Controls1_4
 import qmlTableModel 1.0
 import architePlanView 1.0
 import "../infoSetting"
-Item {
 
-    width: 800
-    height: 640
-    anchors.top: parent.top
-    anchors.bottom: parent.bottom
-    Column
+    Item
     {
-        anchors.fill: parent
+       // anchors.fill: parent
     Grid {
         id: deviceStateQuery
         spacing: 5
@@ -126,8 +121,10 @@ Item {
     Controls1_4.TableView {
 
         width: parent.width
-        height: 800
         anchors.topMargin: 10
+        clip: true
+        anchors.bottom: parent.bottom
+        anchors.top: deviceStateQuery.bottom
         Controls1_4.TableViewColumn {
             role: qsTr("extNum")
             title: qsTr("分机号")
@@ -216,7 +213,6 @@ Item {
             ArchitePlanView.toArchitePlan(curExtNum, curLoopNum, curAddrNum,
                                           curNetworkNum)
         }
-    }
     }
     QmlTableModel {
         id: deviceStateModel

@@ -4,16 +4,12 @@ import QtQuick.Controls 1.4 as Controls1_4
 import qmlTableModel 1.0
 import operatorInfo 1.0
 import "../infoSetting"
-Item {
-    width: 800
-    height: 640
-    anchors.top: parent.top
-    anchors.bottom: parent.bottom
-    Column
+
+    Item
     {
-        anchors.fill: parent
-
-
+       // anchors.fill: parent
+           // anchors.top: parent.top
+            //anchors.bottom: parent.bottom
         Row {
             id: operaEventQuery
             spacing: 5
@@ -124,9 +120,14 @@ Item {
 
         Controls1_4.TableView {
 
+
             width: parent.width
-            height: 800
             anchors.topMargin: 10
+
+           clip: true
+           anchors.bottom: parent.bottom
+           anchors.top: operaEventQuery.bottom
+
 
             Controls1_4.TableViewColumn {
                 role: "userName"
@@ -168,7 +169,6 @@ Item {
 
         }
 
-    }
     QmlTableModel {
         id: operaEventQueryModel
         dbDriver: qsTr("QSQLITE")

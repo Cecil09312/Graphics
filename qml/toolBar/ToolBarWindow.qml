@@ -8,6 +8,7 @@ ToolBar {
     id: toolBar
     signal showOnlineState()
     signal chAndEnSwitch()
+    signal checkTheVersion()
     anchors.fill: parent
 
     //width: 30
@@ -282,6 +283,11 @@ ToolBar {
       {
         text:qsTr("在线状态")
         onTriggered: showOnlineState()
+      }
+      MenuItem
+      {
+        text:qsTr("版本查询")
+        onTriggered: checkTheVersion()
       }
 //      MenuItem
 //      {

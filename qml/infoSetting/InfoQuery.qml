@@ -9,10 +9,11 @@ import QtQuick.Controls.Styles 1.4
 Item {
 
     id: root
-    width: 800
+    width: 980
     height: 640
 
     Row {
+
 
         anchors.top: parent.top
         anchors.topMargin: 20
@@ -144,40 +145,44 @@ Item {
 
     StackLayout {
         width: parent.width
+        anchors.top: btnRow.bottom
+       anchors.bottom: root.bottom
         currentIndex: bar.currentIndex
 
         AlarmInfoTableItem {
-             width: 800
-             height: 640
-            anchors.topMargin:120
+
             id: alarmInfo
+            anchors.fill: parent
+            anchors.topMargin:80
         }
         DeviceStateTableItem {
             id: deviceState
-            anchors.topMargin:120
-            width: 800
-            height: 640
+            anchors.fill: parent
+            anchors.topMargin:80
         }
 
         MaintInfoTableItem {
-            anchors.topMargin: 120
+
             id: maintInfo
-            width: 800
-            height: 640
+            anchors.fill: parent
+            anchors.topMargin:80
+//            width: 800
+//            height: 640
         }
 
         OperaEventTableItem {
             id: operaEvent
-            width: 800
-            height: 640
-            anchors.topMargin:120
+//            width: 800
+//            height: 640
+            anchors.fill: parent
+            anchors.topMargin:80
+            //anchors.bottomMargin: 120
 
         }
         AnalogTableItem {
             id:analogInfo
-            width: 800
-            height: 640
-            anchors.topMargin:120
+            anchors.fill: parent
+            anchors.topMargin:80
         }
 
     }

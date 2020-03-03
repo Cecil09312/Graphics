@@ -365,7 +365,7 @@ Rectangle {
                 ArchitePlanView.toAlarmView()
 
                 /*测试*/
-               // CrtWidget.sendSeralData()
+              // CrtWidget.sendSeralData()
             }
 
         }
@@ -454,6 +454,7 @@ Rectangle {
                 ArchitePlanView.startAutoSwitch(checked)
             }
         }
+
     }
 
 

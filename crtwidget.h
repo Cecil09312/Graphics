@@ -82,6 +82,12 @@ public slots:
     void closeAll();
     void clearCurrentAlarm();
     void setDeviceOnlineState(QString sNetworkNum);
+    void noItemInfoSetting(const QString &extNum,const QString &loopNum,const QString&addrNum,
+                           const QString&networkNum,const QString &alarmType,const QString &alarmState,
+                           const QString&time,const QString&remarks="");
+    void noItemUpdate(const QString &extNum, const QString &loopNum, const QString &addrNum,
+                      const QString &networkNum, const QString &oldAlarmType, const QString &newAlarmType,
+                      const QString &newAlarmState, const QString &time, const QString &remarks="");
    /*测试*/
     void sendSeralData();
 
@@ -112,6 +118,7 @@ private slots:
     void showMainPowerView();
     void showStandbyPowerView();
     void showHandOrAutoView();
+    void checkCurrentVersion();
 
 
 private:
@@ -145,7 +152,7 @@ private:
     QString m_alarmInfoDbName;
     AbstractDataProtocol *m_serialDataProtocol;
     AbstractDataProtocol *m_monitoringProtocol;
-    AbstractDataProtocol *m_indicatorProtocol;
+   // AbstractDataProtocol *m_indicatorProtocol;
     int m_monitoringPackageNum;
     FtpManager *m_ftpManager;
     CustomTimer *m_controlCenterHeartbeatTimer;
@@ -153,7 +160,7 @@ private:
     bool m_tcpIsConnected;
     //QList<quint8>m_packageNumList;
     const int c_heartBeatTime { 5*1000};
-    const int c_updateTime {15};
+    const int c_updateTime {10};
     bool m_serialConnected ;
     CustomTimer *m_mainHeartBeatTimer;
     CustomTimer *m_checkSendDataTimer;
