@@ -1963,12 +1963,12 @@ void CrtWidget::sendSeralData()
     {
 
 
-        QByteArray array;
-        array.resize(15);
-        //quint8 extNum=0;
-        array[0] =0x7e;
-        array[1] =0x00;
-        array[2] =0x0a;
+//        QByteArray array;
+//        array.resize(15);
+//        //quint8 extNum=0;
+//        array[0] =0x7e;
+//        array[1] =0x00;
+//        array[2] =0x0a;
 //        if(curState)
 //        {
 //           array[3] =0x04;//事件类型
@@ -1976,27 +1976,27 @@ void CrtWidget::sendSeralData()
 //        }
 //        else
 //        {
-          array[3] = 0xcc;
+//          array[3] = 0x03;
 //            curState = true;
 //        }
 
-        array[4] =0x32;//回路
-        array[5] =0x2e;//地址
-        array[6] =0x37;//属性
-        array[7] =0x32;//年
-        array[8] =0x00;//月
-        array[9] =0x00;//日
-        array[10] =0x00;//时
-        array[11] =0x00;//分
-        array[12] =0x00;//秒
-        quint8 sum = 0;
-        for(int i=3;i<=12;i++)
-        {
-            sum += (quint8)array.at(i);
-        }
-        array[13] =sum;
-        array[14] =0x7e;
-        serialDataProcessing(array);
+//        array[4] =0x00;//回路
+//        array[5] =0x06;//地址
+//        array[6] =0x00;//属性
+//        array[7] =0x20;//年
+//        array[8] =0x12;//月
+//        array[9] =0x03;//日
+//        array[10] =0x15;//时
+//        array[11] =0x09;//分
+//        array[12] =0x00;//秒
+//        quint8 sum = 0;
+//        for(int i=3;i<=12;i++)
+//        {
+//            sum += (quint8)array.at(i);
+//        }
+//        array[13] =sum;
+//        array[14] =0x7e;
+//        serialDataProcessing(array);
         // extNum++;
         //Controller::instance()->delayMs(5);
     }
@@ -2363,11 +2363,17 @@ void CrtWidget::processViewsData()
     QString extNum = QString("%1").arg((type>>2)&0x3f);
 
     int bcd_year = m_serialDataProtocol->dataBytes(array,4,4).toHex().toInt();
-    int bcd_month = m_serialDataProtocol->dataBytes(array,5,5).toHex().toInt()&0x1f;
+   // int bcd_month = m_serialDataProtocol->dataBytes(array,5,5).toHex().toInt();
     int bcd_date = m_serialDataProtocol->dataBytes(array,6,6).toHex().toInt();
     int bcd_hour = m_serialDataProtocol->dataBytes(array,7,7).toHex().toInt();
     int bcd_minute = m_serialDataProtocol->dataBytes(array,8,8).toHex().toInt();
     int bcd_second = m_serialDataProtocol->dataBytes(array,9,9).toHex().toInt();
+
+    quint8 curMonthValue =m_serialDataProtocol->dataBytes(array,5,5).toHex().toUInt(0,16);
+    QByteArray monthValueArray;
+    monthValueArray.resize(1);
+    monthValueArray[0] = curMonthValue&0x1f;
+    int bcd_month= monthValueArray.toHex().toInt();
     //报警主机
     if((minuteValue&0x80)==0)
     {
@@ -2389,12 +2395,12 @@ void CrtWidget::processViewsData()
         networkNum = QString::number(minute);
     }
 
-    if((month&0xe0)!=0)
-    {
-        timeStr= QString("%1/%2/%3 %4:%5:%6").arg(bcd_year+2000).arg(bcd_month,2,10,QChar('0'))
-                .arg(bcd_date,2,10,QChar('0')).arg(bcd_hour,2,10,QChar('0')).arg(bcd_minute,2,10,QChar('0'))
-                .arg(bcd_second,2,10,QChar('0'));
-    }
+//    if((month&0xe0)!=0)
+//    {
+//        timeStr= QString("%1/%2/%3 %4:%5:%6").arg(bcd_year+2000).arg(bcd_month,2,10,QChar('0'))
+//                .arg(bcd_date,2,10,QChar('0')).arg(bcd_hour,2,10,QChar('0')).arg(bcd_minute,2,10,QChar('0'))
+//                .arg(bcd_second,2,10,QChar('0'));
+//    }
 
     GraphicsItem*item =m_architePlanView->itemFormInfo(extNum,QString::number(loopNum),QString::number(addrNum),networkNum);
     QString sysName = m_architePlanView->deviceSysName(extNum);
@@ -2421,8 +2427,9 @@ void CrtWidget::processViewsData()
 
         if(eventNum==0x03)
         {
-            quint8 fireDoor=  (month&0xe0)>>5;
+            quint8 fireDoor=  ((month&0xe0)>>5)&0x0f;
             alarmState=fireDoor;
+
             switch (fireDoor)
             {
             case 0x03:
