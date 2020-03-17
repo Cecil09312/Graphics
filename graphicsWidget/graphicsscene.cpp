@@ -171,6 +171,11 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
             DataStore::networkNum()=info;
             currentItem->networkNum()= info;
         }
+        else if(type =="powerAddr")
+        {
+            DataStore::powerAddr()=info;
+            currentItem->powerAddr()= info;
+        }
         else if(type =="deviceNum")
         {
             currentItem->deviceNum() = info;
@@ -247,6 +252,10 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
         else if(type =="networkNum")
         {
             DataStore::networkNum()=info;
+        }
+        else if(type =="powerAddr")
+        {
+            DataStore::powerAddr()=info;
         }
         else if(type == "operator")
         {
@@ -357,7 +366,6 @@ void GraphicsScene::setDeviceInstallTime(int index, QString installTime)
             {
                 graphicsItem->deviceInstallTime()=installTime;
                 //graphicsItem->update();
-               // qDebug() << "****************" << iconIndex << graphicsItem->deviceInstallTime() << installTime;
             }
 
         }
@@ -383,6 +391,7 @@ QGraphicsItem *GraphicsScene::getItem(int pos) const
 
 void GraphicsScene::setItemInfo(GraphicsItem *item, const QHash<QString, QVariant> &itemHash)
 {
+
     if(item!=nullptr)
     {
         QString pos= itemHash["pos"].toString();
@@ -394,6 +403,8 @@ void GraphicsScene::setItemInfo(GraphicsItem *item, const QHash<QString, QVarian
         itemInfo.m_addrNum= itemHash["addrNum"].toString();
         itemInfo.m_networkNum= itemHash["networkNum"].toString();
         DataStore::networkNum()=itemInfo.m_networkNum;
+        DataStore::powerAddr() = itemHash["powerAddr"].toString();
+
         itemInfo.m_deviceNum= itemHash["deviceNum"].toString();
         itemInfo.m_equipmentModel= itemHash["equipmentModel"].toString();
         //itemInfo.m_currentState= itemHash["currentState"].toString();
@@ -403,7 +414,9 @@ void GraphicsScene::setItemInfo(GraphicsItem *item, const QHash<QString, QVarian
         itemInfo.m_floorOfDevice= itemHash["floorOfDevice"].toString();
         itemInfo.m_manufacturers= itemHash["manufacturers"].toString();
         itemInfo.m_periodOfValidity = itemHash["periodOfValidity"].toString();
+
         item->setItemInfo(itemInfo);
+        item->powerAddr() = itemHash["powerAddr"].toString();
         item->setIconName(itemHash["iconName"].toString());
         item->setRadius(itemHash["size"].toDouble());
         item->setPos(pos.section(",",0,0).toDouble(),pos.section(",",1,1).toDouble());

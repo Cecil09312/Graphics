@@ -20,33 +20,43 @@ SpeechObj::SpeechObj(QObject *parent):
     this->moveToThread(m_thread);
     m_thread->start();
 
+   m_isStop = false;
 #ifdef Q_OS_WIN
     m_pitch = 0;
     m_volume = 0.5;
     m_rate = 0;
 #elif defined (Q_OS_LINUX)
+
     m_languageHash["粤语"] = "Cantonese";
     m_languageHash["普通话"] = "Mandarin";
     m_languageHash["台山话"] = "Toisanese";
     m_textToSpeechProcess = new QProcess;
-    m_startTimer = new QTimer();
-    m_startTimer->moveToThread(m_thread);
-    m_startTimer->setInterval(100);
+
     m_textToSpeechProcess->moveToThread(m_thread);
     m_pitch = 0;
     m_volume = 70;
-    m_rate = 100;
+    m_rate = 125;
     m_currentLanguage = "Mandarin";
 
-    connect(m_startTimer,&QTimer::timeout,this,&SpeechObj::repeatSpeak);
-    connect(m_thread,SIGNAL(started()),m_startTimer,SLOT(start()));
-    connect(m_thread,&QThread::finished,m_startTimer,&QTimer::stop);
+
+    connect(m_textToSpeechProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+         [=](int exitCode, QProcess::ExitStatus exitStatus)
+    {
+        Q_UNUSED(exitCode);
+        Q_UNUSED(exitStatus);
+        if(!m_isStop)
+        {
+            repeatSpeak();
+        }
+
+    });
 #endif
 
     connect(this,&SpeechObj::speechStart,this,&SpeechObj::runSpeech);
     connect(this,&SpeechObj::textToSpeechStop,this,&SpeechObj::speechStop);
     connect(this,&SpeechObj::insertText,this,[&](const QString &alarmText)
     {
+        m_isStop = false;
         if(!m_alarmTextList.contains(alarmText))
         {
             if(alarmText.startsWith("首火警"))
@@ -91,6 +101,7 @@ SpeechObj::SpeechObj(QObject *parent):
                 if(alarmText.contains("首火警"))
                 {
                     m_alarmPos=0;
+                    m_currentAlarmPos =0;
                     break;
                 }
             }
@@ -134,7 +145,7 @@ SpeechObj::~SpeechObj()
     m_textToSpeech->deleteLater();
 
 #elif defined Q_OS_LINUX
-    m_startTimer->deleteLater();
+
     m_textToSpeechProcess->terminate();
     m_textToSpeechProcess->close();
     m_textToSpeechProcess->deleteLater();
@@ -467,6 +478,7 @@ void SpeechObj::repeatSpeak()
         if(m_alarmPos<m_alarmTextList.size())
         {
             QString curSpeechText = m_alarmTextList.at(m_alarmPos);
+
             int index = curSpeechText.indexOf(";");
             if(index>0)
             {
@@ -476,9 +488,9 @@ void SpeechObj::repeatSpeak()
             if((!curSpeechText.startsWith("首火警"))&&(!curSpeechText.startsWith("火警")))
             {
                 m_alarmPos++;
-                if(m_alarmTextList.size()>0)
+                if(m_alarmPos>=m_alarmTextList.size())
                 {
-                    m_alarmPos = m_alarmPos%m_alarmTextList.size();
+                    m_alarmPos =0;
                 }
 
             }
@@ -526,13 +538,10 @@ void SpeechObj::runSpeech()
 
 
 #elif defined Q_OS_LINUX
-    if(!m_startTimer->isActive())
-    {
-        m_startTimer->start();
-        m_alarmPos =0;
-    }
-
+    repeatSpeak();
 #endif
+
+
 }
 
 void SpeechObj::speechStop()
@@ -542,9 +551,9 @@ void SpeechObj::speechStop()
 #ifdef Q_OS_WIN
     m_textToSpeech->pause();
 #elif defined Q_OS_LINUX
+    m_isStop = true;
     //m_textToSpeechProcess->kill();
     m_textToSpeechProcess->terminate();
-    m_startTimer->stop();
 #endif
 }
 

@@ -128,6 +128,7 @@ public:
     Q_INVOKABLE QString alarmTime(const QString  &alarmType);
     Q_INVOKABLE QString alarmReplyTime(const QString  &alarmType);
     Q_INVOKABLE QString alarmState(const QString  &alarmType);
+    Q_INVOKABLE QString &powerAddr();
     QList<QString>alarmTypeList();
     QList<AlarmRecord *> alarmRecordList();
     AlarmRecord *record(const QString &alarmType);
@@ -173,6 +174,7 @@ private:
     QString m_currentState;
    // qreal m_angle;
     qreal m_scale;
+    QString m_powerAddr;
 
 };
 

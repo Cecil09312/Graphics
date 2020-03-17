@@ -21,6 +21,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_itemInfo.m_deviceOperator = DataStore::oneOperator();
     m_channelNum = DataStore::channelNum();
     m_analogType = DataStore::analogValue();
+    m_powerAddr = DataStore::powerAddr();
    // m_itemInfo.m_networkNum = "0";
 
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
@@ -404,6 +405,7 @@ QHash<QString, QVariant> GraphicsItem::itemInfo()
     itemHash["loopNum"] = m_itemInfo.m_loopNum;
     itemHash["addrNum"] = m_itemInfo.m_addrNum;
     itemHash["networkNum"]=m_itemInfo.m_networkNum;
+    itemHash["powerAddr"] = m_powerAddr;
     itemHash["deviceNum"] = m_itemInfo.m_deviceNum;
     itemHash["equipmentModel"] = m_itemInfo.m_equipmentModel;
     itemHash["currentState"] = currentState();
@@ -660,6 +662,11 @@ QString GraphicsItem::alarmState(const QString &alarmType)
     }
 }
 
+QString &GraphicsItem::powerAddr()
+{
+    return m_powerAddr;
+}
+
 QList<QString> GraphicsItem::alarmTypeList()
 {
     return m_alarmRecordHash.keys();
@@ -867,19 +874,20 @@ void GraphicsItem::updateHoverText()
                                 "回路号:%2\n"
                                 "地址号:%3\n"
                                 "网络号:%4\n"
-                                "设备编码:%5\n"
-                                "设备:%6\n"
-                                "事件类型:%7\n"
-                                "状态:%8\n"
-                                "时间:%9\n"
-                                "系统:%10\n"
-                                "建筑名称:%11\n"
-                                "楼层:%12\n"
-                                "位置:%13\n"
-                                "制造商:%14\n"
-                                "有效期:%15\n"
-                                "操作员:%16").arg(m_itemInfo.m_extNum).arg(m_itemInfo.m_loopNum).arg(m_itemInfo.m_addrNum).arg(m_itemInfo.m_networkNum)
-            .arg(m_itemInfo.m_deviceNum).arg(m_itemInfo.m_equipmentModel).arg(curType).arg(currentState())
+                                "电源地址:%5\n"
+                                "设备编码:%6\n"
+                                "设备:%7\n"
+                                "事件类型:%8\n"
+                                "状态:%9\n"
+                                "时间:%10\n"
+                                "系统:%11\n"
+                                "建筑名称:%12\n"
+                                "楼层:%13\n"
+                                "位置:%14\n"
+                                "制造商:%15\n"
+                                "有效期:%16\n"
+                                "操作员:%17").arg(m_itemInfo.m_extNum).arg(m_itemInfo.m_loopNum).arg(m_itemInfo.m_addrNum).arg(m_itemInfo.m_networkNum)
+            .arg(m_powerAddr).arg(m_itemInfo.m_deviceNum).arg(m_itemInfo.m_equipmentModel).arg(curType).arg(currentState())
             .arg(alarmTime(alarmType())).arg(m_itemInfo.m_sysOfDevice).arg(m_itemInfo.m_buildingName)
             .arg(m_itemInfo.m_floorOfDevice).arg(m_itemInfo.m_deviceLocation).arg(m_itemInfo.m_manufacturers)
             .arg(m_itemInfo.m_periodOfValidity).arg(m_itemInfo.m_deviceOperator);

@@ -68,14 +68,14 @@ import "../infoSetting"
         }
 
         Text {
-            text: qsTr("设备编码")
+            text: qsTr("电源地址")
             height: 30
             horizontalAlignment: TextEdit.AlignHCenter
             verticalAlignment: TextEdit.AlignVCenter
         }
 
         TextField {
-            id: deviceNumTextField
+            id: powerAddrTextField
             width: 100
             height: 30
         }
@@ -101,7 +101,7 @@ import "../infoSetting"
             onClicked: {
                 deviceStateModel.sqlCommit(
                             String(
-                                "select extNum ,loopNum,addrNum,networkNum,manufacturers,deviceInstallTime,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo where %1").arg(
+                                "select extNum ,loopNum,addrNum,networkNum,powerAddr,manufacturers,deviceInstallTime,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo where %1").arg(
                                 selectInfo()))
             }
         }
@@ -113,7 +113,7 @@ import "../infoSetting"
             width: 100
             onClicked: {
                 deviceStateModel.sqlCommit(
-                            "select extNum ,loopNum,addrNum,networkNum,manufacturers,deviceInstallTime,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo")
+                            "select extNum,loopNum,addrNum,networkNum,powerAddr,manufacturers,deviceInstallTime,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo")
             }
         }
     }
@@ -148,6 +148,13 @@ import "../infoSetting"
         Controls1_4.TableViewColumn {
             role: qsTr("networkNum")
             title: qsTr("网络号")
+            width: 60
+            //resizable: true
+        }
+
+        Controls1_4.TableViewColumn {
+            role: qsTr("powerAddr")
+            title: qsTr("电源地址")
             width: 60
             //resizable: true
         }
@@ -206,12 +213,14 @@ import "../infoSetting"
             var curLoopNum = new String
             var curAddrNum = new String
             var curNetworkNum = new String
+            var curPowerAddr = new String
             curExtNum = deviceStateModel.getValue(row, "extNum")
             curLoopNum = deviceStateModel.getValue(row, "loopNum")
             curAddrNum = deviceStateModel.getValue(row, "addrNum")
             curNetworkNum = deviceStateModel.getValue(row, "networkNum")
+            curPowerAddr = deviceStateModel.getValue(row, "powerAddr")
             ArchitePlanView.toArchitePlan(curExtNum, curLoopNum, curAddrNum,
-                                          curNetworkNum)
+                                          curNetworkNum,curPowerAddr)
         }
     }
     QmlTableModel {
@@ -220,15 +229,15 @@ import "../infoSetting"
         dbName: ArchitePlanView.architeInfoDbName()
         dbConnectionName: "deviceState"
         dbPort: 8888
-        roleNameList: ["extNum", "loopNum", "addrNum", "networkNum", "manufacturers","deviceInstallTime","periodOfValidity", "deviceNum", "deviceName", "alarmState", "operator"]
-        titleList: ["分机号", "回路号", "地址号", "网络号", "制造商", "安装时间","有效期", "设备编码", "设备", "状态", "操作员"]
+        roleNameList: ["extNum", "loopNum", "addrNum", "networkNum", "powerAddr","manufacturers","deviceInstallTime","periodOfValidity", "deviceNum", "deviceName", "alarmState", "operator"]
+        titleList: ["分机号", "回路号", "地址号", "网络号","电源地址", "制造商", "安装时间","有效期", "设备编码", "设备", "状态", "操作员"]
     }
 
     Component.onCompleted: {
 
         deviceStateModel.setDbOpen(true)
         deviceStateModel.sqlCommit(
-                    "select extNum ,loopNum,addrNum,networkNum,manufacturers,deviceInstallTime,periodOfValidity,deviceNum,equipmentModel ,currentState ,operator from ItemInfo")
+                    "select extNum,loopNum,addrNum,networkNum,powerAddr,manufacturers,deviceInstallTime,periodOfValidity,deviceNum,equipmentModel,currentState,operator from ItemInfo")
     }
 
     function selectInfo() {
@@ -258,11 +267,11 @@ import "../infoSetting"
             info += (qsTr("networkNum=") + "'" + networkNumTextField.text + "'")
         }
 
-        if (deviceNumTextField.text.length > 0) {
+        if (powerAddrTextField.text.length > 0) {
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("deviceNum=") + "'" + deviceNumTextField.text + "'")
+            info += (qsTr("powerAddr=") + "'" + powerAddrTextField.text + "'")
         }
 
         if (deviceTextField.text.length > 0) {

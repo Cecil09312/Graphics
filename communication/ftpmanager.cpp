@@ -28,7 +28,7 @@ FtpManager::FtpManager(QObject *parent)
     {
         if(reply!=nullptr)
         {
-            //emit sendFileSuccess(true);
+            emit sendFileSuccess(true);
             if(m_replyList.contains(reply))
             {
                 m_replyList.removeOne(reply);
@@ -56,6 +56,7 @@ FtpManager::FtpManager(QObject *parent)
         {
             Q_UNUSED(error)
             emit ftpError(reply->errorString());
+            qDebug() << reply->errorString();
         });
 
         connect(reply,&QNetworkReply::uploadProgress,this,[=](qint64 bytesSent, qint64 bytesTotal)
@@ -63,7 +64,7 @@ FtpManager::FtpManager(QObject *parent)
             m_sendDataSuccess = true;
             if(bytesTotal<=0)
             {
-                emit sendFileSuccess(false);
+
             }
             else
             {
@@ -158,7 +159,7 @@ void FtpManager::uploadFile(const QString &fileName )
     m_sendDataSuccess = false;
     if(!m_timeoutTimer->isActive())
     {
-        m_timeoutTimer->start(1000);
+        m_timeoutTimer->start(10000);
     }
     emit sendData(url,dataArray);
 

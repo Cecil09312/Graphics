@@ -66,6 +66,8 @@ public slots:
     void alarmChanged(QString alarm);
     void alarmStatistics(const QString &type);
     void communicationStatus(const QString &status, bool isOK, const QString &extNum="", const QString &networkNum="");
+    void emergencyPowerState(const QString &status, bool isOK, const QString &extNum, const QString &loopNum,const QString &addrNum,
+                             const QString &powerAddr,const QString &networkNum="",const QString &reMark="");
     void serialDataProcessing(const QByteArray&arrayValue);
     void tcpDataProcessing(const QByteArray&arrayValue);
     void openHelpFile();
@@ -82,12 +84,12 @@ public slots:
     void closeAll();
     void clearCurrentAlarm();
     void setDeviceOnlineState(QString sNetworkNum);
-    void noItemInfoSetting(const QString &extNum,const QString &loopNum,const QString&addrNum,
-                           const QString&networkNum,const QString &alarmType,const QString &alarmState,
-                           const QString&time,const QString&remarks="");
+    void noItemInfoSetting(const QString &extNum, const QString &loopNum, const QString&addrNum,
+                           const QString&networkNum, const QString &alarmType, const QString &alarmState,
+                           const QString&time, const QString&remarks="", const QString &powerAddr="0");
     void noItemUpdate(const QString &extNum, const QString &loopNum, const QString &addrNum,
                       const QString &networkNum, const QString &oldAlarmType, const QString &newAlarmType,
-                      const QString &newAlarmState, const QString &time, const QString &remarks="");
+                      const QString &newAlarmState, const QString &time, const QString &remarks="",const QString &powerAddr="0");
    /*测试*/
     void sendSeralData();
 

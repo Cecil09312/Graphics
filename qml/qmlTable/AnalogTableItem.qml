@@ -233,12 +233,14 @@ Item
             var curLoopNum = new String
             var curAddrNum = new String
             var curNetworkNum = new String
+            var curPowerAddr = new String
             curExtNum = infoListModel.getValue(row, "extNum")
             curLoopNum = infoListModel.getValue(row, "loopNum")
             curAddrNum = infoListModel.getValue(row, "addrNum")
             curNetworkNum = infoListModel.getValue(row, "networkNum")
+            curPowerAddr= infoListModel.getValue(row, "powerAddr")
             ArchitePlanView.toArchitePlan(curExtNum, curLoopNum, curAddrNum,
-                                          curNetworkNum)
+                                          curNetworkNum,curPowerAddr)
         }
     }
 

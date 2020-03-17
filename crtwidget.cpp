@@ -67,7 +67,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
         QStringList tableNameList = m_sqliteManager->getTables();
         if(!tableNameList.contains("AlarmInfo"))
         {
-            m_sqliteManager->executeQuery("create table AlarmInfo(分机号 text, 回路号 text,地址号 text,网络号 text,设备编码 text ,设备 text,事件类型 text,状态 text,时间 text,系统 text,建筑名称 text,楼层 text,位置 text,制造商 text,有效期 text,操作员 text,备注 text)");
+            m_sqliteManager->executeQuery("create table AlarmInfo(分机号 text, 回路号 text,地址号 text,网络号 text,电源地址 text,设备编码 text ,设备 text,事件类型 text,状态 text,时间 text,系统 text,建筑名称 text,楼层 text,位置 text,制造商 text,有效期 text,操作员 text,备注 text)");
         }
         else
         {
@@ -96,7 +96,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
     m_infoTableView->tableModel()->setDbOpen(true);
     m_infoTableView->setAlternatingRowColors(true);
     QStringList alarmInfoList,valueList;
-    alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"网络号"<<"设备编码" << "设备" <<"事件类型"<<"状态"<<"时间"
+    alarmInfoList << "分机号"<<"回路号"<<"地址号"<<"网络号"<<"电源地址"<<"设备编码" << "设备" <<"事件类型"<<"状态"<<"时间"
                   <<"系统"<< "建筑名称"<<"楼层"<<"位置"<< "制造商" << "有效期" <<"操作员"<<"备注";
 
     for(int i=0;i<alarmInfoList.size();i++)
@@ -120,7 +120,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
             {
                 infoRecord=tr("模拟")+item->alarmState(alarmType);
             }
-            m_sqliteManager->executeQuery(m_alarmSqlInfo.arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->networkNum()).arg(item->deviceNum())
+            m_sqliteManager->executeQuery(m_alarmSqlInfo.arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->networkNum()).arg(item->powerAddr()).arg(item->deviceNum())
                                           .arg(item->equipmentModel()).arg(alarmType).arg(item->alarmState(alarmType)).arg(item->alarmTime(alarmType))
                                           .arg(item->sysOfDevice()).arg(item->buildingName())
                                           .arg(item->floorOfDevice()).arg(item->deviceLocation()).arg(item->manufacturers()).arg(item->periodOfValidity())
@@ -138,7 +138,8 @@ CrtWidget::CrtWidget(QWidget *parent) :
         QString loopNum=  record.value("回路号").toString();
         QString addrNum=  record.value("地址号").toString();
         QString networkNum=  record.value("网络号").toString();
-        m_architePlanView->toArchitePlan(extNum,loopNum,addrNum,networkNum);
+        QString powerAddr=  record.value("电源地址").toString();
+        m_architePlanView->toArchitePlan(extNum,loopNum,addrNum,networkNum,powerAddr);
 
     });
 
@@ -202,7 +203,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
             {
                 curEnent= alarmType+tr("解除");
             }
-            m_sqliteManager->executeQuery(m_alarmSqlInfo.arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->networkNum()).arg(item->deviceNum())
+            m_sqliteManager->executeQuery(m_alarmSqlInfo.arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->networkNum()).arg(item->powerAddr()).arg(item->deviceNum())
                                           .arg(item->equipmentModel()).arg(curEnent).arg(item->alarmState(alarmType)).arg(eliminateTime)
                                           .arg(item->sysOfDevice()).arg(item->buildingName())
                                           .arg(item->floorOfDevice()).arg(item->deviceLocation()).arg(item->manufacturers()).arg(item->periodOfValidity())
@@ -262,12 +263,11 @@ CrtWidget::CrtWidget(QWidget *parent) :
     {
         if(m_sendEnable)
         {
-            setIndicatorState(isOk);
             if(!isOk)
             {
                 sendAlarmInfo(0,3,4,0,QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
             }
-
+            setIndicatorState(isOk);
         }
 
     });
@@ -277,8 +277,8 @@ CrtWidget::CrtWidget(QWidget *parent) :
         Q_UNUSED(error)
         if(m_sendEnable)
         {
-            setIndicatorState(false);
             sendAlarmInfo(0,3,4,0,QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
+            setIndicatorState(false);
         }
 
     });
@@ -698,7 +698,8 @@ CrtWidget::CrtWidget(QWidget *parent) :
             QMetaObject::invokeMethod(m_alarmObj,"setEquiComColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));//主机通信
             Controller::instance()->getSpeechObj()->removeAlarmText(tr("主机通信故障"));
             m_serialCurState=true;
-            insertOtherAlarmInfo(tr("主机通信故障恢复"));
+            updateOtherAlarmInfo(tr("主机通信故障"),tr("主机通信故障恢复"));
+            //insertOtherAlarmInfo(tr("主机通信故障恢复"));
             //m_serialConnectState=Connected;
         }
     });
@@ -729,7 +730,7 @@ CrtWidget::CrtWidget(QWidget *parent) :
     QMetaObject::invokeMethod(m_settingObj,"startEnableControlCenter",Q_ARG(QVariant,controlCenterEnable));
     if(m_sendEnable)
     {
-        Controller::instance()->getSpeechObj()->insertText(tr("中心通信故障"));
+        Controller::instance()->getSpeechObj()->insertAlarmText(tr("中心通信故障"));
         insertOtherAlarmInfo(tr("中心通信故障"));
         Controller::instance()->getTcpObj()->setConfiguration();
         Controller::instance()->getTcpObj()->connectLink();
@@ -801,10 +802,8 @@ QString CrtWidget::alarmInfoDbName()
 
 void CrtWidget::queryViewShow()
 {
-    m_architePlanView->saveArchiteInfoToDb();
     m_infoQueryView->close();//关闭以前的打开
     m_infoQueryView->show();
-
 }
 
 void CrtWidget::transportIndicator(bool isOk)
@@ -913,13 +912,13 @@ void CrtWidget::setDeviceOnlineState(QString sNetworkNum)
     }
 }
 
-void CrtWidget::noItemInfoSetting(const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum, const QString &alarmType, const QString &alarmState, const QString &time, const QString &remarks)
+void CrtWidget::noItemInfoSetting(const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum, const QString &alarmType, const QString &alarmState, const QString &time, const QString &remarks, const QString&powerAddr)
 {
 
     DataStore::insertTypeNoItem(alarmType,extNum,loopNum,addrNum,networkNum);
 
-    m_sqliteManager->executeQuery(QString("insert into AlarmInfo (分机号,回路号,地址号,网络号,事件类型,状态,设备,时间,备注) values ('%1','%2','%3','%4','%5','%6','未定义设备','%7','%8')").arg(extNum)
-                                  .arg(loopNum).arg(addrNum).arg(networkNum).arg(alarmType).arg(alarmState).arg(time).arg(remarks));
+    m_sqliteManager->executeQuery(QString("insert into AlarmInfo (分机号,回路号,地址号,网络号,电源地址,事件类型,状态,设备,时间,备注) values ('%1','%2','%3','%4','%5','%6','%7','未定义设备','%8','%9')").arg(extNum)
+                                  .arg(loopNum).arg(addrNum).arg(networkNum).arg(powerAddr).arg(alarmType).arg(alarmState).arg(time).arg(remarks));
     QString curAlarmSpeechText =alarmType+";"+QString("%1,%2,%3,%4").arg(extNum).arg(loopNum).arg(addrNum).arg(networkNum);
     Controller::instance()->getSpeechObj()->insertAlarmText(curAlarmSpeechText);
 
@@ -927,12 +926,12 @@ void CrtWidget::noItemInfoSetting(const QString &extNum, const QString &loopNum,
     alarmStatistics(alarmType);
 }
 
-void CrtWidget::noItemUpdate(const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum, const QString &oldAlarmType, const QString &newAlarmType, const QString &newAlarmState, const QString &time, const QString &remarks)
+void CrtWidget::noItemUpdate(const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum, const QString &oldAlarmType, const QString &newAlarmType, const QString &newAlarmState, const QString &time, const QString &remarks, const QString &powerAddr)
 {
-    m_sqliteManager->executeQuery(QString("insert into AlarmInfo (分机号,回路号,地址号,网络号,事件类型,状态,设备,时间,备注) values ('%1','%2','%3','%4','%5','%6','未定义设备','%7','%8')").arg(extNum)
-                                  .arg(loopNum).arg(addrNum).arg(networkNum).arg(newAlarmType).arg(newAlarmState).arg(time).arg(remarks));
-    m_sqliteManager->executeQuery(QString("update AlarmInfo set 状态 = '正常' where 分机号='%1' and 回路号='%2' and 地址号='%3' and 网络号='%4' and 事件类型='%5' ").arg(extNum)
-                                  .arg(loopNum).arg(addrNum).arg(networkNum).arg(oldAlarmType));
+    m_sqliteManager->executeQuery(QString("insert into AlarmInfo (分机号,回路号,地址号,网络号,电源地址,事件类型,状态,设备,时间,备注) values ('%1','%2','%3','%4','%5','%6','%7','未定义设备','%8','%9')").arg(extNum)
+                                  .arg(loopNum).arg(addrNum).arg(networkNum).arg(powerAddr).arg(newAlarmType).arg(newAlarmState).arg(time).arg(remarks));
+    m_sqliteManager->executeQuery(QString("update AlarmInfo set 状态 = '正常' where 分机号='%1' and 回路号='%2' and 地址号='%3' and 网络号='%4' and 电源地址 ='%5' and 事件类型='%6' ").arg(extNum)
+                                  .arg(loopNum).arg(addrNum).arg(networkNum).arg(powerAddr).arg(oldAlarmType));
     DataStore::deleteType(oldAlarmType,extNum,loopNum,addrNum,networkNum);
     alarmDataOnTable();
     alarmStatistics(oldAlarmType);
@@ -1202,7 +1201,7 @@ void CrtWidget::communicationStatus(const QString &status, bool isOK,const QStri
             }
 
             QMetaObject::invokeMethod(m_alarmObj,"setMainPowerColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
-            updateOtherAlarmInfo(status,status+tr("正常"),extNum,networkNum);
+            updateOtherAlarmInfo(status+tr("故障"),status+tr("正常"),extNum,networkNum);
             QMetaObject::invokeMethod(m_mainPowerObj,"addMainPowerState",Q_ARG(QVariant,extNum),Q_ARG(QVariant,networkNum),Q_ARG(QVariant,status+tr("正常")));
 
             // QMetaObject::invokeMethod(m_alarmObj,"startMainPowerAnimation",Q_ARG(QVariant,false));
@@ -1215,7 +1214,7 @@ void CrtWidget::communicationStatus(const QString &status, bool isOK,const QStri
             {
                 Controller::instance()->getSpeechObj()->insertAlarmText(status+tr("故障"));
             }
-            insertOtherAlarmInfo(status+tr("故障"),extNum,networkNum);
+            updateOtherAlarmInfo(status+tr("正常"),status+tr("故障"),extNum,networkNum);
             // m_mainPowerHash[extNum] = status+tr("故障");
             QMetaObject::invokeMethod(m_mainPowerObj,"addMainPowerState",Q_ARG(QVariant,extNum),Q_ARG(QVariant,networkNum),Q_ARG(QVariant,status+tr("故障")));
 
@@ -1232,7 +1231,7 @@ void CrtWidget::communicationStatus(const QString &status, bool isOK,const QStri
             }
 
             QMetaObject::invokeMethod(m_alarmObj,"setStandbyPowerColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
-            updateOtherAlarmInfo(status,status+tr("正常"),extNum,networkNum);
+            updateOtherAlarmInfo(status+tr("故障"),status+tr("正常"),extNum,networkNum);
             // QMetaObject::invokeMethod(m_alarmObj,"startStandbyPowerAnimation",Q_ARG(QVariant,false));
 
             QMetaObject::invokeMethod(m_standbyPowerObj,"addStandbyPowerState",Q_ARG(QVariant,extNum),Q_ARG(QVariant,networkNum),Q_ARG(QVariant,status+tr("正常")));
@@ -1247,11 +1246,87 @@ void CrtWidget::communicationStatus(const QString &status, bool isOK,const QStri
 
             }
 
-            insertOtherAlarmInfo(status+tr("故障"),extNum,networkNum);
+            updateOtherAlarmInfo(status+tr("正常"),status+tr("故障"),extNum,networkNum);
             QMetaObject::invokeMethod(m_standbyPowerObj,"addStandbyPowerState",Q_ARG(QVariant,extNum),Q_ARG(QVariant,networkNum),Q_ARG(QVariant,status+tr("故障")));
 
         }
     }
+
+}
+
+void CrtWidget::emergencyPowerState(const QString &status, bool isOK, const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &powerAddr, const QString &networkNum, const QString &reMark)
+{
+    Q_ASSERT(m_alarmObj);
+    QString curTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss");
+    if(status.endsWith(tr("主电")))
+    {
+        if(isOK)
+        {
+            if(Controller::instance()->getSpeechObj()->alarmTextList().contains(status+tr("故障")))
+            {
+                Controller::instance()->getSpeechObj()->removeAlarmText(status+tr("故障"));
+            }
+
+            QMetaObject::invokeMethod(m_alarmObj,"setMainPowerColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
+            QMetaObject::invokeMethod(m_mainPowerObj,"addMainPowerState",Q_ARG(QVariant,extNum),Q_ARG(QVariant,networkNum),Q_ARG(QVariant,status+tr("正常")));
+
+        }
+        else
+        {
+            //QMetaObject::invokeMethod(m_alarmObj,"startMainPowerAnimation",Q_ARG(QVariant,true));
+            QMetaObject::invokeMethod(m_alarmObj,"setMainPowerColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"yellow"));//主电故障
+            if(!Controller::instance()->getSpeechObj()->alarmTextList().contains(status+tr("故障")))
+            {
+                Controller::instance()->getSpeechObj()->insertAlarmText(status+tr("故障"));
+            }
+
+            QMetaObject::invokeMethod(m_mainPowerObj,"addMainPowerState",Q_ARG(QVariant,extNum),Q_ARG(QVariant,networkNum),Q_ARG(QVariant,status+tr("故障")));
+
+        }
+
+    }
+    else if(status.endsWith(tr("备电")))
+    {
+        if(isOK)
+        {
+            if(Controller::instance()->getSpeechObj()->alarmTextList().contains(status+tr("故障")))
+            {
+                Controller::instance()->getSpeechObj()->removeAlarmText(status+tr("故障"));
+            }
+
+            QMetaObject::invokeMethod(m_alarmObj,"setStandbyPowerColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"green"));
+
+
+            QMetaObject::invokeMethod(m_standbyPowerObj,"addStandbyPowerState",Q_ARG(QVariant,extNum),Q_ARG(QVariant,networkNum),Q_ARG(QVariant,status+tr("正常")));
+        }
+        else
+        {
+            QMetaObject::invokeMethod(m_alarmObj,"setStandbyPowerColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"yellow"));//备电故障
+            //QMetaObject::invokeMethod(m_alarmObj,"startStandbyPowerAnimation",Q_ARG(QVariant,true));
+            if(!Controller::instance()->getSpeechObj()->alarmTextList().contains(status+tr("故障")))
+            {
+                Controller::instance()->getSpeechObj()->insertAlarmText(status+tr("故障"));
+
+            }
+
+            QMetaObject::invokeMethod(m_standbyPowerObj,"addStandbyPowerState",Q_ARG(QVariant,extNum),Q_ARG(QVariant,networkNum),Q_ARG(QVariant,status+tr("故障")));
+
+        }
+    }
+
+    if(isOK)
+    {
+        m_sqliteManager->executeQuery(QString("insert into AlarmInfo (分机号,回路号,地址号,电源地址,网络号,事件类型,状态,时间,备注) values ('%1','%2','%3','%4','%5','%6','%7','%8','%9') ").arg(extNum).arg(loopNum).arg(addrNum).arg(powerAddr).arg(networkNum).arg(status+tr("正常")).arg(status+tr("正常")).arg(curTime).arg(reMark));
+        m_sqliteManager->executeQuery(QString("update AlarmInfo set 状态='正常' where 状态 != '正常' and 分机号= '%1' and 回路号='%2' and 地址号='%3' and 电源地址='%4' and 网络号= '%5'  and 事件类型 ='%6' ").arg(extNum).arg(loopNum).arg(addrNum).arg(powerAddr).arg(networkNum).arg(status+tr("故障")));
+
+    }
+    else
+    {
+        m_sqliteManager->executeQuery(QString("insert into AlarmInfo (分机号,回路号,地址号,电源地址,网络号,事件类型,状态,时间,备注) values ('%1','%2','%3','%4','%5','%6','%7','%8','%9') ").arg(extNum).arg(loopNum).arg(addrNum).arg(powerAddr).arg(networkNum).arg(status+tr("故障")).arg(status+tr("故障")).arg(curTime).arg(reMark));
+        m_sqliteManager->executeQuery(QString("update AlarmInfo set 状态='正常' where 状态 != '正常' and 分机号= '%1' and 回路号='%2' and 地址号='%3' and 电源地址='%4' and 网络号= '%5'  and 事件类型 ='%6' ").arg(extNum).arg(loopNum).arg(addrNum).arg(powerAddr).arg(networkNum).arg(status+tr("正常")));
+
+    }
+    alarmDataOnTable();
 
 }
 
@@ -1559,7 +1634,7 @@ void CrtWidget::alarmDataOnTable()
 {
 
     QStringList alarmInfoList;
-    alarmInfoList <<"网络号"<< "分机号"<<"回路号"<<"地址号"<< "设备"
+    alarmInfoList <<"网络号"<< "分机号"<<"回路号"<<"地址号"<<"电源地址"<< "设备"
                  <<"事件类型"<<"时间"<<"系统"<< "建筑名称"<<"楼层"<<"位置"<<"备注";
     //    if(m_architePlanView->currentAlarmType()==tr("全部"))
     //    {
@@ -1693,10 +1768,15 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
         QString extNum = QString("%1").arg((type>>2)&0x3f);
         quint8 month= m_serialDataProtocol->dataByte(array,5);
 
+        if(eventNum==0x37)
+        {
+            curExtNum = type;
+        }
         if((minuteValue&0x80)!=0)
         {
             networkNum = minute;
         }
+
         if(eventNum!=0x35)
         {
             QString extAndNetwork = QString("%1,%2").arg(curExtNum).arg(networkNum);
@@ -1710,6 +1790,7 @@ void CrtWidget::serialDataProcessing(const QByteArray &arrayValue)
             m_extAndNetworkStateHash[extAndNetwork]=true;
             // emit checkExtNum(date,0);
         }
+
 
 
         if(eventNum==0xdd)//重传应答
@@ -1958,45 +2039,68 @@ void CrtWidget::resetLoginState(bool isOk)
 
 void CrtWidget::sendSeralData()
 {
-   // static bool curState = false;
+    static bool curState = false;
      // for(int i=0;i<255;i++)
     {
 
 
-//        QByteArray array;
-//        array.resize(15);
-//        //quint8 extNum=0;
-//        array[0] =0x7e;
-//        array[1] =0x00;
-//        array[2] =0x0a;
+        QByteArray array;
+        array.resize(15);
+        //quint8 extNum=0;
+        array[0] =0x7e;
+        array[1] =0x00;
+        array[2] =0x0a;
 //        if(curState)
 //        {
 //           array[3] =0x04;//事件类型
 //           curState = false;
 //        }
 //        else
+        {
+          array[3] = 0xcc;
+           // curState = true;
+        }
+
+       // if(curState)
+        {
+           array[4] =0x32;//回路
+           //curState = false;
+
+        }
+//        else
 //        {
-//          array[3] = 0x03;
-//            curState = true;
+//           array[4] =0x01;//回路
+//           curState = true;
 //        }
 
-//        array[4] =0x00;//回路
-//        array[5] =0x06;//地址
-//        array[6] =0x00;//属性
-//        array[7] =0x20;//年
-//        array[8] =0x12;//月
-//        array[9] =0x03;//日
-//        array[10] =0x15;//时
-//        array[11] =0x09;//分
-//        array[12] =0x00;//秒
-//        quint8 sum = 0;
-//        for(int i=3;i<=12;i++)
+
+        array[5] =0x2e;//地址
+        array[6] =0x37;//属性
+        array[7] =0x32;//年
+        array[8] =0x00;//月
+//        if(!curState)
 //        {
-//            sum += (quint8)array.at(i);
+//           array[8] =0x06;//月
+//           curState= true;
 //        }
-//        array[13] =sum;
-//        array[14] =0x7e;
-//        serialDataProcessing(array);
+
+//        else
+//        {
+//          array[8] =0x86;//月
+//          curState=false;
+//        }
+        array[9] =0x00;//日
+        array[10] =0x00;//时
+        array[11] =0x00;//分
+        array[12] =0x00;//秒
+        quint8 sum = 0;
+        for(int i=3;i<=12;i++)
+        {
+            sum += (quint8)array.at(i);
+        }
+        array[13] =sum;
+        array[14] =0x7e;
+        serialDataProcessing(array);
         // extNum++;
         //Controller::instance()->delayMs(5);
     }
@@ -2212,9 +2316,10 @@ void CrtWidget::setIndicator(bool state)
         startProcess("sh -c \"echo rpdzkj|sudo -S setled.sh 2 0\"");
         startProcess("sh -c \"echo rpdzkj|sudo -S setled.sh 1 1\"");
 #endif
+        QMetaObject::invokeMethod(m_alarmObj,"setTransformColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"yellow"));
         Controller::instance()->getSpeechObj()->insertAlarmText(tr("传输故障"));
         insertOtherAlarmInfo(tr("传输故障"));
-        QMetaObject::invokeMethod(m_alarmObj,"setTransformColor",Q_ARG(QVariant,true),Q_ARG(QVariant,"yellow"));
+
     }
 }
 
@@ -2281,7 +2386,7 @@ void CrtWidget::processViewsData()
         array = m_readSerialDataList.takeAt(0);
     }
 
-    QHash<quint8,QString>alarmTypeHash,commuStatusHash,faultStateHash,emergencyStateHash,emergencyTypeHash;
+    QHash<quint8,QString>alarmTypeHash,commuStatusHash,faultStateHash;
     alarmTypeHash[0x01] = tr("火警");
     alarmTypeHash[0x03] = tr("故障");
     alarmTypeHash[0x05] = tr("启动");
@@ -2308,39 +2413,8 @@ void CrtWidget::processViewsData()
     faultStateHash[13] = tr("断电");
     faultStateHash[15] = tr("模块故障");
     faultStateHash[17] = tr("回路故障");
-    emergencyStateHash[0x09]=tr("通信故障");
-    emergencyStateHash[0x0b]=tr("光源故障");
-    emergencyStateHash[0x0c]=tr("自检故障");
-    emergencyStateHash[0x19]=tr("屏蔽");
-    emergencyStateHash[0x14]=tr("应急启动");
-
-    emergencyStateHash[0x89] = tr("灯具故障恢复");
-    emergencyStateHash[0x8b] = tr("光源故障恢复");
-    emergencyStateHash[0x8c] = tr("自检故障恢复");  //故障恢复
-    emergencyStateHash[0x99] = tr("屏蔽解除");//屏蔽解除
-    emergencyStateHash[0x94] = tr("应急解除");//应急解除
-
-    emergencyTypeHash[0x20] =tr("输出开路");
-    emergencyTypeHash[0x21] =tr("进入月检");
-    emergencyTypeHash[0x22] =tr("进入年检");
-
-    emergencyTypeHash[0x1b] =tr("开机");
-    emergencyTypeHash[0x1c] =tr("消音");
-    emergencyTypeHash[0x1e] =tr("复位");
-    emergencyTypeHash[0x13] =tr("输出过载");
 
 
-    emergencyTypeHash[0xa0] =tr("开路恢复");
-    emergencyTypeHash[0xa1] =tr("月检结束");
-    emergencyTypeHash[0xa2] =tr("年检结束");
-
-    emergencyTypeHash[0x9b] =tr("关机");
-    emergencyTypeHash[0x9c] =tr("消音取消");
-
-    emergencyTypeHash[0x93] =tr("输出过载恢复");
-
-    emergencyTypeHash[0x9a] =tr("设备丢失");
-    emergencyTypeHash[0x29] =tr("灯具改变方向");
 
 
 
@@ -2837,6 +2911,154 @@ void CrtWidget::processViewsData()
         break;
     case 0x37:
     {
+        QHash<quint8,QString>emergencyDeviceTypeHash,emergencyStateHash,emergencyTypeHash;
+        emergencyStateHash[0x09]=tr("通信故障");
+        emergencyStateHash[0x0b]=tr("光源故障");
+        emergencyStateHash[0x0c]=tr("自检故障");
+        emergencyStateHash[0x19]=tr("屏蔽");
+        emergencyStateHash[0x14]=tr("应急启动");
+        emergencyStateHash[0x9a] =tr("设备丢失");
+
+        emergencyStateHash[0x89] = tr("灯具故障恢复");
+        emergencyStateHash[0x8b] = tr("光源故障恢复");
+        emergencyStateHash[0x8c] = tr("自检故障恢复");  //故障恢复
+        emergencyStateHash[0x99] = tr("屏蔽解除");//屏蔽解除
+        emergencyStateHash[0x94] = tr("应急解除");//应急解除
+
+        emergencyTypeHash[0x20] =tr("输出开路");
+        emergencyTypeHash[0x21] =tr("进入月检");
+        emergencyTypeHash[0x22] =tr("进入年检");
+        emergencyTypeHash[0x1a] =tr("新注册");
+        emergencyTypeHash[0x1b] =tr("开机");
+        emergencyTypeHash[0x1c] =tr("消音");
+        emergencyTypeHash[0x1e] =tr("复位");
+        emergencyTypeHash[0x1F] =tr("重码");
+        emergencyTypeHash[0x13] =tr("输出过载");
+
+
+        emergencyTypeHash[0xa0] =tr("开路恢复");
+        emergencyTypeHash[0xa1] =tr("月检结束");
+        emergencyTypeHash[0xa2] =tr("年检结束");
+
+        emergencyTypeHash[0x9b] =tr("关机");
+        emergencyTypeHash[0x9c] =tr("消音取消");
+        emergencyTypeHash[0x9f] =tr("重码恢复");
+        emergencyTypeHash[0x93] =tr("输出过载恢复");
+
+        //emergencyTypeHash[0x9a] =tr("设备丢失");
+        emergencyTypeHash[0x29] =tr("灯具改变方向");
+
+
+        emergencyDeviceTypeHash[0x01] = tr("壁挂式应急照明控制器");emergencyDeviceTypeHash[0x02] = tr("入柜式应急照明控制器");emergencyDeviceTypeHash[0x03] = tr("分配电装置");
+        emergencyDeviceTypeHash[0x04] = tr("虚拟分配电装置");emergencyDeviceTypeHash[0x05] = tr("集中电源250w");emergencyDeviceTypeHash[0x06] = tr("集中电源500w");
+        emergencyDeviceTypeHash[0x07] = tr("集中电源1000w");
+        QHash<quint8,QString>emeygencyTailHash;
+        emeygencyTailHash[0] = tr("双面单向");emeygencyTailHash[1] = tr("双面双向");emeygencyTailHash[2] = tr("安全出口");
+        emeygencyTailHash[3] = tr("语音安全出口");emeygencyTailHash[4] = tr("楼层标志");emeygencyTailHash[5] = tr("左向");
+
+        emeygencyTailHash[6] = tr("右向");emeygencyTailHash[7] = tr("双向");emeygencyTailHash[8] = tr("安全出口");
+        emeygencyTailHash[9] = tr("语音安全出口");emeygencyTailHash[10] = tr("楼层标志");
+
+        emeygencyTailHash[11] = tr("左向"); emeygencyTailHash[12] = tr("右向");emeygencyTailHash[13] = tr("双向");
+        emeygencyTailHash[14] = tr("安全出口");emeygencyTailHash[15] = tr("语音安全出口");emeygencyTailHash[16] = tr("楼层标志");
+        for(int i=0x31;i<=0x74;i++)
+        {
+            if(i>=0x31&&i<=0x35)
+            {
+                emergencyDeviceTypeHash[i] = tr("小型吊挂")+emeygencyTailHash.value(i-0x31);
+            }
+            else if(i>=0x36&&i<=0x3b)
+            {
+               emergencyDeviceTypeHash[i] = tr("小型嵌墙")+emeygencyTailHash.value(i-0x31);
+            }
+            else if(i>=0x3c&&i<=0x41)
+            {
+               emergencyDeviceTypeHash[i] = tr("小型壁挂")+emeygencyTailHash.value(i-0x31);
+            }
+
+            if(i>=0x42&&i<=0x46)
+            {
+                emergencyDeviceTypeHash[i] = tr("中型吊挂")+emeygencyTailHash.value(i-0x42);
+            }
+            else if(i>=0x47&&i<=0x4c)
+            {
+               emergencyDeviceTypeHash[i] = tr("中型嵌墙")+emeygencyTailHash.value(i-0x42);
+            }
+            else if(i>=0x4d&&i<=0x52)
+            {
+               emergencyDeviceTypeHash[i] = tr("中型壁挂")+emeygencyTailHash.value(i-0x42);
+            }
+
+
+
+
+            if(i>=0x53&&i<=0x57)
+            {
+                emergencyDeviceTypeHash[i] = tr("大型吊挂")+emeygencyTailHash.value(i-0x53);
+            }
+            else if(i>=0x58&&i<=0x5d)
+            {
+               emergencyDeviceTypeHash[i] = tr("大型嵌墙")+emeygencyTailHash.value(i-0x53);
+            }
+            else if(i>=0x5e&&i<=0x63)
+            {
+               emergencyDeviceTypeHash[i] = tr("大型壁挂")+emeygencyTailHash.value(i-0x53);
+            }
+
+            if(i>=0x64&&i<=0x68)
+            {
+                emergencyDeviceTypeHash[i] = tr("特大型吊挂")+emeygencyTailHash.value(i-0x64);
+            }
+            else if(i>=0x69&&i<=0x6e)
+            {
+               emergencyDeviceTypeHash[i] = tr("特大型嵌墙")+emeygencyTailHash.value(i-0x64);
+            }
+            else if(i>=0x6f&&i<=0x74)
+            {
+               emergencyDeviceTypeHash[i] = tr("特大型壁挂")+emeygencyTailHash.value(i-0x64);
+            }
+        }
+        QHash<quint8,QString> tmpHash;
+        tmpHash[0] = "3W";tmpHash[1] = "5W";tmpHash[2] = "8W";
+
+        tmpHash[3] = "12W";tmpHash[4] = "15W";tmpHash[5] = "18W";
+        tmpHash[3] = "25W";tmpHash[4] = "40W";
+        for(int i=0x7c;i<=0xa3;i++)
+        {
+           if(i>=0x7c&&i<=0x83)
+           {
+               emergencyDeviceTypeHash[i] = tr("壁挂式应急照明灯具")+tmpHash.value(i-0x7c);
+           }
+           else if(i>=0x84&&i<=0x8b)
+           {
+               emergencyDeviceTypeHash[i] = tr("吸顶式应急照明灯具")+tmpHash.value(i-0x84);
+           }
+           else if(i>=0x8c&&i<=0x93)
+           {
+               emergencyDeviceTypeHash[i] = tr("嵌入式应急照明灯具")+tmpHash.value(i-0x8c);
+           }
+           else if(i>=0x94&&i<=0x9b)
+           {
+               emergencyDeviceTypeHash[i] = tr("吊装式应急照明灯具")+tmpHash.value(i-0x94);
+           }
+           else if(i>=0x9c&&i<=0xa3)
+           {
+               emergencyDeviceTypeHash[i] = tr("应急照明灯管")+tmpHash.value(i-0x9c);
+           }
+
+        }
+
+         emergencyDeviceTypeHash[0x75] = tr("Ⅰ型地埋单向");emergencyDeviceTypeHash[0x76] = tr("Ⅰ型地埋双向");
+         emergencyDeviceTypeHash[0x77] = tr("Ⅱ型地埋单向");emergencyDeviceTypeHash[0x78] = tr("Ⅱ型地埋双向");
+         emergencyDeviceTypeHash[0x79] = tr("Ⅲ型地埋单向");emergencyDeviceTypeHash[0x7a] = tr("Ⅲ型地埋双向");
+         emergencyDeviceTypeHash[0x7b] = tr("Led信息屏蔽疏散标志灯");
+         emergencyDeviceTypeHash[0xa4] = tr("红外感应开关");emergencyDeviceTypeHash[0xa5] = tr("模块开关");
+         emergencyDeviceTypeHash[0xa6] = tr("现场电源");emergencyDeviceTypeHash[0xa7] = tr("小型分配电装置");
+         emergencyDeviceTypeHash[0xb1] = tr("中型吊挂疏散出口");emergencyDeviceTypeHash[0xb2] = tr("中型嵌墙疏散出口");
+         emergencyDeviceTypeHash[0xb3] = tr("中型壁挂疏散出口");
+
+
+
         QString emergencyExtNum,emergencyLoopNum,emergencyAddrNum,emergencyPowerAddr;
         QString emergencyAlarmType="";
         QString emergencyAlarmReply="";
@@ -2844,27 +3066,30 @@ void CrtWidget::processViewsData()
         emergencyLoopNum = QString::number(loopNum);
         emergencyAddrNum = QString::number(addrNum);
         emergencyPowerAddr = QString::number(year);
-        GraphicsItem*curGraphicsItem =m_architePlanView->itemFormInfo(emergencyExtNum,emergencyLoopNum,emergencyAddrNum,emergencyPowerAddr);
+        GraphicsItem*curGraphicsItem =m_architePlanView->itemFormInfo(emergencyExtNum,emergencyLoopNum,emergencyAddrNum,networkNum,emergencyPowerAddr);
         QString curAlarmTime = QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss");
         switch (month)
         {
 
         case 0x03://主电故障
-            communicationStatus(tr("主电"),true,emergencyExtNum,emergencyPowerAddr);
-
+           // communicationStatus(tr("主电"),true,emergencyExtNum,networkNum);
+           emergencyPowerState(tr("主电"),false,emergencyExtNum,emergencyLoopNum,emergencyAddrNum,emergencyPowerAddr,networkNum,emergencyDeviceTypeHash.value(date)+tr("主电故障"));
 
             break;
         case 0x83://主电故障恢复
-            communicationStatus(tr("主电"),false,emergencyExtNum,emergencyPowerAddr);
+            emergencyPowerState(tr("主电"),true,emergencyExtNum,emergencyLoopNum,emergencyAddrNum,emergencyPowerAddr,networkNum,emergencyDeviceTypeHash.value(date)+tr("主电正常"));
+            //communicationStatus(tr("主电"),false,emergencyExtNum,networkNum);
 
             break;
         case 0x06://备电故障
-            communicationStatus(tr("备电"),true,emergencyExtNum,emergencyPowerAddr);
+            emergencyPowerState(tr("备电"),false,emergencyExtNum,emergencyLoopNum,emergencyAddrNum,emergencyPowerAddr,networkNum,emergencyDeviceTypeHash.value(date)+tr("备电故障"));
+            //communicationStatus(tr("备电"),true,emergencyExtNum,networkNum);
             //insertOtherAlarmInfo(tr("备电")+tr("故障"),emergencyExtNum);
 
             break;
         case 0x86://备电故障恢复
-            communicationStatus(tr("备电"),false,emergencyExtNum,emergencyPowerAddr);
+             emergencyPowerState(tr("备电"),true,emergencyExtNum,emergencyLoopNum,emergencyAddrNum,emergencyPowerAddr,networkNum,emergencyDeviceTypeHash.value(date)+tr("备电正常"));
+            //communicationStatus(tr("备电"),false,emergencyExtNum,networkNum);
 
             break;
         case 0x09://故障
@@ -2872,6 +3097,7 @@ void CrtWidget::processViewsData()
         case 0x0c:
         case 0x19://屏蔽
         case 0x14://应急启动
+        case 0x9a://设备丢失（也算故障）
         {
             quint8 emergencyAlarmValue=0;
             if(month==0x19)
@@ -2894,11 +3120,11 @@ void CrtWidget::processViewsData()
 
             if(curGraphicsItem!=nullptr)
             {
-                m_architePlanView->createAlarm(curGraphicsItem,emergencyAlarmType,emergencyStateHash.value(month),curAlarmTime);
+                m_architePlanView->createAlarm(curGraphicsItem,emergencyAlarmType,emergencyDeviceTypeHash.value(date)+ emergencyStateHash.value(month),curAlarmTime);
             }
             else
             {
-                noItemInfoSetting(emergencyExtNum,emergencyLoopNum,emergencyAddrNum,emergencyPowerAddr,emergencyAlarmType,emergencyStateHash.value(month),curAlarmTime);
+                noItemInfoSetting(emergencyExtNum,emergencyLoopNum,emergencyAddrNum,networkNum,emergencyAlarmType,emergencyStateHash.value(month),curAlarmTime,emergencyDeviceTypeHash.value(date)+ emergencyStateHash.value(month),emergencyPowerAddr);
             }
         }
             break;
@@ -2933,30 +3159,32 @@ void CrtWidget::processViewsData()
             }
             else
             {
-                noItemUpdate(emergencyExtNum,emergencyLoopNum,emergencyAddrNum,emergencyPowerAddr,emergencyAlarmReply,emergencyStateHash.value(month),emergencyStateHash.value(month),curAlarmTime);
+                noItemUpdate(emergencyExtNum,emergencyLoopNum,emergencyAddrNum,networkNum,emergencyAlarmReply,emergencyStateHash.value(month),emergencyStateHash.value(month),curAlarmTime,emergencyDeviceTypeHash.value(date)+ emergencyStateHash.value(month),emergencyPowerAddr);
             }
         }
             break;
         case 0x13://输出过载
+        case 0x1a://新注册
         case 0x1b://开机
         case 0x1c://消音
+        case 0x1f://重码
         case 0x20://输出开路
         case 0x21://进入月检
         case 0x22://进入年检
         case 0x29://灯具改变方向
-        case 0x9a://设备丢失
+       // case 0x9a://设备丢失
         {
             if(curGraphicsItem!=nullptr)
             {
-                m_sqliteManager->executeQuery(m_alarmSqlInfo.arg(emergencyExtNum).arg(emergencyLoopNum).arg(emergencyAddrNum).arg(emergencyPowerAddr).arg(curGraphicsItem->deviceNum())
-                                              .arg(curGraphicsItem->equipmentModel()).arg(emergencyTypeHash.value(month)).arg(emergencyTypeHash.value(month)).arg(curAlarmTime).arg("").arg(curGraphicsItem->sysOfDevice()).arg(curGraphicsItem->buildingName()).arg(curGraphicsItem->floorOfDevice()).arg(curGraphicsItem->deviceLocation())
-                                              .arg(curGraphicsItem->manufacturers()).arg(curGraphicsItem->periodOfValidity()).arg(curGraphicsItem->deviceOperator()).arg(emergencyTypeHash.value(month)));
+                m_sqliteManager->executeQuery(m_alarmSqlInfo.arg(emergencyExtNum).arg(emergencyLoopNum).arg(emergencyAddrNum).arg(networkNum).arg(emergencyPowerAddr).arg(curGraphicsItem->deviceNum())
+                                              .arg(curGraphicsItem->equipmentModel()).arg(emergencyTypeHash.value(month)).arg(emergencyTypeHash.value(month)).arg(curAlarmTime).arg(curGraphicsItem->sysOfDevice()).arg(curGraphicsItem->buildingName()).arg(curGraphicsItem->floorOfDevice()).arg(curGraphicsItem->deviceLocation())
+                                              .arg(curGraphicsItem->manufacturers()).arg(curGraphicsItem->periodOfValidity()).arg(curGraphicsItem->deviceOperator()).arg(emergencyDeviceTypeHash.value(date)+emergencyTypeHash.value(month)));
             }
             else
             {
 
-                m_sqliteManager->executeQuery(QString("insert into AlarmInfo (分机号,回路号,地址号,网络号,事件类型,状态,设备,时间,备注) values ('%1','%2','%3','%4','%5','%6','未定义设备','%7','%8')").arg(emergencyExtNum).arg(emergencyLoopNum).arg(emergencyAddrNum).arg(emergencyPowerAddr)
-                                              .arg(emergencyTypeHash.value(month)).arg(emergencyTypeHash.value(month)).arg(curAlarmTime).arg(""));
+                m_sqliteManager->executeQuery(QString("insert into AlarmInfo (分机号,回路号,地址号,网络号,电源地址,事件类型,状态,设备,时间,备注) values ('%1','%2','%3','%4','%5','%6','%7','未定义设备','%8','%9')").arg(emergencyExtNum).arg(emergencyLoopNum).arg(emergencyAddrNum).arg(networkNum).arg(emergencyPowerAddr)
+                                              .arg(emergencyTypeHash.value(month)).arg(emergencyTypeHash.value(month)).arg(curAlarmTime).arg(emergencyDeviceTypeHash.value(date)+ emergencyStateHash.value(month)));
             }
 
             alarmDataOnTable();
@@ -2966,30 +3194,31 @@ void CrtWidget::processViewsData()
         case 0x93://输出过载恢复
         case 0x9b://关机
         case 0x9c://消音取消
+        case 0x9f://重码恢复
         case 0xa0://开路恢复
         case 0xa1://结束月检
         case 0xa2://结束年检
         {        
             if(curGraphicsItem!=nullptr)
             {
-                m_sqliteManager->executeQuery(m_alarmSqlInfo.arg(emergencyExtNum).arg(emergencyLoopNum).arg(emergencyAddrNum).arg(emergencyPowerAddr).arg(curGraphicsItem->deviceNum())
-                                              .arg(curGraphicsItem->equipmentModel()).arg(emergencyTypeHash.value(month)).arg(emergencyTypeHash.value(month)).arg(curAlarmTime).arg("").arg(curGraphicsItem->sysOfDevice()).arg(curGraphicsItem->buildingName()).arg(curGraphicsItem->floorOfDevice()).arg(curGraphicsItem->deviceLocation())
-                                              .arg(curGraphicsItem->manufacturers()).arg(curGraphicsItem->periodOfValidity()).arg(curGraphicsItem->deviceOperator()).arg(emergencyTypeHash.value(month)));
+                m_sqliteManager->executeQuery(m_alarmSqlInfo.arg(emergencyExtNum).arg(emergencyLoopNum).arg(emergencyAddrNum).arg(networkNum).arg(emergencyPowerAddr).arg(curGraphicsItem->deviceNum())
+                                              .arg(curGraphicsItem->equipmentModel()).arg(emergencyTypeHash.value(month)).arg(emergencyTypeHash.value(month)).arg(curAlarmTime).arg(curGraphicsItem->sysOfDevice()).arg(curGraphicsItem->buildingName()).arg(curGraphicsItem->floorOfDevice()).arg(curGraphicsItem->deviceLocation())
+                                              .arg(curGraphicsItem->manufacturers()).arg(curGraphicsItem->periodOfValidity()).arg(curGraphicsItem->deviceOperator()).arg(emergencyDeviceTypeHash.value(date)+ emergencyTypeHash.value(month)));
             }
             else
             {
-                m_sqliteManager->executeQuery(QString("insert into AlarmInfo (分机号,回路号,地址号,网络号,事件类型,状态,设备,时间,备注) values ('%1','%2','%3','%4','%5','%6','未定义设备','%7','%8')").arg(emergencyExtNum).arg(emergencyLoopNum).arg(emergencyAddrNum).arg(emergencyPowerAddr)
-                                              .arg(emergencyTypeHash.value(month)).arg(emergencyTypeHash.value(month)).arg(curAlarmTime).arg(""));
+                m_sqliteManager->executeQuery(QString("insert into AlarmInfo (分机号,回路号,地址号,网络号,电源地址,事件类型,状态,设备,时间,备注) values ('%1','%2','%3','%4','%5','%6','%7','未定义设备','%8','%9')").arg(emergencyExtNum).arg(emergencyLoopNum).arg(emergencyAddrNum).arg(networkNum).arg(emergencyPowerAddr)
+                                              .arg(emergencyTypeHash.value(month)).arg(emergencyTypeHash.value(month)).arg(curAlarmTime).arg(emergencyDeviceTypeHash.value(date)+ emergencyTypeHash.value(month)));
             }
 
-            m_sqliteManager->executeQuery(QString("update AlarmInfo set 状态 = '正常' where 分机号='%1' and 回路号='%2' and 地址号='%3' and 网络号='%4' and 事件类型='%5' ").arg(emergencyExtNum).arg(emergencyLoopNum).arg(emergencyAddrNum).arg(emergencyPowerAddr).arg(emergencyTypeHash.value(month-0x80)));
+            m_sqliteManager->executeQuery(QString("update AlarmInfo set 状态 = '正常' where 分机号='%1' and 回路号='%2' and 地址号='%3' and 网络号='%4' and 电源地址='%5' and 事件类型='%6' ").arg(emergencyExtNum).arg(emergencyLoopNum).arg(emergencyAddrNum).arg(networkNum).arg(emergencyPowerAddr).arg(emergencyTypeHash.value(month-0x80)));
             alarmDataOnTable();
         }
             break;
         case 0x1e://复位
         {
             m_architePlanView->clearAlarmFromExtNum(emergencyExtNum,curAlarmTime);
-            insertOtherAlarmInfo(tr("复位"),emergencyExtNum,emergencyPowerAddr);
+            insertOtherAlarmInfo(tr("复位"),emergencyExtNum,networkNum);
         }
             break;
         default:

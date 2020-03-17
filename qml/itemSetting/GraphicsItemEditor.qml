@@ -130,6 +130,22 @@ Item {
                         }
 
                         Text {
+                            text: qsTr("电源地址:")
+                            height: 40
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        TextField {
+                            id: powerAddrTextField
+                            validator: IntValidator {bottom: 0; top: 255;}
+                            width: 180
+                            height: 40
+                            text: "0"
+                            onTextEdited: {
+                                emit: setItemInfo("powerAddr", powerAddrTextField.text)
+                            }
+                        }
+
+                        Text {
                             id: deviceNumTxt
                             text: qsTr("设备编码:")
                             height: 40
@@ -165,7 +181,22 @@ Item {
                         }
 
 
+                        Text {
 
+                            text: qsTr("操作员:")
+                            height: 40
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        TextField {
+                            id: operatorTextField
+                            Layout.fillWidth: true
+                            width: 180
+                            height: 40
+                            verticalAlignment: Text.AlignVCenter
+                            onTextEdited: {
+                                emit: setItemInfo("operator", operatorTextField.text)
+                            }
+                        }
 
                         Text {
                             text: qsTr("设备:")
@@ -192,8 +223,8 @@ Item {
                                                           currentIndex))
                                     emit:setItemInfo("deviceInstallTime",getDeviceInstallTime(currentIndex))
 
-                                    manufacturersText.text = manufacturersValue(
-                                                currentIndex)
+//                                    manufacturersText.text = manufacturersValue(
+//                                                currentIndex)
                                     periodOfValidityText.text = periodOfvalidityValue(
                                                 currentIndex)
                                 }
@@ -252,22 +283,7 @@ Item {
                             }
                         }
 
-                        Text {
 
-                            text: qsTr("操作员:")
-                            height: 40
-                            verticalAlignment: Text.AlignVCenter
-                        }
-                        TextField {
-                            id: operatorTextField
-                            Layout.fillWidth: true
-                            width: 180
-                            height: 40
-                            verticalAlignment: Text.AlignVCenter
-                            onTextEdited: {
-                                emit: setItemInfo("operator", operatorTextField.text)
-                            }
-                        }
 
                         Text {
                             id: sizeLabel
@@ -285,7 +301,7 @@ Item {
                             from: 5
                             to: 100
                             stepSize: 1
-                            value: 10
+                            value: 25
                             onValueChanged: {
                                 emit: setSize(value)
                             }
@@ -307,27 +323,27 @@ Item {
                             verticalAlignment: Text.AlignVCenter
                         }
 
-                        Text {
+//                        Text {
 
-                            text: qsTr("制造商:")
-                            height: 40
-                            verticalAlignment: Text.AlignVCenter
-                        }
-                        Text {
-                            id: manufacturersText
-                            Layout.fillWidth: true
-                            width: 180
-                            height: 40
-                            verticalAlignment: Text.AlignVCenter
-                            text: qsTr("北京利达华信电子有限公司")
-                        }
+//                            text: qsTr("制造商:")
+//                            height: 40
+//                            verticalAlignment: Text.AlignVCenter
+//                        }
+//                        Text {
+//                            id: manufacturersText
+//                            Layout.fillWidth: true
+//                            width: 180
+//                            height: 40
+//                            verticalAlignment: Text.AlignVCenter
+//                            text: qsTr("北京利达华信电子有限公司")
+//                        }
                     }
 
 
                     Text {
                         color: "red"
                         font.pointSize: 12
-                        text: qsTr("注意：当设备为光纤时，源地址对应分机号、通道号对\n应回路号、分区号对应地址号。当设备属于应急疏散系\n统时，电源地址对应网络号。")
+                        text: qsTr("注意：当设备为光纤时，源地址对应分机号、通道号对\n应回路号、分区号对应地址号。当设备属于应急疏散系\n统时，才会使用电源地址。")
                     }
                 }
 
@@ -553,14 +569,12 @@ Item {
             id: itemIconSetting
             onPeriodValueChanged: {
                 itemIconInfo.setCurrentIconIndex(index)
-                // emit: setItemInfo("periodOfValidity", periodValue)
                 periodOfValidityText.text = periodValue
                 emit: setItemsPeriodOfValidity(index, periodValue)
             }
             onManufacturersChanged: {
                 itemIconInfo.setCurrentIconIndex(index)
-                // emit: setItemInfo("manufacturers", facturers)
-                manufacturersText.text = facturers
+                //manufacturersText.text = facturers
                 emit: setItemsManufacturers(index, facturers)
             }
             onDeviceInstallTimeChanged:
@@ -677,6 +691,11 @@ Item {
         networkNumTextField.text = networkNum
     }
 
+    function setPowerAddr(addr)
+    {
+       powerAddrTextField.text = addr
+    }
+
     function setDeviceNum(deviceNum) {
         deviceNumTextField.text = deviceNum
     }
@@ -699,9 +718,9 @@ Item {
         periodOfValidityText.text = period
     }
 
-    function setManufacturers(manufacturers) {
-        manufacturersText.text = manufacturers
-    }
+//    function setManufacturers(manufacturers) {
+//        manufacturersText.text = manufacturers
+//    }
 
     function setOperator(deviceOperator) {
         operatorTextField.text = deviceOperator
@@ -714,6 +733,7 @@ Item {
     function setChannelNum(channelNum) {
         channelNumTextField.text = channelNum
     }
+
 
     function getLoopNum()
     {
@@ -903,8 +923,8 @@ Item {
             equipmentModelComboBox.currentIndex = 0
         }
         itemIconInfo.setCurrentIconIndex(equipmentModelComboBox.currentIndex)
-        manufacturersText.text = manufacturersValue(
-                    equipmentModelComboBox.currentIndex)
+//        manufacturersText.text = manufacturersValue(
+//                    equipmentModelComboBox.currentIndex)
         periodOfValidityText.text = periodOfvalidityValue(
                     equipmentModelComboBox.currentIndex)
     }

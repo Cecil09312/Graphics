@@ -66,6 +66,18 @@ import "../infoSetting"
                 }
 
                 Text {
+                    text: qsTr("电源地址")
+                    height: 30
+                    horizontalAlignment: TextEdit.AlignLeft
+                    verticalAlignment: TextEdit.AlignVCenter
+                }
+                TextField {
+                    id: powerAddrTextField
+                    width: 100
+                    height: 30
+                }
+
+                Text {
                     id: alarmInfoAlarmType
                     text: qsTr("事件类型")
                     height: 30
@@ -117,7 +129,7 @@ import "../infoSetting"
                     onClicked: {
                         alarmInfoListModel.sqlCommit(
                                     String(
-                                        "select 分机号,回路号,地址号,网络号,系统,设备编码,设备,事件类型,状态,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo where %1").arg(
+                                        "select 分机号,回路号,地址号,网络号,电源地址,系统,设备编码,设备,事件类型,状态,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo where %1").arg(
                                         selectInfo()))
                     }
                 }
@@ -129,7 +141,7 @@ import "../infoSetting"
                     width: 100
                     onClicked: {
                         alarmInfoListModel.sqlCommit(
-                                    "select 分机号,回路号,地址号,网络号,系统,设备编码,设备,事件类型,状态,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo")
+                                    "select 分机号,回路号,地址号,网络号,电源地址,系统,设备编码,设备,事件类型,状态,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo")
                     }
                 }
 
@@ -189,6 +201,12 @@ import "../infoSetting"
             Controls1_4.TableViewColumn {
                 role: "networkNum"
                 title: qsTr("网络号")
+                width: 60
+            }
+
+            Controls1_4.TableViewColumn {
+                role: "powerAddr"
+                title: qsTr("电源地址")
                 width: 60
             }
             Controls1_4.TableViewColumn {
@@ -263,13 +281,14 @@ import "../infoSetting"
                 var curLoopNum = new String
                 var curAddrNum = new String
                 var curNetworkNum = new String
-                var currentState = new String
+                var curPowerAddr = new String
                 curExtNum = alarmInfoListModel.getValue(row, "extNum")
                 curLoopNum = alarmInfoListModel.getValue(row, "loopNum")
                 curAddrNum = alarmInfoListModel.getValue(row, "addrNum")
                 curNetworkNum = alarmInfoListModel.getValue(row, "networkNum")
+                curPowerAddr = alarmInfoListModel.getValue(row, "powerAddr")
                 ArchitePlanView.toArchitePlan(curExtNum, curLoopNum, curAddrNum,
-                                              curNetworkNum)
+                                              curNetworkNum,curPowerAddr)
             }
         }
     QmlTableModel {
@@ -278,8 +297,8 @@ import "../infoSetting"
         dbName: Crt.alarmInfoDbName()
         dbConnectionName: "alarmInfoDb"
         dbPort: 888
-        roleNameList: ["extNum", "loopNum", "addrNum", "networkNum", "deviceSys", "productNum", "deviceType", "alarmType", "currentAlarmState", "alarmTime", "buildName", "floor", "deviceLocation", "operator","remarks"]
-        titleList: ["分机号", "回路号", "地址号", "网络号", "系统", "设备编码", "设备", "事件类型", "状态", "时间", "建筑名称", "楼层", "位置", "操作员","备注"]
+        roleNameList: ["extNum", "loopNum", "addrNum", "networkNum", "powerAddr","deviceSys", "productNum", "deviceType", "alarmType", "currentAlarmState", "alarmTime", "buildName", "floor", "deviceLocation", "operator","remarks"]
+        titleList: ["分机号", "回路号", "地址号", "网络号","电源地址", "系统", "设备编码", "设备", "事件类型", "状态", "时间", "建筑名称", "楼层", "位置", "操作员","备注"]
     }
     function selectInfo() {
         var info = new String
@@ -309,6 +328,15 @@ import "../infoSetting"
             }
             info += (qsTr("网络号=") + "'" + networkNumTextField.text + "'")
         }
+
+        if (powerAddrTextField.text.length > 0) {
+
+            if (info.length > 0) {
+                info += " and "
+            }
+            info += (qsTr("电源地址=") + "'" +powerAddrTextField.text + "'")
+        }
+
         if (alarmInfoAlarmTypeComboBox.currentText.length > 0) {
             if (info.length > 0) {
                 info += " and "
@@ -348,7 +376,7 @@ import "../infoSetting"
                                              ListView.Contain)
         alarmInfoListModel.setDbOpen(true)
         alarmInfoListModel.sqlCommit(
-                    "select 分机号,回路号,地址号,网络号,系统,设备编码,设备,事件类型,状态,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo")
+                    "select 分机号,回路号,地址号,网络号,电源地址,系统,设备编码,设备,事件类型,状态,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo")
     }
 
     MessageDialog {

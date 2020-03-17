@@ -174,7 +174,7 @@ void GraphicsView::addGraphicsTextItem(const QPointF &pointF,const QString &alar
     if(m_textItemHash.value(alarmType)==nullptr)
     {
         QGraphicsTextItem *textItem = new QGraphicsTextItem;
-        QFont font(tr("宋体"),12);
+        QFont font(tr("宋体"),10);
         textItem->setFont(font);
         textItem->setDefaultTextColor(QColor(Qt::red));
         textItem->setPlainText(tr("首")+alarmType);

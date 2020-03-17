@@ -84,7 +84,7 @@ bool SqlManager::insertBatch(const QString &tableName, const QList<QVariant> &va
             sqlStr+=")";
             QSqlQuery query(d->m_database);
             d->m_database.transaction();
-            QThread::msleep(10);
+           // QThread::msleep(10);
             query.prepare(sqlStr);
             foreach (QVariant value, valueList)
             {

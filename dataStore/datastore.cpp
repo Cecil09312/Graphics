@@ -9,11 +9,11 @@ int DataStore::s_itemNum=0;
 QString DataStore::m_loopNum="0";
 QString DataStore::m_extNum="0";
 QString DataStore::m_networkNum="0";
-
+QString DataStore::m_powerAddr ="0";
 QString DataStore:: m_sysName = "";
 int DataStore::m_channelNum=0;
 QString DataStore::m_analogValue="无";
-qreal DataStore::m_iconSize=10;
+qreal DataStore::m_iconSize=25;
 QString DataStore::m_operator="";
 int DataStore::s_itemNumTemp =0;
 DataStore::DataStore()
@@ -100,10 +100,10 @@ void DataStore::insertTypeItem(const QString &type, QGraphicsItem *item)
     }
 }
 
-void DataStore::deleteType(const QString &type, const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum)
+void DataStore::deleteType(const QString &type, const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum,const QString &powerAddr)
 {
 
-    QString curStr=QString("%1,%2,%3,%4").arg(extNum).arg(loopNum).arg(addrNum).arg(networkNum);
+    QString curStr=QString("%1,%2,%3,%4,%5").arg(extNum).arg(loopNum).arg(addrNum).arg(networkNum).arg(powerAddr);
    if(m_typeNoItemHash.value(type).contains(curStr))
    {
        m_typeNoItemHash[type].removeOne(curStr);
@@ -137,9 +137,9 @@ void DataStore::deleteTypeNoItem(const QString &extNum)
     }
 }
 
-void DataStore::insertTypeNoItem(const QString &type, const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum)
+void DataStore::insertTypeNoItem(const QString &type, const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum,const QString &powerAddr)
 {
-    QString curStr=QString("%1,%2,%3,%4").arg(extNum).arg(loopNum).arg(addrNum).arg(networkNum);
+    QString curStr=QString("%1,%2,%3,%4,%5").arg(extNum).arg(loopNum).arg(addrNum).arg(networkNum).arg(powerAddr);
     m_typeNoItemHash[type].push_back(curStr);
 }
 
@@ -286,6 +286,11 @@ qreal &DataStore::iconSize()
 QString &DataStore::oneOperator()
 {
     return m_operator;
+}
+
+QString &DataStore::powerAddr()
+{
+    return m_powerAddr;
 }
 
 

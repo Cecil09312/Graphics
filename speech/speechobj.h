@@ -87,7 +87,7 @@ private:
 
 #ifdef  Q_OS_LINUX
     QProcess *m_textToSpeechProcess;
-    QTimer *m_startTimer;
+
 #endif
 
     QThread *m_thread;
@@ -96,6 +96,7 @@ private:
     double m_rate;
     double m_pitch;
     double m_volume;
+    bool m_isStop;
     QString m_currentLanguage;
     bool m_speechIsStop;
     int indexOfType(const QString &type);

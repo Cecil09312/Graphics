@@ -22,10 +22,10 @@ public:
      static void deleteTypeItem(const QString &type,QGraphicsItem*item);
      static void deleteTypeItem(const QString &type,int pos);
      static void insertTypeItem(const QString &type,QGraphicsItem*item);
-     static void deleteType(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum);
+     static void deleteType(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum, const QString &powerAddr="0");
      static void deleteTypeItem(const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum);
      static void deleteTypeNoItem(const QString&extNum);
-     static void insertTypeNoItem(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum);
+     static void insertTypeNoItem(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum, const QString &powerAddr="0");
      static void clearTypeItem();
      static int numOfTypeItem(const QString &type);
      static GraphicsView *itemDisplayView(GraphicsItem *item);
@@ -42,6 +42,7 @@ public:
      static QString &analogValue();
      static qreal &iconSize();
      static QString &oneOperator();
+     static QString &powerAddr();
 
 
 private:
@@ -51,6 +52,7 @@ private:
      static QString m_loopNum;
      static QString m_extNum;
      static QString m_networkNum;
+     static QString m_powerAddr;
      static QString m_sysName;
      static int m_channelNum;
      static QString m_analogValue;

@@ -58,7 +58,7 @@ public:
     void saveInfo();//保存信息
     void createAlarm(GraphicsItem *item, const QString &alarmType, const QString &alarmState, const QString &alarmTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));//生成报警
     GraphicsItem *itemFormInfo(const QString &extNum, const QString &loopNum,
-                               const QString &addressNum, const QString &networkNum);
+                               const QString &addressNum, const QString &networkNum, const QString &powerAddr="0");
 
     void closeQuickView();
 
@@ -79,7 +79,7 @@ public:
     Q_INVOKABLE void toAlarmView();
     Q_INVOKABLE void setCurrentAlarmType(const QString &type);//设置当前报警类型
     Q_INVOKABLE void toArchitePlan(const QString &extNum, const QString &loopNum,
-                                   const QString &addressNum, const QString &networkNum);
+                                   const QString &addressNum, const QString &networkNum, const QString &powerAddr);
     Q_INVOKABLE void saveMySqlInfo(const QString &hostName,const QString &userName,
                                    const QString &password,const QString &databaseName,int port);//将数据保存到mysql数据库
     QString deviceSysName(const QString &extNum);//设备系统名
