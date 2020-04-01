@@ -11,6 +11,7 @@
 #include "jsonEdit/itemiconinfotojson.h"
 #include <QGraphicsColorizeEffect>
 #include <QGraphicsTextItem>
+#include "drawimagethread.h"
 class GraphicsScene;
 struct ItemInfo
 {
@@ -175,6 +176,8 @@ private:
    // qreal m_angle;
     qreal m_scale;
     QString m_powerAddr;
+    QImage m_iconImage;
+    DrawImageThread *m_drawImageThread;
 
 };
 

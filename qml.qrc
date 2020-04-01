@@ -31,5 +31,6 @@
         <file>qml/alarmItem/MainPowerItem.qml</file>
         <file>qml/alarmItem/StandbyPowerItem.qml</file>
         <file>qml/alarmItem/HandOrAutoStateItem.qml</file>
+        <file>qml/qmlTable/CurrentAlarmItem.qml</file>
     </qresource>
 </RCC>

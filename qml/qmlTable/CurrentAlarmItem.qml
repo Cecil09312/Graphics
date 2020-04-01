@@ -94,135 +94,8 @@ Item
         Row {
 
             spacing: 5
-            Text {
 
-                text: qsTr("时间:")
-                height: 30
-                horizontalAlignment: TextEdit.AlignLeft
-                verticalAlignment: TextEdit.AlignVCenter
-            }
 
-            Text {
-
-                text: qsTr("年:")
-                height: 30
-                horizontalAlignment: TextEdit.AlignLeft
-                verticalAlignment: TextEdit.AlignVCenter
-            }
-
-            Controls1_4.SpinBox
-            {
-                id:alarmStartYearSpinBox
-
-                maximumValue: 2100
-                minimumValue: 1970
-                value: Qt.formatDate(new Date,"yyyy")
-                width: 60
-                height: 25
-
-            }
-            Text {
-
-                text: qsTr("月:")
-                height: 30
-                horizontalAlignment: TextEdit.AlignLeft
-                verticalAlignment: TextEdit.AlignVCenter
-            }
-
-            Controls1_4.SpinBox
-            {
-                id:alarmStartMonthSpinBox
-
-                maximumValue: 12
-                minimumValue: 1
-                value: Qt.formatDate(new Date,"M")
-                width: 50
-                height: 25
-
-            }
-            Text {
-
-                text: qsTr("日:")
-                height: 30
-                horizontalAlignment: TextEdit.AlignLeft
-                verticalAlignment: TextEdit.AlignVCenter
-            }
-            Controls1_4.SpinBox
-            {
-                id:alarmStartDateSpinBox
-
-                maximumValue: 31
-                minimumValue: 1
-                value: Qt.formatDate(new Date,"d")
-                width: 50
-                height: 25
-
-            }
-
-            Text {
-
-                text: qsTr(" 到:")
-                height: 30
-                horizontalAlignment: TextEdit.AlignLeft
-                verticalAlignment: TextEdit.AlignVCenter
-            }
-
-            Text {
-
-                text: qsTr("年:")
-                height: 30
-                horizontalAlignment: TextEdit.AlignLeft
-                verticalAlignment: TextEdit.AlignVCenter
-            }
-
-            Controls1_4.SpinBox
-            {
-                id:alarmEndYearSpinBox
-
-                maximumValue: 2100
-                minimumValue: 1970
-                value: Qt.formatDate(new Date,"yyyy")
-                width: 60
-                height:25
-
-            }
-            Text {
-
-                text: qsTr("月:")
-                height: 30
-                horizontalAlignment: TextEdit.AlignLeft
-                verticalAlignment: TextEdit.AlignVCenter
-            }
-
-            Controls1_4.SpinBox
-            {
-                id:alarmEndMonthSpinBox
-
-                maximumValue: 12
-                minimumValue: 1
-                value: Qt.formatDate(new Date,"M")
-                width: 50
-                height:25
-
-            }
-            Text {
-
-                text: qsTr("日:")
-                height: 30
-                horizontalAlignment: TextEdit.AlignLeft
-                verticalAlignment: TextEdit.AlignVCenter
-            }
-            Controls1_4.SpinBox
-            {
-                id:alarmEndDateSpinBox
-
-                maximumValue: 31
-                minimumValue: 1
-                value: Qt.formatDate(new Date,"d")
-                width: 50
-                height: 25
-
-            }
 
             NaviButton {
                 id: alarmInfoQueryBtn
@@ -230,9 +103,9 @@ Item
                 height: 30
                 width: 80
                 onClicked: {
-                    alarmInfoListModel.sqlCommit(
+                    currentAlarmListModel.sqlCommit(
                                 String(
-                                    "select 分机号,回路号,地址号,网络号,电源地址,系统,设备编码,设备,事件类型,状态,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo where %1").arg(
+                                    "select 分机号,回路号,地址号,网络号,电源地址,系统,设备编码,设备,事件类型,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo where %1").arg(
                                     selectInfo()))
                 }
             }
@@ -243,33 +116,8 @@ Item
                 height: 30
                 width: 100
                 onClicked: {
-                    alarmInfoListModel.sqlCommit(
-                                "select 分机号,回路号,地址号,网络号,电源地址,系统,设备编码,设备,事件类型,状态,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo")
-                }
-            }
-
-
-            NaviButton {
-                id: alarmInfoDeleteBtn
-                text: qsTr("删除")
-                height: 30
-                width: 80
-                onClicked: {
-                    var info =  new String
-                    info= selectInfo();
-                    if(info.length>0)
-                    {
-                        alarmInfoListModel.sqlCommit( String("delete  from AlarmInfo where %1").arg(selectInfo()))
-                    }
-                }
-            }
-            NaviButton {
-                id: alarmInfoClearBtn
-                text: qsTr("清空")
-                height: 30
-                width: 80
-                onClicked: {
-                    messageDialog.open()
+                    currentAlarmListModel.sqlCommit(
+                                "select 分机号,回路号,地址号,网络号,电源地址,系统,设备编码,设备,事件类型,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo where 状态!='正常'")
                 }
             }
         }
@@ -337,12 +185,6 @@ Item
         }
 
         Controls1_4.TableViewColumn {
-            role: "currentAlarmState"
-            title: qsTr("状态")
-            width: 60
-        }
-
-        Controls1_4.TableViewColumn {
             role: "alarmTime"
             title: qsTr("时间")
             width: 150
@@ -378,33 +220,34 @@ Item
             width: 60
         }
 
-        model: alarmInfoListModel
+        model: currentAlarmListModel
         onDoubleClicked: {
             var curExtNum = new String
             var curLoopNum = new String
             var curAddrNum = new String
             var curNetworkNum = new String
             var curPowerAddr = new String
-            curExtNum = alarmInfoListModel.getValue(row, "extNum")
-            curLoopNum = alarmInfoListModel.getValue(row, "loopNum")
-            curAddrNum = alarmInfoListModel.getValue(row, "addrNum")
-            curNetworkNum = alarmInfoListModel.getValue(row, "networkNum")
-            curPowerAddr = alarmInfoListModel.getValue(row, "powerAddr")
+            curExtNum = currentAlarmListModel.getValue(row, "extNum")
+            curLoopNum = currentAlarmListModel.getValue(row, "loopNum")
+            curAddrNum = currentAlarmListModel.getValue(row, "addrNum")
+            curNetworkNum = currentAlarmListModel.getValue(row, "networkNum")
+            curPowerAddr = currentAlarmListModel.getValue(row, "powerAddr")
             ArchitePlanView.toArchitePlan(curExtNum, curLoopNum, curAddrNum,
                                           curNetworkNum,curPowerAddr)
         }
     }
     QmlTableModel {
-        id: alarmInfoListModel
+        id: currentAlarmListModel
         dbDriver: qsTr("QSQLITE")
         dbName: Crt.alarmInfoDbName()
-        dbConnectionName: "alarmInfoDb"
-        dbPort: 888
-        roleNameList: ["extNum", "loopNum", "addrNum", "networkNum", "powerAddr","deviceSys", "productNum", "deviceType", "alarmType", "currentAlarmState", "alarmTime", "buildName", "floor", "deviceLocation", "operator","remarks"]
-        titleList: ["分机号", "回路号", "地址号", "网络号","电源地址", "系统", "设备编码", "设备", "事件类型", "状态", "时间", "建筑名称", "楼层", "位置", "操作员","备注"]
+        dbConnectionName: "curAlarmInfoDb"
+        dbPort: 6688
+        roleNameList: ["extNum", "loopNum", "addrNum", "networkNum", "powerAddr","deviceSys", "productNum", "deviceType", "alarmType",  "alarmTime", "buildName", "floor", "deviceLocation", "operator","remarks"]
+        titleList: ["分机号", "回路号", "地址号", "网络号","电源地址", "系统", "设备编码", "设备", "事件类型", "时间", "建筑名称", "楼层", "位置", "操作员","备注"]
     }
     function selectInfo() {
         var info = new String
+
         if (alarmInfoExtNumTextField.text.length > 0) {
             info += (qsTr("分机号=") + "'" + alarmInfoExtNumTextField.text + "'")
         }
@@ -447,65 +290,34 @@ Item
             info += (qsTr("事件类型=") + "'" + alarmInfoAlarmTypeComboBox.currentText + "'")
         }
 
-
-        //alarmStartMonthSpinBox.value
-
-
-
-        var startDateValue= Date.fromLocaleString(Qt.locale(),String("%1/%2/%3 0:0:0").arg(alarmStartYearSpinBox.value).arg(alarmStartMonthSpinBox.value).arg(alarmStartDateSpinBox.value),"yyyy/M/d h:m:s");
-        var startDate = new Date(startDateValue)
-        var startDateStr=Qt.formatDateTime(startDate,"yyyy/MM/dd hh:mm:ss");
-
-        if (startDateStr.length > 0) {
-            if (info.length > 0) {
-                info += " and "
-            }
-            info += (qsTr("时间 >=") + "'" + startDateStr + "'")
+        if (info.length > 0) {
+            info += " and "
         }
+        info += (qsTr("状态!='正常'"))
 
-        var endDateValue= Date.fromLocaleString(Qt.locale(),String("%1/%2/%3 23:59:59").arg(alarmEndYearSpinBox.value).arg(alarmEndMonthSpinBox.value).arg(alarmEndDateSpinBox.value),"yyyy/M/d h:m:s");
-        var endDate = new Date(endDateValue)
-        var endDateStr=Qt.formatDateTime(endDate,"yyyy/MM/dd hh:mm:ss");
 
-        if (endDateStr.length > 0) {
-            if (info.length > 0) {
-                info += " and "
-            }
-            info += (qsTr("时间 <=") + "'" + endDateStr + "'")
-        }
         return info
     }
 
     function saveToPdf() {
-        alarmInfoListModel.saveToPdf()
+        currentAlarmListModel.saveToPdf()
     }
     function startPrint() {
-        alarmInfoListModel.startPrint()
+        currentAlarmListModel.startPrint()
     }
     function printPreview() {
-        alarmInfoListModel.printPreview()
+        currentAlarmListModel.printPreview()
     }
 
     Component.onCompleted: {
 
         alarmInfoTableView.positionViewAtRow(alarmInfoTableView.rowCount - 1,
                                              ListView.Contain)
-        alarmInfoListModel.setDbOpen(true)
-        alarmInfoListModel.sqlCommit(
-                    "select 分机号,回路号,地址号,网络号,电源地址,系统,设备编码,设备,事件类型,状态,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo")
+        currentAlarmListModel.setDbOpen(true)
+        currentAlarmListModel.sqlCommit(
+                    "select 分机号,回路号,地址号,网络号,电源地址,系统,设备编码,设备,事件类型,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo where 状态!='正常'")
     }
 
-    MessageDialog {
-        id: messageDialog
-        title: qsTr("警告提示")
-        text: qsTr("如果信息超过1000条，或者没有正在报警的信息可以清除。注意信息的保存和备份。")
-        icon: StandardIcon.Warning
-        standardButtons: StandardButton.Yes | StandardButton.No
-        onYes: {
-            alarmInfoListModel.sqlCommit("delete from AlarmInfo")
-        }
-        onNo: {
-            close()
-        }
-    }
+
 }
+

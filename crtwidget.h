@@ -27,6 +27,7 @@
 #include <QDesktopServices>
 #include <QMouseEvent>
 #include <QMessageBox>
+
 //#include "LogMsg/logmsg.h"
 //#include "LogMsg/debuglogmsg.h"
 enum SerialState
@@ -46,7 +47,7 @@ public:
     Q_INVOKABLE QString alarmInfoDbName();
     Q_INVOKABLE void queryViewShow();
     Q_INVOKABLE void transportIndicator(bool isOk);//传输指示灯
-
+   void startArchiteView();
 
     void closeQuickView();
 
@@ -121,6 +122,9 @@ private slots:
     void showStandbyPowerView();
     void showHandOrAutoView();
     void checkCurrentVersion();
+    void updateTime();
+    void shieldExtNum(QString extNum, QString networkNum, bool state);
+    void resetShieldState(QString extNum, QString networkNum);
 
 
 private:
@@ -162,11 +166,11 @@ private:
     bool m_tcpIsConnected;
     //QList<quint8>m_packageNumList;
     const int c_heartBeatTime { 5*1000};
-    const int c_updateTime {10};
     bool m_serialConnected ;
     CustomTimer *m_mainHeartBeatTimer;
     CustomTimer *m_checkSendDataTimer;
-    QTimer *m_updateViewTimer;
+    CustomTimer *m_updateTimer;
+    QTimer *m_showDataTimer;
     QString m_alarmSqlInfo;
     QString m_updateAlarmSqlInfo;
     QProcess m_process;
@@ -179,6 +183,7 @@ private:
 
     QHash<QString,bool>m_extNumStateHash;
     QHash<QString,bool>m_extAndNetworkStateHash;
+    QHash<QString,bool>m_extShieldHash;
     QHash<QString,CustomTimer*>m_checkExtNumHash;
     QHash<QString,int>m_extNumTimesHash;
     QHash<QString,SerialState> m_extOnlineStateHash;
@@ -189,6 +194,7 @@ private:
     QMutex m_mutex;
     const int c_mainHeartBeatTimeOut {90000};
     const int c_mainHeartBeatTime {30000};
+
 
 };
 

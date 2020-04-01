@@ -23,6 +23,12 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
     setGlobalArchiteFromJson();
     initFromJsonFile();
     setContextMenuPolicy(Qt::CustomContextMenu);
+    //    connect(m_startArchiteViewTimer,&CustomTimer::timeout,this,[=](){
+    //        setGlobalArchiteFromJson();
+    //        initFromJsonFile();
+
+    //    });
+    // m_startArchiteViewTimer->start(5000);
 
     connect(this,&ArchitePlanView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)
     {
@@ -84,7 +90,7 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
                     QMetaObject::invokeMethod(m_itemSettingObj,"setAnalogType",Q_ARG(QVariant,currentItem->analogType()));
                     QMetaObject::invokeMethod(m_itemSettingObj,"setDeviceLocation",Q_ARG(QVariant,currentItem->deviceLocation()));
                     QMetaObject::invokeMethod(m_itemSettingObj,"setPeriodOfValidity",Q_ARG(QVariant,currentItem->periodOfValidity()));
-                   // QMetaObject::invokeMethod(m_itemSettingObj,"setManufacturers",Q_ARG(QVariant,currentItem->manufacturers()));
+                    // QMetaObject::invokeMethod(m_itemSettingObj,"setManufacturers",Q_ARG(QVariant,currentItem->manufacturers()));
 
                     QMetaObject::invokeMethod(m_itemSettingObj,"setOperator",Q_ARG(QVariant,currentItem->deviceOperator()));
 
@@ -158,7 +164,7 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
                             scene->removeItem(item);
                         }
                         scene->getItemList().clear();
-                        DataStore::clearTypeItem();
+                        Controller::instance()->getDataStore()->clearTypeItem();
                         saveArchiteInfoToDb();
                     }
                     else
@@ -209,7 +215,7 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
                             {
                                 scene->removeItem(graphicsItem);
                                 scene->getItemList().removeOne(graphicsItem);
-                                DataStore::deleteTypeItem(graphicsItem);
+                                Controller::instance()->getDataStore()->deleteTypeItem(graphicsItem);
                             }
                         }
 
@@ -287,6 +293,21 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
 
     connect(m_fitViewAction,&QAction::triggered,this,[=](){
         autoFitView(currentGraphicsView());
+    });
+
+    connect(Controller::instance()->getDataStore(),&DataStore::curLoopAddr,this,[=](const QString&loopNum,const QString&addrNum)
+    {
+        quint32 loopAndAddrValue = loopNum.toUInt()*1000+addrNum.toUInt();
+        if(m_loopAddrExtHash.contains(loopAndAddrValue))
+        {
+            Controller::instance()->getDataStore()->extNum() = m_loopAddrExtHash.value(loopAndAddrValue);
+        }
+
+        if(m_loopAddrExtHash.contains(loopAndAddrValue))
+        {
+            QMetaObject::invokeMethod(m_itemSettingObj,"setEquipmentModel",Q_ARG(QVariant,m_loopAddrDeviceHash.value(loopAndAddrValue)));
+        }
+
     });
     Q_ASSERT(m_itemSettingObj);
     connect(m_itemSettingObj,SIGNAL(setSize(qreal)),this,SLOT(setItemSize(qreal)));
@@ -443,6 +464,8 @@ ArchitePlanView::~ArchitePlanView()
     m_autoSwitchTimer->deleteLater();
     m_sqliteManager->close();
     m_sqliteManager->deleteLater();
+    m_startArchiteViewTimer->stop();
+    m_startArchiteViewTimer->deleteLater();
     delete m_graphicsItemSettingMenu;
     delete m_analogValueQueryMenu;
     m_itemSettingView->close();
@@ -497,12 +520,12 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item, const QString &alarmTyp
 
     disconnect(item,&GraphicsItem::moveToPos,0,0);
     deleteAlarmText(item,oldState);
-    DataStore::deleteTypeItem(oldState,item);
+    Controller::instance()->getDataStore()->deleteTypeItem(oldState,item);
     if(oldState!=tr("正常"))
     {
         emit alarmHappend(oldState);
     }
-    GraphicsView*curView = DataStore::itemDisplayView(item);
+    GraphicsView*curView = Controller::instance()->getDataStore()->itemDisplayView(item);
     if(curView!=nullptr)
     {
         curView->removeGraphicsTextItem(oldState);
@@ -576,7 +599,7 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, const QString 
             curAlarmType = alarmTypeName;
         }
         item->setAlarmRecord(curAlarmType,alarmTime,alarmTypeName);
-        DataStore::insertTypeItem(alarmTypeName,item);
+        Controller::instance()->getDataStore()->insertTypeItem(alarmTypeName,item);
         filterAlarm(item);
         emit alarmItem(item,curAlarmType);
         emit alarmHappend(alarmTypeName);
@@ -642,6 +665,7 @@ void ArchitePlanView::initWidget()
     m_globalGraphicsView = new GlobalGraphicsView(this);
     m_sysArchitePlanView = new SysArchitePlanView(this);
     m_autoSwitchTimer = new CustomTimer();
+    m_startArchiteViewTimer= new CustomTimer;
     m_firstFireWidget = new FirstFireAlarmInfoWidget();
     m_excelManager = new ExcelManager(this);
     m_treeView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
@@ -649,6 +673,9 @@ void ArchitePlanView::initWidget()
     m_stackedWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     m_stackedWidget->setStyleSheet("QStackedWidget{border:1px solid black}");
     m_treeView->setStyleSheet("QTreeView{border:1px solid black}");
+
+
+
     QSplitter *splitter = new QSplitter(this);
     splitter->setChildrenCollapsible(false);
     QVBoxLayout*globalVLayout = new QVBoxLayout;
@@ -756,6 +783,7 @@ void ArchitePlanView::initWidget()
 
     // connect(m_showExtOnlineAction,&QAction::triggered,this,&ArchitePlanView::showExtNumState);
 
+    m_startArchiteViewTimer->setSingleShot(true);
 
 
     connect(m_treeView,&TreeView::treeIndex,this,[=](QStandardItem*item)
@@ -1045,7 +1073,7 @@ void ArchitePlanView::showMenu(const QPoint &point)
 void ArchitePlanView::saveArchiteInfo()
 {
     updateTreeItems();
-   saveArchiteInfoToDb();
+    saveArchiteInfoToDb();
 }
 
 void ArchitePlanView::autoFitView(QGraphicsView *view)
@@ -1248,6 +1276,7 @@ void ArchitePlanView::initFromJsonFile()
     }
 
     QList<QVariant>   jsonValueList=JsonEdit::instance()->readFile(c_jsonFilePath).toList();
+    // m_dbValueList=  m_sqliteManager->executeQuery("select *from ItemInfo");
     foreach (QString name, buildingNameList)
     {
         QStandardItem *parentItem= m_treeView->addRootItem(name);
@@ -1293,47 +1322,48 @@ void ArchitePlanView::initFromJsonFile()
 
 void ArchitePlanView::initFromDataBase(GraphicsView *view,const QString &buildingName,const QString &floor)
 {
-    QStringList valueList=  m_sqliteManager->executeQuery(QString("select *from ItemInfo where buildingName ='%1' and floorOfDevice = '%2'").arg(buildingName).arg(floor));
-    int valueSize = valueList.size();
+
+    m_dbValueList=  m_sqliteManager->executeQuery(QString("select *from ItemInfo where buildingName ='%1' and floorOfDevice = '%2'").arg(buildingName).arg(floor));
+    int valueSize = m_dbValueList.size();
     if(view!=nullptr)
     {
+        QGraphicsScene *scene = view->scene();
+        GraphicsScene *graphicsScene = dynamic_cast<GraphicsScene*>(scene);
         if(valueSize>=m_itemInfoTableSize&&valueSize%m_itemInfoTableSize==0)
         {
             for(int j=0;j<valueSize;j=j+m_itemInfoTableSize)
             {
-                QGraphicsScene *scene = view->scene();
-                GraphicsScene *graphicsScene = dynamic_cast<GraphicsScene*>(scene);
                 if(valueSize>j+m_itemInfoTableSize-1)
                 {
                     GraphicsItem *item = new GraphicsItem(graphicsScene);
-                    item->extNum() =valueList.at(j);
-                    DataStore::extNum()=item->extNum();
-                    item->addrNum() = valueList.at(j+1);
-                    item->loopNum() =valueList.at(j+2);
-                    DataStore::loopNum() = item->loopNum();
-                    item->networkNum() =valueList.at(j+3);
-                    DataStore::networkNum() = item->networkNum();
-                    item->powerAddr() = valueList.at(j+4);
-                    DataStore::powerAddr() = item->powerAddr();
-                    item->buildingName() = valueList.at(j+5);
-                    item->currentState() =valueList.at(j+6);
-                    item->deviceLocation() = valueList.at(j+7);
-                    item->deviceNum() =valueList.at(j+8);
-                    item->equipmentModel() = valueList.at(j+9);
-                    item->floorOfDevice() =valueList.at(j+10);
-                    QString pixPath =valueList.at(j+11);
+                    item->extNum() =m_dbValueList.at(j);
+                    Controller::instance()->getDataStore()->extNum()=item->extNum();
+                    item->addrNum() = m_dbValueList.at(j+1);
+                    item->loopNum() =m_dbValueList.at(j+2);
+                    Controller::instance()->getDataStore()->loopNum() = item->loopNum();
+                    item->networkNum() =m_dbValueList.at(j+3);
+                    Controller::instance()->getDataStore()->networkNum() = item->networkNum();
+                    item->powerAddr() = m_dbValueList.at(j+4);
+                    Controller::instance()->getDataStore()->powerAddr() = item->powerAddr();
+                    item->buildingName() = m_dbValueList.at(j+5);
+                    item->currentState() =m_dbValueList.at(j+6);
+                    item->deviceLocation() = m_dbValueList.at(j+7);
+                    item->deviceNum() =m_dbValueList.at(j+8);
+                    item->equipmentModel() = m_dbValueList.at(j+9);
+                    item->floorOfDevice() =m_dbValueList.at(j+10);
+                    QString pixPath =m_dbValueList.at(j+11);
                     item->setIconName(pixPath);
-                    item->manufacturers() =valueList.at(j+12);
-                    item->deviceInstallTime()=valueList.at(j+13);
-                    item->periodOfValidity() = valueList.at(j+14);
-                    QString posStr = valueList.at(j+15);
+                    item->manufacturers() =m_dbValueList.at(j+12);
+                    item->deviceInstallTime()=m_dbValueList.at(j+13);
+                    item->periodOfValidity() = m_dbValueList.at(j+14);
+                    QString posStr = m_dbValueList.at(j+15);
                     item->setPos(QPointF(posStr.section(",",0,0).toDouble(),posStr.section(",",1,1).toDouble()));
-                    QString sizeStr = valueList.at(j+16);
+                    QString sizeStr = m_dbValueList.at(j+16);
                     item->setRadius(sizeStr.toDouble());
-                    item->sysOfDevice() =valueList.at(j+17);
-                    item->deviceOperator() = valueList.at(j+18);
-                    item->analogType() = valueList.at(j+19);
-                    QString channelNumStr = valueList.at(j+20);
+                    item->sysOfDevice() =m_dbValueList.at(j+17);
+                    item->deviceOperator() = m_dbValueList.at(j+18);
+                    item->analogType() = m_dbValueList.at(j+19);
+                    QString channelNumStr = m_dbValueList.at(j+20);
                     item->channelNum() = channelNumStr.toInt();
                     if(graphicsScene!=nullptr)
                     {
@@ -1342,10 +1372,12 @@ void ArchitePlanView::initFromDataBase(GraphicsView *view,const QString &buildin
                     }
 
                     item->setIconIndex(ItemIconInfoToJson::iconIndex(item->iconName()));
+
                 }
             }
         }
     }
+    m_dbValueList.clear();
 }
 
 GraphicsView* ArchitePlanView::setViewFromJson(const QHash<QString,QVariant> &hash,QStandardItem *treeItem)
@@ -1373,7 +1405,7 @@ GraphicsView* ArchitePlanView::setViewFromJson(const QHash<QString,QVariant> &ha
 
 void ArchitePlanView::findFireAlarm(int pos)
 {
-    QList<QGraphicsItem*>itemList= DataStore::getTypeItemList(tr("火警"));
+    QList<QGraphicsItem*>itemList= Controller::instance()->getDataStore()->getTypeItemList(tr("火警"));
     int listSize = itemList.size();
 
     QList<GraphicsView *>viewList = m_widgetHash.values();
@@ -1451,7 +1483,7 @@ void ArchitePlanView::createAlarm(GraphicsItem *item,const QString &alarmType,co
 
         item->stopAnimations();
 
-        DataStore::insertTypeItem(curAlarmType,item);
+        Controller::instance()->getDataStore()->insertTypeItem(curAlarmType,item);
         updateAlarmText(item,curAlarmType);
         filterAlarm(item);
         filterAlarmView(item,curAlarmType);
@@ -1474,7 +1506,8 @@ GraphicsItem *ArchitePlanView::itemFormInfo(const QString &extNum, const QString
         foreach (QGraphicsItem*item, itemList)
         {
             GraphicsItem *curItem = dynamic_cast<GraphicsItem *>(item);
-            if(curItem->extNum()==extNum&&curItem->loopNum()==loopNum&&curItem->addrNum()==addressNum&&curItem->networkNum()==networkNum)
+            if(curItem->extNum()==extNum&&curItem->loopNum()==loopNum&&
+                    curItem->addrNum()==addressNum&&curItem->networkNum()==networkNum &&curItem->powerAddr()==powerAddr)
             {
                 graphicsItem = curItem;
                 isFind = true;
@@ -1603,7 +1636,7 @@ void ArchitePlanView::filterAlarm(GraphicsItem *item)
 
 void ArchitePlanView::filterAlarmView(GraphicsItem *item, const QString &alarmType)
 {
-    GraphicsView *view = DataStore::itemDisplayView(item);
+    GraphicsView *view = Controller::instance()->getDataStore()->itemDisplayView(item);
     if(view!=nullptr)
     {
         insertAlarmWidget(alarmType,view);
@@ -1652,14 +1685,14 @@ void ArchitePlanView::viewSwitch()
     }
     foreach (const QString &filterType, alarmTypeList)
     {
-        QList<QGraphicsItem *> itemList=  DataStore::getTypeItemList(filterType);
+        QList<QGraphicsItem *> itemList=  Controller::instance()->getDataStore()->getTypeItemList(filterType);
 
         if(itemList.size()>0)
         {
             GraphicsItem *curItem = dynamic_cast<GraphicsItem *>(itemList.at(0));
             if(curItem!=nullptr)
             {
-                GraphicsView *view=   DataStore::itemDisplayView(curItem);
+                GraphicsView *view=   Controller::instance()->getDataStore()->itemDisplayView(curItem);
 
                 autoFitView(view);
                 if(filterType==tr("火警"))
@@ -1677,7 +1710,7 @@ void ArchitePlanView::viewSwitch()
 
 void ArchitePlanView::startAlarmAnimation(const QString &alarmType)
 {
-    QList<QGraphicsItem*>itemList=DataStore::getTypeItemList(alarmType);
+    QList<QGraphicsItem*>itemList=Controller::instance()->getDataStore()->getTypeItemList(alarmType);
     foreach (QGraphicsItem*curItem, itemList)
     {
         GraphicsItem *item = dynamic_cast<GraphicsItem *>(curItem);
@@ -1693,7 +1726,7 @@ void ArchitePlanView::startAlarmAnimation(GraphicsItem *item)
 
         QString curType = item->alarmType();
         QString curState= item->currentState();
-        GraphicsView *view = DataStore::itemDisplayView(item);
+        GraphicsView *view = Controller::instance()->getDataStore()->itemDisplayView(item);
         if(curState!=tr("正常")&&!curState.isEmpty())
         {
             if(!curType.startsWith(tr("模拟")))
@@ -1720,7 +1753,7 @@ void ArchitePlanView::startAlarmAnimation(GraphicsItem *item)
         {
             item->setColorEndValue(QColor("red"));
         }
-        QList<QGraphicsItem*> itemList= DataStore::getTypeItemList(curState);
+        QList<QGraphicsItem*> itemList= Controller::instance()->getDataStore()->getTypeItemList(curState);
         if(!itemList.isEmpty())
         {
             GraphicsItem *curItem = dynamic_cast<GraphicsItem*>(itemList.at(0));
@@ -1794,7 +1827,7 @@ QString ArchitePlanView::speechInfo(GraphicsItem *item, const QString &alarmType
     QString speechText="";
     if(item!=nullptr)
     {
-        QList<QGraphicsItem *>itemList=  DataStore::getTypeItemList(alarmType);
+        QList<QGraphicsItem *>itemList=  Controller::instance()->getDataStore()->getTypeItemList(alarmType);
         if(itemList.size()>0)
         {
             if(item==itemList.at(0))
@@ -1856,7 +1889,7 @@ void ArchitePlanView::saveItemInfoToDb(GraphicsItem *item)
 
 int ArchitePlanView::numOfTypeAlarm(const QString &type)
 {
-    int num= DataStore::numOfTypeItem(type);
+    int num= Controller::instance()->getDataStore()->numOfTypeItem(type);
     return num;
 }
 
@@ -1893,7 +1926,7 @@ int ArchitePlanView::currentPage()
 
 void ArchitePlanView::clearAlarm(bool clearFireAlarm)
 {
-    QList< QList<QGraphicsItem *> >list= DataStore::getTypeItemHash().values();
+    QList< QList<QGraphicsItem *> >list= Controller::instance()->getDataStore()->getTypeItemHash().values();
     foreach (QList<QGraphicsItem *>itemList, list)
     {
         foreach (QGraphicsItem *currentItem, itemList)
@@ -1933,7 +1966,7 @@ void ArchitePlanView::clearAlarm(bool clearFireAlarm)
     Controller::instance()->getSpeechObj()->removeAlarmText(tr("传输故障"));
     Controller::instance()->getSpeechObj()->removeAlarmText(tr("主电故障"));
     Controller::instance()->getSpeechObj()->removeAlarmText(tr("备电故障"));
-    DataStore::clearTypeItem();
+    Controller::instance()->getDataStore()->clearTypeItem();
     clearAlarmWidget();
     m_alarmViewList.clear();
 
@@ -1955,11 +1988,11 @@ void ArchitePlanView::clearAlarm(bool clearFireAlarm)
     //emit clearAlarmFromTable();
 }
 
-void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum,const QString &rebackAlarmTime)
+void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum)
 {
     //qDebug() << "clearAlarmFromExtNum";
-    //qDebug()<<DataStore::getTypeItemHash() << DataStore::getTypeItemHash().size();
-    QList< QList<QGraphicsItem *> >list= DataStore::getTypeItemHash().values();
+    //qDebug()<<Controller::instance()->getDataStore()->getTypeItemHash() << Controller::instance()->getDataStore()->getTypeItemHash().size();
+    QList< QList<QGraphicsItem *> >list= Controller::instance()->getDataStore()->getTypeItemHash().values();
     QStringList alarmStringList;
     alarmStringList<< "火警"<<"启动" << "监管" << "故障"<<"反馈" <<"屏蔽";
     foreach (QList<QGraphicsItem *>itemList, list)
@@ -1969,12 +2002,12 @@ void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum,const QString &
             GraphicsItem *item = dynamic_cast<GraphicsItem *>(currentItem);
             if(item!=nullptr)
             {
-                GraphicsView*curView = DataStore::itemDisplayView(item);
+                GraphicsView*curView = Controller::instance()->getDataStore()->itemDisplayView(item);
                 if(item->extNum()==extNum)
                 {
                     foreach (QString alarmType, alarmStringList)
                     {
-                        QList<QGraphicsItem *>alarmTypeItemList  =DataStore::getTypeItemList(alarmType);
+                        QList<QGraphicsItem *>alarmTypeItemList  =Controller::instance()->getDataStore()->getTypeItemList(alarmType);
                         if(alarmTypeItemList.size()>0)
                         {
                             GraphicsItem *curItem = dynamic_cast<GraphicsItem *>(alarmTypeItemList.at(0));
@@ -2000,7 +2033,7 @@ void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum,const QString &
 
                     item->stopAnimations();
                     item->clearAllAlarm();
-                    DataStore::deleteTypeItem(item);
+                    Controller::instance()->getDataStore()->deleteTypeItem(item);
                     if(curView!=nullptr)
                     {
                         foreach (QString curAlarm, alarmStringList)
@@ -2036,11 +2069,11 @@ void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum,const QString &
                 }
             }
         }
-        DataStore::deleteTypeNoItem(extNum);
+        Controller::instance()->getDataStore()->deleteTypeNoItem(extNum);
 
     }
 
-    int totalNum = DataStore::numOfTypeItem(m_currentAlarmType);
+    int totalNum = Controller::instance()->getDataStore()->numOfTypeItem(m_currentAlarmType);
     emit findAlarmNum(totalNum,0);
     foreach (QString curAlarm, alarmStringList)
     {
@@ -2151,8 +2184,8 @@ void ArchitePlanView::toArchitePlan(const QString &extNum, const QString &loopNu
 
                         //                        if(m_currentAlarmType!=tr("全部"))
                         //                        {
-                        //                            int totalNum = DataStore::numOfTypeItem(m_currentAlarmType);
-                        //                            int currentNum = DataStore::indexOfItem(extNum,loopNum,addressNum,networkNum,m_currentAlarmType);
+                        //                            int totalNum = Controller::instance()->getDataStore()->numOfTypeItem(m_currentAlarmType);
+                        //                            int currentNum = Controller::instance()->getDataStore()->indexOfItem(extNum,loopNum,addressNum,networkNum,m_currentAlarmType);
                         //                            emit findAlarmNum(totalNum,currentNum+1);
                         //                        }
                         return;
@@ -2273,7 +2306,7 @@ void ArchitePlanView::viewsAutoSwitch()
     //    }
     //    else
     {
-        QList<QGraphicsItem*> gItemList= DataStore::getTypeItemList("火警"/*m_currentAlarmType*/);
+        QList<QGraphicsItem*> gItemList= Controller::instance()->getDataStore()->getTypeItemList("火警"/*m_currentAlarmType*/);
         if(m_alarmNum<gItemList.size())
         {
             QGraphicsItem*curItem = gItemList.at(m_alarmNum);
@@ -2282,7 +2315,7 @@ void ArchitePlanView::viewsAutoSwitch()
             {
                 qreal size=item->scale()*item->radius()*8;
                 QRectF currentRectF = QRectF(item->pos().x(),item->pos().y(),size,size);
-                QGraphicsView *view = DataStore::itemDisplayView(item);
+                QGraphicsView *view = Controller::instance()->getDataStore()->itemDisplayView(item);
                 if(view!=nullptr)
                 {
                     m_stackedWidget->setCurrentWidget(view);
@@ -2290,7 +2323,7 @@ void ArchitePlanView::viewsAutoSwitch()
                 }
             }
             m_alarmNum++;
-            int totalNum = DataStore::numOfTypeItem("火警"/*m_currentAlarmType*/);
+            int totalNum = Controller::instance()->getDataStore()->numOfTypeItem("火警"/*m_currentAlarmType*/);
             emit findAlarmNum(totalNum,m_alarmNum);
         }
         else
@@ -2929,10 +2962,7 @@ void ArchitePlanView::excelFileProcess(QString filePath)
     }
 }
 
-void ArchitePlanView::excelFileAvailable(bool isAvailable)
-{
-    qDebug() << isAvailable;
-}
+
 
 
 
@@ -3062,6 +3092,13 @@ void ArchitePlanView::clearAllGraphicsTextItem()
             view->clearGraphicsTextItem();
         }
     }
+}
+
+void ArchitePlanView::startCreatView()
+{
+    Controller::instance()->delayMs(1000);
+    setGlobalArchiteFromJson();
+    initFromJsonFile();
 }
 
 bool &ArchitePlanView::itemLimit()

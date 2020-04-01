@@ -29,18 +29,21 @@ Item {
                 switch(bar.currentIndex)
                 {
                 case 0:
-                    alarmInfo.saveToPdf()
+                    currentAlarm.saveToPdf()
                     break;
                 case 1:
-                    deviceState.saveToPdf()
+                    alarmInfo.saveToPdf()
                     break;
                 case 2:
-                    maintInfo.saveToPdf()
+                    deviceState.saveToPdf()
                     break;
                 case 3:
-                    operaEvent.saveToPdf()
+                    maintInfo.saveToPdf()
                     break;
                 case 4:
+                    operaEvent.saveToPdf()
+                    break;
+                case 5:
                     analogInfo.saveToPdf()
                     break;
                 default:
@@ -60,18 +63,21 @@ Item {
                 switch(bar.currentIndex)
                 {
                 case 0:
-                    alarmInfo.printPreview()
+                    currentAlarm.printPreview()
                     break;
                 case 1:
-                    deviceState.printPreview()
+                    alarmInfo.printPreview()
                     break;
                 case 2:
-                    maintInfo.printPreview()
+                    deviceState.printPreview()
                     break;
                 case 3:
-                    operaEvent.printPreview()
+                    maintInfo.printPreview()
                     break;
                 case 4:
+                    operaEvent.printPreview()
+                    break;
+                case 5:
                     analogInfo.printPreview()
                     break;
                 default:
@@ -92,18 +98,21 @@ Item {
                 switch(bar.currentIndex)
                 {
                 case 0:
-                    alarmInfo.startPrint()
+                    currentAlarm.startPrint()
                     break;
                 case 1:
-                    deviceState.startPrint()
+                    alarmInfo.startPrint()
                     break;
                 case 2:
-                    maintInfo.startPrint()
+                    deviceState.startPrint()
                     break;
                 case 3:
-                    operaEvent.startPrint()
+                    maintInfo.startPrint()
                     break;
                 case 4:
+                    operaEvent.startPrint()
+                    break;
+                case 5:
                     analogInfo.startPrint()
                     break;
                 default:
@@ -124,6 +133,9 @@ Item {
         anchors.bottom: root.bottom
         width: root.width
         anchors.topMargin: 20
+        MyTabButton {
+            text: qsTr("当前事件查询")
+        }
         MyTabButton {
             text: qsTr("报警历史查询")
         }
@@ -149,6 +161,12 @@ Item {
        anchors.bottom: root.bottom
         currentIndex: bar.currentIndex
 
+        CurrentAlarmItem
+        {
+            id:currentAlarm
+            anchors.fill: parent
+            anchors.topMargin:80
+        }
         AlarmInfoTableItem {
 
             id: alarmInfo

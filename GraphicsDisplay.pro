@@ -90,7 +90,8 @@ SOURCES += \
     LogMsg/logmsg.cpp \
     communication/tcpserver.cpp \
     graphicsWidget/svgitem.cpp \
-    excelManager/excelmanager.cpp
+    excelManager/excelmanager.cpp \
+    graphicsWidget/drawimagethread.cpp
 
 
 HEADERS += \
@@ -147,7 +148,8 @@ HEADERS += \
     LogMsg/logmsg.h \
     communication/tcpserver.h \
     graphicsWidget/svgitem.h \
-    excelManager/excelmanager.h
+    excelManager/excelmanager.h \
+    graphicsWidget/drawimagethread.h
 
 FORMS +=
 

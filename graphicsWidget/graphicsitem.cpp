@@ -14,14 +14,14 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_itemTextIsVisiable(true)
 
 {
-    m_radius=DataStore::iconSize();
+    m_radius=Controller::instance()->getDataStore()->iconSize();
     m_graphicsScene = scene;
     m_itemInfo.m_manufacturers = tr("北京利达华信电子有限公司");
-    m_itemInfo.m_sysOfDevice = DataStore::sysName();
-    m_itemInfo.m_deviceOperator = DataStore::oneOperator();
-    m_channelNum = DataStore::channelNum();
-    m_analogType = DataStore::analogValue();
-    m_powerAddr = DataStore::powerAddr();
+    m_itemInfo.m_sysOfDevice = Controller::instance()->getDataStore()->sysName();
+    m_itemInfo.m_deviceOperator = Controller::instance()->getDataStore()->oneOperator();
+    m_channelNum = Controller::instance()->getDataStore()->channelNum();
+    m_analogType = Controller::instance()->getDataStore()->analogValue();
+    m_powerAddr = Controller::instance()->getDataStore()->powerAddr();
    // m_itemInfo.m_networkNum = "0";
 
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
@@ -32,6 +32,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_colorEffect->setStrength(0.0);
     setProperty("color",m_color);
     setProperty("scale",m_scale);
+    //setFlag( QGraphicsItem::ItemIgnoresTransformations);
    // setProperty("angle",m_angle);
     m_colorAnimation = new QPropertyAnimation(this,"color");
     m_colorAnimation->setStartValue(QColor(Qt::black));
@@ -43,7 +44,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_scaleAnimation->setEndValue(1.5);
     m_scaleAnimation->setDuration(1000);
     m_scaleAnimation->setLoopCount(-1);
-
+    m_drawImageThread = new DrawImageThread;
 //    m_rotateAnimation = new QPropertyAnimation(this,"angle");
 //    m_rotateAnimation->setDuration(500);
 //    m_rotateAnimation->setLoopCount(-1);
@@ -59,14 +60,15 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_itemTextFont.setPointSize(qFloor(m_radius/3));
     m_itemTextFont.setFamily("宋体");
 
-    QString num = QString("%1").arg(DataStore::itemNum());
+
+    QString num = QString("%1").arg(Controller::instance()->getDataStore()->itemNum());
     m_itemInfo.m_deviceNum = num;
     m_itemInfo.m_addrNum= num;
-    m_itemInfo.m_extNum = DataStore::extNum();
-    m_itemInfo.m_loopNum = DataStore::loopNum();
-    m_itemInfo.m_networkNum = DataStore::networkNum();
-    int itemIconIndex = ItemIconInfoToJson::currentIconIndex();
-    setInfoFromIconIndex(itemIconIndex);
+    m_itemInfo.m_extNum = Controller::instance()->getDataStore()->extNum();
+    m_itemInfo.m_loopNum = Controller::instance()->getDataStore()->loopNum();
+    m_itemInfo.m_networkNum = Controller::instance()->getDataStore()->networkNum();
+//    int itemIconIndex = ItemIconInfoToJson::currentIconIndex();
+//    setInfoFromIconIndex(itemIconIndex);
     connect(m_colorAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &/*value*/)
     {
         QColor color =qvariant_cast<QColor> (m_colorAnimation->currentValue());
@@ -93,7 +95,10 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
 
 //    });
 
-
+    connect(m_drawImageThread,&DrawImageThread::currentImage,[=](QImage image){
+        m_iconImage=image;
+        update();
+    });
 }
 
 GraphicsItem::~GraphicsItem()
@@ -101,6 +106,8 @@ GraphicsItem::~GraphicsItem()
 
     stopAnimations();
     clearAlarmRecord();
+    m_drawImageThread->quit();
+    m_drawImageThread->deleteLater();
     //stopRotationAnimation();
 }
 
@@ -124,6 +131,7 @@ QRectF GraphicsItem::boundingRect() const
 void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*option, QWidget */*widget*/)
 {
 
+    painter->setPen(QPen(Qt::white));
     if(m_itemTextIsVisiable)
     {
         int fontSize =0;
@@ -153,19 +161,21 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*optio
         }
 
         QRectF rectF = QRectF(-m_radius/2,-m_radius/2,m_radius*1.5,m_radius*1.5);
-        if(m_iconName.endsWith(".svg"))
-        {
-            QSvgRenderer renderer(m_iconName);
-            renderer.render(painter,rectF);
+       // m_drawImageThread->setImageRect(rectF);
+        painter->drawImage(rectF,m_iconImage);
+//        if(m_iconName.endsWith(".svg"))
+//        {
+//            QSvgRenderer renderer(m_iconName);
+//            renderer.render(painter,rectF);
 
-        }
-        else
-        {
-            if(!QPixmap(m_iconName).isNull())
-            {
-                painter->drawPixmap(rectF.toRect(),QPixmap(m_iconName));
-            }
-        }
+//        }
+//        else
+//        {
+//            if(!QPixmap(m_iconName).isNull())
+//            {
+//                painter->drawPixmap(rectF.toRect(),QPixmap(m_iconName));
+//            }
+//        }
 
     }
     else
@@ -191,7 +201,7 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*optio
 
     if (option->state & QStyle::State_Selected)
     {
-        painter->setPen(QPen(Qt::black, 0, Qt::DashLine));
+        painter->setPen(QPen(Qt::white, 0, Qt::DashLine));
         painter->setBrush(Qt::NoBrush);
         painter->drawRect(boundingRect().adjusted(m_radius*2.25, m_radius*2.25, -m_radius*2.65, -m_radius*2.65));
     }
@@ -351,8 +361,10 @@ qreal GraphicsItem::radius() const
 
 void GraphicsItem::setRadius(qreal radius)
 {
-    DataStore::iconSize() =radius;
+    Controller::instance()->getDataStore()->iconSize() =radius;
     m_radius = radius;
+    QRectF rectF = QRectF(-m_radius/2,-m_radius/2,m_radius*1.5,m_radius*1.5);
+    m_drawImageThread->setImageRect(rectF);
     emit sizeChanged(radius);
     update();
 }
@@ -395,7 +407,11 @@ void GraphicsItem::setIconName(const QString &iconName)
                     }
 #endif
     m_itemInfo.m_equipmentModel =Controller::instance()->getFileNameFromUrl(iconName,false);
-    update();
+    m_drawImageThread->setImageName(m_iconName);
+    QRectF rectF = QRectF(-m_radius/2,-m_radius/2,m_radius*1.5,m_radius*1.5);
+    m_drawImageThread->setImageRect(rectF);
+    m_drawImageThread->drawImage();
+   // update();
 }
 
 QHash<QString, QVariant> GraphicsItem::itemInfo()
@@ -481,7 +497,7 @@ void GraphicsItem::setInfoFromIconIndex(int itemIconIndex)
         QString currentIconName = ItemIconInfoToJson::getIconName(itemIconIndex);
         if(!currentIconName.isEmpty())
         {
-            m_iconName = Controller::instance()->fileNameFromQml(currentIconName);
+            setIconName( Controller::instance()->fileNameFromQml(currentIconName));
         }
         else
         {

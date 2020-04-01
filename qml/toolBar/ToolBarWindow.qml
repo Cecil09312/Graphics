@@ -6,7 +6,6 @@ import Qt.labs.platform 1.0
 
 ToolBar {
     id: toolBar
-    signal showOnlineState()
     signal chAndEnSwitch()
     signal checkTheVersion()
     anchors.fill: parent
@@ -73,8 +72,8 @@ ToolBar {
                 contentItem: Text {
                     text: logInBtnToolTip.text
                     font.family: "宋体"
-                    font.bold: true
-                    color: "black"
+                    font.bold: false
+                    color: "white"
                 }
 
                 background: Rectangle {
@@ -111,8 +110,8 @@ ToolBar {
                 contentItem: Text {
                     text: infoQueryToolTip.text
                     font.family: "宋体"
-                    font.bold: true
-                    color: "black"
+                    font.bold: false
+                    color: "white"
                 }
 
                 background: Rectangle {
@@ -151,8 +150,8 @@ ToolBar {
                 contentItem: Text {
                     text: infoSettingToolTip.text
                     font.family: "宋体"
-                    font.bold: true
-                    color: "black"
+                    font.bold: false
+                    color: "white"
                 }
 
                 background: Rectangle {
@@ -170,40 +169,6 @@ ToolBar {
             }
         }
 
-//        ToolButton {
-//            id: helpBtn
-//            width: 30
-//            BorderImage {
-//                id: helpImage
-//                source: "qrc:/images/help.png"
-//                width: parent.width
-//                height: parent.height
-//            }
-//            ToolTip {
-
-//                id: helpBtnToolTip
-//                visible: helpBtn.hovered
-//                text: qsTr("帮助")
-//                contentItem: Text {
-//                    text: helpBtnToolTip.text
-//                    font.family: "宋体"
-//                    font.bold: true
-//                    color: "black"
-//                }
-
-//                background: Rectangle {
-//                    color: "transparent"
-//                    BorderImage {
-//                        source: "qrc:/images/dialog.png"
-//                        anchors.fill: parent
-//                    }
-//                }
-//                bottomMargin: 30
-//            }
-//            onClicked: {
-//                CrtWidget.openHelpFile()
-//            }
-//        }
         ToolButton {
             id: quitBtn
             Layout.alignment: Qt.AlignRight
@@ -224,8 +189,8 @@ ToolBar {
                 contentItem: Text {
                     text: quitBtnToolTip.text
                     font.family: "宋体"
-                    font.bold: true
-                    color: "black"
+                    font.bold: false
+                    color: "white"
                 }
 
                 background: Rectangle {
@@ -245,25 +210,6 @@ ToolBar {
         }
     }
 
-
-    Timer {
-        id: time
-        interval: 1000
-        repeat: true
-        onTriggered: {
-            currentDataTimeText.text = Qt.formatDateTime(new Date,
-                                                         "yyyy/MM/dd hh:mm:ss")
-        }
-    }
-
-    Component.onCompleted: {
-        time.running = true
-    }
-    Component.onDestruction: {
-        time.running = false
-    }
-
-
     MouseArea
     {
       id:mouseArea
@@ -279,11 +225,11 @@ ToolBar {
     Menu
     {
       id:menu
-      MenuItem
-      {
-        text:qsTr("在线状态")
-        onTriggered: showOnlineState()
-      }
+//      MenuItem
+//      {
+//        text:qsTr("在线状态")
+//        onTriggered: showOnlineState()
+//      }
       MenuItem
       {
         text:qsTr("版本查询")
@@ -294,6 +240,13 @@ ToolBar {
 //        text:qsTr("中英文切换")
 //        onTriggered: chAndEnSwitch()
 //      }
+    }
+
+
+    function setTime()
+    {
+
+      currentDataTimeText.text = Qt.formatDateTime(new Date,"yyyy/MM/dd hh:mm:ss")
     }
 }
 

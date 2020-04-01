@@ -23,6 +23,7 @@ Rectangle {
     signal mainPowerViewShow()
     signal standbyPowerViewShow()
     signal handOrAutoStateViewShow()
+    signal showOnlineState()
     property int colorChangeNum:0
     property bool curState: false
     property int totalNum: 0
@@ -300,6 +301,12 @@ Rectangle {
             Layout.row: 10
             color: "yellow"
             active: true
+
+           MouseArea
+           {
+               anchors.fill: parent
+               onClicked: showOnlineState()
+           }
         }
 
         Text {
@@ -365,7 +372,7 @@ Rectangle {
                 ArchitePlanView.toAlarmView()
 
                 /*测试*/
-              // CrtWidget.sendSeralData()
+               CrtWidget.sendSeralData()
             }
 
         }

@@ -17,7 +17,7 @@ Controller::~Controller()
     m_tcpObj.clear();
     m_IndicatorObj.clear();
     //m_speechObj.clear();
-   //m_operatorInfo->deleteLater();
+    //m_operatorInfo->deleteLater();
     m_operatorInfo.clear();
     m_logMsg.clear();
 }
@@ -35,6 +35,13 @@ QString Controller::fileNameFromQml(const QString &name)
             fileName = nameList.at(size-1);
         }
     }
+    QStringList fileDirList=   fileName.split("\\");
+
+    if(!fileDirList.isEmpty())
+    {
+        fileName=QString(fileDirList.join("/"));
+    }
+
     if(fileName.startsWith("qrc"))
     {
         fileName.remove("qrc");
@@ -194,6 +201,11 @@ void Controller::delayMs(int ms)
     }
 }
 
+DataStore *Controller::getDataStore()
+{
+    return m_dataStore.data();
+}
+
 Controller::Controller()
 {
     m_commObj = QSharedPointer<AbstractLink>(new SerialLink(),&QObject::deleteLater);
@@ -209,6 +221,7 @@ Controller::Controller()
     m_operatorInfo = QSharedPointer<OperatorInfo>(new OperatorInfo,&QObject::deleteLater);
     m_transportInfo = QSharedPointer<TransportInfo>(new TransportInfo,&QObject::deleteLater);
     m_mysqlManager = SqlManager::fromDriver("QMYSQL");
+    m_dataStore = QSharedPointer<DataStore>(new DataStore(this));
 }
 
 

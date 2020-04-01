@@ -26,6 +26,7 @@
 #include <QFileInfo>
 #include "LogMsg/logmsg.h"
 #include "LogMsg/debuglogmsg.h"
+#include "dataStore/datastore.h"
 
 class Controller:public QObject
 {
@@ -58,6 +59,7 @@ public:
     TransportInfo *getTransportInfo();
     LogMsg *getLogMsg();
     void delayMs(int ms);//非阻塞延时
+    DataStore*getDataStore();
 
 private:
     Controller();
@@ -79,6 +81,7 @@ private:
     QSharedPointer<TransportInfo>m_transportInfo;
     SqlManager *m_mysqlManager;
     QSharedPointer<LogMsg>m_logMsg;
+    QSharedPointer<DataStore>m_dataStore;
 
 };
 

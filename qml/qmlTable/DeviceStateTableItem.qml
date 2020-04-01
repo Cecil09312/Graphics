@@ -8,10 +8,10 @@ import "../infoSetting"
     Item
     {
        // anchors.fill: parent
-    Grid {
+    Row {
         id: deviceStateQuery
         spacing: 5
-        columns: 14
+        //columns: 14
         Text {
             id: extNum
             text: qsTr("分机号")

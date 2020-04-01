@@ -6,6 +6,8 @@
 #include <QSqlQuery>
 #include <QSqlDriver>
 #include <QSqlRecord>
+#include <QtConcurrent>
+#include <QFuture>
 
 class SqlManager : public QObject
 {
@@ -48,11 +50,13 @@ public:
 signals:
    void dataCommitSuccess(bool isSuccessful);
    void dbConnected(bool isConnected);
+
 public slots:
 
 protected:
     class SqlManagerPrivate;
     SqlManagerPrivate *d;
+
 };
 
 #endif // DATABASE_H

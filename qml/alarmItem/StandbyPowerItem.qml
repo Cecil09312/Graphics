@@ -1,9 +1,9 @@
-import QtQuick 2.0
+﻿import QtQuick 2.0
 import QtQuick.Controls 2.2
 Item {
 
     height:300
-    width: 240
+    width: 400
 
 
     ListModel
@@ -33,9 +33,17 @@ Item {
         }
     }
 
-    function addStandbyPowerState(extNum,networkNum,curState)
+    function addStandbyPowerState(extNum,networkNum,powerAddr,curState)
     {
-        var curStandbyPowerState= String(qsTr("主机号:%1,网络号:%2,%3")).arg(extNum).arg(networkNum).arg(curState)
+        var curStandbyPowerState= new String
+        if(powerAddr=="")
+        {
+        curStandbyPowerState=String(qsTr("主机号:%1,网络号:%2,%3")).arg(extNum).arg(networkNum).arg(curState)
+        }
+        else
+        {
+        curStandbyPowerState=String(qsTr("主机号:%1,网络号:%2,电源地址:%3,%4")).arg(extNum).arg(networkNum).arg(powerAddr).arg(curState)
+        }
         if(listModel.count>0)
         {
             var isOk = false
@@ -44,8 +52,9 @@ Item {
             {
                 var curValue = new String
                 curValue = listModel.get(i)["value"]
-                var curStateValue=  curValue.substring(0,11)
-                if(curStateValue===String(qsTr("主机号:%1,网络号:%2")).arg(extNum).arg(networkNum))
+                var curStateValue=  curValue.substring(0,curValue.length-5)
+                var currentStandbyPowerState = curStandbyPowerState.substring(0,curValue.length-5)
+                if(curStateValue===currentStandbyPowerState)
                 {
                     isOk = true
                     curIndex = i

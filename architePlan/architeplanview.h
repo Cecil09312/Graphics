@@ -73,7 +73,7 @@ public:
                                  const QString& alarmState, const QString &alarmTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));//生成报警
 
     Q_INVOKABLE void clearAlarm(bool clearFireAlarm);//清空报警
-    Q_INVOKABLE void clearAlarmFromExtNum(const QString &extNum, const QString &rebackAlarmTime);//按照主机号清除报警
+    Q_INVOKABLE void clearAlarmFromExtNum(const QString &extNum);//按照主机号清除报警
     Q_INVOKABLE void clearExcptFireAlarm();
 
     Q_INVOKABLE void toAlarmView();
@@ -84,6 +84,7 @@ public:
                                    const QString &password,const QString &databaseName,int port);//将数据保存到mysql数据库
     QString deviceSysName(const QString &extNum);//设备系统名
     void clearAllGraphicsTextItem();
+    void startCreatView();
 
 
 signals:
@@ -133,7 +134,6 @@ public slots:
     void batchItems();
     void changeItemsInfoFromFloor();
     void excelFileProcess(QString filePath);
-    void excelFileAvailable(bool isAvailable);
 
 private:
     void initWidget();
@@ -206,7 +206,9 @@ private:
     ExcelManager *m_excelManager;
     QHash<quint32,QString>m_loopAddrExtHash;
     QHash<quint32,QString>m_loopAddrDeviceHash;
+    QStringList m_dbValueList;
    // QHash<quint32,QString>m_loopAddrFloorHash;
+    CustomTimer *m_startArchiteViewTimer;
 
 
 };

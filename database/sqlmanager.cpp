@@ -3,8 +3,7 @@
 #include "sqlitemanager.h"
 #include <QDebug>
 #include <QSqlError>
-#include <QtConcurrent>
-#include <QFuture>
+
 #include "mysqlmanager.h"
 
 class SqlManager::SqlManagerPrivate
@@ -84,7 +83,7 @@ bool SqlManager::insertBatch(const QString &tableName, const QList<QVariant> &va
             sqlStr+=")";
             QSqlQuery query(d->m_database);
             d->m_database.transaction();
-           // QThread::msleep(10);
+            // QThread::msleep(10);
             query.prepare(sqlStr);
             foreach (QVariant value, valueList)
             {
@@ -107,15 +106,17 @@ QStringList SqlManager::executeQuery(const QString &sql)
     bool isTransaction= false;
     QFuture<void> future = QtConcurrent::run([&]
     {
-
         if(d->m_database.isOpen())
         {
             QSqlQuery query(d->m_database);
-            isTransaction=d->m_database.transaction();
+
+            isTransaction= d->m_database.transaction();
             if(isTransaction)
             {
+
                 query.prepare(sql);
                 query.exec();
+
                 QSqlRecord record = query.record();
                 while (query.next())
                 {
@@ -127,26 +128,11 @@ QStringList SqlManager::executeQuery(const QString &sql)
                 d->m_database.commit();
                 query.finish();
             }
-//            else
-//            {
-//                QThread::msleep(200);
-//            }
-//            else
-//            {
-//                close();
-//            }
 
         }
-
-//        if(sql.startsWith("insert")||sql.startsWith("update"))
-//        {
-//            emit dataCommitSuccess(isTransaction);
-//        }
     });
 
     future.waitForFinished();
-
-
     return valueList;
 }
 

@@ -5,16 +5,20 @@ import qmlTableModel 1.0
 import operatorInfo 1.0
 import "../infoSetting"
 
-    Item
-    {
-       // anchors.fill: parent
-           // anchors.top: parent.top
-            //anchors.bottom: parent.bottom
-        Row {
-            id: operaEventQuery
-            spacing: 5
-            anchors.topMargin: 20
+Item
+{
+    // anchors.fill: parent
+    // anchors.top: parent.top
+    //anchors.bottom: parent.bottom
+    Column {
+        id: operaEventQuery
+        spacing: 5
+        anchors.topMargin: 20
+        //columns: 18
 
+        Row
+        {
+            spacing: 5
             Text {
                 text: qsTr("用户名")
                 height: 30
@@ -41,32 +45,137 @@ import "../infoSetting"
 
             Text {
                 id: startTime
-                text: qsTr("时间")
+                text: qsTr(" 时间:")
                 height: 30
                 horizontalAlignment: TextEdit.AlignHCenter
                 verticalAlignment: TextEdit.AlignVCenter
             }
-            TextField {
-                id: startTimeTextField
-                width: 150
+            Text {
+
+                text: qsTr("年:")
                 height: 30
-                placeholderText: qsTr("如:2019/01/01 00:00:00")
+                horizontalAlignment: TextEdit.AlignLeft
+                verticalAlignment: TextEdit.AlignVCenter
+            }
+
+            Controls1_4.SpinBox
+            {
+                id:operaEventStartYearSpinBox
+
+                maximumValue: 2100
+                minimumValue: 1970
+                value: Qt.formatDate(new Date,"yyyy")
+                width: 60
+                height:25
+
+            }
+            Text {
+
+                text: qsTr("月:")
+                height: 30
+                horizontalAlignment: TextEdit.AlignLeft
+                verticalAlignment: TextEdit.AlignVCenter
+            }
+
+            Controls1_4.SpinBox
+            {
+                id:operaEventStartMonthSpinBox
+
+                maximumValue: 12
+                minimumValue: 1
+                value: Qt.formatDate(new Date,"M")
+                width: 50
+                height:25
+
+            }
+            Text {
+
+                text: qsTr("日:")
+                height: 30
+                horizontalAlignment: TextEdit.AlignLeft
+                verticalAlignment: TextEdit.AlignVCenter
+            }
+            Controls1_4.SpinBox
+            {
+                id:operaEventStartDateSpinBox
+
+                maximumValue: 31
+                minimumValue: 1
+                value: Qt.formatDate(new Date,"d")
+                width: 50
+                height: 25
+
             }
 
             Text {
 
-                text: qsTr("到")
+                text: qsTr(" 到:")
                 height: 30
                 horizontalAlignment: TextEdit.AlignHCenter
                 verticalAlignment: TextEdit.AlignVCenter
             }
-            TextField {
-                id: endTimeTextField
-                width: 150
+            Text {
+
+                text: qsTr("年:")
                 height: 30
-                placeholderText: qsTr("如:2050/01/01 00:00:00")
+                horizontalAlignment: TextEdit.AlignLeft
+                verticalAlignment: TextEdit.AlignVCenter
             }
 
+            Controls1_4.SpinBox
+            {
+                id:operaEventEndYearSpinBox
+
+                maximumValue: 2100
+                minimumValue: 1970
+                value: Qt.formatDate(new Date,"yyyy")
+                width: 60
+                height:25
+
+            }
+            Text {
+
+                text: qsTr("月:")
+                height: 30
+                horizontalAlignment: TextEdit.AlignLeft
+                verticalAlignment: TextEdit.AlignVCenter
+            }
+
+            Controls1_4.SpinBox
+            {
+                id:operaEventEndMonthSpinBox
+
+                maximumValue: 12
+                minimumValue: 1
+                value: Qt.formatDate(new Date,"M")
+                width: 50
+                height:25
+
+            }
+            Text {
+
+                text: qsTr("日:")
+                height: 30
+                horizontalAlignment: TextEdit.AlignLeft
+                verticalAlignment: TextEdit.AlignVCenter
+            }
+            Controls1_4.SpinBox
+            {
+                id:operaEventEndDateSpinBox
+
+                maximumValue: 31
+                minimumValue: 1
+                value: Qt.formatDate(new Date,"d")
+                width: 50
+                height: 25
+
+            }
+        }
+
+        Row
+        {
+
+            spacing: 5
             NaviButton {
                 id: operaEventQueryBtn
                 text: qsTr("查询")
@@ -117,57 +226,58 @@ import "../infoSetting"
                 }
             }
         }
+    }
 
-        Controls1_4.TableView {
-
-
-            width: parent.width
-            anchors.topMargin: 10
-
-           clip: true
-           anchors.bottom: parent.bottom
-           anchors.top: operaEventQuery.bottom
+    Controls1_4.TableView {
 
 
-            Controls1_4.TableViewColumn {
-                role: "userName"
-                title: qsTr("用户名")
-                width: 100
-                //resizable: true
-            }
+        width: parent.width
+        anchors.topMargin: 10
 
-            Controls1_4.TableViewColumn {
-                role: "userRight"
-                title: qsTr("用户权限")
-                width: 100
-                //resizable: true
-            }
-
-            Controls1_4.TableViewColumn {
-                role: "event"
-                title: qsTr("事件")
-                width: 150
-                //resizable: true
-            }
-
-            Controls1_4.TableViewColumn {
-                role: "result"
-                title: qsTr("结果")
-                width: 400
-                //resizable: true
-            }
-
-            Controls1_4.TableViewColumn {
-                role: "time"
-                title: qsTr("时间")
-                width: 200
-                //resizable: true
-            }
-
-            model: operaEventQueryModel
+        clip: true
+        anchors.bottom: parent.bottom
+        anchors.top: operaEventQuery.bottom
 
 
+        Controls1_4.TableViewColumn {
+            role: "userName"
+            title: qsTr("用户名")
+            width: 100
+            //resizable: true
         }
+
+        Controls1_4.TableViewColumn {
+            role: "userRight"
+            title: qsTr("用户权限")
+            width: 100
+            //resizable: true
+        }
+
+        Controls1_4.TableViewColumn {
+            role: "event"
+            title: qsTr("事件")
+            width: 150
+            //resizable: true
+        }
+
+        Controls1_4.TableViewColumn {
+            role: "result"
+            title: qsTr("结果")
+            width: 400
+            //resizable: true
+        }
+
+        Controls1_4.TableViewColumn {
+            role: "time"
+            title: qsTr("时间")
+            width: 200
+            //resizable: true
+        }
+
+        model: operaEventQueryModel
+
+
+    }
 
     QmlTableModel {
         id: operaEventQueryModel
@@ -199,18 +309,27 @@ import "../infoSetting"
             info += (qsTr("事件=") + "'" + eventTextField.text + "'")
         }
 
-        if (startTimeTextField.text.length > 0) {
+
+        var startDateValue= Date.fromLocaleString(Qt.locale(),String("%1/%2/%3 0:0:0").arg(operaEventStartYearSpinBox.value).arg(operaEventStartMonthSpinBox.value).arg(operaEventStartDateSpinBox.value),"yyyy/M/d h:m:s");
+        var startDate = new Date(startDateValue)
+        var startDateStr=Qt.formatDateTime(startDate,"yyyy/MM/dd hh:mm:ss");
+
+        if (startDateStr.length > 0) {
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("时间 >=") + "'" + startTimeTextField.text + "'")
+            info += (qsTr("时间 >=") + "'" + startDateStr + "'")
         }
 
-        if (endTimeTextField.text.length > 0) {
+        var endDateValue= Date.fromLocaleString(Qt.locale(),String("%1/%2/%3 23:59:59").arg(operaEventEndYearSpinBox.value).arg(operaEventEndMonthSpinBox.value).arg(operaEventEndDateSpinBox.value),"yyyy/M/d h:m:s");
+        var endDate = new Date(endDateValue)
+        var endDateStr=Qt.formatDateTime(endDate,"yyyy/MM/dd hh:mm:ss");
+
+        if (endDateStr.length > 0) {
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("时间 <=") + "'" + endTimeTextField.text + "'")
+            info += (qsTr("时间 <=") + "'" + endDateStr + "'")
         }
         return info
     }

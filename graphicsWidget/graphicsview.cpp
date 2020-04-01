@@ -16,10 +16,18 @@ GraphicsView::GraphicsView(QWidget *parent, int type):
 
     m_svgItem = new SvgItem();
     zoom(1.2);
+
+    setRenderHint(QPainter::Antialiasing, false);
+   // graphicsView->setDragMode(QGraphicsView::RubberBandDrag);
+    setOptimizationFlags(QGraphicsView::DontSavePainterState);
+    //setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
+    setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     setDragMode(QGraphicsView::ScrollHandDrag);
-    //setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers),this));
-    setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+    //setViewport(new QWidget(this));
+    setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
     //m_alarmStringList << "火警"<<"启动" << "监管" << "故障"<<"反馈" <<"屏蔽";
+
+    setStyleSheet("background-color:black");
     if(m_viewType==ArthitePlan)
     {
         // setContextMenuPolicy(Qt::CustomContextMenu);
@@ -83,6 +91,7 @@ void GraphicsView::zoom(qreal scaleValue)
 
 void GraphicsView::wheelEvent(QWheelEvent *e)
 {
+
     if (e->angleDelta().ry()>0)
     {
         zoomIn();
@@ -226,6 +235,8 @@ void GraphicsView::loadPixmap(const QString &fileName)
             if(!m_pixmapName.startsWith("/home"))
             {
                 QFileInfo fileInfo(m_pixmapName);
+
+                qDebug() << fileInfo.baseName() << fileInfo.fileName();
                 if(m_viewType==ArthitePlan)
                 {
                     m_pixmapName ="/home/rpdzkj/usr/楼层图/" +fileInfo.fileName();

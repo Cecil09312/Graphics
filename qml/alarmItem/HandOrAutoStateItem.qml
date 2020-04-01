@@ -1,4 +1,4 @@
-import QtQuick 2.0
+﻿import QtQuick 2.0
 
 import QtQuick.Controls 2.2
 Item {
@@ -36,7 +36,8 @@ Item {
 
     function addHandOrAutoState(extNum,networkNum,curState)
     {
-        var curHandOrAutoState= String(qsTr("主机号:%1,网络号:%2,%3")).arg(extNum).arg(networkNum).arg(curState)
+        var curHandOrAutoState= new String
+             curHandOrAutoState=   String(qsTr("主机号:%1,网络号:%2,%3")).arg(extNum).arg(networkNum).arg(curState)
         if(listModel.count>0)
         {
             var isOk = false
@@ -45,8 +46,9 @@ Item {
             {
                 var curValue = new String
                 curValue = listModel.get(i)["value"]
-                var curStateValue=  curValue.substring(0,11)
-                if(curStateValue===String(qsTr("主机号:%1,网络号:%2")).arg(extNum).arg(networkNum))
+                var curStateValue=  curValue.substring(0,curValue.length-3)
+                var currentHandOrAuto = curHandOrAutoState.substring(0,curValue.length-3)
+                if(curStateValue===currentHandOrAuto)
                 {
                     isOk = true
                     curIndex = i

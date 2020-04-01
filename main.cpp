@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     {
         QMessageBox msgBox;
         msgBox.setIcon(QMessageBox::Warning);
-        msgBox.setText("软件已经在运行。");
+        msgBox.setText("软件正在启动，数据量比较大，正在加载数据，请耐心等待！");
         msgBox.exec();
         return 1;
     }
@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
 
     CrtWidget w;
     w.showMaximized();
+
 
     return a.exec();
 }

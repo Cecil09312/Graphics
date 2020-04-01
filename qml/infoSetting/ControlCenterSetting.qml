@@ -25,7 +25,7 @@ Item {
         {
             enableControlCenter(checked)
             emit:controlCenterCheckBoxChecked(checked)
-            TransportInfo.setTransportInfo(qsTr("控制中心权限"),checked)
+            TransportInfo.setControlCenterRight(checked)
 
         }
     }

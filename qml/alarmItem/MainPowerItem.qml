@@ -1,8 +1,8 @@
-import QtQuick 2.0
+﻿import QtQuick 2.0
 import QtQuick.Controls 2.2
 Item {
     height:300
-    width: 240
+    width: 400
 
 
     ListModel
@@ -32,9 +32,17 @@ Item {
         }
     }
 
-    function addMainPowerState(extNum,networkNum,curState)
+    function addMainPowerState(extNum,networkNum,powerAddress,curState)
     {
-        var curMainPowerState= String(qsTr("主机号:%1,网络号:%2,%3")).arg(extNum).arg(networkNum).arg(curState)
+        var curMainPowerState = new String
+        if(powerAddress=="")
+        {
+          curMainPowerState = String(qsTr("主机号:%1,网络号:%2,%3")).arg(extNum).arg(networkNum).arg(curState)
+        }
+        else
+        {
+           curMainPowerState = String(qsTr("主机号:%1,网络号:%2,电源地址:%3,%4")).arg(extNum).arg(networkNum).arg(powerAddress).arg(curState)
+        }
         if(listModel.count>0)
         {
             var isOk = false
@@ -43,8 +51,14 @@ Item {
             {
                 var curValue = new String
                 curValue = listModel.get(i)["value"]
-                var curStateValue=  curValue.substring(0,11)
-                if(curStateValue===String(qsTr("主机号:%1,网络号:%2")).arg(extNum).arg(networkNum))
+
+                var curStateValue =new String
+
+
+                  curStateValue =  curValue.substring(0,curValue.length-5)
+                   console.log(curStateValue)
+                  var currentMainPowerState = curMainPowerState.substring(0,curValue.length-5)
+                if(curStateValue===currentMainPowerState)
                 {
                     isOk = true
                     curIndex = i

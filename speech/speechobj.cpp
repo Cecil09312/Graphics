@@ -20,27 +20,18 @@ SpeechObj::SpeechObj(QObject *parent):
     this->moveToThread(m_thread);
     m_thread->start();
 
-   m_isStop = false;
-#ifdef Q_OS_WIN
-    m_pitch = 0;
-    m_volume = 0.5;
-    m_rate = 0;
-#elif defined (Q_OS_LINUX)
+    m_isStop = false;
 
+
+#ifdef Q_OS_LINUX
     m_languageHash["粤语"] = "Cantonese";
     m_languageHash["普通话"] = "Mandarin";
     m_languageHash["台山话"] = "Toisanese";
     m_textToSpeechProcess = new QProcess;
-
     m_textToSpeechProcess->moveToThread(m_thread);
-    m_pitch = 0;
-    m_volume = 70;
-    m_rate = 125;
-    m_currentLanguage = "Mandarin";
-
-
+    // m_currentLanguage = "Mandarin";
     connect(m_textToSpeechProcess, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
-         [=](int exitCode, QProcess::ExitStatus exitStatus)
+            [=](int exitCode, QProcess::ExitStatus exitStatus)
     {
         Q_UNUSED(exitCode);
         Q_UNUSED(exitStatus);
@@ -51,6 +42,30 @@ SpeechObj::SpeechObj(QObject *parent):
 
     });
 #endif
+    QVariant speechValue=  m_speechJson.readFile(c_speechJsonDir);
+    QHash<QString,QVariant> curSpeechHash=speechValue.toHash();
+    if(curSpeechHash.isEmpty())
+    {
+#ifdef Q_OS_WIN
+        m_pitch = 0;
+        m_volume = 0.5;
+        m_rate = 0;
+#elif defined (Q_OS_LINUX)
+        m_pitch = -5;
+        m_volume = 30;
+        m_rate = -15;
+        m_currentLanguage = "Mandarin";
+#endif
+    }
+    else
+    {
+        m_pitch=  curSpeechHash.value("pitch").toReal();
+        m_rate = curSpeechHash.value("rate").toReal();
+        m_volume = curSpeechHash.value("volume").toReal();
+        m_currentLanguage = curSpeechHash.value("language").toString();
+
+    }
+
 
     connect(this,&SpeechObj::speechStart,this,&SpeechObj::runSpeech);
     connect(this,&SpeechObj::textToSpeechStop,this,&SpeechObj::speechStop);
@@ -140,6 +155,7 @@ SpeechObj::SpeechObj(QObject *parent):
 SpeechObj::~SpeechObj()
 {
     stopSpeech();
+
 #ifdef Q_OS_WIN
     disconnect(m_textToSpeech,&QTextToSpeech::stateChanged,nullptr,nullptr);
     m_textToSpeech->deleteLater();
@@ -326,9 +342,9 @@ void SpeechObj::engineSelected(const QString &engineName)
     m_textToSpeech->moveToThread(m_thread);
     m_languageHash.clear();
     m_engineNameList.clear();
-    m_pitch = m_textToSpeech->pitch();
-    m_volume = m_textToSpeech->volume();
-    m_rate = m_textToSpeech->rate();
+    //    m_pitch = m_textToSpeech->pitch();
+    //    m_volume = m_textToSpeech->volume();
+    //    m_rate = m_textToSpeech->rate();
 
     setEngineNameList(QTextToSpeech::availableEngines());
 
@@ -437,9 +453,21 @@ QString SpeechObj::currentLanguage()
 
 }
 
+void SpeechObj::saveSpeechInfoToJson()
+{
+    QHash<QString,QVariant>speechHash;
+    speechHash["volume"] = m_volume;
+    speechHash["rate"] = m_rate;
+    speechHash["pitch"] = m_pitch;
+    speechHash["language"]=m_currentLanguage;
+
+    m_speechJson.writeFile(speechHash,c_speechJsonDir);
+}
+
 
 void SpeechObj::stopSpeech()
 {
+
     emit textToSpeechStop();
     //speechStop();
 }
@@ -505,8 +533,8 @@ void SpeechObj::repeatSpeak()
 
             //if(m_textToSpeechProcess->state()==QProcess::NotRunning)
             m_textToSpeechProcess->start(QString("ekho -v %1 -p %2 -a %3 -s %4 '%5'").arg(m_currentLanguage).arg(m_pitch).arg(m_volume).arg(m_rate).arg(curSpeechText));
-           // m_textToSpeechProcess->waitForStarted();
-           // m_textToSpeechProcess->waitForFinished();
+            // m_textToSpeechProcess->waitForStarted();
+            // m_textToSpeechProcess->waitForFinished();
 
 #endif
         }

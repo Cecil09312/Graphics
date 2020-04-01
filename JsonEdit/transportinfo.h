@@ -11,6 +11,7 @@ public:
     explicit TransportInfo(QObject *parent = nullptr);
     ~TransportInfo();
     Q_INVOKABLE void setTransportInfo(const QString&name,const QString&value);
+    Q_INVOKABLE void setControlCenterRight(bool value);
     Q_INVOKABLE void saveTransportInfoToJson();
     Q_INVOKABLE QVariant transportInfoFromJson(const QString&name);
    // Q_INVOKABLE QString transportInfoStr(const QString&name);

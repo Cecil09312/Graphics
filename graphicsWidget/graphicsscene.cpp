@@ -30,6 +30,8 @@ GraphicsItem *GraphicsScene::addGraphicsItem(const QPointF &pointF)
     GraphicsItem *item= new GraphicsItem(this);
     item->setPos(pointF);
     this->addItem(item);
+    int itemIconIndex = ItemIconInfoToJson::currentIconIndex();
+    item->setInfoFromIconIndex(itemIconIndex);
     m_itemList.push_back(item);
     emit createItem(item);
     return item;
@@ -52,7 +54,7 @@ void GraphicsScene::removeGraphicsItem(const QPointF &pointF)
             {
                 m_itemList.removeOne(currentItem);
                 removeItem(currentItem);
-                DataStore::deleteTypeItem(currentItem);
+                Controller::instance()->getDataStore()->deleteTypeItem(currentItem);
             }
             else
             {
@@ -80,8 +82,8 @@ void GraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
             {
                 if(ItemIconInfoToJson::currentIconIndex()>=0)
                 {
-                   GraphicsItem *item= addGraphicsItem(event->scenePos().x(),event->scenePos().y());
-                   emit addOneItem(item);
+                    GraphicsItem *item= addGraphicsItem(event->scenePos().x(),event->scenePos().y());
+                    emit addOneItem(item);
                 }
             }
 
@@ -113,7 +115,7 @@ void GraphicsScene::setItemColor(QColor color)
 
 void GraphicsScene::setItemSize(qreal size)
 {
-    DataStore::iconSize() = size;
+    Controller::instance()->getDataStore()->iconSize() = size;
     GraphicsItem *currentItem=dynamic_cast<GraphicsItem *> (itemAt(m_currentPointF,QTransform()));
     if(currentItem!=nullptr)
     {
@@ -150,30 +152,30 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
         }
         else if(type=="extNum")
         {
-            DataStore::extNum()=info;
+            Controller::instance()->getDataStore()->extNum()=info;
             currentItem->extNum() = info;
         }
         else if(type=="loopNum")
         {
-            DataStore::loopNum()=info;
+            Controller::instance()->getDataStore()->loopNum()=info;
             currentItem->loopNum() = info;
         }
         else if(type =="addrNum")
         {
             currentItem->addrNum() = info;
-            DataStore::setItemNum(info.toInt());
+            Controller::instance()->getDataStore()->setItemNum(info.toInt());
             currentItem->update();
-           // DataStore::itemNum() = info.toInt();
+            // Controller::instance()->getDataStore()->itemNum() = info.toInt();
         }
 
         else if(type =="networkNum")
         {
-            DataStore::networkNum()=info;
+            Controller::instance()->getDataStore()->networkNum()=info;
             currentItem->networkNum()= info;
         }
         else if(type =="powerAddr")
         {
-            DataStore::powerAddr()=info;
+            Controller::instance()->getDataStore()->powerAddr()=info;
             currentItem->powerAddr()= info;
         }
         else if(type =="deviceNum")
@@ -185,7 +187,7 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
 
         else if(type =="sysOfDevice")
         {
-            DataStore::sysName() = info;
+            Controller::instance()->getDataStore()->sysName() = info;
             currentItem->sysOfDevice() = info;
         }
         else if(type =="manufacturers")
@@ -220,18 +222,18 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
         }
         else if(type == "operator")
         {
-            DataStore::oneOperator() = info;
+            Controller::instance()->getDataStore()->oneOperator() = info;
             currentItem->deviceOperator() = info;
         }
 
         else if(type == "channelNum")
         {
-            DataStore::channelNum() = info.toInt();
+            Controller::instance()->getDataStore()->channelNum() = info.toInt();
             currentItem->setChannelNum(info.toInt());
         }
         else if(type == "analogType")
         {
-            DataStore::analogValue() = info;
+            Controller::instance()->getDataStore()->analogValue() = info;
             currentItem->analogType()= info;
         }
     }
@@ -239,40 +241,40 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
     {
         if(type=="extNum")
         {
-            DataStore::extNum()=info;
+            Controller::instance()->getDataStore()->extNum()=info;
         }
         else if(type=="loopNum")
         {
-            DataStore::loopNum()=info;
+            Controller::instance()->getDataStore()->loopNum()=info;
         }
         else if(type =="addrNum")
         {
-            DataStore::setItemNum(info.toInt()-1);
+            Controller::instance()->getDataStore()->setItemNum(info.toInt()-1);
         }
         else if(type =="networkNum")
         {
-            DataStore::networkNum()=info;
+            Controller::instance()->getDataStore()->networkNum()=info;
         }
         else if(type =="powerAddr")
         {
-            DataStore::powerAddr()=info;
+            Controller::instance()->getDataStore()->powerAddr()=info;
         }
         else if(type == "operator")
         {
-            DataStore::oneOperator() = info;
+            Controller::instance()->getDataStore()->oneOperator() = info;
         }
 
         else if(type == "channelNum")
         {
-            DataStore::channelNum() = info.toInt();
+            Controller::instance()->getDataStore()->channelNum() = info.toInt();
         }
         else if(type == "analogType")
         {
-            DataStore::analogValue() = info;
+            Controller::instance()->getDataStore()->analogValue() = info;
         }
         else if(type =="sysOfDevice")
         {
-            DataStore::sysName() = info;
+            Controller::instance()->getDataStore()->sysName() = info;
         }
 
     }
@@ -397,13 +399,13 @@ void GraphicsScene::setItemInfo(GraphicsItem *item, const QHash<QString, QVarian
         QString pos= itemHash["pos"].toString();
         ItemInfo itemInfo;
         itemInfo.m_extNum= itemHash["extNum"].toString();
-        DataStore::extNum() = itemInfo.m_extNum;
+        Controller::instance()->getDataStore()->extNum() = itemInfo.m_extNum;
         itemInfo.m_loopNum= itemHash["loopNum"].toString();
-        DataStore::loopNum() = itemInfo.m_loopNum;
+        Controller::instance()->getDataStore()->loopNum() = itemInfo.m_loopNum;
         itemInfo.m_addrNum= itemHash["addrNum"].toString();
         itemInfo.m_networkNum= itemHash["networkNum"].toString();
-        DataStore::networkNum()=itemInfo.m_networkNum;
-        DataStore::powerAddr() = itemHash["powerAddr"].toString();
+        Controller::instance()->getDataStore()->networkNum()=itemInfo.m_networkNum;
+        Controller::instance()->getDataStore()->powerAddr() = itemHash["powerAddr"].toString();
 
         itemInfo.m_deviceNum= itemHash["deviceNum"].toString();
         itemInfo.m_equipmentModel= itemHash["equipmentModel"].toString();

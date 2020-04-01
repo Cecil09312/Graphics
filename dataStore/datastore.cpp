@@ -3,22 +3,20 @@
 #include <QGraphicsItem>
 #include <QGraphicsScene>
 #include "architePlan/architeplanview.h"
-QHash<QString,QList<QGraphicsItem*> >DataStore::m_typeItemHash=QHash<QString,QList<QGraphicsItem*> >();
-QHash<QString,QList<QString> >DataStore::m_typeNoItemHash = QHash<QString,QList<QString> >();
-int DataStore::s_itemNum=0;
-QString DataStore::m_loopNum="0";
-QString DataStore::m_extNum="0";
-QString DataStore::m_networkNum="0";
-QString DataStore::m_powerAddr ="0";
-QString DataStore:: m_sysName = "";
-int DataStore::m_channelNum=0;
-QString DataStore::m_analogValue="无";
-qreal DataStore::m_iconSize=25;
-QString DataStore::m_operator="";
-int DataStore::s_itemNumTemp =0;
-DataStore::DataStore()
+DataStore::DataStore(QObject *parnet)
+    :QObject(parnet)
 {
-
+    s_itemNum=0;
+    m_loopNum="0";
+    m_extNum="0";
+    m_networkNum="0";
+    m_powerAddr ="0";
+    m_sysName = "";
+    m_channelNum=0;
+    m_analogValue="无";
+    m_iconSize=25;
+    m_operator="";
+    s_itemNumTemp =0;
 }
 
 DataStore::~DataStore()
@@ -96,7 +94,10 @@ void DataStore::insertTypeItem(const QString &type, QGraphicsItem *item)
 {
     if(item!=nullptr)
     {
-        m_typeItemHash[type].push_back(item);
+        if(!m_typeItemHash.value(type).contains(item))
+        {
+            m_typeItemHash[type].push_back(item);
+        }
     }
 }
 
@@ -104,10 +105,10 @@ void DataStore::deleteType(const QString &type, const QString &extNum, const QSt
 {
 
     QString curStr=QString("%1,%2,%3,%4,%5").arg(extNum).arg(loopNum).arg(addrNum).arg(networkNum).arg(powerAddr);
-   if(m_typeNoItemHash.value(type).contains(curStr))
-   {
-       m_typeNoItemHash[type].removeOne(curStr);
-   }
+    if(m_typeNoItemHash.value(type).contains(curStr))
+    {
+        m_typeNoItemHash[type].removeOne(curStr);
+    }
 }
 
 void DataStore::deleteTypeItem(const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum)
@@ -125,14 +126,14 @@ void DataStore::deleteTypeNoItem(const QString &extNum)
     QList<QString>typeList=  m_typeNoItemHash.keys();
     foreach (QString type, typeList)
     {
-       QList<QString>valueList= m_typeNoItemHash.value(type);
-       foreach (QString value, valueList)
-       {
-           if(value.startsWith(extNum))
-           {
-               m_typeNoItemHash[type].removeOne(value);
-           }
-       }
+        QList<QString>valueList= m_typeNoItemHash.value(type);
+        foreach (QString value, valueList)
+        {
+            if(value.startsWith(extNum))
+            {
+                m_typeNoItemHash[type].removeOne(value);
+            }
+        }
 
     }
 }
@@ -140,7 +141,11 @@ void DataStore::deleteTypeNoItem(const QString &extNum)
 void DataStore::insertTypeNoItem(const QString &type, const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum,const QString &powerAddr)
 {
     QString curStr=QString("%1,%2,%3,%4,%5").arg(extNum).arg(loopNum).arg(addrNum).arg(networkNum).arg(powerAddr);
-    m_typeNoItemHash[type].push_back(curStr);
+    if(!m_typeNoItemHash.value(type).contains(curStr))
+    {
+        m_typeNoItemHash[type].push_back(curStr);
+    }
+
 }
 
 void DataStore::clearTypeItem()
@@ -239,6 +244,7 @@ int &DataStore::itemNum()
         s_itemNum = ++s_itemNumTemp;
     }
 
+    emit curLoopAddr(m_loopNum,QString::number(s_itemNum));
     return s_itemNum;
 }
 

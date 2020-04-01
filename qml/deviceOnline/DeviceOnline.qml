@@ -2,11 +2,14 @@
 import QtQuick.Controls 2.2
 import QtQuick.Extras 1.4
 
+
 Item {
     width: 680
     height: 640
     property int indicatorNum: 256
     signal editIndicatorState(string networkNum)
+    signal shieldIndicatorState(string extNum,string networkNum,bool curState)
+    signal resetShieldState(string extNum,string networkNum)
     Text {
         id: txt
         anchors.top: parent.top
@@ -62,6 +65,17 @@ Item {
             active: true
         }
 
+        Text {
+            height: 20
+            text: qsTr("   屏蔽状态:")
+            verticalAlignment: Text.AlignVCenter
+
+        }
+        StatusIndicator
+        {
+            color: "blue"
+            active: true
+        }
 
         Text {
             height: 20
@@ -69,22 +83,22 @@ Item {
             verticalAlignment: Text.AlignVCenter
 
         }
-       TextField
-       {
-         id:networkNumTextField
-         width: 100
-         height: 30
-         text:"0"
+        TextField
+        {
+            id:networkNumTextField
+            width: 100
+            height: 30
+            text:"0"
 
-         validator: IntValidator{bottom: 0; top: 255;}
+            validator: IntValidator{bottom: 0; top: 255;}
 
-         onTextEdited:
-         {
-            emit:editIndicatorState(text)
-          // console.log(text)
-         }
+            onTextEdited:
+            {
+                emit:editIndicatorState(text)
+                // console.log(text)
+            }
 
-       }
+        }
 
 
     }
@@ -102,6 +116,7 @@ Item {
 
     Grid
     {
+        //property bool isShield: true
         anchors.top: legendRow.bottom
         anchors.topMargin: 10
         anchors.left: parent.left
@@ -111,6 +126,7 @@ Item {
         spacing: 5
         Repeater {
             model: listModel
+
 
             Row
             {
@@ -126,7 +142,25 @@ Item {
                     active: true
                     color: indicatorColor
                     height: 20
-                    //anchors.horizontalCenter: parent.horizontalCenter
+                    MouseArea
+                    {
+                        anchors.fill: parent
+                        onClicked:
+                        {
+                            if(indicatorColor!="blue")
+                            {
+                                indicatorColor="blue"
+                                emit:shieldIndicatorState(String("%1").arg(index),networkNumTextField.text,true)
+                            }
+                            else
+                            {
+                                indicatorColor="gray"
+                                emit:shieldIndicatorState(String("%1").arg(index),networkNumTextField.text,false)
+                            }
+
+                        }
+                    }
+
                 }
             }
         }
@@ -162,16 +196,23 @@ Item {
     {
         for(var i=0;i<indicatorNum;i++)
         {
-            listModel.setProperty(i,"indicatorColor","gray")
+            if(listModel.get(i)["indicatorColor"] != "blue")
+            {
+                listModel.setProperty(i,"indicatorColor","gray")
+            }
+            else
+            {
+               emit:resetShieldState(String("%1").arg(i),String("%1").arg(networkNumTextField.text))
+            }
         }
     }
 
     function setNetworkNumValue(value)
     {
-      networkNumTextField.text = String("%1").arg(value)
+        networkNumTextField.text = String("%1").arg(value)
     }
     function networkNum()
     {
-       return networkNumTextField.text
+        return networkNumTextField.text
     }
 }

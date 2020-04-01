@@ -16,6 +16,11 @@ void TransportInfo::setTransportInfo(const QString &name, const QString &value)
     m_transportInfoHash[name] = Controller::instance()->fileNameFromQml(value);
 }
 
+void TransportInfo::setControlCenterRight(bool value)
+{
+    m_transportInfoHash[tr("控制中心权限")]= value;
+}
+
 void TransportInfo::saveTransportInfoToJson()
 {
     QmlForJson qmlForJson;
@@ -35,5 +40,5 @@ QString TransportInfo::transportInfo(const QString &name)
 
 bool TransportInfo::controlCentrolEnable()
 {
-    m_transportInfoHash.value(tr("控制中心权限")).toBool();
+    return m_transportInfoHash.value(tr("控制中心权限")).toBool();
 }

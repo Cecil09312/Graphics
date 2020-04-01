@@ -8,6 +8,7 @@
 #include <QProcess>
 #include <QMutex>
 #include "customTimer/customtimer.h"
+#include "jsonEdit/qmlforjson.h"
 /**
  * @brief The SpeechObj class
  * windows平台使用系统默认
@@ -57,6 +58,7 @@ public:
     Q_INVOKABLE int languageNum();
     Q_INVOKABLE void setLanguage(const QString &languageName);
     Q_INVOKABLE QString currentLanguage();
+    Q_INVOKABLE void saveSpeechInfoToJson();
 signals:
     void speechStart();
     void textToSpeechStop();
@@ -100,6 +102,8 @@ private:
     QString m_currentLanguage;
     bool m_speechIsStop;
     int indexOfType(const QString &type);
+    QmlForJson m_speechJson;
+    const QString c_speechJsonDir = QCoreApplication::applicationDirPath()+"/speech.json";
 };
 
 #endif // SPEECHOBJ_H

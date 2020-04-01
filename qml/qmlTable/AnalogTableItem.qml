@@ -10,15 +10,15 @@ import "../infoSetting"
 Item
 {
     //anchors.fill: parent
-    Column
+   Row
     {
         id:column
         spacing: 5
-        Row {
+        //Row {
             //id: grid
             //columns: 10
             //rows:2
-            spacing: 5
+           // spacing: 5
             Text {
                 text: qsTr("分机号")
                 height: 30
@@ -27,7 +27,7 @@ Item
             }
             TextField {
                 id: extNumTextField
-                width: 100
+                width: 60
                 height: 30
             }
 
@@ -39,7 +39,7 @@ Item
             }
             TextField {
                 id: loopNumTextField
-                width: 100
+                width: 60
                 height: 30
             }
 
@@ -52,7 +52,7 @@ Item
             }
             TextField {
                 id: addrNumTextField
-                width: 100
+                width: 60
                 height: 30
             }
 
@@ -64,7 +64,7 @@ Item
             }
             TextField {
                 id: networkNumTextField
-                width: 100
+                width: 60
                 height: 30
             }
 
@@ -77,9 +77,9 @@ Item
             TextField {
                 id: curChannelTextField
                 height: 30
-                width: 100
+                width: 60
             }
-        }
+       // }
 
         //            Text {
         //                text: qsTr("模拟量类型")
@@ -103,9 +103,9 @@ Item
         //                    "交流电流(mA)"), qsTr("直流电流(mA)"), qsTr(
         //                    "交流电压(V)"), qsTr("直流电压(V)")]
         //        }
-        Row
-        {
-            spacing: 5
+       // Row
+        //{
+         //   spacing: 5
             NaviButton {
                 id: infoQueryBtn
                 text: qsTr("查询")
@@ -169,7 +169,7 @@ Item
                 }
             }
         }
-    }
+   // }
 
 
     Controls1_4.TableView {
