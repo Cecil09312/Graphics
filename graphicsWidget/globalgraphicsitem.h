@@ -6,6 +6,7 @@
 #include <QStyle>
 #include <QPropertyAnimation>
 #include <QTimeLine>
+#include "drawimagethread.h"
 
 class GlobalGraphicsItem : public QObject,public QGraphicsItem
 {
@@ -46,6 +47,8 @@ private:
     QString m_personOnDuty;
     QPropertyAnimation *m_propertyAnimation;
     QFont m_font;
+    int m_scaleRunNum{0};
+
 };
 
 #endif // GLOBALGRAPHICSITEM_H

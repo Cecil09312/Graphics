@@ -15,10 +15,12 @@ public:
     bool dataSendSuccess();
     void removeSocket();
     void cleanSendData();
+    void writeOneFrameData(const QByteArray &array);
 signals:
     void readData(const QByteArray &array);
     void closeSocket();
     void resendData();
+    void writeDataSuccess(bool isSuccess);
 
 protected:
     void incomingConnection(qintptr socketDescriptor);

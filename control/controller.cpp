@@ -1,5 +1,5 @@
 ﻿#include "controller.h"
-
+#include <QElapsedTimer>
 QSharedPointer<Controller>Controller::m_controller = QSharedPointer<Controller>(nullptr);
 Controller *Controller::instance()
 {
@@ -16,10 +16,13 @@ Controller::~Controller()
     m_speechObj->deleteLater();
     m_tcpObj.clear();
     m_IndicatorObj.clear();
+
     //m_speechObj.clear();
     //m_operatorInfo->deleteLater();
     m_operatorInfo.clear();
-    m_logMsg.clear();
+    //m_logMsg.clear();
+    m_drawImageThread.clear();
+
 }
 
 QString Controller::fileNameFromQml(const QString &name)
@@ -70,13 +73,13 @@ QString Controller::getFileNameFromUrl(const QString &url, bool isHasSuffix)
     }
 }
 
-bool Controller::hideOnLinux()
+bool Controller::sysOnLinux()
 {
     bool isHide = false;
 #ifdef Q_OS_WIN
-    isHide= true;
-#elif defind Q_OS_LINUX
     isHide= false;
+#elif defined Q_OS_LINUX
+    isHide= true;
 #endif
     return isHide;
 }
@@ -171,10 +174,7 @@ ConfigurationManager *Controller::getIndicatorConfigurationManager()
     return m_indicatorConfigurationManager.data();
 }
 
-SqlManager *Controller::getMySqlManager()
-{
-    return m_mysqlManager;
-}
+
 
 OperatorInfo *Controller::getOperatorInfo()
 {
@@ -186,18 +186,20 @@ TransportInfo *Controller::getTransportInfo()
     return m_transportInfo.data();
 }
 
-LogMsg *Controller::getLogMsg()
-{
-    return m_logMsg.data();
-}
+
+
+//LogMsg *Controller::getLogMsg()
+//{
+//    return m_logMsg.data();
+//}
 
 void Controller::delayMs(int ms)
 {
-    QTime dieTime = QTime::currentTime().addMSecs(ms);
-
-    while(QTime::currentTime() < dieTime)
+    QElapsedTimer eTime;
+    eTime.start();
+    while(eTime.elapsed() < ms)
     {
-        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+        QCoreApplication::processEvents();
     }
 }
 
@@ -206,12 +208,24 @@ DataStore *Controller::getDataStore()
     return m_dataStore.data();
 }
 
+DrawImageThread *Controller::getDrawImageThread()
+{
+    return m_drawImageThread.data();
+}
+
+
+
+
+
+
+
+
 Controller::Controller()
 {
     m_commObj = QSharedPointer<AbstractLink>(new SerialLink(),&QObject::deleteLater);
     m_tcpObj = QSharedPointer<AbstractLink>(new TcpLink(),&QObject::deleteLater);
     m_IndicatorObj = QSharedPointer<AbstractLink>(new IndicatorLightCom,&QObject::deleteLater);
-    m_logMsg = QSharedPointer<LogMsg>(new DebugLogMsg(nullptr),&QObject::deleteLater);
+    //m_logMsg = QSharedPointer<LogMsg>(new DebugLogMsg(nullptr),&QObject::deleteLater);
     m_userManager =new UserManager(this);
     m_speechObj = new SpeechObj;
     m_serialConfigurationManager =QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new SerialConfiguration)),&QObject::deleteLater);
@@ -220,8 +234,11 @@ Controller::Controller()
     m_indicatorConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new IndicatorLightConfiguration)),&QObject::deleteLater);
     m_operatorInfo = QSharedPointer<OperatorInfo>(new OperatorInfo,&QObject::deleteLater);
     m_transportInfo = QSharedPointer<TransportInfo>(new TransportInfo,&QObject::deleteLater);
-    m_mysqlManager = SqlManager::fromDriver("QMYSQL");
+
     m_dataStore = QSharedPointer<DataStore>(new DataStore(this));
+    m_drawImageThread = QSharedPointer<DrawImageThread>(new DrawImageThread,&QObject::deleteLater);
+
+
 }
 
 

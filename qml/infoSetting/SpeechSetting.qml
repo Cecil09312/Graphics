@@ -2,6 +2,7 @@
 import QtQuick.Controls 2.2
 import QtQuick.Controls 1.4 as Controls1_4
 import speechObj 1.0
+import controller 1.0
 Item {
 
     width: 800
@@ -22,6 +23,7 @@ Item {
         columnSpacing: 5
         rowSpacing: 5
         Text {
+            id:driveTxt
             text: qsTr("驱动")
             height: 40
             verticalAlignment: Text.AlignVCenter
@@ -35,11 +37,12 @@ Item {
             model: engineModel
             onCurrentTextChanged:
             {
-               SpeechObj.engineSelected(currentText)
+                SpeechObj.engineSelected(currentText)
             }
         }
 
         Text {
+            id:languageTxt
             text: qsTr("语言")
             height: 40
             verticalAlignment: Text.AlignVCenter
@@ -52,11 +55,12 @@ Item {
             model: languageModel
             onCurrentTextChanged:
             {
-               SpeechObj.setLanguage(currentText)
+                SpeechObj.setLanguage(currentText)
             }
         }
 
         Text {
+            id:volumeTxt
             text: qsTr("音量")
             height: 40
             verticalAlignment: Text.AlignVCenter
@@ -81,6 +85,7 @@ Item {
 
 
         Text {
+            id:frequencyTxt
             text: qsTr("频率")
             height: 40
             verticalAlignment: Text.AlignVCenter
@@ -92,6 +97,7 @@ Item {
             to: SpeechObj.rateMax()
             stepSize: SpeechObj.rateStep()
             width: 300
+            //enabled: !Controller.sysOnLinux()
             ToolTip {
                 parent: rateSlider.handle
                 visible: rateSlider.pressed | rateSlider.hovered
@@ -105,6 +111,7 @@ Item {
         }
 
         Text {
+            id:toneTxt
             text: qsTr("音调")
             height: 40
             verticalAlignment: Text.AlignVCenter
@@ -117,6 +124,7 @@ Item {
             stepSize: SpeechObj.pitchStep()
 
             width: 300
+           // enabled: !Controller.sysOnLinux()
             ToolTip {
                 parent: pitchSlider.handle
                 visible: pitchSlider.pressed | pitchSlider.hovered
@@ -142,14 +150,111 @@ Item {
             engineModel.append({value:SpeechObj.engineName(i)})
         }
 
-        for(var j=0;j<SpeechObj.languageNum();j++)
+        if(!Controller.sysOnLinux())
         {
-            languageModel.append({value:SpeechObj.languageName(j)})
+            for(var j=0;j<SpeechObj.languageNum();j++)
+            {
+                languageModel.append({value:SpeechObj.languageName(j)})
+            }
+        }
+        else
+        {
+            if(!SpeechObj.isEnglish())
+            {
+                languageModel.append({value:"中文"})
+            }
+            else
+            {
+               languageModel.append({value:"English"})
+            }
         }
 
-        engineComboBox.currentIndex =0;
-        var pos=  languageComboBox.find(SpeechObj.currentLanguage())
-        languageComboBox.currentIndex=pos
+        if(languageComboBox.count>0)
+        {
+            languageComboBox.currentIndex =0;
+        }
+
+        if(engineComboBox.count>0)
+        {
+            engineComboBox.currentIndex =0;
+        }
+
+        //        var pos=  languageComboBox.find(SpeechObj.currentLanguage())
+        //        languageComboBox.currentIndex=pos
 
     }
+
+    function retranslate()
+    {
+        driveTxt.text = qsTr("驱动")
+        languageTxt.text = qsTr("语言")
+        volumeTxt.text = qsTr("音量")
+        frequencyTxt.text = qsTr("频率")
+        toneTxt.text = qsTr("音调")
+
+
+    }
+
+    function reinitSpeech()
+    {
+
+        volumeSlider.from = SpeechObj.volumeMin()
+        volumeSlider.to=SpeechObj.volumeMax()
+        volumeSlider.stepSize=SpeechObj.volumeStep()
+        SpeechObj.volume = volumeSlider.value
+        //console.log(volumeSlider.value)
+        rateSlider.from=SpeechObj.rateMin()
+        rateSlider.to= SpeechObj.rateMax()
+        rateSlider.stepSize= SpeechObj.rateStep()
+        SpeechObj.rate = rateSlider.value
+        // console.log(rateSlider.value)
+        pitchSlider.from=SpeechObj.pitchMin()
+        pitchSlider.to= SpeechObj.pitchMax()
+        pitchSlider.stepSize=SpeechObj.pitchStep()
+        SpeechObj.pitch = pitchSlider.value
+        //console.log(pitchSlider.value)
+
+        languageModel.clear();
+        if(!Controller.sysOnLinux())
+        {
+            for(var j=0;j<SpeechObj.languageNum();j++)
+            {
+                languageModel.append({value:SpeechObj.languageName(j)})
+            }
+        }
+        else
+        {
+            if(!SpeechObj.isEnglish())
+            {
+                languageModel.append({value:"中文"})
+            }
+            else
+            {
+
+                languageModel.append({value:"English"})
+//                for(var i=0;i<SpeechObj.languageNum();i++)
+//                {
+//                    languageModel.append({value:SpeechObj.languageName(i)})
+//                }
+            }
+        }
+
+        if(languageComboBox.count>0)
+        {
+            languageComboBox.currentIndex =0;
+        }
+
+    }
+
+
+    //    Connections
+    //    {
+    //        target: SpeechObj
+    //        onLanguageChangeToEnglish:
+    //        {
+
+    //            //SpeechObj.setLanguage(languageComboBox.currentText)
+    //        }
+
+    //    }
 }

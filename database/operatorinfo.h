@@ -20,7 +20,7 @@ signals:
 public slots:
     void insertEvent(const QString &eventName, const QString &result = tr("成功"));
 private:
-    SqlManager *m_sqlManager;
+    SqliteManager *m_sqlManager;
     QString m_operatorInfoDbPath;
     QHash<QString,QString>m_maintInfoValueHash;
     int m_maintInfoTableSize;

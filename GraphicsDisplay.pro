@@ -8,13 +8,19 @@ QT       += core gui quick svg  concurrent sql texttospeech serialport  printsup
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-win32{
- contains(QT_ARCH, i386)
-  {
-   QT +=  axcontainer
-  }
+#win32{
+# contains(QT_ARCH, i386)
+#  {
+#   QT +=  axcontainer
+#  }
 
-}
+#}
+
+QMAKE_CXXFLAGS_RELEASE += -g
+
+QMAKE_CFLAGS_RELEASE += -g
+
+#QMAKE_LFLAGS_RELEASE = -mthreads -Wl
 
 TARGET = GraphicsDisplay
 TEMPLATE = app
@@ -28,7 +34,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
-
  CONFIG -= debug_and_release
  OBJECTS_DIR =./obj
  MOC_DIR =./moc
@@ -83,15 +88,10 @@ SOURCES += \
     communication/indicatorlightconfiguration.cpp \
     architePlan/firstfirealarminfowidget.cpp \
     customTimer/customtimer.cpp \
-    LogMsg/datapool.cpp \
-    LogMsg/debuglogmsg.cpp \
-    LogMsg/errorlogmsg.cpp \
-    LogMsg/infologmsg.cpp \
-    LogMsg/logmsg.cpp \
     communication/tcpserver.cpp \
     graphicsWidget/svgitem.cpp \
-    excelManager/excelmanager.cpp \
-    graphicsWidget/drawimagethread.cpp
+    graphicsWidget/drawimagethread.cpp \
+    control/segfault.c
 
 
 HEADERS += \
@@ -141,15 +141,11 @@ HEADERS += \
     communication/indicatorlightconfiguration.h \
     architePlan/firstfirealarminfowidget.h \
     customTimer/customtimer.h \
-    LogMsg/datapool.h \
-    LogMsg/debuglogmsg.h \
-    LogMsg/errorlogmsg.h \
-    LogMsg/infologmsg.h \
-    LogMsg/logmsg.h \
     communication/tcpserver.h \
     graphicsWidget/svgitem.h \
-    excelManager/excelmanager.h \
-    graphicsWidget/drawimagethread.h
+    graphicsWidget/drawimagethread.h \
+    control/segfault.h
+include($$PWD/3rdparty/qtxlsx/src/xlsx/qtxlsx.pri)
 
 FORMS +=
 
@@ -166,7 +162,8 @@ RESOURCES += \
     qss.qrc \
     qml.qrc
 
-linux{
-include(package.pri)
-}
+#linux{
+#include(package.pri)
+
+#}
 

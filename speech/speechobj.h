@@ -59,6 +59,8 @@ public:
     Q_INVOKABLE void setLanguage(const QString &languageName);
     Q_INVOKABLE QString currentLanguage();
     Q_INVOKABLE void saveSpeechInfoToJson();
+    void setIsEnglish(bool is);
+    Q_INVOKABLE bool isEnglish();
 signals:
     void speechStart();
     void textToSpeechStop();
@@ -66,6 +68,7 @@ signals:
     void clearText();
     void removeText(const QString &alarmText);
     void removeText(int pos);
+    void languageChangeToEnglish(bool isEnglish);
 
 public slots:
     void stopSpeech();
@@ -83,6 +86,7 @@ private:
     int m_alarmPos;
     bool m_isStoped;
     int m_currentAlarmPos;
+    bool m_isEnglish;
 #ifdef Q_OS_WIN
     QTextToSpeech *m_textToSpeech;
 #endif

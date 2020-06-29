@@ -10,24 +10,22 @@ qreal GraphicsView::m_scale =1;
 GraphicsView::GraphicsView(QWidget *parent, int type):
     QGraphicsView(parent),
     m_viewType(type)
+
 {
 
-   // m_svgItem = new QGraphicsSvgItem;
-
     m_svgItem = new SvgItem();
+    m_zoomIn=1.0;
+    m_zoomOut=1.0;
     zoom(1.2);
 
-    setRenderHint(QPainter::Antialiasing, false);
-   // graphicsView->setDragMode(QGraphicsView::RubberBandDrag);
+    setRenderHint(QPainter::Antialiasing, true);
     setOptimizationFlags(QGraphicsView::DontSavePainterState);
-    //setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
-    setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     setDragMode(QGraphicsView::ScrollHandDrag);
-    //setViewport(new QWidget(this));
-    setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
-    //m_alarmStringList << "火警"<<"启动" << "监管" << "故障"<<"反馈" <<"屏蔽";
+    setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+    setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+    setResizeAnchor(QGraphicsView::AnchorUnderMouse);
 
-    setStyleSheet("background-color:black");
+    // setStyleSheet("background-color:black");
     if(m_viewType==ArthitePlan)
     {
         // setContextMenuPolicy(Qt::CustomContextMenu);
@@ -35,6 +33,7 @@ GraphicsView::GraphicsView(QWidget *parent, int type):
         setScene(m_scene);
         m_scene->addItem(m_svgItem);
         m_sysViewScene  = nullptr;
+
         connect(m_scene,&GraphicsScene::createItem,this,[=](GraphicsItem *item)
         {
             ArchitePlanView*architePlanView= Controller::instance()->getArchitePlanView();
@@ -67,7 +66,6 @@ GraphicsView::GraphicsView(QWidget *parent, int type):
         setScene(m_sysViewScene);
     }
 
-
 }
 
 GraphicsView::~GraphicsView()
@@ -77,7 +75,7 @@ GraphicsView::~GraphicsView()
 
 void GraphicsView::zoom(qreal scaleValue)
 {
-    if(scaleValue>1.0&&scaleValue<10.0)
+    if(scaleValue>1.0&&scaleValue<=4.0)
     {
         m_scale = scaleValue;
     }
@@ -89,10 +87,10 @@ void GraphicsView::zoom(qreal scaleValue)
 }
 
 
-void GraphicsView::wheelEvent(QWheelEvent *e)
+void GraphicsView::wheelEvent(QWheelEvent *event)
 {
 
-    if (e->angleDelta().ry()>0)
+    if (event->angleDelta().ry()>0)
     {
         zoomIn();
     }
@@ -100,7 +98,7 @@ void GraphicsView::wheelEvent(QWheelEvent *e)
     {
         zoomOut();
     }
-    e->accept();
+    event->accept();
 }
 
 
@@ -154,7 +152,7 @@ bool GraphicsView::haveAnyAlarm()
 {
     bool isHave = false;
     QStringList alarmStringList;
-    alarmStringList<< "火警"<<"启动" << "监管" << "故障"<<"反馈" <<"屏蔽";
+    alarmStringList << tr("火警")<<tr("启动") << tr("监管") << tr("故障")<<tr("反馈") <<tr("屏蔽");
     foreach (QString alarm, alarmStringList)
     {
         isHave =haveAlarmType(alarm);
@@ -183,7 +181,9 @@ void GraphicsView::addGraphicsTextItem(const QPointF &pointF,const QString &alar
     if(m_textItemHash.value(alarmType)==nullptr)
     {
         QGraphicsTextItem *textItem = new QGraphicsTextItem;
-        QFont font(tr("宋体"),10);
+        //QGraphicsItemGroup *group = new QGraphicsItemGroup(item);
+        textItem->setFlag(QGraphicsItem::ItemIgnoresTransformations);
+        QFont font("Times New Roman",10);
         textItem->setFont(font);
         textItem->setDefaultTextColor(QColor(Qt::red));
         textItem->setPlainText(tr("首")+alarmType);
@@ -205,6 +205,7 @@ void GraphicsView::removeGraphicsTextItem(const QString &alarmType)
         delete item;
         item = nullptr;
     }
+    disconnect(this,&GraphicsView::currentScaleValue,nullptr,nullptr);
     // textItem->setPos(pointF);
 }
 
@@ -220,6 +221,7 @@ void GraphicsView::clearGraphicsTextItem()
         }
     }
     m_textItemHash.clear();
+    disconnect(this,&GraphicsView::currentScaleValue,nullptr,nullptr);
 }
 
 QGraphicsTextItem *GraphicsView::textItem(const QString &alarmType)
@@ -227,36 +229,69 @@ QGraphicsTextItem *GraphicsView::textItem(const QString &alarmType)
     return m_textItemHash.value(alarmType);
 }
 
+qreal GraphicsView::scaleValue()
+{
+    return  m_scale;
+}
+
+void GraphicsView::scaleValueChanged(qreal value)
+{
+    emit currentScaleValue(value);
+}
+
+void GraphicsView::updateSvg()
+{
+    m_svgItem->update();
+}
+
+QGraphicsScene *GraphicsView::sysScene()
+{
+    return m_sysViewScene;
+}
+
 
 void GraphicsView::loadPixmap(const QString &fileName)
 {
     m_pixmapName = Controller::instance()->fileNameFromQml(fileName);
 #ifdef Q_OS_LINUX
-            if(!m_pixmapName.startsWith("/home"))
-            {
-                QFileInfo fileInfo(m_pixmapName);
+    if(!m_pixmapName.startsWith("/home"))
+    {
+        QFileInfo fileInfo(m_pixmapName);
 
-                qDebug() << fileInfo.baseName() << fileInfo.fileName();
-                if(m_viewType==ArthitePlan)
-                {
-                    m_pixmapName ="/home/rpdzkj/usr/楼层图/" +fileInfo.fileName();
-                }
-                else
-                {
-                    m_pixmapName ="/home/rpdzkj/usr/系统图纸/" +fileInfo.fileName();
-                }
+        if(m_viewType==ArthitePlan)
+        {
+            m_pixmapName =QApplication::applicationDirPath()+"/楼层图/" +fileInfo.fileName();
+        }
+        else
+        {
+            m_pixmapName =QApplication::applicationDirPath()+"/系统图纸/" +fileInfo.fileName();
+        }
 
-            }
+    }
 #endif
     m_svgItem->setSvgName(m_pixmapName);
 }
 
 void GraphicsView::zoomIn()
 {
-    scale(m_scale,m_scale);
+    qreal curScaleValue = transform().m11();
+    if(curScaleValue<=4)
+    {
+        scale(m_scale,m_scale);
+        // m_zoomIn=m_zoomIn*m_scale;
+    }
+
+    emit currentScaleValue(transform().m11());
 }
 
 void GraphicsView::zoomOut()
 {
-    scale(1.0/m_scale,1.0/m_scale);
+    qreal curScaleValue = transform().m11();
+    if(curScaleValue>0.5)
+    {
+        scale(1.0/m_scale,1.0/m_scale);
+
+    }
+    emit currentScaleValue(transform().m11());
+
 }

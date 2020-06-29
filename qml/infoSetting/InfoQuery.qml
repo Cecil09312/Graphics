@@ -5,12 +5,14 @@ import qmlTableModel 1.0
 import QtQuick.Layouts 1.3
 import "../qmlTable"
 import QtQuick.Controls.Styles 1.4
+import Qt.labs.platform 1.0
 
 Item {
 
     id: root
-    width: 980
-    height: 640
+    width: 1080
+    height:720
+    signal setCurrentAlarm(string curAlarm)
 
     Row {
 
@@ -26,30 +28,8 @@ Item {
             onClicked:
             {
 
-                switch(bar.currentIndex)
-                {
-                case 0:
-                    currentAlarm.saveToPdf()
-                    break;
-                case 1:
-                    alarmInfo.saveToPdf()
-                    break;
-                case 2:
-                    deviceState.saveToPdf()
-                    break;
-                case 3:
-                    maintInfo.saveToPdf()
-                    break;
-                case 4:
-                    operaEvent.saveToPdf()
-                    break;
-                case 5:
-                    analogInfo.saveToPdf()
-                    break;
-                default:
-                    break;
+                savePdfFileDialog.open()
 
-                }
 
             }
         }
@@ -134,22 +114,28 @@ Item {
         width: root.width
         anchors.topMargin: 20
         MyTabButton {
+            id:currentEventBtn
             text: qsTr("当前事件查询")
         }
         MyTabButton {
+            id:alarmHistoryBtn
             text: qsTr("报警历史查询")
         }
         MyTabButton {
+            id:deviceInfoBtn
             text: qsTr("设备信息查询")
         }
         MyTabButton {
+            id:maintenBtn
             text:  qsTr("维保信息查询")
         }
 
         MyTabButton {
+            id:operatorEventBtn
             text: qsTr("操作事件查询")
         }
         MyTabButton {
+            id:analogBtn
             text: qsTr("模拟量查询")
         }
 
@@ -158,7 +144,7 @@ Item {
     StackLayout {
         width: parent.width
         anchors.top: btnRow.bottom
-       anchors.bottom: root.bottom
+        anchors.bottom: root.bottom
         currentIndex: bar.currentIndex
 
         CurrentAlarmItem
@@ -166,6 +152,10 @@ Item {
             id:currentAlarm
             anchors.fill: parent
             anchors.topMargin:80
+            onSetCurAlarm:
+            {
+              emit:setCurrentAlarm(alarmType)
+            }
         }
         AlarmInfoTableItem {
 
@@ -184,14 +174,14 @@ Item {
             id: maintInfo
             anchors.fill: parent
             anchors.topMargin:80
-//            width: 800
-//            height: 640
+            //            width: 800
+            //            height: 640
         }
 
         OperaEventTableItem {
             id: operaEvent
-//            width: 800
-//            height: 640
+            //            width: 800
+            //            height: 640
             anchors.fill: parent
             anchors.topMargin:80
             //anchors.bottomMargin: 120
@@ -203,6 +193,61 @@ Item {
             anchors.topMargin:80
         }
 
+    }
+
+    FileDialog
+    {
+        id:savePdfFileDialog
+        fileMode: FileDialog.SaveFile
+        nameFilters: ["PDF file(*.pdf)"]
+        flags: Qt.WindowStaysOnTopHint|Qt.MSWindowsFixedSizeDialogHint|Qt.WindowCloseButtonHint
+        onAccepted:
+        {
+            switch(bar.currentIndex)
+            {
+            case 0:
+                currentAlarm.saveToPdf(currentFile.toString())
+                break;
+            case 1:
+                alarmInfo.saveToPdf(currentFile.toString())
+                break;
+            case 2:
+                deviceState.saveToPdf(currentFile.toString())
+                break;
+            case 3:
+                maintInfo.saveToPdf(currentFile.toString())
+                break;
+            case 4:
+                operaEvent.saveToPdf(currentFile.toString())
+                break;
+            case 5:
+                analogInfo.saveToPdf(currentFile.toString())
+                break;
+            default:
+                break;
+
+            }
+        }
+
+    }
+
+    function retranslate()
+    {
+        saveToPdfBtn.text = qsTr("保存成pdf")
+        printPreviewBtn.text =  qsTr("打印预览")
+        printBtn.text =  qsTr("打印")
+        currentEventBtn.text = qsTr("当前事件查询")
+        alarmHistoryBtn.text = qsTr("报警历史查询")
+        deviceInfoBtn.text= qsTr("设备信息查询")
+        maintenBtn.text = qsTr("维保信息查询")
+        operatorEventBtn.text = qsTr("操作事件查询")
+        analogBtn.text =qsTr("模拟量查询")
+        currentAlarm.retranslate()
+        alarmInfo.retranslate()
+        deviceState.retranslate()
+        maintInfo.retranslate()
+        operaEvent.retranslate()
+        analogInfo.retranslate()
     }
 
 }

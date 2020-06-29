@@ -33,6 +33,11 @@ void AbstractLink::sendData(const QByteArray &array)
     emit writeData(array);
 }
 
+void AbstractLink::writeOneFramData(const QByteArray &array)
+{
+    emit oneFrameData(array);
+}
+
 void AbstractLink::connectLink()
 {
   emit startConnect();

@@ -4,22 +4,21 @@ import QtQuick.Controls 1.4 as Controls1_4
 import qmlTableModel 1.0
 import operatorInfo 1.0
 import "../infoSetting"
-
+import "qrc:/jsFile/JsDateTime.js" as JsDateTime
 Item
 {
     // anchors.fill: parent
     // anchors.top: parent.top
     //anchors.bottom: parent.bottom
-    Column {
-        id: operaEventQuery
-        spacing: 5
-        anchors.topMargin: 20
-        //columns: 18
 
         Row
         {
+            id: operaEventQuery
             spacing: 5
+            anchors.topMargin: 20
+
             Text {
+                id:usrNameTxt
                 text: qsTr("用户名")
                 height: 30
                 horizontalAlignment: TextEdit.AlignHCenter
@@ -29,9 +28,12 @@ Item
                 id: userNameTextField
                 width: 80
                 height: 30
+                selectionColor: "blue"
+                selectedTextColor: "white"
+                selectByMouse: true
             }
             Text {
-                id: event
+                id: eventTxt
                 text: qsTr("事件")
                 height: 30
                 horizontalAlignment: TextEdit.AlignHCenter
@@ -41,6 +43,9 @@ Item
                 id: eventTextField
                 width: 80
                 height: 30
+                selectionColor: "blue"
+                selectedTextColor: "white"
+                selectByMouse: true
             }
 
             Text {
@@ -52,6 +57,7 @@ Item
             }
             Text {
 
+                id:startTimeYearTxt
                 text: qsTr("年:")
                 height: 30
                 horizontalAlignment: TextEdit.AlignLeft
@@ -67,10 +73,16 @@ Item
                 value: Qt.formatDate(new Date,"yyyy")
                 width: 60
                 height:25
+                onValueChanged:
+                {
+                  setStartTime()
+
+                }
 
             }
             Text {
 
+                id:startTimeMonthTxt
                 text: qsTr("月:")
                 height: 30
                 horizontalAlignment: TextEdit.AlignLeft
@@ -86,10 +98,16 @@ Item
                 value: Qt.formatDate(new Date,"M")
                 width: 50
                 height:25
+                onValueChanged:
+                {
+                  setStartTime()
+
+                }
 
             }
             Text {
 
+                id:startTimeDateTxt
                 text: qsTr("日:")
                 height: 30
                 horizontalAlignment: TextEdit.AlignLeft
@@ -109,6 +127,7 @@ Item
 
             Text {
 
+                id:toTxt
                 text: qsTr(" 到:")
                 height: 30
                 horizontalAlignment: TextEdit.AlignHCenter
@@ -116,6 +135,7 @@ Item
             }
             Text {
 
+                id:operaEventEndYearTxt
                 text: qsTr("年:")
                 height: 30
                 horizontalAlignment: TextEdit.AlignLeft
@@ -131,10 +151,16 @@ Item
                 value: Qt.formatDate(new Date,"yyyy")
                 width: 60
                 height:25
+                onValueChanged:
+                {
+                  setEndTime()
+
+                }
 
             }
             Text {
 
+                id:operaEventEndMonthTxt
                 text: qsTr("月:")
                 height: 30
                 horizontalAlignment: TextEdit.AlignLeft
@@ -150,10 +176,16 @@ Item
                 value: Qt.formatDate(new Date,"M")
                 width: 50
                 height:25
+                onValueChanged:
+                {
+                  setEndTime()
+
+                }
 
             }
             Text {
 
+                id:operaEventEndDateTxt
                 text: qsTr("日:")
                 height: 30
                 horizontalAlignment: TextEdit.AlignLeft
@@ -170,12 +202,7 @@ Item
                 height: 25
 
             }
-        }
 
-        Row
-        {
-
-            spacing: 5
             NaviButton {
                 id: operaEventQueryBtn
                 text: qsTr("查询")
@@ -185,8 +212,7 @@ Item
                     operaEventQueryModel.sqlCommit(
                                 String("select * from operator where %1").arg(
                                     selectInfo()))
-                    console.log(String("select * from operator where %1").arg(
-                                    selectInfo()))
+                  operaEventTableView.resizeColumnsToContents()
                 }
             }
 
@@ -197,40 +223,17 @@ Item
                 width: 100
                 onClicked: {
                     operaEventQueryModel.sqlCommit("select * from operator")
-                }
-            }
-
-            NaviButton {
-                id: operaEventQueryDeleteBtn
-                text: qsTr("删除")
-                height: 30
-                width: 80
-                onClicked: {
-                    var info = new String
-                    info = selectInfo()
-                    if (info.length > 0) {
-                        operaEventQueryModel.sqlCommit(
-                                    String("delete from operator where %1").arg(
-                                        info))
-                    }
-                }
-            }
-
-            NaviButton {
-                id: operaEventQueryClearBtn
-                text: qsTr("清空")
-                height: 30
-                width: 80
-                onClicked: {
-                    operaEventQueryModel.sqlCommit("delete from operator")
+                    operaEventTableView.resizeColumnsToContents()
                 }
             }
         }
-    }
+
+
 
     Controls1_4.TableView {
 
 
+        id:operaEventTableView
         width: parent.width
         anchors.topMargin: 10
 
@@ -240,6 +243,7 @@ Item
 
 
         Controls1_4.TableViewColumn {
+            id:userName
             role: "userName"
             title: qsTr("用户名")
             width: 100
@@ -247,6 +251,7 @@ Item
         }
 
         Controls1_4.TableViewColumn {
+            id:userRight
             role: "userRight"
             title: qsTr("用户权限")
             width: 100
@@ -254,6 +259,7 @@ Item
         }
 
         Controls1_4.TableViewColumn {
+            id:event
             role: "event"
             title: qsTr("事件")
             width: 150
@@ -261,6 +267,7 @@ Item
         }
 
         Controls1_4.TableViewColumn {
+            id:result
             role: "result"
             title: qsTr("结果")
             width: 400
@@ -268,6 +275,7 @@ Item
         }
 
         Controls1_4.TableViewColumn {
+            id:time
             role: "time"
             title: qsTr("时间")
             width: 200
@@ -281,7 +289,7 @@ Item
 
     QmlTableModel {
         id: operaEventQueryModel
-        dbDriver: qsTr("QSQLITE")
+        dbDriver: "QSQLITE"
         dbName: OperatorInfo.operatorInfoDbPath()
         dbConnectionName: "operaEvent"
         dbPort: 6888
@@ -291,22 +299,51 @@ Item
     }
 
     Component.onCompleted: {
+        setStartTime()
+        setEndTime()
         operaEventQueryModel.setDbOpen(true)
-        operaEventQueryModel.sqlCommit("select * from operator")
+       // operaEventQueryModel.sqlCommit("select * from operator")
     }
+
+    function setStartTime()
+    {
+        var curYear = operaEventStartYearSpinBox.value
+        var curMonth = operaEventStartMonthSpinBox.value
+
+        var maxDate=JsDateTime.getMaxDate(curYear,curMonth)
+        operaEventStartDateSpinBox.maximumValue=maxDate
+        if(operaEventStartDateSpinBox.value>maxDate)
+        {
+            operaEventStartDateSpinBox.value = maxDate
+        }
+    }
+
+    function setEndTime()
+    {
+        var curYear = operaEventEndYearSpinBox.value
+        var curMonth = operaEventEndMonthSpinBox.value
+
+        var maxDate=JsDateTime.getMaxDate(curYear,curMonth)
+        operaEventEndDateSpinBox.maximumValue=maxDate
+        if(operaEventEndDateSpinBox.value>maxDate)
+        {
+            operaEventEndDateSpinBox.value = maxDate
+        }
+    }
+
 
     function selectInfo() {
         var info = new String
 
         if (userNameTextField.text.length > 0) {
-            info += (qsTr("用户名=") + "'" + userNameTextField.text + "'")
+            info += ("用户名=" + "'" + userNameTextField.text + "'")
         }
 
         if (eventTextField.text.length > 0) {
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("事件=") + "'" + eventTextField.text + "'")
+            info += ("事件=" + "'" + eventTextField.text + "'")
         }
 
 
@@ -318,7 +355,7 @@ Item
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("时间 >=") + "'" + startDateStr + "'")
+            info += ("时间 >=" + "'" + startDateStr + "'")
         }
 
         var endDateValue= Date.fromLocaleString(Qt.locale(),String("%1/%2/%3 23:59:59").arg(operaEventEndYearSpinBox.value).arg(operaEventEndMonthSpinBox.value).arg(operaEventEndDateSpinBox.value),"yyyy/M/d h:m:s");
@@ -329,18 +366,40 @@ Item
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("时间 <=") + "'" + endDateStr + "'")
+            info += ("时间 <=" + "'" + endDateStr + "'")
         }
         return info
     }
 
-    function saveToPdf() {
-        operaEventQueryModel.saveToPdf()
+    function saveToPdf(fileName) {
+        operaEventQueryModel.saveToPdf(fileName)
     }
     function startPrint() {
         operaEventQueryModel.startPrint()
     }
     function printPreview() {
         operaEventQueryModel.printPreview()
+    }
+
+    function retranslate()
+    {
+       usrNameTxt.text = qsTr("用户名")
+        eventTxt.text = qsTr("事件")
+        startTime.text = qsTr(" 时间:")
+        startTimeYearTxt.text = qsTr("年:")
+        startTimeMonthTxt.text = qsTr("月:")
+        startTimeDateTxt.text = qsTr("日:")
+        toTxt.text = qsTr(" 到:")
+        operaEventEndYearTxt.text = qsTr("年:")
+        operaEventEndMonthTxt.text = qsTr("月:")
+        operaEventEndDateTxt.text = qsTr("日:")
+        operaEventQueryBtn.text= qsTr("查询")
+        operaEventQueryAllBtn.text=qsTr("查询所有")
+        userName.title = qsTr("用户名")
+        userRight.title = qsTr("用户权限")
+        event.title = qsTr("事件")
+        result.title = qsTr("结果")
+        time.title = qsTr("时间")
+
     }
 }

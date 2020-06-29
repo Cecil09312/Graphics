@@ -13,6 +13,10 @@ InfoTableView::InfoTableView(QWidget *parent)
 
     setContextMenuPolicy(Qt::CustomContextMenu);
 
+   // horizontalHeader()->setSectionsMovable(true);
+   // horizontalHeader()->setDragEnabled(true);
+    //horizontalHeader()->setDragDropMode(QAbstractItemView::InternalMove);
+
     connect(this,&InfoTableView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)
     {
         m_menu->exec(QCursor::pos());
@@ -28,13 +32,13 @@ InfoTableView::InfoTableView(QWidget *parent)
         emit setAlarmNum(m_tableModel->rowCount(),logicalIndex+1);
     }) ;
 
-    connect(this->horizontalHeader(),&QHeaderView::sectionDoubleClicked,this,[=](int logicalIndex)
+    connect(this->horizontalHeader(),&QHeaderView::sectionClicked,this,[=](int logicalIndex)
     {
         Q_UNUSED(logicalIndex) ;
         emit fitToWiew();
     }) ;
 
-    connect(this,&InfoTableView::doubleClicked,this,[=](const QModelIndex &index)
+    connect(this,&InfoTableView::clicked,this,[=](const QModelIndex &index)
     {
         QSqlRecord record = m_tableModel->record(index.row());
         emit tableValue(record);
@@ -44,7 +48,7 @@ InfoTableView::InfoTableView(QWidget *parent)
 
 InfoTableView::~InfoTableView()
 {
-    m_tableModel->setDbOpen(false);
+    //m_tableModel->setDbOpen(false);
     delete m_menu;
 }
 
@@ -54,6 +58,28 @@ QmlTableModel *InfoTableView::tableModel()
 {
     return m_tableModel;
 }
+
+void InfoTableView::retranslate()
+{
+    setTableHeader();
+    m_analogValueShowAction->setText(tr("模拟量"));
+    m_alarmInfoShowAction->setText(tr("报警信息"));
+
+
+}
+
+void InfoTableView::setTableHeader()
+{
+    QList<QString>alarmInfoList;
+    alarmInfoList <<tr("网络号")<< tr("分机号")<<tr("回路号")<<tr("地址号")<<tr("电源地址")<< tr("设备")
+                 <<tr("事件类型")<<tr("时间")<<tr("系统")<< tr("建筑名称")<<tr("楼层")<<tr("位置")<<tr("备注");
+    for(int i=0;i<alarmInfoList.size();i++)
+    {
+        tableModel()->setHeaderData(i,Qt::Horizontal,alarmInfoList.at(i));
+    }
+}
+
+
 
 void InfoTableView::toMaxPosition()
 {
@@ -80,21 +106,16 @@ void InfoTableView::toMaxPosition()
 void InfoTableView::initWidget()
 {
 
-    m_tableModel = new QmlTableModel(this);
+
+    m_tableModel = new QmlTableModel (this);
     m_menu = new QMenu;
     m_analogValueShowAction = new QAction(tr("模拟量"),m_menu);
     m_alarmInfoShowAction = new QAction(tr("报警信息"),m_menu);
     m_menu->addAction(m_analogValueShowAction);
     m_menu->addAction(m_alarmInfoShowAction);
     this->setModel(m_tableModel);
-    this->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    //    m_tableModel->setDbDriver("QSQLITE");
-    //    m_tableModel->setDbHost("sss");
-    //    m_tableModel->setDbName("C:/Users/1/Desktop/py.db");
-    //    m_tableModel->setDbConnectionName("defaultName3");
-    //    m_tableModel->setDbPassword("rrr");
-    //    m_tableModel->setDbPort(222);
-    //    m_tableModel->setDbUser("song");
-    //    m_tableModel->setDbOpen(true);
-    //    m_tableModel->sqlCommit("select *from pinyin");
+    this->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    this->horizontalHeader()->setStretchLastSection(true);
+   // horizontalHeader()->setMinimumSectionSize(60);
+    this->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }

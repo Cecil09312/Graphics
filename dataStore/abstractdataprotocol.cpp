@@ -1,6 +1,7 @@
 ﻿#include "abstractdataprotocol.h"
 
-AbstractDataProtocol::AbstractDataProtocol()
+AbstractDataProtocol::AbstractDataProtocol(QObject *parent)
+    :QObject (parent)
 {
 
 }
@@ -41,3 +42,10 @@ QByteArray AbstractDataProtocol::dataArray(const QList<QByteArray> &arrayList, i
 {
     return dataPackage(arrayList,start);
 }
+
+void AbstractDataProtocol::startProcessData(const QByteArray &array)
+{
+     Q_UNUSED(array);
+}
+
+

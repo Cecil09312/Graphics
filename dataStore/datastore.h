@@ -34,7 +34,9 @@ public:
     bool haveTypeItem(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum);
     QHash<QString,QList<QString> >&getTypeNoItemHash();
     int indexOfItem(const QString &extNum,const QString &loopNum,const QString &addrNum,const QString &networkNum,const QString &alarmType);
-    int &itemNum();
+    bool containsFireAlarm(const QString &alarm);
+    bool containsFireAlarmNoItem(const QString &alarm);
+    int itemNum();
     void setItemNum(int num);
     QString &loopNum();
     QString &extNum();
@@ -45,6 +47,8 @@ public:
     qreal &iconSize();
     QString &oneOperator();
     QString &powerAddr();
+    void reInit();
+    void clearStoreAlarm();
 signals:
 
     void curLoopAddr(const QString loopNum,const QString addrNum);

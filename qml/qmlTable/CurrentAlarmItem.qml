@@ -9,6 +9,7 @@ import "../infoSetting"
 
 Item
 {
+    signal setCurAlarm(string alarmType)
     Column {
         id: alarmInfoQuery
         spacing: 10
@@ -25,6 +26,9 @@ Item
                 id: alarmInfoExtNumTextField
                 width: 100
                 height: 30
+                selectionColor: "blue"
+                selectedTextColor: "white"
+                selectByMouse: true
             }
 
             Text {
@@ -38,6 +42,9 @@ Item
                 id: alarmInfoLoopNumTextField
                 width: 100
                 height: 30
+                selectionColor: "blue"
+                selectedTextColor: "white"
+                selectByMouse: true
             }
 
             Text {
@@ -51,9 +58,13 @@ Item
                 id: alarmInfoAddNumTextField
                 width: 100
                 height: 30
+                selectionColor: "blue"
+                selectedTextColor: "white"
+                selectByMouse: true
             }
 
             Text {
+                id:alarmInfoNetworkNum
                 text: qsTr("网络号")
                 height: 30
                 horizontalAlignment: TextEdit.AlignLeft
@@ -63,9 +74,13 @@ Item
                 id: networkNumTextField
                 width: 100
                 height: 30
+                selectionColor: "blue"
+                selectedTextColor: "white"
+                selectByMouse: true
             }
 
             Text {
+                id:alarmInfoPowerAddr
                 text: qsTr("电源地址")
                 height: 30
                 horizontalAlignment: TextEdit.AlignLeft
@@ -75,6 +90,9 @@ Item
                 id: powerAddrTextField
                 width: 100
                 height: 30
+                selectionColor: "blue"
+                selectedTextColor: "white"
+                selectByMouse: true
             }
 
             Text {
@@ -89,6 +107,19 @@ Item
                 height: 30
                 width: 100
                 model: [qsTr("火警"),qsTr("监管"),qsTr("启动"),qsTr("反馈"),qsTr("故障"),qsTr("屏蔽"),qsTr("停止"),qsTr("反馈消除"),qsTr("故障恢复"),qsTr("屏蔽解除")]
+                onCurrentTextChanged:
+                {
+                    if(currentText===qsTr("火警")||currentText===qsTr("监管")||currentText===qsTr("启动")||currentText===qsTr("反馈")||currentText===qsTr("故障")||currentText===qsTr("屏蔽"))
+                    {
+                        emit:setCurAlarm(currentText)
+                    }
+                    else
+                    {
+                        emit:setCurAlarm(qsTr("火警"))
+                    }
+
+
+                }
             }
         }
         Row {
@@ -107,6 +138,8 @@ Item
                                 String(
                                     "select 分机号,回路号,地址号,网络号,电源地址,系统,设备编码,设备,事件类型,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo where %1").arg(
                                     selectInfo()))
+
+                    alarmInfoTableView.resizeColumnsToContents()
                 }
             }
 
@@ -117,7 +150,9 @@ Item
                 width: 100
                 onClicked: {
                     currentAlarmListModel.sqlCommit(
-                                "select 分机号,回路号,地址号,网络号,电源地址,系统,设备编码,设备,事件类型,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo where 状态!='正常'")
+                                String("select 分机号,回路号,地址号,网络号,电源地址,系统,设备编码,设备,事件类型,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo where 状态!='%1'").arg(qsTr("正常")))
+
+                    alarmInfoTableView.resizeColumnsToContents()
                 }
             }
         }
@@ -132,96 +167,111 @@ Item
         anchors.top: alarmInfoQuery.bottom
 
         Controls1_4.TableViewColumn {
+            id:extNum
             role: "extNum"
             title: qsTr("分机号")
             width: 60
         }
 
         Controls1_4.TableViewColumn {
+            id:loopNum
             role: "loopNum"
             title: qsTr("回路号")
             width: 60
         }
 
         Controls1_4.TableViewColumn {
+            id:addrNum
             role: "addrNum"
             title: qsTr("地址号")
             width: 60
         }
 
         Controls1_4.TableViewColumn {
+            id:networkNum
             role: "networkNum"
             title: qsTr("网络号")
             width: 60
         }
 
         Controls1_4.TableViewColumn {
+            id:powerAddr
             role: "powerAddr"
             title: qsTr("电源地址")
             width: 60
         }
         Controls1_4.TableViewColumn {
+            id:deviceSys
             role: "deviceSys"
             title: qsTr("系统")
             width: 60
         }
 
         Controls1_4.TableViewColumn {
+            id:productNum
             role: "productNum"
             title: qsTr("设备编码")
             width: 60
         }
 
         Controls1_4.TableViewColumn {
+            id:deviceType
             role: "deviceType"
             title: qsTr("设备")
             width: 60
         }
 
         Controls1_4.TableViewColumn {
+            id:alarmType
             role: "alarmType"
             title: qsTr("事件类型")
             width: 60
         }
 
         Controls1_4.TableViewColumn {
+            id:alarmTime
             role: "alarmTime"
             title: qsTr("时间")
             width: 150
         }
 
         Controls1_4.TableViewColumn {
+            id:buildingName
             role: "buildName"
             title: qsTr("建筑名称")
             width: 60
         }
 
         Controls1_4.TableViewColumn {
+            id:floor
             role: "floor"
             title: qsTr("楼层")
             width: 60
         }
 
         Controls1_4.TableViewColumn {
+            id:location
             role: "deviceLocation"
             title: qsTr("位置")
             width: 60
         }
 
         Controls1_4.TableViewColumn {
+            id:operator
             role: "operator"
             title: qsTr("操作员")
             width: 60
         }
 
         Controls1_4.TableViewColumn {
+            id:remarks
             role: "remarks"
             title: qsTr("备注")
             width: 60
         }
 
         model: currentAlarmListModel
-        onDoubleClicked: {
+        onClicked: {
             var curExtNum = new String
             var curLoopNum = new String
             var curAddrNum = new String
@@ -238,69 +288,69 @@ Item
     }
     QmlTableModel {
         id: currentAlarmListModel
-        dbDriver: qsTr("QSQLITE")
+        dbDriver: "QSQLITE"
         dbName: Crt.alarmInfoDbName()
         dbConnectionName: "curAlarmInfoDb"
         dbPort: 6688
         roleNameList: ["extNum", "loopNum", "addrNum", "networkNum", "powerAddr","deviceSys", "productNum", "deviceType", "alarmType",  "alarmTime", "buildName", "floor", "deviceLocation", "operator","remarks"]
-        titleList: ["分机号", "回路号", "地址号", "网络号","电源地址", "系统", "设备编码", "设备", "事件类型", "时间", "建筑名称", "楼层", "位置", "操作员","备注"]
+        titleList: [qsTr("分机号"), qsTr("回路号"), qsTr("地址号"), qsTr("网络号"),qsTr("电源地址"), qsTr("系统"), qsTr("设备编码"), qsTr("设备"), qsTr("事件类型"), qsTr("时间"), qsTr("建筑名称"), qsTr("楼层"), qsTr("位置"), qsTr("操作员"),qsTr("备注")]
     }
     function selectInfo() {
         var info = new String
 
-        if (alarmInfoExtNumTextField.text.length > 0) {
-            info += (qsTr("分机号=") + "'" + alarmInfoExtNumTextField.text + "'")
+        if (alarmInfoExtNumTextField.text.replace(/\s+/g,"").length > 0) {
+            info += ("分机号=" + "'" + alarmInfoExtNumTextField.text.replace(/\s+/g,"") + "'")
         }
 
-        if (alarmInfoLoopNumTextField.text.length > 0) {
+        if (alarmInfoLoopNumTextField.text.replace(/\s+/g,"").length > 0) {
 
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("回路号=") + "'" + alarmInfoLoopNumTextField.text + "'")
+            info += ("回路号=" + "'" + alarmInfoLoopNumTextField.text.replace(/\s+/g,"") + "'")
         }
-        if (alarmInfoAddNumTextField.text.length > 0) {
+        if (alarmInfoAddNumTextField.text.replace(/\s+/g,"").length > 0) {
 
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("地址号=") + "'" + alarmInfoAddNumTextField.text + "'")
+            info += ("地址号=" + "'" + alarmInfoAddNumTextField.text.replace(/\s+/g,"") + "'")
         }
 
-        if (networkNumTextField.text.length > 0) {
+        if (networkNumTextField.text.replace(/\s+/g,"").length > 0) {
 
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("网络号=") + "'" + networkNumTextField.text + "'")
+            info += ("网络号=" + "'" + networkNumTextField.text.replace(/\s+/g,"") + "'")
         }
 
-        if (powerAddrTextField.text.length > 0) {
+        if (powerAddrTextField.text.replace(/\s+/g,"").length > 0) {
 
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("电源地址=") + "'" +powerAddrTextField.text + "'")
+            info += ("电源地址=" + "'" +powerAddrTextField.text.replace(/\s+/g,"") + "'")
         }
 
         if (alarmInfoAlarmTypeComboBox.currentText.length > 0) {
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("事件类型=") + "'" + alarmInfoAlarmTypeComboBox.currentText + "'")
+            info += ("事件类型=" + "'" + alarmInfoAlarmTypeComboBox.currentText + "'")
         }
 
         if (info.length > 0) {
             info += " and "
         }
-        info += (qsTr("状态!='正常'"))
+        info += String("状态!='%1'").arg(qsTr("正常"))
 
 
         return info
     }
 
-    function saveToPdf() {
-        currentAlarmListModel.saveToPdf()
+    function saveToPdf(fileName) {
+        currentAlarmListModel.saveToPdf(fileName)
     }
     function startPrint() {
         currentAlarmListModel.startPrint()
@@ -314,8 +364,37 @@ Item
         alarmInfoTableView.positionViewAtRow(alarmInfoTableView.rowCount - 1,
                                              ListView.Contain)
         currentAlarmListModel.setDbOpen(true)
-        currentAlarmListModel.sqlCommit(
-                    "select 分机号,回路号,地址号,网络号,电源地址,系统,设备编码,设备,事件类型,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo where 状态!='正常'")
+
+    }
+
+    function retranslate()
+    {
+        alarmInfoExtNum.text = qsTr("分机号")
+        alarmInfoLoopNum.text =qsTr("回路号")
+        alarmInfoAddNum.text = qsTr("地址号")
+        alarmInfoNetworkNum.text = qsTr("网络号")
+        alarmInfoPowerAddr.text = qsTr("电源地址")
+        alarmInfoAlarmType.text=qsTr("事件类型")
+        alarmInfoAlarmTypeComboBox.model =[qsTr("火警"),qsTr("监管"),qsTr("启动"),qsTr("反馈"),qsTr("故障"),qsTr("屏蔽"),qsTr("停止"),qsTr("反馈消除"),qsTr("故障恢复"),qsTr("屏蔽解除")]
+        alarmInfoQueryBtn.text = qsTr("查询")
+        alarmInfoQueryAllBtn.text = qsTr("查询所有")
+        extNum.title = qsTr("分机号")
+        loopNum.title = qsTr("回路号")
+        addrNum.title = qsTr("地址号")
+        networkNum.title = qsTr("网络号")
+        powerAddr.title = qsTr("电源地址")
+        deviceSys.title = qsTr("系统")
+        productNum.title = qsTr("设备编码")
+        deviceType.title = qsTr("设备")
+        alarmType.title = qsTr("事件类型")
+        alarmTime.title = qsTr("时间")
+        buildingName.title = qsTr("建筑名称")
+        floor.title = qsTr("楼层")
+        location.title = qsTr("位置")
+        operator.title = qsTr("操作员")
+        remarks.title = qsTr("备注")
+
+
     }
 
 

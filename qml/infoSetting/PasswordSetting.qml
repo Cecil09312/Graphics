@@ -1,7 +1,7 @@
 ﻿import QtQuick 2.0
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
-import QtQuick.Dialogs 1.2
+import Qt.labs.platform 1.0
 import userManager 1.0
 import operatorInfo 1.0
 
@@ -12,6 +12,7 @@ Item {
     ListModel {
         id: addUserModel
         ListElement {
+
             value: qsTr("管理员")
         }
 
@@ -100,7 +101,7 @@ Item {
                 Layout.column: 1
                 Layout.fillWidth: true
                 onCurrentTextChanged: {
-                    if (currentText == "超级用户") {
+                    if (currentText === qsTr("超级用户")) {
                         userName.visible = false
                         userNameTextField.visible = false
                     } else {
@@ -122,6 +123,9 @@ Item {
                 Layout.column: 1
                 Layout.fillWidth: true
                 placeholderText: qsTr("用户名")
+                selectByMouse: true
+                selectionColor: "blue"
+                selectedTextColor: "white"
             }
             Text {
                 id: oldPassword
@@ -134,6 +138,9 @@ Item {
                 Layout.row: 2
                 Layout.column: 1
                 echoMode: TextInput.Password
+                selectByMouse: true
+                selectionColor: "blue"
+                selectedTextColor: "white"
                 placeholderText: qsTr("初始密码")
                 inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase
                                   | Qt.ImhSensitiveData | Qt.ImhNoPredictiveText
@@ -151,6 +158,9 @@ Item {
                 id: newPasswordTextFiled
                 echoMode: TextInput.Password
                 placeholderText: qsTr("新密码")
+                selectByMouse: true
+                selectionColor: "blue"
+                selectedTextColor: "white"
                 inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase
                                   | Qt.ImhSensitiveData | Qt.ImhNoPredictiveText
             }
@@ -239,6 +249,9 @@ Item {
                 Layout.row: 2
                 Layout.column: 1
                 Layout.fillWidth: true
+                selectByMouse: true
+                selectionColor: "blue"
+                selectedTextColor: "white"
             }
 
             Text {
@@ -255,6 +268,9 @@ Item {
                 Layout.column: 1
                 Layout.fillWidth: true
                 echoMode: TextInput.Password
+                selectByMouse: true
+                selectionColor: "blue"
+                selectedTextColor: "white"
             }
 
             Row
@@ -423,52 +439,64 @@ Item {
 
     MessageDialog {
         id: criticalMessageDialog
-        icon: StandardIcon.Critical
+        //icon: StandardIcon.Critical
         title: qsTr("错误提示")
         text: qsTr("初始密码错误，请重新输入......")
+
+        flags:Qt.MSWindowsFixedSizeDialogHint|Qt.WindowCloseButtonHint|Qt.WindowStaysOnTopHint|Qt.WindowMaximizeButtonHint
     }
 
     MessageDialog {
         id: warningMessageDialog
-        icon: StandardIcon.Warning
+        //icon: StandardIcon.Warning
         title: qsTr("警告信息")
         text: qsTr("有密码为空，请重新设置......")
+
+        flags:Qt.MSWindowsFixedSizeDialogHint|Qt.WindowCloseButtonHint|Qt.WindowStaysOnTopHint|Qt.WindowMaximizeButtonHint
     }
 
     MessageDialog {
         id: infoMessageDialog
-        icon: StandardIcon.Information
+        //icon: StandardIcon.Information
         title: qsTr("信息提示")
         text: qsTr("密码修改成功")
+
+        flags:Qt.MSWindowsFixedSizeDialogHint|Qt.WindowCloseButtonHint|Qt.WindowStaysOnTopHint|Qt.WindowMaximizeButtonHint
     }
 
     MessageDialog {
         id: addNewUserSuccessDialog
-        icon: StandardIcon.Information
+        //icon: StandardIcon.Information
         title: qsTr("信息提示")
         text: qsTr("添加用户成功")
+
+        flags:Qt.MSWindowsFixedSizeDialogHint|Qt.WindowCloseButtonHint|Qt.WindowStaysOnTopHint|Qt.WindowMaximizeButtonHint
     }
 
     MessageDialog {
         id: addNewUserFailureDialog
-        icon: StandardIcon.Critical
+        //icon: StandardIcon.Critical
         title: qsTr("错误信息提示")
         text: qsTr("添加用户失败,或者用户已经存在")
+
+        flags:Qt.MSWindowsFixedSizeDialogHint|Qt.WindowCloseButtonHint|Qt.WindowStaysOnTopHint|Qt.WindowMaximizeButtonHint
     }
 
 
     MessageDialog {
         id: removeUserSuccessDialog
-        icon: StandardIcon.Information
+        //icon: StandardIcon.Information
         title: qsTr("信息提示")
         text: qsTr("删除用户成功")
+        flags:Qt.MSWindowsFixedSizeDialogHint|Qt.WindowCloseButtonHint|Qt.WindowStaysOnTopHint|Qt.WindowMaximizeButtonHint
     }
 
     MessageDialog {
         id: removeUserFailureDialog
-        icon: StandardIcon.Critical
+        //icon: StandardIcon.Critical
         title: qsTr("错误信息提示")
         text: qsTr("删除失败或用户不存在")
+        flags:Qt.MSWindowsFixedSizeDialogHint|Qt.WindowCloseButtonHint|Qt.WindowStaysOnTopHint|Qt.WindowMaximizeButtonHint
     }
 
     Component.onCompleted: {
@@ -503,6 +531,31 @@ Item {
 
         userRightComboBox.currentIndex=0
         managerRightComboBox.currentIndex=0
+
+    }
+
+    function retranslate()
+    {
+        passwordChangeRadionBtn.text = qsTr("密码修改")
+        addUserRadionBtn.text = qsTr("增加或删除用户")
+        userRight.text= qsTr("用户权限")
+        userName.text = qsTr("用户名")
+        userNameTextField.text = qsTr("用户名")
+        oldPassword.text = qsTr("初始密码")
+        oldPasswordTextFile.placeholderText=qsTr("初始密码")
+        newPassword.text = qsTr("新密码")
+        newPasswordTextFiled.placeholderText=qsTr("新密码")
+        confineBtn.text = qsTr("确认")
+        managerRight.text = qsTr("管理员权限")
+        newUserRight.text = qsTr("操作用户权限")
+        newUserName.text = qsTr("用户名")
+        newUserPassword.text = qsTr("密码")
+        addNewUserconfineBtn.text = qsTr("增加")
+        removeBtn.text = qsTr("删除")
+        userRightComboBox.model = changePasswordModel
+        managerRightComboBox.model = managerRightModel
+        newUserComboBox.model = addUserModel
+
 
     }
 }

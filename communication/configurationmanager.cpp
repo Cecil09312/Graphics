@@ -12,28 +12,28 @@ ConfigurationManager::ConfigurationManager(Configuration configuration,QObject *
     m_canConfigurationHash = configurationValueHash["can"].toHash();
     m_udpConfigurationHash = configurationValueHash["udp"].toHash();
     m_ftpConfigurationHash = configurationValueHash["ftp"].toHash();
-    m_indicatorConfigurationHash = configurationValueHash["indicator"].toHash();
+    //m_indicatorConfigurationHash = configurationValueHash["indicator"].toHash();
     if(m_serialConfigurationHash.isEmpty())
     {
-        m_serialConfigurationHash["portName"]="";
+        m_serialConfigurationHash["portName"]="ttyS1";
         m_serialConfigurationHash["baudRate"] = 9600;
         m_serialConfigurationHash["dataBits"] = 8;
         m_serialConfigurationHash["stopBits"] = 1;
-        m_serialConfigurationHash["parity"]  = "无校验";
-        m_serialConfigurationHash["flowControl"] = "无";
+        m_serialConfigurationHash["parity"]  = tr("无校验");
+        m_serialConfigurationHash["flowControl"] = tr("无");
         // m_configuration.data()->setConfiguration(m_serialConfigurationHash);
 
     }
 
-    if(m_indicatorConfigurationHash.isEmpty())
-    {
-        m_indicatorConfigurationHash["portName"]="";
-        m_indicatorConfigurationHash["baudRate"] = 9600;
-        m_indicatorConfigurationHash["dataBits"] = 8;
-        m_indicatorConfigurationHash["stopBits"] = 1;
-        m_indicatorConfigurationHash["parity"]  = "无校验";
-        m_indicatorConfigurationHash["flowControl"] = "无";
-    }
+//    if(m_indicatorConfigurationHash.isEmpty())
+//    {
+//        m_indicatorConfigurationHash["portName"]="";
+//        m_indicatorConfigurationHash["baudRate"] = 9600;
+//        m_indicatorConfigurationHash["dataBits"] = 8;
+//        m_indicatorConfigurationHash["stopBits"] = 1;
+//        m_indicatorConfigurationHash["parity"]  = tr("无校验");
+//        m_indicatorConfigurationHash["flowControl"] = tr("无");
+//    }
     if(m_tcpConfigurationHash.isEmpty())
     {
         m_tcpConfigurationHash["hostAddr"] = "192.195.1.1";

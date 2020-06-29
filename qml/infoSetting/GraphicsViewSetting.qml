@@ -42,8 +42,8 @@ Item {
                     Layout.fillWidth: true
                     width: 200
                     from: 10
-                    to: 1000
-                    value: 15
+                    to: 40
+                    value: 12
                     property int decimals: 1
                     property real realValue: value / 10
 
@@ -83,7 +83,7 @@ Item {
                     width: 200
                     from: 0
                     to: 10
-                    stepSize: 0.5
+                    stepSize: 1
                     value: 5
 
                     onMoved: {
@@ -117,33 +117,35 @@ Item {
                     text: qsTr("权限开启")
                     onClicked:
                     {
-                      ArchitePlanView.setItemLimit(checked)
+                        ArchitePlanView.setItemLimit(checked)
                     }
 
                 }
 
                 Text
                 {
-                  color: "red"
-                  font
-                  {
-                    family:qsTr("宋体")
-                    pointSize:12
+                    id:infoTxt
+                    color: "red"
+                    wrapMode: Text.WordWrap
+                    width: 680
+                    font
+                    {
+                        family:"Times New Roman"
+                        pointSize:11
 
-                  }
+                    }
 
-                text:  qsTr("说明:1.添加图标:双击鼠标左键
-2.删除图标:在图标上点击鼠标右键，在弹出的菜单中选中删除
-3.移动图标:在图标上点鼠标左键，移动鼠标，图标也会跟着移动，释放鼠标左键图标位置即可确定。
-4.选中图标:在图标上点击一下鼠标左键，可以选中图标
-5.选中多个图标:按住键盘上的Ctrl键，在每个图标上面点击一下鼠标左键"
-                            )
+                    text:  qsTr("说明:1.添加图标:双击鼠标左键。")+"\n"+
+qsTr("2.删除图标:在图标上点击鼠标右键，在弹出的菜单中选中删除。")+"\n"+
+qsTr("3.移动图标:在图标上点鼠标左键，移动鼠标，图标也会跟着移动，释放鼠标左键图标位置即可确定。")+"\n"+
+qsTr("4.选中图标:在图标上点击一下鼠标左键，可以选中图标。")+"\n"+
+qsTr("5.选中多个图标:按住键盘上的Ctrl键，在每个图标上面点击一下鼠标左键。")
                 }
 
 
             }
 
-       }
+        }
 
 
         GroupBox {
@@ -160,6 +162,9 @@ Item {
                 TextField {
                     id: globalArchitePlanTextFiled
                     readOnly: true
+                    selectByMouse: true
+                    selectionColor: "blue"
+                    selectedTextColor: "white"
                 }
                 NaviButton {
                     id: globalArchitePlanBtn
@@ -176,7 +181,9 @@ Item {
         id: fileDialog
         title: "Please choose a file"
         folder: filePath
-       // folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
+
+        flags:Qt.WindowStaysOnTopHint|Qt.WindowMaximizeButtonHint|Qt.MSWindowsFixedSizeDialogHint|Qt.WindowCloseButtonHint
+        // folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
         onAccepted: {
             OperatorInfo.insertEvent(
                         qsTr("建筑总平面布局图变更"),
@@ -201,9 +208,32 @@ Item {
         jsonStr = qmlforJson.readFileToString()
         if (jsonStr.length > 0) {
             globalArchiteObj = JSON.parse(jsonStr)
+            if(typeof globalArchiteObj["grobalPlanPicture"]=="undefined")
+            {
+                return
+            }
             var globalArchitePlanStr = JSON.stringify(
                         globalArchiteObj["grobalPlanPicture"].valueOf())
             globalArchitePlanTextFiled.text = globalArchitePlanStr
         }
+    }
+
+    function retranslate()
+    {
+        architePlanGroupBox.title = qsTr("图纸缩放设置(建筑平面图/系统图)")
+        zoomSettingTxt.text =  qsTr("缩放系数:")
+        zoomTxt.text = qsTr("缩放:")
+        itemLimitGroupBox.title = qsTr("添加、删除、移动图标权限设置")
+        limitOpen.text = qsTr("权限开启")
+        infoTxt.text =  qsTr("说明:1.添加图标:双击鼠标左键。")+"\n"+
+                qsTr("2.删除图标:在图标上点击鼠标右键，在弹出的菜单中选中删除。")+"\n"+
+                qsTr("3.移动图标:在图标上按住鼠标左键，移动鼠标，图标会跟着移动，释放鼠标图标位置即可确定。")+"\n"+
+                qsTr("4.选中图标:在图标上点击一下鼠标左键，可以选中图标。")+"\n"+
+                qsTr("5.选中多个图标:按住键盘上的Ctrl键，在每个图标上面点击一下鼠标左键。")
+
+        globalArchitePlanGroupBox.title = qsTr("建筑总平面布局图")
+        globalBackground.text = qsTr("背景图")
+        globalArchitePlanBtn.text =qsTr("选择路径")
+
     }
 }

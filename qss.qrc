@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>qss/styleSheet.qss</file>
+        <file>jsFile/JsDateTime.js</file>
     </qresource>
 </RCC>

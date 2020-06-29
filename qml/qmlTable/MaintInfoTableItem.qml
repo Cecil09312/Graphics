@@ -4,6 +4,7 @@ import QtQuick.Controls 1.4 as Controls1_4
 import qmlTableModel 1.0
 import operatorInfo 1.0
 import "../infoSetting"
+import "qrc:/jsFile/JsDateTime.js" as JsDateTime
 
 Item
 {
@@ -27,9 +28,13 @@ Item
                 id: equipmentNumTextField
                 width: 80
                 height: 30
+                selectionColor: "blue"
+                selectedTextColor: "white"
+                selectByMouse: true
             }
 
             Text {
+                id:maintainerTxt
                 text: qsTr("维保员")
                 height: 30
                 horizontalAlignment: TextEdit.AlignHCenter
@@ -39,6 +44,9 @@ Item
                 id: maintEngineerTextField
                 width: 80
                 height: 30
+                selectionColor: "blue"
+                selectedTextColor: "white"
+                selectByMouse: true
             }
 
             Text {
@@ -49,7 +57,7 @@ Item
                 verticalAlignment: TextEdit.AlignVCenter
             }
             Text {
-
+                id:maintStartYearTxt
                 text: qsTr("年:")
                 height: 30
                 horizontalAlignment: TextEdit.AlignLeft
@@ -65,10 +73,15 @@ Item
                 value: Qt.formatDate(new Date,"yyyy")
                 width: 60
                 height:25
+                onValueChanged:
+                {
+                    setStartTime()
+                }
 
             }
             Text {
 
+                id:maintStartMonthTxt
                 text: qsTr("月:")
                 height: 30
                 horizontalAlignment: TextEdit.AlignLeft
@@ -84,10 +97,15 @@ Item
                 value: Qt.formatDate(new Date,"M")
                 width: 50
                 height:25
+                onValueChanged:
+                {
+                    setStartTime()
+                }
 
             }
             Text {
 
+                id:maintStartDateTxt
                 text: qsTr("日:")
                 height: 30
                 horizontalAlignment: TextEdit.AlignLeft
@@ -103,9 +121,11 @@ Item
                 width: 50
                 height: 25
 
+
             }
 
             Text {
+                id:toTxt
                 text: qsTr(" 到:")
                 height: 30
                 horizontalAlignment: TextEdit.AlignHCenter
@@ -113,6 +133,7 @@ Item
             }
             Text {
 
+                id:maintEndYearTxt
                 text: qsTr("年:")
                 height: 30
                 horizontalAlignment: TextEdit.AlignLeft
@@ -128,10 +149,15 @@ Item
                 value: Qt.formatDate(new Date,"yyyy")
                 width: 60
                 height:25
+                onValueChanged:
+                {
+                    setEndTime()
+                }
 
             }
             Text {
 
+                id:maintEndMonthTxt
                 text: qsTr("月:")
                 height: 30
                 horizontalAlignment: TextEdit.AlignLeft
@@ -147,10 +173,15 @@ Item
                 value: Qt.formatDate(new Date,"M")
                 width: 50
                 height:25
+                onValueChanged:
+                {
+                    setEndTime()
+                }
 
             }
             Text {
 
+                id:maintEndDateTxt
                 text: qsTr("日:")
                 height: 30
                 horizontalAlignment: TextEdit.AlignLeft
@@ -181,6 +212,7 @@ Item
                     maintInfoQueryModel.sqlCommit(
                                 String("select * from maintenance where %1").arg(
                                     selectInfo()))
+                    maintInfoTableView.resizeColumnsToContents()
                 }
             }
 
@@ -191,40 +223,19 @@ Item
                 width: 100
                 onClicked: {
                     maintInfoQueryModel.sqlCommit("select * from maintenance")
+                    maintInfoTableView.resizeColumnsToContents()
                 }
             }
 
 
-            NaviButton {
-                id: operaEventQueryDeleteBtn
-                text: qsTr("删除")
-                height: 30
-                width: 80
-                onClicked: {
-                    var info = new String
-                    info = selectInfo()
-                    if(info.length>0)
-                    {
-                        maintInfoQueryModel.sqlCommit(String("delete from maintenance where %1").arg(info))
-                    }
-                }
-            }
 
-            NaviButton {
-                id: operaEventQueryClearBtn
-                text: qsTr("清空")
-                height: 30
-                width: 80
-                onClicked: {
-                    maintInfoQueryModel.sqlCommit("delete from maintenance")
-                }
-            }
         }
     }
 
 
     Controls1_4.TableView {
 
+        id:maintInfoTableView
         width: parent.width
         anchors.topMargin: 10
         clip: true
@@ -232,6 +243,7 @@ Item
         anchors.top: operaEventQuery.bottom
 
         Controls1_4.TableViewColumn {
+            id:equipmentCode
             role: "equipmentCode"
             title: qsTr("设备编码")
             width: 60
@@ -239,6 +251,7 @@ Item
         }
 
         Controls1_4.TableViewColumn {
+            id:maintTimeColumn
             role: "maintTime"
             title: qsTr("维保时间")
             width: 120
@@ -246,6 +259,7 @@ Item
         }
 
         Controls1_4.TableViewColumn {
+            id:state
             role: "state"
             title: qsTr("状态现象")
             width: 120
@@ -253,6 +267,7 @@ Item
         }
 
         Controls1_4.TableViewColumn {
+            id:methods
             role: "methods"
             title: qsTr("维保方法")
             width: 120
@@ -260,6 +275,7 @@ Item
         }
 
         Controls1_4.TableViewColumn {
+            id:contentDesc
             role: "contentDesc"
             title: qsTr("内容描述")
             width: 120
@@ -267,6 +283,7 @@ Item
         }
 
         Controls1_4.TableViewColumn {
+            id:maintEngineer
             role: "maintEngineer"
             title: qsTr("维保员")
             width: 60
@@ -274,6 +291,7 @@ Item
         }
 
         Controls1_4.TableViewColumn {
+            id:floor
             role: "floor"
             title: qsTr("楼层")
             width: 60
@@ -281,6 +299,7 @@ Item
         }
 
         Controls1_4.TableViewColumn {
+            id:position
             role: "position"
             title: qsTr("部位")
             width: 60
@@ -288,6 +307,7 @@ Item
         }
 
         Controls1_4.TableViewColumn {
+            id:system
             role: "system"
             title: qsTr("系统")
             width: 60
@@ -295,18 +315,21 @@ Item
         }
 
         Controls1_4.TableViewColumn {
+            id:buildingName
             role: "buildingName"
             title: qsTr("建筑名称")
             width: 60
         }
 
         Controls1_4.TableViewColumn {
+            id:personOnDuty
             role: "personOnDuty"
             title: qsTr("值班人员")
             width: 60
         }
 
         Controls1_4.TableViewColumn {
+            id:operator
             role: "operator"
             title: qsTr("操作人员")
             width: 60
@@ -318,7 +341,7 @@ Item
 
     QmlTableModel {
         id: maintInfoQueryModel
-        dbDriver: qsTr("QSQLITE")
+        dbDriver: "QSQLITE"
         dbName: OperatorInfo.operatorInfoDbPath()
         dbConnectionName: "maintInfo"
         dbPort: 6688
@@ -329,21 +352,49 @@ Item
     }
 
     Component.onCompleted: {
+        setStartTime()
+        setEndTime()
         maintInfoQueryModel.setDbOpen(true)
-        maintInfoQueryModel.sqlCommit("select * from maintenance")
+       // maintInfoQueryModel.sqlCommit("select * from maintenance")
+    }
+
+    function setStartTime()
+    {
+        var curYear = maintStartYearSpinBox.value
+        var curMonth = maintStartMonthSpinBox.value
+
+        var maxDate=JsDateTime.getMaxDate(curYear,curMonth)
+        maintStartDateSpinBox.maximumValue=maxDate
+        if(maintStartDateSpinBox.value>maxDate)
+        {
+            maintStartDateSpinBox.value = maxDate
+        }
+    }
+
+    function setEndTime()
+    {
+        var curYear = maintEndYearSpinBox.value
+        var curMonth = maintEndMonthSpinBox.value
+
+        var maxDate=JsDateTime.getMaxDate(curYear,curMonth)
+        maintEndDateSpinBox.maximumValue=maxDate
+        if(maintEndDateSpinBox.value>maxDate)
+        {
+            maintEndDateSpinBox.value = maxDate
+        }
     }
 
     function selectInfo() {
         var info = new String
         if (equipmentNumTextField.text.length > 0) {
-            info += (qsTr("设备编码=") + "'" + equipmentNumTextField.text + "'")
+            info += ("设备编码=" + "'" + equipmentNumTextField.text + "'")
         }
 
         if (maintEngineerTextField.text.length > 0) {
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("维保员 =") + "'" + maintEngineerTextField.text + "'")
+            info += ("维保员 =" + "'" + maintEngineerTextField.text + "'")
         }
 
 
@@ -355,7 +406,7 @@ Item
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("维保时间 >=") + "'" + startDateStr + "'")
+            info += ("维保时间 >=" + "'" + startDateStr + "'")
         }
 
         var endDateValue= Date.fromLocaleString(Qt.locale(),String("%1/%2/%3 23:59:59").arg(maintEndYearSpinBox.value).arg(maintEndMonthSpinBox.value).arg(maintEndDateSpinBox.value),"yyyy/M/d h:m:s");
@@ -366,19 +417,47 @@ Item
             if (info.length > 0) {
                 info += " and "
             }
-            info += (qsTr("维保时间 <=") + "'" + endDateStr + "'")
+            info += ("维保时间 <=" + "'" + endDateStr + "'")
         }
 
         return info
     }
 
-    function saveToPdf() {
-        maintInfoQueryModel.saveToPdf()
+    function saveToPdf(fileName) {
+        maintInfoQueryModel.saveToPdf(fileName)
     }
     function startPrint() {
         maintInfoQueryModel.startPrint()
     }
     function printPreview() {
         maintInfoQueryModel.printPreview()
+    }
+
+    function retranslate()
+    {
+        equipmentNum.text = qsTr("设备编码")
+        maintainerTxt.text =  qsTr("维保员")
+        maintTime.text = qsTr(" 维保时间:")
+        maintStartYearTxt.text = qsTr("年:")
+        maintStartMonthTxt.text = qsTr("月:")
+        maintStartDateTxt.text = qsTr("日:")
+        toTxt.text = qsTr(" 到:")
+        maintEndYearTxt.text = qsTr("年:")
+        maintEndMonthTxt.text = qsTr("月:")
+        maintEndDateTxt.text = qsTr("日:")
+        operaEventQueryBtn.text=qsTr("查询")
+        operaEventQueryAllBtn.text = qsTr("查询所有")
+        equipmentCode.title = qsTr("设备编码")
+        maintTimeColumn.title = qsTr("维保时间")
+        state.title = qsTr("状态现象")
+        methods.title = qsTr("维保方法")
+        contentDesc.title = qsTr("内容描述")
+        maintEngineer.title = qsTr("维保员")
+        floor.title = qsTr("楼层")
+        position.title = qsTr("部位")
+        system.title = qsTr("系统")
+        buildingName.title = qsTr("建筑名称")
+        personOnDuty.title = qsTr("值班人员")
+        operator.title = qsTr("操作人员")
     }
 }

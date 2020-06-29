@@ -1,9 +1,10 @@
-#ifndef CUSTOMTIMER_H
+﻿#ifndef CUSTOMTIMER_H
 #define CUSTOMTIMER_H
 
 #include <QObject>
 #include <QTimer>
 #include <QThread>
+
 
 class CustomTimer : public QObject
 {

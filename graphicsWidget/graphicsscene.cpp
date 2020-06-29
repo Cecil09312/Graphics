@@ -50,16 +50,20 @@ void GraphicsScene::removeGraphicsItem(const QPointF &pointF)
         if(m_itemList.contains(currentItem))
         {
             GraphicsItem *graphicsItem = dynamic_cast<GraphicsItem *>(currentItem);
-            if(graphicsItem->currentState()==tr("正常"))
+            if(graphicsItem!=nullptr)
             {
-                m_itemList.removeOne(currentItem);
-                removeItem(currentItem);
-                Controller::instance()->getDataStore()->deleteTypeItem(currentItem);
-            }
-            else
-            {
+                if(graphicsItem->currentState()==tr("正常")||graphicsItem->currentState().isEmpty())
+                {
 
-                QMessageBox::warning(nullptr,tr("警告"),tr("有报警，不能被删除"));
+                    m_itemList.removeOne(currentItem);
+                    removeItem(currentItem);
+                    Controller::instance()->getDataStore()->deleteTypeItem(currentItem);
+                }
+                else
+                {
+
+                    QMessageBox::warning(nullptr,tr("警告"),tr("有报警，不能被删除"));
+                }
             }
 
         }
@@ -133,7 +137,7 @@ void GraphicsScene::setItemIcon(QString iconName)
     {
         currentItem->setIconName(Controller::instance()->fileNameFromQml(iconName));
     }
-    update();
+    //update();
 }
 
 void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info)
@@ -165,7 +169,7 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
             currentItem->addrNum() = info;
             Controller::instance()->getDataStore()->setItemNum(info.toInt());
             currentItem->update();
-            // Controller::instance()->getDataStore()->itemNum() = info.toInt();
+
         }
 
         else if(type =="networkNum")
@@ -294,7 +298,6 @@ void GraphicsScene::setItemsIcon(int index, QString iconName)
             if(iconIndex==index)
             {
                 graphicsItem->setIconName(iconName);
-
             }
         }
     }

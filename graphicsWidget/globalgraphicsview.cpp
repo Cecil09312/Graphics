@@ -10,7 +10,7 @@ GlobalGraphicsView::GlobalGraphicsView(QWidget *parent):
     //m_graphicsScene->addItem(m_svgItem);
     m_graphicsScene->addItem(m_item/*m_pixmapItem*/);
     setScene(m_graphicsScene);
-    setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+    setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
     //QRectF currentRectF = m_graphicsScene->sceneRect();
    // fitInView(QRectF(0, 0, 1024, 768),Qt::KeepAspectRatio);
     fitInView(0,0,width(),height(),Qt::KeepAspectRatio);
@@ -51,4 +51,13 @@ QString GlobalGraphicsView::pictureName()
 GlobalGraphicsScene *GlobalGraphicsView::currentScene()
 {
     return m_graphicsScene;
+}
+
+void GlobalGraphicsView::retranslate()
+{
+    if(m_graphicsScene!=nullptr)
+    {
+        m_graphicsScene->retranslate();
+    }
+
 }

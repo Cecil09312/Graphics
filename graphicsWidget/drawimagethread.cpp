@@ -2,56 +2,68 @@
 #include <QSvgRenderer>
 #include <QImage>
 #include <QPainter>
+#include <QDebug>
+
 DrawImageThread::DrawImageThread(QObject *parent):
-    QThread(parent)
+    QObject(parent)
 
 {
-   // m_painter.setPen(QPen(Qt::blue, 10));
-     // 设置画刷
-  // m_painter.setBrush(Qt::red);
-    connect(this,&DrawImageThread::startDrawImages,this,[=]()
-    {
-        if(m_imageName.isEmpty())
-            return;
+ m_thread = new QThread();
+ this->moveToThread(m_thread);
 
-        QImage image(m_imageName);
-        QPainter painter;
-        painter.begin(&image);
+ //qDebug() << "mainThread" << QThread::currentThread();
 
-        if(m_imageName.endsWith(".svg"))
-        {
-            QSvgRenderer render;
-            render.load(m_imageName);
+ connect(this,&DrawImageThread::startDrawImage,this,[=](const QString&name)
+ {
 
-            //m_renderer.load(m_svgName);
-            render.render(&painter,m_rectF);
-        }
-        else
-        {
-            painter.drawPixmap(m_rectF.toRect(),QPixmap(m_imageName));
-        }
 
-        painter.end();
-        emit currentImage(image);
-    });
+     if(!m_imageHash.contains(name))
+     {
+         QImage image(name);
+         int imageSize = image.size().width();
+        // qDebug() << image.byteCount();
+         QImage curImage;
+         if(imageSize>36)
+         {
+              curImage = image.scaled(36,36);
+         }
+         else
+         {
+             curImage = image.scaled(imageSize,imageSize);
+         }
+
+         m_imageHash[name] = curImage;
+         emit drawCurrentImage();
+         m_thread->msleep(5);
+     }
+ });
+
+
 }
 
 DrawImageThread::~DrawImageThread()
 {
-
+ if(m_thread!=nullptr)
+ {
+     m_thread->quit();
+     m_thread->deleteLater();
+ }
 }
 
-void DrawImageThread::drawImage()
+void DrawImageThread::drawImage(const QString&name)
 {
-    emit startDrawImages();
+   // qDebug() << "m_thread->isRunning()" << m_thread->isRunning();
+    if(!m_thread->isRunning())
+    {
+        m_thread->start();
+    }
+    emit startDrawImage(name);
 }
 
-void DrawImageThread::setImageName(const QString &name)
+QImage DrawImageThread::getImageFromName(const QString &name)
 {
-    m_imageName = name;
+    return m_imageHash.value(name);
 }
 
-void DrawImageThread::setImageRect(const QRectF &rectF)
-{
-    m_rectF = rectF;
-}
+
+

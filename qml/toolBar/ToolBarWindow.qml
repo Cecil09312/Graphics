@@ -3,12 +3,19 @@ import QtQuick.Window 2.2
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.0
+import crtWidget 1.0
+import userManager 1.0
 
 ToolBar {
     id: toolBar
     signal chAndEnSwitch()
     signal checkTheVersion()
     anchors.fill: parent
+    background: Rectangle
+    {
+        border.width:1
+
+    }
 
     //width: 30
     RowLayout {
@@ -30,7 +37,7 @@ ToolBar {
             height: parent.height
             verticalAlignment: Text.AlignVCenter
             //horizontalAlignment: Text.AlignHCenter
-            font.family: "宋体"
+            font.family: "Times New Roman"
             font.pixelSize: 24
             color: "green"
 
@@ -43,7 +50,7 @@ ToolBar {
             height: parent.height
             verticalAlignment: Text.AlignVCenter
             //horizontalAlignment: Text.AlignHCenter
-            font.family: "宋体"
+            font.family: "Times New Roman"
             font.pixelSize: 30
             font.italic: true
             font.bold: true
@@ -52,6 +59,20 @@ ToolBar {
             text: qsTr("消防控制室图形显示装置V6.0")
             // Layout.alignment: Qt.AlignLeft
             Layout.fillWidth: true
+        }
+
+        Text
+        {
+            id:programVerTxt
+            height: parent.height
+            verticalAlignment: Text.AlignVCenter
+            //horizontalAlignment: Text.AlignHCenter
+            font.family: "Arial"
+            font.pointSize:12
+            color: "black"
+            visible: false
+            Layout.fillWidth: true
+
         }
         ToolButton {
             id: logInBtn
@@ -72,8 +93,9 @@ ToolBar {
                 contentItem: Text {
                     text: logInBtnToolTip.text
                     font.family: "宋体"
-                    font.bold: false
-                    color: "white"
+                    font.bold: true
+                    color: "yellow"
+                    font.pointSize:11
                 }
 
                 background: Rectangle {
@@ -83,7 +105,7 @@ ToolBar {
                         anchors.fill: parent
                     }
                 }
-                bottomMargin: 30
+                bottomMargin: 25
             }
 
             onClicked: {
@@ -110,8 +132,9 @@ ToolBar {
                 contentItem: Text {
                     text: infoQueryToolTip.text
                     font.family: "宋体"
-                    font.bold: false
-                    color: "white"
+                    font.bold: true
+                    color: "yellow"
+                    font.pointSize:11
                 }
 
                 background: Rectangle {
@@ -121,7 +144,7 @@ ToolBar {
                         anchors.fill: parent
                     }
                 }
-                bottomMargin: 30
+                bottomMargin: 25
             }
 
             onClicked: {
@@ -150,8 +173,9 @@ ToolBar {
                 contentItem: Text {
                     text: infoSettingToolTip.text
                     font.family: "宋体"
-                    font.bold: false
-                    color: "white"
+                    font.bold: true
+                    color: "yellow"
+                    font.pointSize:11
                 }
 
                 background: Rectangle {
@@ -161,7 +185,7 @@ ToolBar {
                         anchors.fill: parent
                     }
                 }
-                bottomMargin: 30
+                bottomMargin: 25
             }
 
             onClicked: {
@@ -185,12 +209,14 @@ ToolBar {
             ToolTip {
                 id: quitBtnToolTip
                 visible: quitBtn.hovered
-                text: "退出"
+                text: qsTr("退出")
                 contentItem: Text {
                     text: quitBtnToolTip.text
                     font.family: "宋体"
-                    font.bold: false
-                    color: "white"
+                    font.bold:  true
+                    color: "yellow"
+                    font.pointSize:11
+
                 }
 
                 background: Rectangle {
@@ -200,7 +226,7 @@ ToolBar {
                         anchors.fill: parent
                     }
                 }
-                bottomMargin: 30
+                bottomMargin: 25
             }
         }
         Item {
@@ -212,41 +238,98 @@ ToolBar {
 
     MouseArea
     {
-      id:mouseArea
-      anchors.fill: parent
-      acceptedButtons: Qt.RightButton
-      onClicked:
-      {
-          menu.open()
-      }
+        id:mouseArea
+        anchors.fill: parent
+        acceptedButtons: Qt.RightButton
+        onClicked:
+        {
+            menu.open()
+        }
 
     }
 
     Menu
     {
-      id:menu
-//      MenuItem
-//      {
-//        text:qsTr("在线状态")
-//        onTriggered: showOnlineState()
-//      }
-      MenuItem
-      {
-        text:qsTr("版本查询")
-        onTriggered: checkTheVersion()
-      }
-//      MenuItem
-//      {
-//        text:qsTr("中英文切换")
-//        onTriggered: chAndEnSwitch()
-//      }
+        id:menu
+        //      MenuItem
+        //      {
+        //        text:qsTr("在线状态")
+        //        onTriggered: showOnlineState()
+        //      }
+        MenuItem
+        {
+            id:checkVersionItem
+            text:qsTr("通讯板版本查询")
+            onTriggered: checkTheVersion()
+        }
+        MenuItem
+        {
+            id:enAndChSwitchItem
+            text:qsTr("中英文切换")
+            enabled:UserManager.userRight()===UserManager.Super ? true:false
+            onTriggered: chAndEnSwitch()
+
+
+
+        }
     }
 
+
+    Connections
+    {
+        target: UserManager
+        onUserRightChanged:
+        {
+            if(right===UserManager.Super)
+            {
+                enAndChSwitchItem.enabled = true;
+            }
+            else
+            {
+                enAndChSwitchItem.enabled = false;
+            }
+
+        }
+
+    }
 
     function setTime()
     {
 
-      currentDataTimeText.text = Qt.formatDateTime(new Date,"yyyy/MM/dd hh:mm:ss")
+        currentDataTimeText.text = Qt.formatDateTime(new Date,"yyyy/MM/dd hh:mm:ss")
+    }
+    function setProgramVer(programVer)
+    {
+        programVerTxt.visible= true
+        programVerTxt.text = programVer
+    }
+    function setProgramTxtVisible(isVisible)
+    {
+        programVerTxt.visible = isVisible
+    }
+
+    function retranslate()
+    {
+        if(CrtWidget.isEnglish())
+        {
+            titleText.font.pixelSize=28
+            programVerTxt.font.pointSize =10
+
+        }
+        else
+        {
+            titleText.font.pixelSize = 30
+            programVerTxt.font.pointSize=12
+        }
+        titleText.text = qsTr("消防控制室图形显示装置V6.0")
+        logInBtnToolTip.text =qsTr("登录")
+        infoQueryToolTip.text = qsTr("信息查询")
+        infoSettingToolTip.text=qsTr("信息设置")
+        quitBtnToolTip.text =qsTr("退出")
+        checkVersionItem.text = qsTr("通讯板版本查询")
+        enAndChSwitchItem.text = qsTr("中英文切换")
+
+
     }
 }
 

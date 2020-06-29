@@ -3,15 +3,13 @@
 
 QHash<int,QString> ItemIconInfoToJson::s_iconIndexHash = QHash<int,QString>();
 int ItemIconInfoToJson::s_currentIconIndex =0;
+
+QHash<QString,QVariant>ItemIconInfoToJson::m_iconInfoHash=QHash<QString,QVariant>();
 ItemIconInfoToJson::ItemIconInfoToJson(QObject *parent):
     QmlForJson(parent)
 {
-   m_iconInfoHash = readFile(c_filePath).toHash();
-  QList<QString>keyList= m_iconInfoHash.keys();
-  foreach (QString key, keyList) {
-    QHash<QString,QVariant>iconHash=  m_iconInfoHash.value(key).toHash();
-    s_iconIndexHash[key.toInt()]=iconHash.value("imagePath").toString();
-  }
+
+
 
 }
 
@@ -49,39 +47,32 @@ QString ItemIconInfoToJson::readFileFromJson()
 
 QVariant ItemIconInfoToJson::readValueFromKey(const QString &key)
 {
-    QHash<QString,QVariant> valueHash = readFile(c_filePath).toHash();
-    if(valueHash.contains(key))
-    {
-        return valueHash.value(key);
-    }
-    else
-    {
-        return QVariant();
-    }
+
+    return m_iconInfoHash.value(key);
 }
 
 QString ItemIconInfoToJson::getValue(const QString &index, const QString &key)
 {
-   QHash<QString,QVariant>valueHash =readValueFromKey(index).toHash();
-   if(valueHash.contains(key))
-   {
-       return valueHash.value(key).toString();
-   }
-   else
-   {
-       return "";
-   }
+    QHash<QString,QVariant>valueHash =readValueFromKey(index).toHash();
+    if(valueHash.contains(key))
+    {
+        return valueHash.value(key).toString();
+    }
+    else
+    {
+        return "";
+    }
 }
 
 int ItemIconInfoToJson::sizeOfHash()
 {
-    return getIconInfoHash().size();
+    return m_iconInfoHash.size();
 }
 
 QHash<QString, QVariant> ItemIconInfoToJson::getIconInfoHash()
 {
-   QHash<QString, QVariant>iconInfoHash =readFile(c_filePath).toHash();
-   return iconInfoHash;
+    //Hash<QString, QVariant>iconInfoHash =readFile(c_filePath).toHash();
+    return m_iconInfoHash;
 }
 
 void ItemIconInfoToJson::setIconIndexHash(int index, const QString &iconName)
@@ -89,7 +80,7 @@ void ItemIconInfoToJson::setIconIndexHash(int index, const QString &iconName)
     QString iconStr= iconName;
     if(iconName.startsWith("qrc"))
     {
-      iconStr=  iconStr.section("qrc",1,1);
+        iconStr=  iconStr.section("qrc",1,1);
 
     }
     s_iconIndexHash[index] = iconStr;
@@ -129,7 +120,7 @@ int ItemIconInfoToJson::iconIndex(const QString &iconName)
     {
         if(value.contains(iconName))
         {
-          curIndex=  s_iconIndexHash.key(value);
+            curIndex=  s_iconIndexHash.key(value);
         }
     }
     return curIndex;
@@ -148,6 +139,16 @@ void ItemIconInfoToJson::setOtherInfoHash(int pos, const QString &itemName, QVar
 QVariant ItemIconInfoToJson::otherInfo(int pos, const QString &itemName)
 {
     return m_otherInfoHash[pos][itemName];
+}
+
+void ItemIconInfoToJson::initIconInfo()
+{
+    m_iconInfoHash = readFile(c_filePath).toHash();
+    QList<QString>keyList= m_iconInfoHash.keys();
+    foreach (QString key, keyList) {
+        QHash<QString,QVariant>iconHash=  m_iconInfoHash.value(key).toHash();
+        s_iconIndexHash[key.toInt()]=iconHash.value("imagePath").toString();
+    }
 }
 
 

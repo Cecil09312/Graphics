@@ -4,6 +4,7 @@ import QtQuick.Controls 2.2
 import Qt.labs.platform 1.0
 import operatorInfo 1.0
 import controller 1.0
+//import QtQuick.Dialogs 1.2 as Dialog1_2
 import "../infoSetting"
 Rectangle {
 
@@ -20,6 +21,7 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
         Text {
+            id:buildingNameTxt
             text: qsTr("建筑名称")
             Layout.row: 0
             Layout.column: 0
@@ -29,6 +31,9 @@ Rectangle {
             id: buildNameTextField
             Layout.row: 0
             Layout.column: 1
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
 
         NaviButton {
@@ -37,11 +42,17 @@ Rectangle {
             Layout.column: 2
             text: qsTr("设置")
             onClicked: {
+
+                if(GlobalItemSettingView.buildNameIsExist(buildNameTextField.text))
+                {
+                    messageDialog.open()
+                   return
+                }
                 GlobalItemSettingView.setCurrentBuildName(
                             buildNameTextField.text)
 
                 OperatorInfo.insertEvent(qsTr("更改建筑物名称"),
-                                         String("建筑物名称由\"%1\"改为\"%2\"").arg(
+                                         String(qsTr("建筑物名称由\"%1\"改为\"%2\"")).arg(
                                              buildName).arg(
                                              buildNameTextField.text))
 
@@ -51,6 +62,7 @@ Rectangle {
         }
 
         Text {
+            id:personOndutyTxt
             text: qsTr("值班人员")
             Layout.row: 1
             Layout.column: 0
@@ -60,6 +72,9 @@ Rectangle {
             id: personOnDutyTextField
             Layout.row: 1
             Layout.column: 1
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
 
         NaviButton {
@@ -72,7 +87,7 @@ Rectangle {
                 GlobalItemSettingView.setPersonOnDuty(
                             personOnDutyTextField.text)
                 OperatorInfo.insertEvent(qsTr("更改值班人员"),
-                                         String("值班人员由\"%1\"更改为\"%2\"").arg(
+                                         String(qsTr("值班人员由\"%1\"更改为\"%2\"")).arg(
                                              personOnDuty).arg(
                                              personOnDutyTextField.text))
                 personOnDuty = personOnDutyTextField.text
@@ -81,6 +96,7 @@ Rectangle {
         }
 
         Text {
+            id:iconTxt
             text: qsTr("图标")
             Layout.row: 2
             Layout.column: 0
@@ -91,6 +107,9 @@ Rectangle {
             Layout.row: 2
             Layout.column: 1
             readOnly: true
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
 
         NaviButton {
@@ -105,6 +124,7 @@ Rectangle {
 
         Text {
 
+            id:sizeTxt
             text: qsTr("大小")
             Layout.row: 3
             Layout.column: 0
@@ -113,6 +133,7 @@ Rectangle {
             id: spinBox
             Layout.row: 3
             Layout.column: 1
+
 
             Layout.fillWidth: true
             from: 1
@@ -140,18 +161,31 @@ Rectangle {
         }
     }
 
+    MessageDialog {
+        id: messageDialog
+        title: qsTr("错误提示")
+        text: qsTr("建筑物已经存在，请重新修改")
+        //standardButtons: StandardButton.Yes
+        flags:Qt.WindowStaysOnTopHint|Qt.WindowMaximizeButtonHint|Qt.MSWindowsFixedSizeDialogHint|Qt.WindowCloseButtonHint
+    }
     FileDialog {
         id: fileDialog
         title: "Please choose a file"
         folder: filePath
-        //folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
+        flags:Qt.WindowStaysOnTopHint|Qt.WindowMaximizeButtonHint|Qt.MSWindowsFixedSizeDialogHint|Qt.WindowCloseButtonHint
+
         onAccepted: {
 
+            if(GlobalItemSettingView.buildNameIsExist(Controller.getFileNameFromUrl(currentFile)))
+            {
+                messageDialog.open()
+               return
+            }
             filePath = file
             GlobalItemSettingView.setCurrentItemIcon(currentFile)
             iconTextField.text = currentFile
             OperatorInfo.insertEvent(qsTr("更改建筑物图标"),
-                                     String("建筑物图标由\"%1\"更改为\"%2\"").arg(
+                                     String(qsTr("建筑物图标由\"%1\"更改为\"%2\"")).arg(
                                          iconPath).arg(iconTextField.text))
             iconPath = iconTextField.text
 
@@ -179,5 +213,18 @@ Rectangle {
     function setPersonOnDuty(person) {
         personOnDutyTextField.text = person
         personOnDuty = person
+    }
+
+    function retranslate()
+    {
+      buildingNameTxt.text = qsTr("建筑名称")
+        buildNameSettingBtn.text =qsTr("设置")
+        personOndutyTxt.text = qsTr("值班人员")
+        personOnDutySettingBtn.text = qsTr("设置")
+        iconTxt.text = qsTr("图标")
+        iconSelectBtn.text = qsTr("选择图标")
+        sizeTxt.text = qsTr("大小")
+        messageDialog.title=qsTr("错误提示")
+        messageDialog.text=qsTr("建筑物已经存在，请重新修改")
     }
 }

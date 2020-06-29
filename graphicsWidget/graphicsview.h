@@ -13,6 +13,7 @@
 #include "svgitem.h"
 class GraphicsView : public QGraphicsView
 {
+    Q_OBJECT
 public:
     GraphicsView(QWidget *parent = Q_NULLPTR,int type = ArthitePlan);
     ~GraphicsView();
@@ -27,8 +28,13 @@ public:
     void removeGraphicsTextItem(const QString&alarmType);
     void clearGraphicsTextItem();
     QGraphicsTextItem *textItem(const QString&alarmType);
+    static qreal scaleValue();
+    void scaleValueChanged(qreal value);
+    void updateSvg();
+    QGraphicsScene *sysScene();
 
-
+signals:
+    void currentScaleValue(qreal value);
 public slots:
     static void zoom(qreal scaleValue);
     void loadPixmap(const QString &fileName);
@@ -48,10 +54,11 @@ private:
     static qreal m_scale;
     GraphicsScene *m_scene;
     QGraphicsScene*m_sysViewScene;
-   // QGraphicsSvgItem *m_svgItem;
+    //QGraphicsSvgItem *m_svgItem;
     SvgItem *m_svgItem;
     QString m_pixmapName;
     int m_viewType;
+    qreal m_zoomIn,m_zoomOut;
     QHash<QString,QGraphicsTextItem*>m_textItemHash;
 };
 

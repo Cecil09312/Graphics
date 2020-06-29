@@ -21,6 +21,11 @@ Item {
     signal changeInfoFromFloor()
     signal importExcelFile(string filePath)
     signal setExcelFileAvailable(bool isAvailable)
+    signal selectDevice(bool isSelected)
+    signal selectSys(bool isSelected)
+    signal selectChannel(bool isSelected)
+    signal selectAnalog(bool isSelected)
+    signal selectSize(bool isSelected)
 
 
     ListModel {
@@ -69,6 +74,7 @@ Item {
                         columns: 4
 
                         Text {
+                            id:extNumTxt
                             text: qsTr("分机号:")
                             height: 40
                             verticalAlignment: Text.AlignVCenter
@@ -76,14 +82,18 @@ Item {
                         TextField {
                             id: extNumTextField
                             validator: IntValidator {bottom: 0; top: 255;}
-                            width: 180
+                            width: 160
                             height: 40
+                            selectByMouse: true
+                            selectionColor: "blue"
+                            selectedTextColor: "white"
                             onTextEdited: {
-                                emit: setItemInfo("extNum", extNumTextField.text)
+                                emit: setItemInfo("extNum", extNumTextField.text.replace(/\s+/g,""))
                             }
                         }
 
                         Text {
+                            id:loopNumTxt
                             text: qsTr("回路号:")
                             height: 40
                             verticalAlignment: Text.AlignVCenter
@@ -91,14 +101,18 @@ Item {
                         TextField {
                             id: loopNumTextField
                             validator: IntValidator {bottom: 0; top: 255;}
-                            width: 180
+                            width: 160
                             height: 40
+                            selectByMouse: true
+                            selectionColor: "blue"
+                            selectedTextColor: "white"
                             onTextEdited: {
-                                emit: setItemInfo("loopNum", loopNumTextField.text)
+                                emit: setItemInfo("loopNum", loopNumTextField.text.replace(/\s+/g,""))
                             }
                         }
 
                         Text {
+                            id:addrNumTxt
                             text: qsTr("地址号:")
                             height: 40
                             verticalAlignment: Text.AlignVCenter
@@ -106,14 +120,18 @@ Item {
                         TextField {
                             id: addrNumTextField
                             validator: IntValidator {bottom: 0; top: 255;}
-                            width: 180
+                            width: 160
                             height: 40
+                            selectByMouse: true
+                            selectionColor: "blue"
+                            selectedTextColor: "white"
                             onTextEdited: {
-                                emit: setItemInfo("addrNum", addrNumTextField.text)
+                                emit: setItemInfo("addrNum", addrNumTextField.text.replace(/\s+/g,""))
                             }
                         }
 
                         Text {
+                            id:networkNumTxt
                             text: qsTr("网络号:")
                             height: 40
                             verticalAlignment: Text.AlignVCenter
@@ -121,15 +139,19 @@ Item {
                         TextField {
                             id: networkNumTextField
                             validator: IntValidator {bottom: 0; top: 255;}
-                            width: 180
+                            width: 160
                             height: 40
                             text: "0"
+                            selectByMouse: true
+                            selectionColor: "blue"
+                            selectedTextColor: "white"
                             onTextEdited: {
-                                emit: setItemInfo("networkNum", networkNumTextField.text)
+                                emit: setItemInfo("networkNum", networkNumTextField.text.replace(/\s+/g,""))
                             }
                         }
 
                         Text {
+                            id:powerAddrTxt
                             text: qsTr("电源地址:")
                             height: 40
                             verticalAlignment: Text.AlignVCenter
@@ -137,11 +159,15 @@ Item {
                         TextField {
                             id: powerAddrTextField
                             validator: IntValidator {bottom: 0; top: 255;}
-                            width: 180
+                            width: 160
                             height: 40
                             text: "0"
+                            selectByMouse: true
+                            selectionColor: "blue"
+                            selectedTextColor: "white"
+
                             onTextEdited: {
-                                emit: setItemInfo("powerAddr", powerAddrTextField.text)
+                                emit: setItemInfo("powerAddr", powerAddrTextField.text.replace(/\s+/g,""))
                             }
                         }
 
@@ -154,8 +180,11 @@ Item {
                         TextField {
                             id: deviceNumTextField
                             Layout.fillWidth: true
-                            width: 180
+                            width: 160
                             height: 40
+                            selectByMouse: true
+                            selectionColor: "blue"
+                            selectedTextColor: "white"
                             onTextEdited: {
                                 emit: setItemInfo("deviceNum", deviceNumTextField.text)
                             }
@@ -165,6 +194,7 @@ Item {
 
                         Text {
 
+                            id:locationTxt
                             text: qsTr("位置:")
                             height: 40
                             verticalAlignment: Text.AlignVCenter
@@ -172,8 +202,11 @@ Item {
                         TextField {
                             id: deviceLocationTextField
                             Layout.fillWidth: true
-                            width: 180
+                            width: 160
                             height: 40
+                            selectByMouse: true
+                            selectionColor: "blue"
+                            selectedTextColor: "white"
                             onTextEdited: {
                                 emit: setItemInfo("deviceLocation",
                                                   deviceLocationTextField.text)
@@ -183,6 +216,7 @@ Item {
 
                         Text {
 
+                            id:operatorTxt
                             text: qsTr("操作员:")
                             height: 40
                             verticalAlignment: Text.AlignVCenter
@@ -190,8 +224,11 @@ Item {
                         TextField {
                             id: operatorTextField
                             Layout.fillWidth: true
-                            width: 180
+                            width: 160
                             height: 40
+                            selectByMouse: true
+                            selectionColor: "blue"
+                            selectedTextColor: "white"
                             verticalAlignment: Text.AlignVCenter
                             onTextEdited: {
                                 emit: setItemInfo("operator", operatorTextField.text)
@@ -199,13 +236,14 @@ Item {
                         }
 
                         Text {
+                            id:deviceTxt
                             text: qsTr("设备:")
                             height: 40
                             verticalAlignment: Text.AlignVCenter
                         }
                         ComboBox {
                             id: equipmentModelComboBox
-                            width: 180
+                            width: 160
                             height: 40
                             model: deviceTypeModel
                             onCurrentTextChanged: {
@@ -223,14 +261,15 @@ Item {
                                                           currentIndex))
                                     emit:setItemInfo("deviceInstallTime",getDeviceInstallTime(currentIndex))
 
-//                                    manufacturersText.text = manufacturersValue(
-//                                                currentIndex)
+                                    //                                    manufacturersText.text = manufacturersValue(
+                                    //                                                currentIndex)
                                     periodOfValidityText.text = periodOfvalidityValue(
                                                 currentIndex)
                                 }
                             }
                         }
                         Text {
+                            id:sysTxt
                             text: qsTr("系统:")
                             height: 40
                             verticalAlignment: Text.AlignVCenter
@@ -238,8 +277,9 @@ Item {
                         ComboBox {
                             id: deviceSysComBox
                             Layout.fillWidth: true
-                            width: 180
+                            width: 160
                             height: 40
+
                             currentIndex: -1
                             model: [qsTr("电气火灾监控系统"),qsTr("火灾探测报警系统"), qsTr("消防联动系统"), qsTr("自动喷水灭火系统"), qsTr("水喷雾灭火系统"), qsTr("消火栓系统"), qsTr("气体灭火系统"), qsTr("泡沫灭火系统"), qsTr("干粉灭火系统"), qsTr("防烟排烟系统"), qsTr("防火及卷帘系统"), qsTr("电梯系统"), qsTr("消防电话系统"), qsTr("消防应急广播系统"), qsTr("消防应急照明和疏散指示系统"), qsTr("消防电源系统")]
                             onCurrentTextChanged: {
@@ -249,7 +289,7 @@ Item {
 
 
                         Text {
-
+                            id:channelNumTxt
                             text: qsTr("通道数:")
                             height: 40
                             verticalAlignment: Text.AlignVCenter
@@ -258,16 +298,20 @@ Item {
                             id: channelNumTextField
                             validator: IntValidator {bottom: 0; top: 1000;}
                             Layout.fillWidth: true
-                            width: 180
+                            width: 160
                             height: 40
+                            selectByMouse: true
+                            selectionColor: "blue"
+                            selectedTextColor: "white"
                             onTextEdited: {
                                 emit: setItemInfo("channelNum",
-                                                  channelNumTextField.text)
+                                                  channelNumTextField.text.replace(/\s+/g,""))
                             }
                         }
 
                         Text {
 
+                            id:analogTxt
                             text: qsTr("模拟量:")
                             height: 40
                             verticalAlignment: Text.AlignVCenter
@@ -275,7 +319,7 @@ Item {
                         ComboBox {
                             id: analogComboBox
                             Layout.fillWidth: true
-                            width: 180
+                            width: 160
                             height: 40
                             model: [qsTr("无"), qsTr("有")]
                             onCurrentTextChanged: {
@@ -296,12 +340,12 @@ Item {
                         SpinBox {
                             id: sizeSpinBox
                             Layout.fillWidth: true
-                            width: 180
+                            width: 160
                             height: 40
-                            from: 5
-                            to: 100
+                            from: 10
+                            to: 80
                             stepSize: 1
-                            value: 25
+                            value: 30
                             onValueChanged: {
                                 emit: setSize(value)
                             }
@@ -311,6 +355,7 @@ Item {
 
                         Text {
 
+                            id:periodOfValidityTxt
                             text: qsTr("有效期:")
                             height: 40
                             verticalAlignment: Text.AlignVCenter
@@ -318,182 +363,31 @@ Item {
                         Text {
                             id: periodOfValidityText
                             Layout.fillWidth: true
-                            width: 180
+                            width: 160
                             height: 40
                             verticalAlignment: Text.AlignVCenter
                         }
 
-//                        Text {
+                        //                        Text {
 
-//                            text: qsTr("制造商:")
-//                            height: 40
-//                            verticalAlignment: Text.AlignVCenter
-//                        }
-//                        Text {
-//                            id: manufacturersText
-//                            Layout.fillWidth: true
-//                            width: 180
-//                            height: 40
-//                            verticalAlignment: Text.AlignVCenter
-//                            text: qsTr("北京利达华信电子有限公司")
-//                        }
+                        //                            text: qsTr("制造商:")
+                        //                            height: 40
+                        //                            verticalAlignment: Text.AlignVCenter
+                        //                        }
+                        //                        Text {
+                        //                            id: manufacturersText
+                        //                            Layout.fillWidth: true
+                        //                            width: 180
+                        //                            height: 40
+                        //                            verticalAlignment: Text.AlignVCenter
+                        //                            text: qsTr("北京利达华信电子有限公司")
+                        //                        }
                     }
 
-
-                    Text {
-                        color: "red"
-                        font.pointSize: 12
-                        text: qsTr("注意：当设备为光纤时，源地址对应分机号、通道号对\n应回路号、分区号对应地址号。当设备属于应急疏散系\n统时，才会使用电源地址。")
-                    }
-                }
-
-                Column
-                {
-                    spacing: 10
-                    GroupBox
-                    {
-                        title: qsTr("批量设置")
-                        Grid
-                        {
-                            anchors.fill: parent
-                            spacing: 5
-                            columns: 4
-                            Text {
-
-                                text: qsTr("最小网络号:")
-                                height: 40
-                                verticalAlignment: Text.AlignVCenter
-                            }
-                            TextField
-                            {
-                                id:minNetworkTextField
-                                validator: IntValidator {bottom: 0; top: 255;}
-                                width: 100
-
-                            }
-
-                            Text {
-
-                                text: qsTr("最大网络号:")
-                                height: 40
-                                verticalAlignment: Text.AlignVCenter
-                            }
-                            TextField
-                            {
-                                id:maxNetworkTextField
-                                validator: IntValidator {bottom: 0; top: 255;}
-                                width: 100
-
-                            }
-
-
-                            Text {
-
-                                text: qsTr("最小分机号:")
-                                height: 40
-                                verticalAlignment: Text.AlignVCenter
-                            }
-                            TextField
-                            {
-                                id:minExtNumTextField
-                                validator: IntValidator {bottom: 0; top: 255;}
-                                width: 100
-
-                            }
-
-                            Text {
-
-                                text: qsTr("最大分机号:")
-                                height: 40
-                                verticalAlignment: Text.AlignVCenter
-                            }
-                            TextField
-                            {
-                                id:maxExtNumTextField
-                                validator: IntValidator {bottom: 0; top: 255;}
-                                width: 100
-
-                            }
-
-
-
-                            Text {
-
-                                text: qsTr("最小回路号:")
-                                height: 40
-                                verticalAlignment: Text.AlignVCenter
-                            }
-                            TextField
-                            {
-                                id:minLoopNumTextField
-                                validator: IntValidator {bottom: 0; top: 255;}
-                                width: 100
-
-                            }
-
-                            Text {
-
-                                text: qsTr("最大回路号:")
-                                height: 40
-                                verticalAlignment: Text.AlignVCenter
-                            }
-                            TextField
-                            {
-                                id:maxLoopNumTextField
-                                validator: IntValidator {bottom: 0; top: 255;}
-                                width: 100
-
-                            }
-
-                            Text {
-
-                                text: qsTr("最小地址号:")
-                                height: 40
-                                verticalAlignment: Text.AlignVCenter
-                            }
-                            TextField
-                            {
-                                id:minAddrNumTextField
-                                validator: IntValidator {bottom: 0; top: 255;}
-                                width: 100
-
-                            }
-
-                            Text {
-
-                                text: qsTr("最大地址号:")
-                                height: 40
-                                verticalAlignment: Text.AlignVCenter
-                            }
-                            TextField
-                            {
-                                id:maxAddrNumTextField
-                                validator: IntValidator {bottom: 0; top: 255;}
-                                width: 100
-
-                            }
-                            NaviButton
-                            {
-                                id:batchAmendBtn
-                                text: qsTr("批量修改")
-                                onClicked: startBatch()
-
-                            }
-                            NaviButton
-                            {
-                                id:asFloorAmendBtn
-                                text: qsTr("按当前楼层修改")
-                                onClicked: changeInfoFromFloor()
-
-                            }
-
-
-                        }
-                    }
                     GroupBox
                     {
                         id:importExcelGroupBox
-                        visible: Controller.hideOnLinux()
+                       // visible: Controller.sysOnLinux()
                         title: qsTr("导入excel文件")
                         Column
                         {
@@ -541,7 +435,7 @@ Item {
                                         excelImportStateTxt.text=""
                                         chooseFileDialog.open()
                                     }
-                                    enabled: false
+
 
                                 }
                             }
@@ -560,6 +454,264 @@ Item {
 
 
                     }
+
+
+
+                }
+
+                Column
+                {
+                    spacing: 10
+
+                    GroupBox
+                    {
+                        id:groupBox
+                        title: qsTr("批量设置")
+                        Column
+                        {
+                            anchors.fill: parent
+                            spacing: 5
+                            Grid
+                            {
+
+                                spacing: 5
+                                columns: 4
+                                Text {
+                                    id:minNetworkNumTxt
+                                    text: qsTr("最小网络号:")
+                                    height: 40
+                                    font.pointSize: 10
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                TextField
+                                {
+                                    id:minNetworkTextField
+                                    validator: IntValidator {bottom: 0; top: 255;}
+                                    width: 80
+                                    selectByMouse: true
+                                    selectionColor: "blue"
+                                    selectedTextColor: "white"
+
+                                }
+
+                                Text {
+                                    id:maxNetworkNumTxt
+                                    text: qsTr("最大网络号:")
+                                    font.pointSize: 10
+                                    height: 40
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                TextField
+                                {
+                                    id:maxNetworkTextField
+                                    validator: IntValidator {bottom: 0; top: 255;}
+                                    width: 80
+                                    selectByMouse: true
+                                    selectionColor: "blue"
+                                    selectedTextColor: "white"
+
+                                }
+
+
+                                Text {
+
+                                    id:minExtNumTxt
+                                    text: qsTr("最小分机号:")
+                                    font.pointSize: 10
+                                    height: 40
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                TextField
+                                {
+                                    id:minExtNumTextField
+                                    validator: IntValidator {bottom: 0; top: 255;}
+                                    width: 80
+                                    selectByMouse: true
+                                    selectionColor: "blue"
+                                    selectedTextColor: "white"
+
+                                }
+
+                                Text {
+                                    id:maxExtNumTxt
+                                    text: qsTr("最大分机号:")
+                                    font.pointSize: 10
+                                    height: 40
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                TextField
+                                {
+                                    id:maxExtNumTextField
+                                    validator: IntValidator {bottom: 0; top: 255;}
+                                    width: 80
+                                    selectByMouse: true
+                                    selectionColor: "blue"
+                                    selectedTextColor: "white"
+
+                                }
+
+
+
+                                Text {
+
+                                    id:minLoopNumTxt
+                                    text: qsTr("最小回路号:")
+                                    font.pointSize: 10
+                                    height: 40
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                TextField
+                                {
+                                    id:minLoopNumTextField
+                                    validator: IntValidator {bottom: 0; top: 255;}
+                                    width: 80
+                                    selectByMouse: true
+                                    selectionColor: "blue"
+                                    selectedTextColor: "white"
+
+                                }
+
+                                Text {
+
+                                    id:maxLoopNumTxt
+                                    text: qsTr("最大回路号:")
+                                    font.pointSize: 10
+                                    height: 40
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                TextField
+                                {
+                                    id:maxLoopNumTextField
+                                    validator: IntValidator {bottom: 0; top: 255;}
+                                    width: 80
+                                    selectByMouse: true
+                                    selectionColor: "blue"
+                                    selectedTextColor: "white"
+
+                                }
+
+                                Text {
+
+                                    id:minAddrNumTxt
+                                    text: qsTr("最小地址号:")
+                                    font.pointSize: 10
+                                    height: 40
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                TextField
+                                {
+                                    id:minAddrNumTextField
+                                    validator: IntValidator {bottom: 0; top: 255;}
+                                    width: 80
+                                    selectByMouse: true
+                                    selectionColor: "blue"
+                                    selectedTextColor: "white"
+
+                                }
+
+                                Text {
+
+                                    id:maxAddrNumTxt
+                                    text: qsTr("最大地址号:")
+                                    font.pointSize: 10
+                                    height: 40
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                TextField
+                                {
+                                    id:maxAddrNumTextField
+                                    validator: IntValidator {bottom: 0; top: 255;}
+                                    width: 80
+                                    selectByMouse: true
+                                    selectionColor: "blue"
+                                    selectedTextColor: "white"
+
+                                }
+
+
+
+                            }
+
+                            Row
+                            {
+                                spacing: 5
+                                CheckBox
+                                {
+                                    id:deviceCheckBox
+                                    text: qsTr("设备")
+
+                                    onCheckStateChanged:
+                                    {
+                                        emit:selectDevice(checked)
+                                      //console.log(checked)
+                                    }
+                                }
+
+                                CheckBox
+                                {
+                                    id:sysCheckBox
+                                   text: qsTr("系统")
+                                   onCheckStateChanged:
+                                   {
+                                       emit:selectSys(checked)
+                                   }
+                                }
+
+                                CheckBox
+                                {
+                                    id:channelCheckBox
+                                    text:qsTr("通道数")
+                                    onCheckStateChanged:
+                                    {
+                                       anglogCheckBox.checked = checked
+                                       emit:selectChannel(checked)
+                                    }
+                                }
+
+                                CheckBox
+                                {
+                                    id:anglogCheckBox
+                                    text:qsTr("模拟量")
+                                    onCheckStateChanged:
+                                    {
+                                       emit:selectAnalog(checked)
+                                    }
+                                }
+
+                                CheckBox
+                                {
+                                    id:sizeCheckBox
+                                    text:qsTr("大小")
+                                    onCheckStateChanged:
+                                    {
+                                       emit:selectSize(checked)
+                                    }
+                                }
+
+                            }
+
+                            Row
+                            {
+                                spacing: 5
+                                NaviButton
+                                {
+                                    id:batchAmendBtn
+                                    text: qsTr("批量修改")
+                                    onClicked: startBatch()
+
+                                }
+                                NaviButton
+                                {
+                                    id:asFloorAmendBtn
+                                    text: qsTr("按当前楼层修改")
+                                    font.pointSize: 11
+                                    onClicked: changeInfoFromFloor()
+
+                                }
+                            }
+                        }
+                    }
+
                 }
 
             }
@@ -600,6 +752,10 @@ Item {
 
             onIconChanged: {
                 emit: setItemsIcon(index, iconPath)
+            }
+            onClearIcons:
+            {
+                deviceTypeModel.clear()
             }
             onDeviceDelete:
             {
@@ -662,7 +818,8 @@ Item {
         id: chooseFileDialog
         //folder: filePath
         //folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
-        nameFilters: "Excel Files(*.xls *.xlsx)"
+        nameFilters: "Excel Files(*.xlsx)"
+        flags: Qt.WindowStaysOnTopHint|Qt.MSWindowsFixedSizeDialogHint|Qt.WindowCloseButtonHint
         onAccepted: {
             excelTextField.text = file.toString()
             emit:importExcelFile(excelTextField.text)
@@ -693,7 +850,7 @@ Item {
 
     function setPowerAddr(addr)
     {
-       powerAddrTextField.text = addr
+        powerAddrTextField.text = addr
     }
 
     function setDeviceNum(deviceNum) {
@@ -718,9 +875,9 @@ Item {
         periodOfValidityText.text = period
     }
 
-//    function setManufacturers(manufacturers) {
-//        manufacturersText.text = manufacturers
-//    }
+    //    function setManufacturers(manufacturers) {
+    //        manufacturersText.text = manufacturers
+    //    }
 
     function setOperator(deviceOperator) {
         operatorTextField.text = deviceOperator
@@ -737,12 +894,12 @@ Item {
 
     function getLoopNum()
     {
-       return loopNumTextField.text
+        return loopNumTextField.text
     }
 
     function getAddrNum()
     {
-       return addrNumTextField.text
+        return addrNumTextField.text
     }
 
     function setAnalogType(analogType) {
@@ -866,7 +1023,7 @@ Item {
     }
     function canImportExcel()
     {
-       return excelSelectCheckBox.checked
+        return excelSelectCheckBox.checked
     }
 
     function readInfo() {
@@ -877,40 +1034,33 @@ Item {
             itemIconInfo.setCurrentIconIndex(-1)
             return
         }
-
-        var itemIconInfoStr = new String
-        itemIconInfoStr = itemIconInfo.readFileFromJson()
-        if (itemIconInfoStr.length <= 4)
-            return
-
-        if (size > 0) {
+        if (size > 0)
+        {
             var modelCount = deviceTypeModel.count
             if (modelCount <= size) {
                 for (var j = 0; j < modelCount; j++) {
                     var currentObj = new Object
                     var currentIndex = String("%1").arg(j)
-                    currentObj = JSON.parse(itemIconInfoStr)[currentIndex]
                     var currentDeviceObj = new Object
 
-                    currentDeviceObj["deviceName"] = currentObj["deviceName"]
+                    currentDeviceObj["deviceName"] = itemIconInfo.getValue(currentIndex,"deviceName")
                     deviceTypeModel.set(j, currentDeviceObj)
-                    var currentImagePathStr = new String
-                    currentImagePathStr = currentObj["imagePath"]
-                    itemIconInfo.setIconIndexHash(j, currentImagePathStr)
+                    itemIconInfo.setIconIndexHash(j, itemIconInfo.getValue(currentIndex,"imagePath"))
                 }
 
                 for (var i = modelCount; i < size; i++) {
                     var index = String("%1").arg(i)
                     var obj = new Object
-                    obj = JSON.parse(itemIconInfoStr)[index]
+
                     var deviceObj = new Object
-                    deviceObj["deviceName"] = obj["deviceName"]
+                    deviceObj["deviceName"] = itemIconInfo.getValue(index,"deviceName")
                     deviceTypeModel.append(deviceObj)
                     var imagePathStr = new String
-                    imagePathStr = obj["imagePath"]
+                    imagePathStr = itemIconInfo.getValue(index,"imagePath")
                     itemIconInfo.setIconIndexHash(i, imagePathStr)
+
                 }
-            } else {
+            }else {
 
                 deviceTypeModel.remove(size, modelCount - size)
             }
@@ -923,8 +1073,8 @@ Item {
             equipmentModelComboBox.currentIndex = 0
         }
         itemIconInfo.setCurrentIconIndex(equipmentModelComboBox.currentIndex)
-//        manufacturersText.text = manufacturersValue(
-//                    equipmentModelComboBox.currentIndex)
+        //        manufacturersText.text = manufacturersValue(
+        //                    equipmentModelComboBox.currentIndex)
         periodOfValidityText.text = periodOfvalidityValue(
                     equipmentModelComboBox.currentIndex)
     }
@@ -937,4 +1087,54 @@ Item {
                 equipmentModelComboBox.currentIndex = 0
         }
     }
+
+    function initIconSetting()
+    {
+      itemIconSetting.initIconSetting()
+    }
+
+    function retranslate()
+    {
+        extNumTxt.text = qsTr("分机号:")
+        loopNumTxt.text = qsTr("回路号:")
+        addrNumTxt.text = qsTr("地址号:")
+        networkNumTxt.text = qsTr("网络号:")
+        powerAddrTxt.text = qsTr("电源地址:")
+        deviceNumTxt.text =qsTr("设备编码:")
+        locationTxt.text =qsTr("位置:")
+        operatorTxt.text = qsTr("操作员:")
+        deviceTxt.text = qsTr("设备:")
+        sysTxt.text = qsTr("系统:")
+        deviceSysComBox.model =[qsTr("电气火灾监控系统"),qsTr("火灾探测报警系统"), qsTr("消防联动系统"), qsTr("自动喷水灭火系统"), qsTr("水喷雾灭火系统"), qsTr("消火栓系统"), qsTr("气体灭火系统"), qsTr("泡沫灭火系统"), qsTr("干粉灭火系统"), qsTr("防烟排烟系统"), qsTr("防火及卷帘系统"), qsTr("电梯系统"), qsTr("消防电话系统"), qsTr("消防应急广播系统"), qsTr("消防应急照明和疏散指示系统"), qsTr("消防电源系统")]
+        channelNumTxt.text = qsTr("通道数:")
+        analogTxt.text = qsTr("模拟量:")
+        analogComboBox.model =[qsTr("无"), qsTr("有")]
+        sizeLabel.text = qsTr("大小:")
+        periodOfValidityTxt.text = qsTr("有效期:")
+        groupBox.title = qsTr("批量设置")
+        minNetworkNumTxt.text = qsTr("最小网络号:")
+        maxNetworkNumTxt.text = qsTr("最大网络号:")
+        minExtNumTxt.text = qsTr("最小分机号:")
+        maxExtNumTxt.text = qsTr("最大分机号:")
+        minLoopNumTxt.text = qsTr("最小回路号:")
+        maxLoopNumTxt.text = qsTr("最大回路号:")
+        minAddrNumTxt.text = qsTr("最小地址号:")
+        maxAddrNumTxt.text = qsTr("最大地址号:")
+        batchAmendBtn.text = qsTr("批量修改")
+        asFloorAmendBtn.text = qsTr("按当前楼层修改")
+        importExcelGroupBox.title = qsTr("导入excel文件")
+        excelSelectCheckBox.text=qsTr("使用excel数据")
+        selectExcelBtn.text = qsTr("选择文件")
+        iconSettingBtn.text = qsTr("图标信息设置")
+        legendBtn.text = qsTr("图例")
+        itemIconSetting.retranslate()
+        deviceCheckBox.text = qsTr("设备")
+        sizeCheckBox.text = qsTr("大小")
+        anglogCheckBox.text = qsTr("模拟量")
+        channelCheckBox.text = qsTr("通道数")
+        sysCheckBox.text = qsTr("系统")
+
+    }
 }
+
+

@@ -7,7 +7,7 @@
     color: white;
     padding-left: 4px;
     border: 1px solid #6c6c6c;
-    font:12pt '宋体'
+    font:12pt 'Times New Roman'
 }
 
 QTableView
@@ -33,8 +33,8 @@ QTabBar::tab{
         border-top-left-radius: 8px;
         border-top-right-radius: 8px;
 
-        min-width:20ex;/*linux系统为20*/
-        min-height:7ex;/*linux系统为7*/
+        min-width:15ex;/*linux系统为15*/
+        min-height:6ex;/*linux系统为6*/
         border: 2px solid #C4C4C3
 
 }
@@ -56,7 +56,7 @@ QTabBar::tab:!selected{
 }
 QTabBar
 {
-  font:14pt '宋体'
+  font:14pt 'Times New Roman'
 }
 
 QTreeView::item {
@@ -65,7 +65,7 @@ QTreeView::item {
 
 QTreeView
 {
-  font:12pt '宋体'
+  font:12pt 'Times New Roman'
 }
 
 

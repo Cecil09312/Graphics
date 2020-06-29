@@ -1,21 +1,27 @@
 ﻿import QtQuick 2.0
 import QtQuick.Controls 2.2
 import QtQuick.Extras 1.4
-
-
+import userManager 1.0
+import "../infoSetting"
+import Qt.labs.platform 1.0
 Item {
     width: 680
     height: 640
     property int indicatorNum: 256
     signal editIndicatorState(string networkNum)
     signal shieldIndicatorState(string extNum,string networkNum,bool curState)
-    signal resetShieldState(string extNum,string networkNum)
+
+    signal onlineStateSetting()
     Text {
         id: txt
         anchors.top: parent.top
+        anchors.left: parent.left
         anchors.topMargin: 10
-        anchors.horizontalCenter: parent.horizontalCenter
-        font.pointSize: 14
+        anchors.leftMargin: 5
+        //anchors.horizontalCenter: parent.horizontalCenter
+        font.pointSize: 12
+        width: parent.width
+        wrapMode: Text.WordWrap
         color: "blue"
         text: qsTr("主机在线状态(指示灯左边的数字代表主机号)")
     }
@@ -28,6 +34,7 @@ Item {
         spacing: 5
         Text
         {
+            id:onLineTxt
             text: qsTr("在线:")
             height: 20
             verticalAlignment: Text.AlignVCenter
@@ -42,6 +49,7 @@ Item {
 
 
         Text {
+            id:offLineTxt
             height: 20
             text: qsTr("    离线:")
             verticalAlignment: Text.AlignVCenter
@@ -54,6 +62,7 @@ Item {
 
 
         Text {
+            id:initTxt
             height: 20
             text: qsTr("   初始状态:")
             verticalAlignment: Text.AlignVCenter
@@ -65,19 +74,9 @@ Item {
             active: true
         }
 
-        Text {
-            height: 20
-            text: qsTr("   屏蔽状态:")
-            verticalAlignment: Text.AlignVCenter
-
-        }
-        StatusIndicator
-        {
-            color: "blue"
-            active: true
-        }
 
         Text {
+            id:networkTxt
             height: 20
             text: qsTr("   网络号:")
             verticalAlignment: Text.AlignVCenter
@@ -86,17 +85,43 @@ Item {
         TextField
         {
             id:networkNumTextField
-            width: 100
+            width: 80
             height: 30
             text:"0"
-
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
             validator: IntValidator{bottom: 0; top: 255;}
 
             onTextEdited:
             {
-                emit:editIndicatorState(text)
-                // console.log(text)
+                if(text.length>0)
+                {
+                    emit:editIndicatorState(String("%1").arg(parseInt(text.replace(/\s+/g,""))))
+                }
+
             }
+
+        }
+
+        NaviButton
+        {
+            id:deviceOnlineBtn
+            text: qsTr("设置")
+            //enabled: UserManager.userRight() ===UserManager.Super ? true:false
+            onClicked:
+             {
+                if(UserManager.userRight() ===UserManager.Super)
+                {
+                   onlineStateSetting()
+                }
+                else
+                {
+                  messageDialog.open()
+                }
+
+              }
+
 
         }
 
@@ -110,6 +135,7 @@ Item {
         {
             name:"   0"
             indicatorColor:"gray"
+            visibledOne:false
         }
 
     }
@@ -135,6 +161,7 @@ Item {
                     text:name
                     height: 20
                     verticalAlignment: Text.AlignVCenter
+                    visible: visibledOne
                     //anchors.horizontalCenter: parent.horizontalCenter
                 }
                 StatusIndicator
@@ -142,29 +169,14 @@ Item {
                     active: true
                     color: indicatorColor
                     height: 20
-                    MouseArea
-                    {
-                        anchors.fill: parent
-                        onClicked:
-                        {
-                            if(indicatorColor!="blue")
-                            {
-                                indicatorColor="blue"
-                                emit:shieldIndicatorState(String("%1").arg(index),networkNumTextField.text,true)
-                            }
-                            else
-                            {
-                                indicatorColor="gray"
-                                emit:shieldIndicatorState(String("%1").arg(index),networkNumTextField.text,false)
-                            }
-
-                        }
-                    }
+                    visible: visibledOne
 
                 }
             }
         }
     }
+
+
 
     Component.onCompleted:
     {
@@ -184,27 +196,37 @@ Item {
 
                 space =" ";
             }
-            listModel.append({"name":String("%1%2").arg(space).arg(i),"indicatorColor":"gray"})
+            listModel.append({"name":String("%1%2").arg(space).arg(i),"indicatorColor":"gray","visibledOne":false})
         }
+
+
 
     }
     function setIndicatorState(index,colorStr)
     {
         listModel.setProperty(index,"indicatorColor",colorStr)
     }
+
+    function resetVisibleAll()
+    {
+        for(var i=0;i<indicatorNum;i++)
+        {
+            setVisible(i,false)
+        }
+
+    }
     function resetIndicatorState()
     {
         for(var i=0;i<indicatorNum;i++)
         {
-            if(listModel.get(i)["indicatorColor"] != "blue")
-            {
-                listModel.setProperty(i,"indicatorColor","gray")
-            }
-            else
-            {
-               emit:resetShieldState(String("%1").arg(i),String("%1").arg(networkNumTextField.text))
-            }
+            setIndicatorState(i,"gray")
         }
+    }
+
+    function setVisible(curIndex,curState)
+    {
+        listModel.setProperty(curIndex,"visibledOne",curState)
+
     }
 
     function setNetworkNumValue(value)
@@ -213,6 +235,26 @@ Item {
     }
     function networkNum()
     {
-        return networkNumTextField.text
+        return String("%1").arg(parseInt(networkNumTextField.text))
+    }
+
+    function retranslate()
+    {
+
+        txt.text = qsTr("主机在线状态(指示灯左边的数字代表主机号)")
+        onLineTxt.text = qsTr("在线:")
+        offLineTxt.text = qsTr("    离线:")
+        initTxt.text = qsTr("   初始状态:")
+        networkTxt.text = qsTr("   网络号:")
+        deviceOnlineBtn.text = qsTr("设置")
+
+    }
+
+    MessageDialog {
+        id: messageDialog
+        title: qsTr("信息提示")
+        text: qsTr("在超级用户模式下才可打开")
+        //standardButtons: StandardButton.Yes
+        flags:Qt.WindowStaysOnTopHint|Qt.WindowMaximizeButtonHint|Qt.MSWindowsFixedSizeDialogHint|Qt.WindowCloseButtonHint
     }
 }

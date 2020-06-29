@@ -27,8 +27,11 @@ signals:
     void startConnect();
     void stopConnect();
     void sendAllData();
+    void sendDataSuccess(bool isSuccess);
+    void oneFrameData(const QByteArray&array);
 public slots:
     void sendData(const QByteArray&array);
+    void writeOneFramData(const QByteArray&array);
     virtual void readData()=0;
     virtual void setConfiguration()=0;
     void connectLink();

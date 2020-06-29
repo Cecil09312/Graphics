@@ -2,12 +2,12 @@
 #include <QDebug>
 #include <QSqlRecord>
 #include <QStringList>
-
+#include "control/controller.h"
 QmlTableModel::QmlTableModel(QObject *parent)
     : QSqlQueryModel(parent),
       m_sqlManager(nullptr)
 {
-    m_print = new Print(this);
+    m_print = new Print();
 }
 
 QmlTableModel::~QmlTableModel()
@@ -18,6 +18,7 @@ QmlTableModel::~QmlTableModel()
         m_sqlManager->deleteLater();
         m_sqlManager = nullptr;
     }
+    m_print->deleteLater();
 
 }
 
@@ -26,7 +27,15 @@ QVariant QmlTableModel::data(const QModelIndex &index, int role) const
 {
     if (role < Qt::UserRole)
     {
-        return QSqlQueryModel::data(index, role);
+        if (role == Qt::TextAlignmentRole)
+        {
+          return Qt::AlignCenter;//文字居中
+        }
+        else
+        {
+            return QSqlQueryModel::data(index, role);
+        }
+
     }
     const QSqlRecord sqlRecord = record(index.row());
     return sqlRecord.value(role - Qt::UserRole);
@@ -46,12 +55,28 @@ void QmlTableModel::sqlCommit(const QString &sqlStr)
         {
             while (canFetchMore())
             {
-                 fetchMore();
+                fetchMore();
+                Controller::instance()->delayMs(10);
             }
         }
-
     }
-    submit();
+    // submit();
+}
+
+void QmlTableModel::sqlCommit(const QSqlQuery &query)
+{
+    if(m_sqlManager!=nullptr)
+    {
+        setQuery(query);
+       // if(!sqlStr.startsWith("delete"))
+        //{
+            while (canFetchMore())
+            {
+                fetchMore();
+                Controller::instance()->delayMs(10);
+            }
+       // }
+    }
 }
 
 
@@ -94,13 +119,15 @@ void QmlTableModel::setDbDriver(const QString &driver)
     {
         if(m_dbDriver.contains("SQLITE",Qt::CaseInsensitive))
         {
-           m_sqlManager = new SqliteManager;
+            m_sqlManager = new SqliteManager;
         }
         else if(m_dbDriver.contains("MYSQL",Qt::CaseInsensitive))
         {
             m_sqlManager = new MySqlManager;
         }
     }
+
+    //m_sqlManager->open();
 }
 
 QString &QmlTableModel::dbConnectionName()
@@ -191,13 +218,15 @@ void QmlTableModel::setDbOpen(bool isOpen)
         {
             m_sqlManager->close();
         }
+
+
     }
 }
 
-void QmlTableModel::saveToPdf()
+void QmlTableModel::saveToPdf(const QString &fileName)
 {
 
-    m_print->saveToPdf(titleList(),getValues());
+    m_print->saveToPdf(titleList(),getValues(),fileName);
 }
 
 void QmlTableModel::startPrint()

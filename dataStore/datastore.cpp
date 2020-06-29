@@ -6,17 +6,7 @@
 DataStore::DataStore(QObject *parnet)
     :QObject(parnet)
 {
-    s_itemNum=0;
-    m_loopNum="0";
-    m_extNum="0";
-    m_networkNum="0";
-    m_powerAddr ="0";
-    m_sysName = "";
-    m_channelNum=0;
-    m_analogValue="无";
-    m_iconSize=25;
-    m_operator="";
-    s_itemNumTemp =0;
+    reInit();
 }
 
 DataStore::~DataStore()
@@ -232,7 +222,32 @@ int DataStore::indexOfItem(const QString &extNum, const QString &loopNum, const 
     }
 }
 
-int &DataStore::itemNum()
+bool DataStore::containsFireAlarm(const QString&alarm)
+{
+    if(getTypeItemList(alarm).size()>0)
+    {
+        return  true;
+    }
+    else
+    {
+        return  false;
+    }
+}
+
+bool DataStore::containsFireAlarmNoItem(const QString &alarm)
+{
+
+    if(m_typeNoItemHash.value(alarm).size()>0)
+    {
+        return true;
+    }
+    else
+    {
+        return  false;
+    }
+}
+
+int DataStore::itemNum()
 {
     //qDebug() << s_itemNum << s_itemNumTemp;
     if(s_itemNum!=s_itemNumTemp)
@@ -297,6 +312,42 @@ QString &DataStore::oneOperator()
 QString &DataStore::powerAddr()
 {
     return m_powerAddr;
+}
+
+void DataStore::reInit()
+{
+    s_itemNum=0;
+    m_loopNum="0";
+    m_extNum="0";
+    m_networkNum="0";
+    m_powerAddr ="0";
+    m_sysName = "";
+    m_channelNum=0;
+    m_analogValue="无";
+    m_iconSize=30;
+    m_operator="";
+    s_itemNumTemp =0;
+}
+
+void DataStore::clearStoreAlarm()
+{
+    QList< QList<QGraphicsItem *> >list= m_typeItemHash.values();
+    foreach (QList<QGraphicsItem *>itemList, list)
+    {
+        foreach (QGraphicsItem *currentItem, itemList)
+        {
+            GraphicsItem *item = dynamic_cast<GraphicsItem *>(currentItem);
+            if(item!=nullptr)
+            {
+                item->stopAnimations();
+
+                disconnect(item,&GraphicsItem::moveToPos,nullptr,nullptr);
+                disconnect(item,&GraphicsItem::sizeChanged,nullptr,nullptr);
+                item->clearAllAlarm();
+            }
+        }
+    }
+    clearTypeItem();
 }
 
 

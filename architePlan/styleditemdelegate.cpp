@@ -53,7 +53,7 @@ void StyledItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         }
 
         //绘制数据位置
-        QRect dataRect = QRect(rect.left() +10, rect.top()+10, rect.width()-30, 20);
+        QRect dataRect = QRect(rect.left() +10, rect.top()+10, rect.width()-30, 40);
         QRect circle = QRect(dataRect.right()-5, rect.top()+10, 15, 15);
         if(option.state.testFlag(QStyle::State_Selected))
         {
@@ -74,8 +74,17 @@ void StyledItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
         painter->drawEllipse(circle);
         painter->setPen(QPen(Qt::black));
-        painter->setFont(QFont("Times", 10, QFont::Medium));
-        painter->drawText(dataRect,Qt::AlignCenter,variant.toString()); //绘制名字
+        painter->setFont(QFont("Times",10, QFont::Medium));
+        QString valueStr = variant.toString();
+//        if(valueStr.size()>16)
+//        {
+//            valueStr.insert(16,"\n");
+//        }
+//        if(valueStr.size()>32)
+//        {
+//            valueStr.insert(32,"\n");
+//        }
+        painter->drawText(dataRect,Qt::TextWordWrap|Qt::AlignLeft,valueStr); //绘制名字
         painter->restore();
     }
 }

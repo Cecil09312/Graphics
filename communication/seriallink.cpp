@@ -101,7 +101,7 @@ void SerialLink::readData()
     QMutexLocker locker(&m_mutex);
     QByteArray array = m_serialPort->readAll();
     emit getData(array);
-    m_thread->msleep(2);
+    m_thread->msleep(10);
 }
 
 

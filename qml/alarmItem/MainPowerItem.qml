@@ -4,7 +4,6 @@ Item {
     height:300
     width: 400
 
-
     ListModel
     {
         id:listModel
@@ -56,7 +55,6 @@ Item {
 
 
                   curStateValue =  curValue.substring(0,curValue.length-5)
-                   console.log(curStateValue)
                   var currentMainPowerState = curMainPowerState.substring(0,curValue.length-5)
                 if(curStateValue===currentMainPowerState)
                 {
@@ -105,9 +103,6 @@ Item {
     {
         listModel.setProperty(index,"value",curState)
     }
-
-
-
 }
 
 

@@ -10,10 +10,17 @@
 #include <qmath.h>
 #include <QPointF>
 
+
 GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_itemTextIsVisiable(true)
 
 {
+
+    m_scaleAnimation=nullptr;
+    m_colorAnimation=nullptr;
+    m_scaleRunNum =0;
+    m_colorRunNum =0;
+    //m_parallelAnimGroup=nullptr;
     m_radius=Controller::instance()->getDataStore()->iconSize();
     m_graphicsScene = scene;
     m_itemInfo.m_manufacturers = tr("北京利达华信电子有限公司");
@@ -22,83 +29,48 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_channelNum = Controller::instance()->getDataStore()->channelNum();
     m_analogType = Controller::instance()->getDataStore()->analogValue();
     m_powerAddr = Controller::instance()->getDataStore()->powerAddr();
-   // m_itemInfo.m_networkNum = "0";
+    // m_itemInfo.m_networkNum = "0";
+    m_color = QColor(Qt::transparent);
+    m_penColor = QColor(Qt::transparent);
 
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
-    setFlags(ItemIsMovable|ItemIsSelectable);
-    m_colorEffect = new QGraphicsColorizeEffect(this);
+    setFlags(ItemIsMovable|ItemIsSelectable|ItemIgnoresTransformations);
+
     setAcceptHoverEvents(true);
-    setGraphicsEffect(m_colorEffect);
-    m_colorEffect->setStrength(0.0);
     setProperty("color",m_color);
     setProperty("scale",m_scale);
-    //setFlag( QGraphicsItem::ItemIgnoresTransformations);
-   // setProperty("angle",m_angle);
-    m_colorAnimation = new QPropertyAnimation(this,"color");
-    m_colorAnimation->setStartValue(QColor(Qt::black));
-    m_colorAnimation->setEndValue(QColor(Qt::red));
-    m_colorAnimation->setDuration(500);
-    m_colorAnimation->setLoopCount(-1);
-    m_scaleAnimation = new QPropertyAnimation(this,"scale");
-    m_scaleAnimation->setStartValue(0.3);
-    m_scaleAnimation->setEndValue(1.5);
-    m_scaleAnimation->setDuration(1000);
-    m_scaleAnimation->setLoopCount(-1);
-    m_drawImageThread = new DrawImageThread;
-//    m_rotateAnimation = new QPropertyAnimation(this,"angle");
-//    m_rotateAnimation->setDuration(500);
-//    m_rotateAnimation->setLoopCount(-1);
-//    m_rotateAnimation->setStartValue(-30);
-//    m_rotateAnimation->setEndValue(30);
 
-    m_parallelAnimGroup = new QParallelAnimationGroup(this);
-    m_parallelAnimGroup->addAnimation(m_colorAnimation);
-   // m_parallelAnimGroup->addAnimation(m_rotateAnimation);
-    m_parallelAnimGroup->addAnimation(m_scaleAnimation);
-    m_parallelAnimGroup->setLoopCount(-1);
-
-    m_itemTextFont.setPointSize(qFloor(m_radius/3));
-    m_itemTextFont.setFamily("宋体");
+    // setProperty("angle",m_angle);
+    m_itemTextFont.setPointSize(qFloor(m_radius/4));
+    m_itemTextFont.setFamily("Arial");
 
 
     QString num = QString("%1").arg(Controller::instance()->getDataStore()->itemNum());
-    m_itemInfo.m_deviceNum = num;
+
     m_itemInfo.m_addrNum= num;
     m_itemInfo.m_extNum = Controller::instance()->getDataStore()->extNum();
     m_itemInfo.m_loopNum = Controller::instance()->getDataStore()->loopNum();
     m_itemInfo.m_networkNum = Controller::instance()->getDataStore()->networkNum();
-//    int itemIconIndex = ItemIconInfoToJson::currentIconIndex();
-//    setInfoFromIconIndex(itemIconIndex);
-    connect(m_colorAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &/*value*/)
-    {
-        QColor color =qvariant_cast<QColor> (m_colorAnimation->currentValue());
-        m_color = color;
-        m_colorEffect->setColor(m_color);
+    m_itemInfo.m_deviceNum = QString("%1-%2").arg(m_itemInfo.m_loopNum).arg(m_itemInfo.m_addrNum);
+    //    int itemIconIndex = ItemIconInfoToJson::currentIconIndex();
+    //    setInfoFromIconIndex(itemIconIndex);
 
-    });
 
-    connect(m_scaleAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &/*value*/)
-    {
-        qreal scale =qvariant_cast<qreal> (m_scaleAnimation->currentValue());
-        setScale(scale);
 
-//        if(m_graphicsScene!=nullptr)
-//        {
-//            m_graphicsScene->update();
-//        }
-    });
 
-//    connect(m_rotateAnimation,&QPropertyAnimation::valueChanged,this,[=]()
-//    {
-//      qreal angle=  qvariant_cast<qreal>(m_rotateAnimation->currentValue());
-//      setRotation(angle);
+    //    connect(m_rotateAnimation,&QPropertyAnimation::valueChanged,this,[=]()
+    //    {
+    //      qreal angle=  qvariant_cast<qreal>(m_rotateAnimation->currentValue());
+    //      setRotation(angle);
 
-//    });
+    //    });
 
-    connect(m_drawImageThread,&DrawImageThread::currentImage,[=](QImage image){
-        m_iconImage=image;
+    connect(Controller::instance()->getDrawImageThread(),&DrawImageThread::drawCurrentImage,this,[=](){
+        //isStart = true;
         update();
     });
+
+
 }
 
 GraphicsItem::~GraphicsItem()
@@ -106,8 +78,14 @@ GraphicsItem::~GraphicsItem()
 
     stopAnimations();
     clearAlarmRecord();
-    m_drawImageThread->quit();
-    m_drawImageThread->deleteLater();
+    if(m_colorAnimation!=nullptr)
+    {
+        m_colorAnimation->deleteLater();
+    }
+    if(m_scaleAnimation!=nullptr)
+    {
+        m_scaleAnimation->deleteLater();
+    }
     //stopRotationAnimation();
 }
 
@@ -116,14 +94,14 @@ QRectF GraphicsItem::boundingRect() const
     qreal penWidth = 1;
     if(m_radius>0)
     {
-        return QRectF(-m_radius - penWidth / 2, -m_radius - penWidth / 2,
-                      m_radius*3 + penWidth, m_radius*3 + penWidth);
+        return QRectF(-m_radius*0.9 - penWidth / 2, -m_radius*0.9 - penWidth / 2,
+                      m_radius*1.5+ penWidth, m_radius*1.5 + penWidth);
     }
     else
     {
 
-        return QRectF(-10 - penWidth / 2, -10 - penWidth / 2,
-                      25 + penWidth, 25 + penWidth);
+        return QRectF(-40 - penWidth / 2, -40 - penWidth / 2,
+                      108+ penWidth, 80 + penWidth);
     }
 
 }
@@ -131,100 +109,106 @@ QRectF GraphicsItem::boundingRect() const
 void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*option, QWidget */*widget*/)
 {
 
-    painter->setPen(QPen(Qt::white));
+     QString curDeviceNum=QString("%1-%2").arg(m_itemInfo.m_loopNum).arg(m_itemInfo.m_addrNum) ;
     if(m_itemTextIsVisiable)
     {
-        int fontSize =0;
-        if(m_radius<=10)
-        {
-            fontSize = qFloor(m_radius/2.5);
-        }
-        else
-        {
-            fontSize = qFloor(m_radius/3);
-        }
+        int fontSize = qFloor(m_radius/4);
         m_itemTextFont.setPointSize(fontSize);
         painter->setFont(m_itemTextFont);
     }
-
-//    QString curDeviceNum =m_itemInfo.m_deviceNum;
-//    if(curDeviceNum.size()>9)
-//    {
-//        curDeviceNum.insert(9,"\n");
-//    }
 
     if(m_radius>0)
     {
         if(m_itemTextIsVisiable)
         {
-            painter->drawText(QRect(-m_radius,-m_radius,3*m_radius,3*m_radius),m_itemInfo.m_deviceNum);
+            if(curDeviceNum.size()>8)
+            {
+                painter->drawText(QRectF(-m_radius*0.9,-m_radius*0.9,1.6*m_radius,1.6*m_radius),Qt::TextWordWrap|Qt::AlignLeft,curDeviceNum);
+            }
+            else
+            {
+                painter->drawText(QRectF(-m_radius*0.9,-m_radius*0.9,1.6*m_radius,1.6*m_radius),Qt::AlignHCenter,curDeviceNum);
+            }
+
         }
 
-        QRectF rectF = QRectF(-m_radius/2,-m_radius/2,m_radius*1.5,m_radius*1.5);
-       // m_drawImageThread->setImageRect(rectF);
-        painter->drawImage(rectF,m_iconImage);
-//        if(m_iconName.endsWith(".svg"))
-//        {
-//            QSvgRenderer renderer(m_iconName);
-//            renderer.render(painter,rectF);
-
-//        }
-//        else
-//        {
-//            if(!QPixmap(m_iconName).isNull())
-//            {
-//                painter->drawPixmap(rectF.toRect(),QPixmap(m_iconName));
-//            }
-//        }
+        painter->setPen(m_penColor);
+        painter->setBrush(m_color);
+        painter->drawRect(QRectF(-m_radius*0.5,-m_radius*0.5,m_radius,m_radius));
+        QRectF rectF = QRectF(-m_radius*0.35,-m_radius*0.35,m_radius*0.7,m_radius*0.7);
+        painter->drawImage(rectF,Controller::instance()->getDrawImageThread()->getImageFromName(m_iconName));
 
     }
-    else
-    {
-        if(!QPixmap(m_iconName).isNull())
-        {
-            painter->drawPixmap(-20/1.25,-20/1.25,40,40,QPixmap(m_iconName));
-        }
-        if(m_itemTextIsVisiable)
-        {
-            painter->drawText(QRectF(-20,-20,40,40),m_itemInfo.m_addrNum);
-        }
 
-
-    }
 
     if(!m_itemInfo.m_periodOfValidity.isEmpty()&&QDate::fromString(m_itemInfo.m_periodOfValidity,"yyyy/MM/dd")<=QDate::currentDate())
     {
         painter->setPen(QPen(Qt::red));
         painter->setBrush(Qt::red);
-        painter->drawEllipse(m_radius,m_radius,m_radius/5,m_radius/5);
+        painter->drawEllipse(QRectF(m_radius/2,m_radius/2,m_radius/10,m_radius/10));
     }
 
     if (option->state & QStyle::State_Selected)
     {
-        painter->setPen(QPen(Qt::white, 0, Qt::DashLine));
+        painter->setPen(QPen(Qt::black, 0, Qt::DashLine));
         painter->setBrush(Qt::NoBrush);
-        painter->drawRect(boundingRect().adjusted(m_radius*2.25, m_radius*2.25, -m_radius*2.65, -m_radius*2.65));
+        painter->drawRect(QRectF(-m_radius*0.55,-m_radius*0.55,1.1*m_radius,1.1*m_radius));
     }
 }
 
 void GraphicsItem::setColor(const QColor &color)
 {
     m_color = color;
-    m_colorEffect->setColor(m_color);
+    m_penColor = QColor(Qt::blue);
+    update();
 }
 
 void GraphicsItem::startAnimations()
 {
-    m_colorEffect->setStrength(1.0);
-    if(m_parallelAnimGroup->state()!=QParallelAnimationGroup::Running)
-    {
-        m_parallelAnimGroup->start();
-    }
+//    if(m_colorAnimation==nullptr)
+//    {
+
+//    }
+
+//    if(m_scaleAnimation==nullptr)
+//    {
+//        m_scaleAnimation = new QPropertyAnimation(this,"scale");
+//        m_scaleAnimation->setStartValue(0.5);
+//        m_scaleAnimation->setEndValue(2);
+//        m_scaleAnimation->setDuration(1000);
+//        m_scaleAnimation->setLoopCount(-1);
+//        connect(m_scaleAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &/*value*/)
+//        {
+//            qreal scale =qvariant_cast<qreal> (m_scaleAnimation->currentValue());
+//            setScale(scale);
+//        });
+//    }
+
+//    if(m_parallelAnimGroup==nullptr)
+//    {
+//        m_parallelAnimGroup = new QParallelAnimationGroup(this);
+//        m_parallelAnimGroup->addAnimation(m_colorAnimation);
+//        m_parallelAnimGroup->addAnimation(m_scaleAnimation);
+//        m_parallelAnimGroup->setLoopCount(-1);
+//    }
+
+//    if(m_parallelAnimGroup!=nullptr)
+//    {
+//        if(m_parallelAnimGroup->state()!=QParallelAnimationGroup::Running)
+//        {
+//            m_parallelAnimGroup->start();
+//        }
+//    }
+
 }
 
 void GraphicsItem::stopAnimations()
 {
-    m_parallelAnimGroup->stop();
+//    if(m_parallelAnimGroup!=nullptr)
+//    {
+//        m_parallelAnimGroup->stop();
+//    }
+
     stopScaleAnimation();
     stopColorAnimation();
     restoreSize();
@@ -233,63 +217,137 @@ void GraphicsItem::stopAnimations()
 
 void GraphicsItem::startColorAnimation()
 {
-    setColorEffectValue(1.0);
-    if(m_colorAnimation->state()!=QPropertyAnimation::Running)
+
+    if(m_colorAnimation==nullptr)
     {
-         m_colorAnimation->start();
+        m_colorAnimation = new QPropertyAnimation(this,"color");
+        m_colorAnimation->setStartValue(QColor(Qt::transparent));
+        m_colorAnimation->setEndValue(QColor(Qt::red));
+        m_colorAnimation->setDuration(1200);
+        m_colorAnimation->setLoopCount(-1);
+        connect(m_colorAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &/*value*/)
+        {
+            if(m_colorRunNum>60)
+            {
+                m_colorRunNum =0;
+            }
+            if(m_colorRunNum%12==0)
+            {
+                QColor color =qvariant_cast<QColor> (m_colorAnimation->currentValue());
+                m_color = color;
+                m_penColor = QColor(Qt::blue);
+                update();
+            }
+            m_colorRunNum++;
+
+        });
     }
+
+    if(m_colorAnimation!=nullptr)
+    {
+        if(m_colorAnimation->state()!=QPropertyAnimation::Running)
+        {
+            m_colorAnimation->start();
+        }
+    }
+
 
 }
 
 void GraphicsItem::stopColorAnimation()
 {
-    m_colorAnimation->stop();
-    setColorEffectValue(0.0);
+    if(m_colorAnimation!=nullptr)
+    {
+        m_colorAnimation->stop();
+        m_colorRunNum=0;
+    }
+
+    m_color = QColor(Qt::transparent);
+    m_penColor = QColor(Qt::transparent);
+    update();
+    //setColorEffectValue(0.0);
 }
 
 void GraphicsItem::startScaleAnimation()
 {
-    if(m_scaleAnimation->state()!=QPropertyAnimation::Running)
+    if(m_scaleAnimation==nullptr)
     {
-        m_scaleAnimation->start();
+        m_scaleAnimation = new QPropertyAnimation(this,"scale");
+        m_scaleAnimation->setStartValue(0.5);
+        m_scaleAnimation->setEndValue(2);
+        m_scaleAnimation->setDuration(1200);
+        m_scaleAnimation->setLoopCount(-1);
+        connect(m_scaleAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &/*value*/)
+        {
+
+            if(m_scaleRunNum>=60)
+            {
+                m_scaleRunNum=0;
+            }
+            if(m_scaleRunNum%12==0)
+            {
+                qreal scale =qvariant_cast<qreal> (m_scaleAnimation->currentValue());
+                setScale(scale);
+            }
+            m_scaleRunNum++;
+
+        });
     }
+
+    if(m_scaleAnimation!=nullptr)
+    {
+
+        if(m_scaleAnimation->state()!=QPropertyAnimation::Running)
+        {
+            m_scaleAnimation->start();
+        }
+    }
+
 
 }
 
 void GraphicsItem::stopScaleAnimation()
 {
-    m_scaleAnimation->stop();
+    if(m_scaleAnimation!=nullptr)
+    {
+        m_scaleAnimation->stop();
+        m_scaleRunNum=0;
+    }
+
 }
 
-//void GraphicsItem::startRotationAnimation()
-//{
-//    if(m_rotateAnimation->state()!=QPropertyAnimation::Running)
-//    {
-//        m_rotateAnimation->start();
-//    }
 
-//}
-
-//void GraphicsItem::stopRotationAnimation()
-//{
-//    m_rotateAnimation->stop();
-//    setRotation(0);
-//}
-
-//void GraphicsItem::setColorEffectStrength(qreal strength)
-//{
-//    m_colorEffect->setStrength(strength);
-//}
 
 void GraphicsItem::setAnimationDuration(int duration)
 {
-    m_colorAnimation->setDuration(duration/2);
-    m_scaleAnimation->setDuration(duration);
+    if(m_colorAnimation!=nullptr)
+    {
+        m_colorAnimation->setDuration(duration);
+    }
+    if(m_scaleAnimation!=nullptr)
+    {
+        m_scaleAnimation->setDuration(duration);
+    }
+
 }
 
 void GraphicsItem::setAnimationLoopCount(int count)
 {
-    m_parallelAnimGroup->setLoopCount(count);
+
+    if(m_colorAnimation!=nullptr)
+    {
+        m_colorAnimation->setLoopCount(count);
+    }
+    if(m_scaleAnimation!=nullptr)
+    {
+        m_scaleAnimation->setLoopCount(count);
+    }
+
+//    if(m_parallelAnimGroup!=nullptr)
+//    {
+//       m_parallelAnimGroup->setLoopCount(count);
+//    }
+
 }
 
 QPointF GraphicsItem::graphicsItemPos() const
@@ -299,28 +357,41 @@ QPointF GraphicsItem::graphicsItemPos() const
 
 void GraphicsItem::setColorStartValue(const QVariant &value)
 {
-    m_colorAnimation->setStartValue(value);
+    if(m_colorAnimation!=nullptr)
+    {
+        m_colorAnimation->setStartValue(value);
+    }
+
 }
 
 void GraphicsItem::setColorEndValue(const QVariant &value)
 {
-    m_colorAnimation->setEndValue(value);
+    if(m_colorAnimation!=nullptr)
+    {
+        m_colorAnimation->setEndValue(value);
+    }
+
 }
 
 void GraphicsItem::setScaleStartValue(const QVariant &value)
 {
-    m_scaleAnimation->setStartValue(value);
+    if(m_scaleAnimation!=nullptr)
+    {
+        m_scaleAnimation->setStartValue(value);
+    }
+
 }
 
 void GraphicsItem::setScaleEndValue(const QVariant &value)
 {
-    m_scaleAnimation->setEndValue(value);
+    if(m_scaleAnimation!=nullptr)
+    {
+         m_scaleAnimation->setEndValue(value);
+    }
+
 }
 
-void GraphicsItem::setColorEffectValue(qreal value)
-{
-    m_colorEffect->setStrength(value);
-}
+
 
 void GraphicsItem::restoreSize()
 {
@@ -338,13 +409,9 @@ void GraphicsItem::restoreSize()
             currentTransform.scale(1.0/xScale,1.0/yScale);
             setTransform(currentTransform);
         }
-       // update();
+        // update();
     }
-//    qreal curRotation = rotation();
-//    if(curRotation!=0)
-//    {
-//        setRotation(0);
-//    }
+
 }
 
 
@@ -363,8 +430,8 @@ void GraphicsItem::setRadius(qreal radius)
 {
     Controller::instance()->getDataStore()->iconSize() =radius;
     m_radius = radius;
-    QRectF rectF = QRectF(-m_radius/2,-m_radius/2,m_radius*1.5,m_radius*1.5);
-    m_drawImageThread->setImageRect(rectF);
+    //QRectF rectF = QRectF(-m_radius/2,-m_radius/2,m_radius*1.5,m_radius*1.5);
+    //m_drawImageThread->setImageRect(rectF);
     emit sizeChanged(radius);
     update();
 }
@@ -377,7 +444,6 @@ QString GraphicsItem::hoverText() const
 void GraphicsItem::setHoverText(const QString &hoverText)
 {
     m_hoverText = hoverText;
-    update();
 }
 
 QColor GraphicsItem::itemTextColor() const
@@ -398,20 +464,29 @@ QString GraphicsItem::iconName() const
 
 void GraphicsItem::setIconName(const QString &iconName)
 {
-    m_iconName = Controller::instance()->fileNameFromQml(iconName);
+    QString curIconName = Controller::instance()->fileNameFromQml(iconName);
+
+    if(m_iconName!=curIconName)
+    {
+        m_iconName = curIconName;
 #ifdef Q_OS_LINUX
-                    if(!m_iconName.startsWith("/home"))
-                    {
-                        QFileInfo fileInfo(m_iconName);
-                        m_iconName ="/home/rpdzkj/usr/设备图标/" +fileInfo.fileName();
-                    }
+        if(!m_iconName.startsWith("/home"))
+        {
+            QFileInfo fileInfo(m_iconName);
+            m_iconName =QApplication::applicationDirPath()+"/设备图标/" +fileInfo.fileName();
+        }
 #endif
-    m_itemInfo.m_equipmentModel =Controller::instance()->getFileNameFromUrl(iconName,false);
-    m_drawImageThread->setImageName(m_iconName);
-    QRectF rectF = QRectF(-m_radius/2,-m_radius/2,m_radius*1.5,m_radius*1.5);
-    m_drawImageThread->setImageRect(rectF);
-    m_drawImageThread->drawImage();
-   // update();
+
+        QString equipmentModel= ItemIconInfoToJson::getValue(QString::number(ItemIconInfoToJson::iconIndex(iconName)),"deviceName");
+        m_itemInfo.m_equipmentModel =equipmentModel;
+
+        Controller::instance()->getDrawImageThread()->drawImage(m_iconName);
+    }
+//    else
+//    {
+//        update();
+//    }
+
 }
 
 QHash<QString, QVariant> GraphicsItem::itemInfo()
@@ -464,8 +539,8 @@ ItemInfo &GraphicsItem::getItemInfo()
 
 int GraphicsItem::iconIndex()
 {
-   int index= ItemIconInfoToJson::iconIndex(m_iconName);
-   m_iconIndex = index;
+    int index= ItemIconInfoToJson::iconIndex(m_iconName);
+    m_iconIndex = index;
     return m_iconIndex;
 }
 
@@ -477,7 +552,7 @@ void GraphicsItem::setIconIndex(int index)
 void GraphicsItem::setInfoFromIconIndex(int itemIconIndex)
 {
 
-    QHash<QString,QVariant>itemIconInfoHash = m_itemIconInfoToJson.getIconInfoHash();
+    QHash<QString,QVariant>itemIconInfoHash = ItemIconInfoToJson::getIconInfoHash();
     m_iconIndex = itemIconIndex;
     if(itemIconInfoHash.size()>0)
     {
@@ -490,7 +565,7 @@ void GraphicsItem::setInfoFromIconIndex(int itemIconIndex)
     else
     {
         m_itemInfo.m_equipmentModel ="";
-        m_itemIconInfoToJson.setCurrentIconIndex(-1);
+        ItemIconInfoToJson::setCurrentIconIndex(-1);
     }
     if(itemIconIndex>=0)
     {
@@ -501,16 +576,15 @@ void GraphicsItem::setInfoFromIconIndex(int itemIconIndex)
         }
         else
         {
-            m_itemIconInfoToJson.setCurrentIconIndex(-1);
+            ItemIconInfoToJson::setCurrentIconIndex(-1);
         }
 
     }
     else
     {
-        m_itemIconInfoToJson.setCurrentIconIndex(-1);
+        ItemIconInfoToJson::setCurrentIconIndex(-1);
     }
     update();
-
 }
 
 bool GraphicsItem::itemTextIsVisiable()
@@ -560,18 +634,27 @@ QString &GraphicsItem::networkNum()
     return m_itemInfo.m_networkNum;
 }
 
-QString &GraphicsItem::currentState()
+QString GraphicsItem::currentState()
 {
-    AlarmRecord *record=   currentAlarmRecord();
-    if(record!=nullptr)
+    QString curRecord = currentAlarmRecord();
+    if(curRecord.isEmpty())
     {
-        m_currentState = record->m_alarmRecordState;
+        return tr("正常");
     }
     else
     {
-        m_currentState= tr("正常");
+        QString curResult = m_alarmStateHash.value(curRecord);
+        if(curResult.isEmpty())
+        {
+            return tr("正常");
+        }
+        else
+        {
+            return curResult;
+        }
     }
-    return m_currentState;
+
+
 }
 
 QString &GraphicsItem::deviceNum()
@@ -631,7 +714,7 @@ QString &GraphicsItem::deviceInstallTime()
 
 QString GraphicsItem::alarmType()
 {
-    return m_alarmRecordHash.key(currentAlarmRecord());
+    return  currentAlarmRecord();
 }
 
 QString &GraphicsItem::analogType()
@@ -641,41 +724,27 @@ QString &GraphicsItem::analogType()
 
 QString GraphicsItem::alarmTime(const QString &alarmType)
 {
-    if(m_alarmRecordHash.contains(alarmType))
-    {
-        AlarmRecord *alramRecord =m_alarmRecordHash.value(alarmType);
-        return alramRecord->m_alarmRecordTime;
-    }
-    else
-    {
-        return "";
-    }
+    return  m_alarmTimeHash.value(alarmType);
 }
 
 QString GraphicsItem::alarmReplyTime(const QString &alarmType)
 {
-    if(m_alarmRecordHash.contains(alarmType))
-    {
-        AlarmRecord *alramRecord =m_alarmRecordHash.value(alarmType);
-        return alramRecord->m_alarmRecordReplyTime;
-    }
-    else
-    {
-        return "";
-    }
+    return  m_alarmReplyTimeHash.value(alarmType);
 }
 
 QString GraphicsItem::alarmState(const QString &alarmType)
 {
-    if(m_alarmRecordHash.contains(alarmType))
+
+    QString curState = m_alarmStateHash.value(alarmType);
+    if(!curState.isEmpty())
     {
-        AlarmRecord *alramRecord =m_alarmRecordHash.value(alarmType);
-        return alramRecord->m_alarmRecordState;
+        return  curState;
     }
     else
     {
         return tr("正常");
     }
+
 }
 
 QString &GraphicsItem::powerAddr()
@@ -685,179 +754,135 @@ QString &GraphicsItem::powerAddr()
 
 QList<QString> GraphicsItem::alarmTypeList()
 {
-    return m_alarmRecordHash.keys();
+    return m_alarmTimeHash.keys();
 }
 
-QList<AlarmRecord*> GraphicsItem::alarmRecordList()
+
+QString GraphicsItem::currentAlarmRecord()
 {
-    return m_alarmRecordHash.values();
-}
-
-AlarmRecord *GraphicsItem::record(const QString &alarmType)
-{
-    return m_alarmRecordHash.value(alarmType);
-}
-
-//QList<AlarmRecord> GraphicsItem::getAlarmRecordList() const
-//{
-//    return alarmRecordList;
-//}
-
-//void GraphicsItem::setAlarmRecordList(const QList<AlarmRecord> &value)
-//{
-//    alarmRecordList = value;
-//}
-
-AlarmRecord *GraphicsItem::currentAlarmRecord()
-{
-
-    AlarmRecord *curAlarmRecord=nullptr;
-    if(!m_alarmRecordHash.isEmpty())
+    QString targetStr = "";
+    if(!m_alarmTimeHash.isEmpty())
     {
         int priority =100;
-        QList<QString>alarmRecordList= m_alarmRecordHash.keys();
+        QList<QString>alarmRecordList= m_alarmTimeHash.keys();
         foreach (QString alarmType, alarmRecordList)
         {
-            AlarmRecord *alarmRecord= m_alarmRecordHash.value(alarmType);
-            if(alarmRecord->m_alarmRecordState!=tr("正常")&& !alarmRecord->m_alarmRecordState.isEmpty())
+            QString alarmRecordState = m_alarmStateHash.value(alarmType);
+            if(alarmRecordState!=tr("正常")&& !alarmRecordState.isEmpty())
             {
-                priority = qMin(priority,(int)alarmRecord->m_alarmPriority);
-                if(priority==alarmRecord->m_alarmPriority)
+                priority = qMin(priority,int(m_alarmPriorityHash.value(alarmType)));
+                if(priority==m_alarmPriorityHash.value(alarmType))
                 {
-                    curAlarmRecord = alarmRecord;
+                    targetStr = alarmType;
                 }
             }
 
         }
     }
 
-    return curAlarmRecord;
+    return targetStr;
 }
 
 
 
 void GraphicsItem::setAlarmRecord(const QString &alarmType, const QString &alarmTime, const QString &alarmState)
 {
-    AlarmRecord *alarmRecord = nullptr;
-    if(m_alarmRecordHash.contains(alarmType)&&m_alarmRecordHash.value(alarmType)!=nullptr)
-    {
-        alarmRecord= m_alarmRecordHash.value(alarmType);
 
-    }
-    else
-    {
-        alarmRecord = new AlarmRecord;
-        m_alarmRecordHash[alarmType] = alarmRecord;
-    }
-    if(alarmRecord!=nullptr)
-    {
-        alarmRecord->m_alarmRecordTime = alarmTime;
-        alarmRecord->m_alarmRecordState = alarmState;
+       m_alarmTimeHash[alarmType]=alarmTime;
+       m_alarmStateHash[alarmType]= alarmState;
+
         if(alarmType==tr("火警"))
         {
-            alarmRecord->m_alarmPriority=FireAlarm;
+            m_alarmPriorityHash[alarmType] = FireAlarm;
+            //alarmRecord.m_alarmPriority=FireAlarm;
         }
         else if(alarmType==tr("监管"))
         {
-            alarmRecord->m_alarmPriority=Supervision;
+            m_alarmPriorityHash[alarmType] =Supervision;
         }
         else if(alarmType==tr("启动"))
         {
-            alarmRecord->m_alarmPriority=Startover;
+            m_alarmPriorityHash[alarmType] =Startover;
         }
         else if(alarmType==tr("反馈"))
         {
-            alarmRecord->m_alarmPriority=Feedback;
+            m_alarmPriorityHash[alarmType] =Respond;
         }
         else if(alarmType==tr("故障"))
         {
-            alarmRecord->m_alarmPriority = Breakdown;
+            m_alarmPriorityHash[alarmType] = Breakdown;
         }
         else if(alarmType==tr("屏蔽"))
         {
-            alarmRecord->m_alarmPriority=Shield;
+            m_alarmPriorityHash[alarmType] =Shield;
         }
         else if(alarmType==tr("模拟火警"))
         {
-            alarmRecord->m_alarmPriority=AnalogFireAlarm;//模拟火警
+            m_alarmPriorityHash[alarmType] =AnalogFireAlarm;//模拟火警
         }
         else if(alarmType==tr("模拟监管"))
 
         {
-            alarmRecord->m_alarmPriority=AnalogSupervision;//模拟监管
+            m_alarmPriorityHash[alarmType] =AnalogSupervision;//模拟监管
         }
         else if(alarmType==tr("模拟启动"))
         {
-            alarmRecord->m_alarmPriority=AnalogStartover;//模拟启动
+            m_alarmPriorityHash[alarmType] =AnalogStartover;//模拟启动
         }
 
         else if(alarmType==tr("模拟反馈"))
         {
-            alarmRecord->m_alarmPriority=AnalogFeedback;//模拟反馈
+            m_alarmPriorityHash[alarmType] =AnalogRespond;//模拟反馈
         }
 
         else if(alarmType==tr("模拟故障"))
         {
-            alarmRecord->m_alarmPriority=AnalogBreakdown;//模拟故障
+            m_alarmPriorityHash[alarmType] =AnalogBreakdown;//模拟故障
         }
 
         else if(alarmType==tr("模拟屏蔽"))
         {
-            alarmRecord->m_alarmPriority=AnalogShield;//模拟屏蔽
+            m_alarmPriorityHash[alarmType] =AnalogShield;//模拟屏蔽
         }
 
 
-    }
+   // }
 
 
 }
 
 void GraphicsItem::removeAlarmRecord(const QString &alarmType, const QString &alarmReplyTime)
 {
-    if(m_alarmRecordHash.contains(alarmType))
+    if(m_alarmTimeHash.contains(alarmType))
     {
-        AlarmRecord *alarmRecord = m_alarmRecordHash[alarmType];
-        if(alarmRecord!=nullptr)
-        {
-            alarmRecord->m_alarmRecordReplyTime =alarmReplyTime;
-            alarmRecord->m_alarmRecordState = tr("正常");
+        m_alarmReplyTimeHash[alarmType] = alarmReplyTime;
+        m_alarmStateHash[alarmType]= tr("正常");
 
-        }
     }
 
 }
 
 void GraphicsItem::clearAllAlarm()
 {
-    QList<AlarmRecord*>alarmRecordList=m_alarmRecordHash.values();
-    foreach (AlarmRecord*record, alarmRecordList)
+    foreach (QString type, m_alarmStateHash.keys())
     {
-        if(record!=nullptr)
-        {
-            record->m_alarmRecordState = tr("正常");
-            record->m_alarmRecordReplyTime = QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss");
-        }
-
+        m_alarmStateHash[type] = tr("正常");
+        m_alarmReplyTimeHash[type] = QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss");
     }
 }
 
 void GraphicsItem::clearAlarmRecord()
 {
 
-    foreach (AlarmRecord *alarmRecord, m_alarmRecordHash) {
-        delete alarmRecord;
-        alarmRecord = nullptr;
-    }
-    m_alarmRecordHash.clear();
+    m_alarmStateHash.clear();
+    m_alarmPriorityHash.clear();
+    m_alarmTimeHash.clear();
+    m_alarmReplyTimeHash.clear();
 }
 
 void GraphicsItem::setAlarmState(const QString &alarmType,const QString &alarmState)
 {
-    if(m_alarmRecordHash.contains(alarmType))
-    {
-        m_alarmRecordHash[alarmType]->m_alarmRecordState = alarmState;
-
-    }
+    m_alarmStateHash[alarmType] = alarmState;
 }
 
 void GraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
@@ -886,23 +911,23 @@ void GraphicsItem::updateHoverText()
     {
         curType =alarmType()+ tr("消除");
     }
-    QString hoverText = QString("分机号:%1\n"
-                                "回路号:%2\n"
-                                "地址号:%3\n"
-                                "网络号:%4\n"
-                                "电源地址:%5\n"
-                                "设备编码:%6\n"
-                                "设备:%7\n"
-                                "事件类型:%8\n"
-                                "状态:%9\n"
-                                "时间:%10\n"
-                                "系统:%11\n"
-                                "建筑名称:%12\n"
-                                "楼层:%13\n"
-                                "位置:%14\n"
-                                "制造商:%15\n"
-                                "有效期:%16\n"
-                                "操作员:%17").arg(m_itemInfo.m_extNum).arg(m_itemInfo.m_loopNum).arg(m_itemInfo.m_addrNum).arg(m_itemInfo.m_networkNum)
+    QString hoverText = QString(tr("分机号:%1")+"\n"+
+                                tr("回路号:%2")+"\n"+
+                                tr("地址号:%3")+"\n"+
+                                tr("网络号:%4")+"\n"+
+                                tr("电源地址:%5")+"\n"+
+                                tr("设备编码:%6")+"\n"+
+                                tr("设备:%7")+"\n"+
+                                tr("事件类型:%8")+"\n"+
+                                tr("状态:%9")+"\n"+
+                                tr("时间:%10")+"\n"+
+                                tr("系统:%11")+"\n"+
+                                tr("建筑名称:%12")+"\n"+
+                                tr("楼层:%13")+"\n"+
+                                tr("位置:%14")+"\n"+
+                                tr("制造商:%15")+"\n"+
+                                tr("有效期:%16")+"\n"+
+                                tr("操作员:%17")).arg(m_itemInfo.m_extNum).arg(m_itemInfo.m_loopNum).arg(m_itemInfo.m_addrNum).arg(m_itemInfo.m_networkNum)
             .arg(m_powerAddr).arg(m_itemInfo.m_deviceNum).arg(m_itemInfo.m_equipmentModel).arg(curType).arg(currentState())
             .arg(alarmTime(alarmType())).arg(m_itemInfo.m_sysOfDevice).arg(m_itemInfo.m_buildingName)
             .arg(m_itemInfo.m_floorOfDevice).arg(m_itemInfo.m_deviceLocation).arg(m_itemInfo.m_manufacturers)

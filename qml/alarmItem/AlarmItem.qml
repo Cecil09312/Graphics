@@ -28,6 +28,13 @@ Rectangle {
     property bool curState: false
     property int totalNum: 0
     property int curNum: 0
+    property int fireNum:0
+    property int supervisionNum:0
+    property int respondingNum:0
+    property int startNum:0
+    property int failureNum:0
+    property int shieldingNum: 0
+    property  string curHandOrAutoTxt: qsTr("自动")
 
     RowLayout {
         id: alarmBtnLayout
@@ -55,7 +62,7 @@ Rectangle {
 
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.topMargin: 10
+            Layout.topMargin: 11
             text: qsTr("消音")
             Layout.rightMargin:2
             onClicked: {
@@ -82,7 +89,7 @@ Rectangle {
             Layout.row: 0
             text: qsTr("火警 0")
             font.pointSize: 12
-            font.family: qsTr("宋体")
+            font.family: "Times New Roman"
         }
 
         StatusIndicator {
@@ -99,7 +106,7 @@ Rectangle {
             Layout.row: 1
             text: qsTr("监管 0")
             font.pointSize: 12
-            font.family: qsTr("宋体")
+            font.family: "Times New Roman"
         }
 
         StatusIndicator {
@@ -116,11 +123,11 @@ Rectangle {
             Layout.row: 2
             text: qsTr("启动 0")
             font.pointSize: 12
-            font.family: qsTr("宋体")
+            font.family: "Times New Roman"
         }
 
         StatusIndicator {
-            id: feedbackStatusIndicator
+            id: respondStatusIndicator
             Layout.column: 0
             Layout.row: 3
             color: "gray" //反馈:绿色:正常
@@ -128,12 +135,12 @@ Rectangle {
 
         }
         Text {
-            id: feedbackNum
+            id: respondNum
             Layout.column: 1
             Layout.row: 3
             text: qsTr("反馈 0")
             font.pointSize: 12
-            font.family: qsTr("宋体")
+            font.family: "Times New Roman"
         }
 
         StatusIndicator {
@@ -150,7 +157,7 @@ Rectangle {
             Layout.row: 4
             text: qsTr("故障 0")
             font.pointSize: 12
-            font.family: qsTr("宋体")
+            font.family: "Times New Roman"
         }
 
 
@@ -169,7 +176,7 @@ Rectangle {
             Layout.row: 5
             text: qsTr("屏蔽 0")
             font.pointSize: 12
-            font.family: qsTr("宋体")
+            font.family: "Times New Roman"
         }
 
         StatusIndicator {
@@ -197,7 +204,7 @@ Rectangle {
             Layout.row: 6
             text: qsTr("主电")
             font.pointSize: 12
-            font.family: qsTr("宋体")
+            font.family: "Times New Roman"
         }
 
         StatusIndicator {
@@ -224,7 +231,7 @@ Rectangle {
             Layout.row: 7
             text: qsTr("备电")
             font.pointSize: 12
-            font.family: qsTr("宋体")
+            font.family: "Times New Roman"
         }
 
 
@@ -254,7 +261,7 @@ Rectangle {
             Layout.row: 8
             text: qsTr("自动")
             font.pointSize: 12
-            font.family: qsTr("宋体")
+            font.family: "Times New Roman"
 
         }
 
@@ -288,11 +295,12 @@ Rectangle {
         }
 
         Text {
+            id:transTxt
             Layout.column: 1
             Layout.row: 9
             text: qsTr("传输")
             font.pointSize: 12
-            font.family: qsTr("宋体")
+            font.family: "Times New Roman"
         }
 
         StatusIndicator {
@@ -302,11 +310,11 @@ Rectangle {
             color: "yellow"
             active: true
 
-           MouseArea
-           {
-               anchors.fill: parent
-               onClicked: showOnlineState()
-           }
+            MouseArea
+            {
+                anchors.fill: parent
+                onClicked: showOnlineState()
+            }
         }
 
         Text {
@@ -315,7 +323,7 @@ Rectangle {
             Layout.row: 10
             text: qsTr("主机通信")
             font.pointSize: 12
-            font.family: qsTr("宋体")
+            font.family: "Times New Roman"
         }
 
         StatusIndicator {
@@ -332,7 +340,7 @@ Rectangle {
             Layout.row: 11
             text: qsTr("中心通信")
             font.pointSize: 12
-            font.family: qsTr("宋体")
+            font.family: "Times New Roman"
         }
     }
 
@@ -347,11 +355,12 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
 
         NaviButton {
+            id:resetBtn
             anchors.leftMargin: 20
             width: parent.width
             // Layout.fillHeight: true
-            font.pointSize: 14
-            font.family: qsTr("宋体")
+            font.pointSize: 12
+            font.family: "Times New Roman"
             text: qsTr("复位")
 
             onClicked: {
@@ -362,46 +371,29 @@ Rectangle {
         }
 
         NaviButton {
+            id:alarmPlanBtn
             anchors.leftMargin: 20
             width: parent.width
             // Layout.fillHeight: true
-            font.pointSize: 14
-            font.family: qsTr("宋体")
+            font.pointSize: 12
+            font.family: "Times New Roman"
             text: qsTr("报警平面")
             onClicked: {
                 ArchitePlanView.toAlarmView()
 
                 /*测试*/
-               CrtWidget.sendSeralData()
+                // CrtWidget.sendSeralData()
             }
 
         }
-        //        ComboBox {
-        //            id: alarmTypeComboBox
-        //            anchors.leftMargin: 20
-        //            font.pointSize: 14
-        //            font.family: qsTr("宋体")
-        //            width: parent.width
-        //            model:["火警"] /*["全部", "火警", "监管","启动", "反馈","故障",  "屏蔽"]*/
-        //            onCurrentTextChanged: {
-        //                emit: currentAlarmType(currentText)
-        //                if(currentText===qsTr("全部"))
-        //                {
-        //                    numTxt.visible=false
-        //                }
-        //                else
-        //                {
-        //                    numTxt.visible = true;
-        //                }
-        //            }
-        //        }
+
         NaviButton {
             id: previousBtn
             anchors.leftMargin: 20
             width: parent.width
             // Layout.fillHeight: true
-            font.pointSize: 14
-            font.family: qsTr("宋体")
+            font.pointSize: 11
+            font.family: "Times New Roman"
             text: qsTr("上一页")
             onClicked: {
                 ArchitePlanView.toPreviousPage()
@@ -413,8 +405,8 @@ Rectangle {
             id: nextBtn
             anchors.leftMargin: 20
             width: parent.width
-            font.pointSize: 14
-            font.family: qsTr("宋体")
+            font.pointSize: 11
+            font.family: "Times New Roman"
             text: qsTr("下一页")
             onClicked: {
                 ArchitePlanView.toNextPage()
@@ -426,37 +418,21 @@ Rectangle {
             id: pageTxt
             anchors.leftMargin: 20
             width: parent.width
-            font.pointSize: 12
-            font.family: qsTr("宋体")
+            font.pointSize: 11
+            font.family: "Times New Roman"
             text: qsTr("总0页/第0页")
         }
 
-        Text {
-            id: numTxt
-            anchors.leftMargin: 20
-            width: parent.width
-            font.pointSize: 12
-            font.family: qsTr("宋体")
-            text: qsTr("总0个/第0个")
-            visible: false
-        }
 
-        //        Text {
-        //            id: explainTxt
-        //            anchors.leftMargin: 20
-        //            width: parent.width
-        //            font.pointSize: 12
-        //            font.family: qsTr("宋体")
-        //            text: qsTr("总0个/第0个")
-        //            visible: false
-        //        }
+
+
 
         CheckBox {
             id: autoSwitchCheckBox
             text: qsTr("自动切换")
             width: parent.width
-            font.pointSize: 12
-            font.family: qsTr("宋体")
+            font.pointSize: 11
+            font.family: "Times New Roman"
             onClicked: {
                 ArchitePlanView.startAutoSwitch(checked)
             }
@@ -473,32 +449,32 @@ Rectangle {
 
     function setPage(totalPage, currentPage) {
 
-        pageTxt.text = String("总%1页/第%2页").arg(totalPage).arg(currentPage)
-    }
-    function setNum(totalNumber,currentNum)
-    {
-        totalNum = totalNumber
-        curNum = currentNum
-        numTxt.text= String("总%1个/第%2个").arg(totalNum).arg(curNum);
-    }
-    function setTotalNum(totalNumber)
-    {
-        totalNum = totalNumber
-        numTxt.text= String("总%1个/第%2个").arg(totalNum).arg(curNum)
+        if(totalNum==totalPage&&curNum==currentPage)
+        {
+           return
+        }
+        else
+        {
+            totalNum=totalPage
+            curNum=currentPage
+            pageTxt.text = String(qsTr("总%1页/第%2页")).arg(totalPage).arg(currentPage)
+        }
     }
 
-    function setCurNum(curNumber)
-    {
-        curNum = curNumber
-        numTxt.text= String("总%1个/第%2个").arg(totalNum).arg(curNum)
-    }
 
     function enableToPreviousPageBtn(isEnable) {
-        previousBtn.enabled = isEnable
+        if(previousBtn.enabled!=isEnable)
+        {
+            previousBtn.enabled = isEnable
+        }
     }
 
     function enableToNextPageBtn(isEnable) {
-        nextBtn.enabled = isEnable
+        if(nextBtn.enabled!=isEnable)
+        {
+           nextBtn.enabled = isEnable
+        }
+
     }
 
     function setFireAlarmColor(isActived, currentColor) {
@@ -534,11 +510,11 @@ Rectangle {
         }
     }
 
-    function setFeedbackColor(isActived, currentColor) {
-        if(!Qt.colorEqual(feedbackStatusIndicator.color,currentColor))
+    function setRespondColor(isActived, currentColor) {
+        if(!Qt.colorEqual(respondStatusIndicator.color,currentColor))
         {
-            feedbackStatusIndicator.color = currentColor
-            feedbackStatusIndicator.active = isActived
+            respondStatusIndicator.color = currentColor
+            respondStatusIndicator.active = isActived
         }
     }
 
@@ -590,19 +566,19 @@ Rectangle {
     }
 
     function setHandOrAutoColor(isActived, currentColor) {
-         if(!Qt.colorEqual(handOrAutoIndicator.color,currentColor))
-         {
-             handOrAutoIndicator.color = currentColor
-             handOrAutoIndicator.active = isActived
-         }
+        if(!Qt.colorEqual(handOrAutoIndicator.color,currentColor))
+        {
+            handOrAutoIndicator.color = currentColor
+            handOrAutoIndicator.active = isActived
+        }
 
     }
 
     function setTransformColor(isActived, currentColor) {
         //if(!Qt.colorEqual(transformIndicator.color,currentColor))
-       // {
-            transformIndicator.color = currentColor
-            transformIndicator.active = isActived
+        // {
+        transformIndicator.color = currentColor
+        transformIndicator.active = isActived
         //}
 
     }
@@ -619,39 +595,64 @@ Rectangle {
     }
 
     function setFireAlarmText(value) {
-        var txt = qsTr("火警 ") + String("%1").arg(value)
-        fireAlarmNum.text = txt
+        if(fireNum != value)
+        {
+            var txt = qsTr("火警 ") + String("%1").arg(value)
+            fireNum = value
+            fireAlarmNum.text = txt
+        }
     }
 
     function setLinkageText(value) {
-        var txt = qsTr("启动 ") + String("%1").arg(value)
-        linkageNum.text = txt
+        if(startNum!=value)
+        {
+            var txt = qsTr("启动 ") + String("%1").arg(value)
+            startNum= value
+            linkageNum.text = txt
+        }
     }
 
     function setSuperviseText(value) {
-        var txt = qsTr("监管 ") + String("%1").arg(value)
-        superviseNum.text = txt
+        if(supervisionNum!=value)
+        {
+            var txt = qsTr("监管 ") + String("%1").arg(value)
+            supervisionNum = value
+            superviseNum.text = txt
+        }
     }
 
     function setFaultText(value) {
-        var txt = qsTr("故障 ") + String("%1").arg(value)
-        faultNum.text = txt
+        if(failureNum!=value)
+        {
+            var txt = qsTr("故障 ") + String("%1").arg(value)
+            failureNum = value
+            faultNum.text = txt
+        }
     }
 
-    function setFeedbackText(value) {
-        var txt = qsTr("反馈 ") + String("%1").arg(value)
-        feedbackNum.text = txt
+    function setRespondText(value) {
+        if(respondingNum!=value)
+        {
+            var txt = qsTr("反馈 ") + String("%1").arg(value)
+            respondingNum = value
+            respondNum.text = txt
+        }
     }
 
     function setShieldText(value) {
-        var txt = qsTr("屏蔽 ") + String("%1").arg(value)
-        shieldNum.text = txt
+        if(shieldingNum!=value)
+        {
+            var txt = qsTr("屏蔽 ") + String("%1").arg(value)
+            shieldingNum = value
+            shieldNum.text = txt
+        }
     }
 
 
     function setHandOrAutoText(value)
     {
         handOrAutoTxt.text = value
+        curHandOrAutoTxt = value
     }
 
     function allAlarmClear(fireAlarmClear) {
@@ -663,26 +664,86 @@ Rectangle {
         }
         setSuperviseAlarmColor(true, "gray")
         setfaultAlarmColor(true, "gray")
-        setFeedbackColor(true, "gray")
+        setRespondColor(true, "gray")
         setShieldAlarmColor(true, "gray")
         setMainPowerColor(true, "green")
         setStandbyPowerColor(true, "green")
         setTransformColor(true,"gray")
-        // setEquiComColor(true, "gray")
+        setEquiComColor(true, "yellow")
         // setCenterComColor(true, "gray")
         setHandOrAutoColor(true,"green")
         setHandOrAutoText(qsTr("自动"))
-        setFireAlarmText("0")
-        setLinkageText("0")
-        setSuperviseText("0")
-        setFaultText("0")
-        setFeedbackText("0")
-        setShieldText("0")
+        setFireAlarmText(0)
+        setLinkageText(0)
+        setSuperviseText(0)
+        setFaultText(0)
+        setRespondText(0)
+        setShieldText(0)
         setAutoSwitchCheckBoxState(false)
     }
 
     function setAutoSwitchCheckBoxState(isChecked) {
         autoSwitchCheckBox.checked = isChecked
+    }
+
+    function retranslate()
+    {
+        firmAlarmBtn.text = qsTr("首火警")
+        erasureBtn.text = qsTr("消音")
+        fireAlarmNum.text = qsTr("火警 ")+String("%1").arg(fireNum)
+        superviseNum.text = qsTr("监管 ")+String("%1").arg(supervisionNum)
+        linkageNum.text = qsTr("启动 ")+String("%1").arg(startNum)
+        respondNum.text = qsTr("反馈 ")+String("%1").arg(respondingNum)
+        faultNum.text = qsTr("故障 ")+String("%1").arg(failureNum)
+        shieldNum.text = qsTr("屏蔽 ")+String("%1").arg(shieldingNum)
+        mainPowerTxt.text = qsTr("主电")
+        standbyPowerTxt.text = qsTr("备电")
+        if(curHandOrAutoTxt=="自动"||curHandOrAutoTxt=="Automatic")
+        {
+            handOrAutoTxt.text =qsTr("自动")
+        }
+        else if(curHandOrAutoTxt=="手动"||curHandOrAutoTxt=="Manual")
+        {
+            handOrAutoTxt.text =qsTr("手动")
+        }
+        else if(curHandOrAutoTxt=="默认"||curHandOrAutoTxt=="Default")
+        {
+            handOrAutoTxt.text =qsTr("默认")
+        }
+
+
+        transTxt.text = qsTr("传输")
+        equiComTxt.text = qsTr("主机通信")
+        centerComTxt.text = qsTr("中心通信")
+        resetBtn.text = qsTr("复位")
+        alarmPlanBtn.text = qsTr("报警平面")
+        previousBtn.text = qsTr("上一页")
+        nextBtn.text = qsTr("下一页")
+        pageTxt.text = qsTr("总%1页/第%2页").arg(totalNum).arg(curNum)
+        autoSwitchCheckBox.text = qsTr("自动切换")
+        if(CrtWidget.isEnglish())
+        {
+            fireAlarmNum.font.pointSize =11
+            superviseNum.font.pointSize=11
+            linkageNum.font.pointSize =11
+            respondNum.font.pointSize =11
+            faultNum.font.pointSize =11
+            shieldNum.font.pointSize=11
+            pageTxt.font.pointSize=11
+            autoSwitchCheckBox.font.pointSize =10
+        }
+        else
+        {
+            fireAlarmNum.font.pointSize =12
+            superviseNum.font.pointSize=12
+            linkageNum.font.pointSize =12
+            respondNum.font.pointSize =12
+            faultNum.font.pointSize =12
+            shieldNum.font.pointSize=12
+            pageTxt.font.pointSize=12
+            autoSwitchCheckBox.font.pointSize =12
+
+        }
     }
 }
 

@@ -29,6 +29,9 @@ Item {
         TextField {
             id: fireAlarmTextField
             readOnly: true
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
         NaviButton {
             id: fireAlarmBtn
@@ -50,6 +53,9 @@ Item {
         TextField {
             id: linkageTextField
             readOnly: true
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
         NaviButton {
             id: linkageBtn
@@ -71,6 +77,9 @@ Item {
         TextField {
             id: autoSprayWaterTextField
             readOnly: true
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
         NaviButton {
             id: autoSprayWaterBtn
@@ -92,6 +101,9 @@ Item {
         TextField {
             id: fireCockTextField
             readOnly: true
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
         NaviButton {
             id: fireCockBtn
@@ -108,11 +120,15 @@ Item {
             text: qsTr("气体灭火系统")
             height: 30
             verticalAlignment: Text.AlignVCenter
+
         }
 
         TextField {
             id: gasFireTextField
             readOnly: true
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
         NaviButton {
             id: gasFireBtn
@@ -134,6 +150,9 @@ Item {
         TextField {
             id: waterSprayTextField
             readOnly: true
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
         NaviButton {
             id: waterSprayBtn
@@ -155,6 +174,9 @@ Item {
         TextField {
             id: foamAndDryTextField
             readOnly: true
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
         NaviButton {
             id: foamAndDryBtn
@@ -176,6 +198,9 @@ Item {
         TextField {
             id: smokeControlTextField
             readOnly: true
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
         NaviButton {
             id: smokeControlBtn
@@ -197,6 +222,9 @@ Item {
         TextField {
             id: fireEmergencyLightingTextField
             readOnly: true
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
         NaviButton {
             id: fireEmergencyLightingBtn
@@ -218,6 +246,9 @@ Item {
         TextField {
             id: evacuationTextField
             readOnly: true
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
         NaviButton {
             id: evacuationBtn
@@ -233,6 +264,7 @@ Item {
     FileDialog {
         id: chooseFileDialog
         folder: filePath
+        flags: Qt.WindowStaysOnTopHint|Qt.MSWindowsFixedSizeDialogHint|Qt.WindowCloseButtonHint
         //folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
         nameFilters: "SVG Files(*.svg)"
         onAccepted: {
@@ -252,7 +284,8 @@ Item {
 
     Component.onCompleted: {
 
-        setSysArchitePlan()
+       // setSysArchitePlan()
+
     }
 
     function setSysArchitePlan() {
@@ -260,46 +293,93 @@ Item {
         var jsonStr = new String
         jsonStr = qmlForJson.readFileToString()
         if (jsonStr.length <= 0)
+        {
             return
+        }
         sysArchitePlanObj = JSON.parse(jsonStr)
+
+
+
         var sysArchitePlanStr = new String
+
+
+        if(typeof sysArchitePlanObj["sysArchitePlan"]=="undefined")
+        {
+            return
+        }
         sysArchitePlanStr = JSON.stringify(
                     sysArchitePlanObj["sysArchitePlan"].valueOf())
         var gasFireStr = JSON.parse(sysArchitePlanStr.toLocaleString(
-                                        ))["气体灭火系统"]
+                                        ))[qsTr("气体灭火系统")]
         var waterSprayStr = JSON.parse(sysArchitePlanStr.toLocaleString(
-                                           ))["水喷雾灭火系统"]
+                                           ))[qsTr("水喷雾灭火系统")]
         var foamAndDryStr = JSON.parse(sysArchitePlanStr.toLocaleString(
-                                           ))["泡沫和干粉灭火系统"]
+                                           ))[qsTr("泡沫和干粉灭火系统")]
         var fireCockStr = JSON.parse(sysArchitePlanStr.toLocaleString(
-                                         ))["消火栓系统"]
+                                         ))[qsTr("消火栓系统")]
         var fireEmergencyStr = JSON.parse(sysArchitePlanStr.toLocaleString(
-                                              ))["消防应急照明系统"]
+                                              ))[qsTr("消防应急照明系统")]
         var linkageStr = JSON.parse(sysArchitePlanStr.toLocaleString(
-                                        ))["消防联动控制系统"]
+                                        ))[qsTr("消防联动控制系统")]
 
         var autoFireAlarm = JSON.parse(sysArchitePlanStr.toLocaleString(
-                                           ))["火灾自动报警系统"]
+                                           ))[qsTr("火灾自动报警系统")]
         var evacuationInsStr = JSON.parse(sysArchitePlanStr.toLocaleString(
-                                              ))["疏散指示系统"]
+                                              ))[qsTr("疏散指示系统")]
         var autoFireExitStr = JSON.parse(sysArchitePlanStr.toLocaleString(
-                                             ))["自动喷水灭火系统"]
+                                             ))[qsTr("自动喷水灭火系统")]
         var smokeExhaustStr = JSON.parse(sysArchitePlanStr.toLocaleString(
-                                             ))["防烟排烟系统"]
+                                             ))[qsTr("防烟排烟系统")]
         //JSON.stringify()
+        if(typeof autoFireAlarm=="string")
         fireAlarmTextField.text = autoFireAlarm
+        if(typeof linkageStr=="string")
         linkageTextField.text = linkageStr
+        if(typeof autoFireExitStr=="string")
         autoSprayWaterTextField.text = autoFireExitStr
+        if(typeof fireCockStr=="string")
         fireCockTextField.text = fireCockStr
+        if(typeof gasFireStr=="string")
         gasFireTextField.text = gasFireStr
+        if(typeof waterSprayStr=="string")
         waterSprayTextField.text = waterSprayStr
+        if(typeof foamAndDryStr=="string")
         foamAndDryTextField.text = foamAndDryStr
+        if(typeof smokeExhaustStr=="string")
         smokeControlTextField.text = smokeExhaustStr
+        if(typeof fireEmergencyStr=="string")
         fireEmergencyLightingTextField.text = fireEmergencyStr
+        if(typeof evacuationInsStr=="string")
         evacuationTextField.text = evacuationInsStr
     }
 
     //    Component.onDestroyed: {
 
     //    }
+
+    function retranslate()
+    {
+       fireAlarmTxt.text = qsTr("火灾自动报警系统")
+        fireAlarmBtn.text = qsTr("选择图纸")
+        linkageTxt.text = qsTr("消防联动控制系统")
+        linkageBtn.text = qsTr("选择图纸")
+        autoSprayWaterTxt.text = qsTr("自动喷水灭火系统")
+        autoSprayWaterBtn.text = qsTr("选择图纸")
+        fireCockTxt.text = qsTr("消火栓系统")
+        fireCockBtn.text = qsTr("选择图纸")
+        gasFireTxt.text = qsTr("气体灭火系统")
+        gasFireBtn.text = qsTr("选择图纸")
+        waterSprayTxt.text =qsTr("水喷雾灭火系统")
+        waterSprayBtn.text =qsTr("选择图纸")
+        foamAndDryTxt.text = qsTr("泡沫和干粉灭火系统")
+        foamAndDryBtn.text = qsTr("选择图纸")
+        smokeControlTxt.text = qsTr("防烟排烟系统")
+        smokeControlBtn.text = qsTr("选择图纸")
+        fireEmergencyLightingTxt.text = qsTr("消防应急照明系统")
+        fireEmergencyLightingBtn.text = qsTr("选择图纸")
+        evacuationTxt.text = qsTr("疏散指示系统")
+        evacuationBtn.text = qsTr("选择图纸")
+
+
+    }
 }

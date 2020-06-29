@@ -16,11 +16,13 @@ public:
     TreeView(QWidget *parent = nullptr);
     ~TreeView();
     QMap<QStandardItem *, int> &getTreeIndexMap();
-   Q_INVOKABLE void saveTreeItem();
+    Q_INVOKABLE void saveTreeItem();
     QStandardItem *addRootItem(const QString &root);
     QStandardItem *addChildItem(QModelIndex index);
     void setItemExpanded(const QStandardItem *item);
     void closeQuickView();
+    Q_INVOKABLE bool nameIsExist(const QString &name);
+    void retranslate();
 signals:
     void treeIndex(QStandardItem*item);
     void deleteIndex(QStandardItem*item);
@@ -50,7 +52,7 @@ private:
     QAction *m_editAction;
     QAction *m_closeAction;
     QAction *m_deleteAction;
-    QAction *m_clearAction;
+    // QAction *m_clearAction;
     QStandardItemModel *m_stdModel;
     int m_index;
     QMap<QStandardItem*,QList<int> >m_childIndexMap;
@@ -60,6 +62,8 @@ private:
     ItemDelegate *m_itemDelegate;
     QQuickView *m_architeSettingView;
     QStandardItem *m_currentItem;
+
+
     //QWidget *m_architeSettingContainer;
 
 };

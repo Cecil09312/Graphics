@@ -15,6 +15,8 @@ public:
     explicit InfoTableView(QWidget *parent = nullptr);
     ~InfoTableView();
     QmlTableModel  *tableModel();
+    void retranslate();
+    void setTableHeader();
 
 signals:
     void tableValue(QSqlRecord record);
@@ -27,6 +29,7 @@ public slots:
 private:
     void initWidget();
 private:
+
     QmlTableModel  *m_tableModel;
     QMenu *m_menu;
     QAction *m_analogValueShowAction;

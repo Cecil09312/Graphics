@@ -24,9 +24,11 @@
 #include "communication/indicatorlightcom.h"
 #include "database/mysqlmanager.h"
 #include <QFileInfo>
-#include "LogMsg/logmsg.h"
-#include "LogMsg/debuglogmsg.h"
+//#include "LogMsg/logmsg.h"
+//#include "LogMsg/debuglogmsg.h"
 #include "dataStore/datastore.h"
+#include "graphicsWidget/drawimagethread.h"
+
 
 class Controller:public QObject
 {
@@ -36,7 +38,7 @@ public:
     ~Controller();
     Q_INVOKABLE QString fileNameFromQml(const QString &name);
     Q_INVOKABLE QString getFileNameFromUrl(const QString &url, bool isHasSuffix=false);
-    Q_INVOKABLE bool hideOnLinux();
+    Q_INVOKABLE bool sysOnLinux();
 
     AbstractLink *getCommObj();
     void setSysArchitePlanView(SysArchitePlanView*sysArchitePlanView);
@@ -54,12 +56,19 @@ public:
     ConfigurationManager *getFtpConfigurationManager();
     ConfigurationManager *getTcpConfigurationManager();
     ConfigurationManager *getIndicatorConfigurationManager();
-    SqlManager *getMySqlManager();
+
     OperatorInfo *getOperatorInfo();
     TransportInfo *getTransportInfo();
-    LogMsg *getLogMsg();
+
+   // LogMsg *getLogMsg();
     void delayMs(int ms);//非阻塞延时
     DataStore*getDataStore();
+    DrawImageThread *getDrawImageThread();
+
+
+
+
+
 
 private:
     Controller();
@@ -79,9 +88,10 @@ private:
     QSharedPointer<ConfigurationManager> m_indicatorConfigurationManager;
     QSharedPointer<OperatorInfo>m_operatorInfo;
     QSharedPointer<TransportInfo>m_transportInfo;
-    SqlManager *m_mysqlManager;
-    QSharedPointer<LogMsg>m_logMsg;
+   // QSharedPointer<LogMsg>m_logMsg;
     QSharedPointer<DataStore>m_dataStore;
+    QSharedPointer<DrawImageThread>m_drawImageThread;
+
 
 };
 

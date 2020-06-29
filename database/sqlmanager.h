@@ -21,12 +21,13 @@ class SqlManager : public QObject
 public:
     explicit SqlManager(QObject *parent = nullptr);
     virtual ~SqlManager();
-    virtual QStringList getDatabases()=0;
+    virtual QStringList getDatabases();
+    virtual void quitThread();
     QStringList getTables();
     Q_INVOKABLE  void setDataBase(const QString &driver, const QString &connectionName, const QString &host,
                                   const QString &user, const QString &password, const QString &dataBase, const int &port);
     bool insertBatch(const QString &tableName, const QList<QVariant> &valueList);
-    Q_INVOKABLE QStringList executeQuery(const QString &sql);
+    virtual QStringList executeQuery(const QString &sql);
     static SqlManager *fromDriver(const QString &driver);
     Q_INVOKABLE bool open();
     Q_INVOKABLE bool isOpen() const;
@@ -46,6 +47,9 @@ public:
     int port();
     void setPort(int p);
     QString connectionName();
+    //QList<QString>sqlStrInList(const QString &sql);
+    void processDb(QList<QString> &sqlList);
+    QSqlDatabase &getDb();
 
 signals:
    void dataCommitSuccess(bool isSuccessful);
@@ -56,6 +60,8 @@ public slots:
 protected:
     class SqlManagerPrivate;
     SqlManagerPrivate *d;
+    //QSqlQuery *m_query;
+
 
 };
 

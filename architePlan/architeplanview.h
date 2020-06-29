@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <QTreeView>
-#include <QStackedWidget>
+#include <QStackedLayout>
 #include <QTabWidget>
 #include "graphicsWidget/graphicsview.h"
 #include <QStandardItemModel>
@@ -20,7 +20,10 @@
 #include "customTimer/customtimer.h"
 #include "firstfirealarminfowidget.h"
 #include "dataStore/datastore.h"
-#include "excelManager/excelmanager.h"
+#ifdef Q_OS_LINUX
+#include "control/segfault.h"
+#endif
+//#include "excelManager/excelmanager.h"
 
 
 class ArchitePlanView : public QWidget
@@ -61,6 +64,9 @@ public:
                                const QString &addressNum, const QString &networkNum, const QString &powerAddr="0");
 
     void closeQuickView();
+    void retranslate();
+    bool firstAlarmViewIsVisible();
+    FirstFireAlarmInfoWidget *getFirstFireAlarmWidget();
 
     Q_INVOKABLE static bool &itemLimit();
     Q_INVOKABLE void setItemLimit(bool isOk);
@@ -84,8 +90,11 @@ public:
                                    const QString &password,const QString &databaseName,int port);//将数据保存到mysql数据库
     QString deviceSysName(const QString &extNum);//设备系统名
     void clearAllGraphicsTextItem();
-    void startCreatView();
-
+    void itemIconSetting();
+    void setGlobalArchiteFromJson();
+    void initFromJsonFile();
+    void startCheckAlarmTimer(int ms);
+    void stopCheckAlarmTimer();
 
 signals:
     void alarmHappend(const QString &alarmType);
@@ -94,7 +103,7 @@ signals:
     void noPage();
     void normalPage();
     void alarmItem(GraphicsItem *item,const QString &alarmType);
-    void eliminateAlarmFromTable(GraphicsItem *item,const QString &alarmState);
+    void eliminateAlarmFromTable(GraphicsItem *item,const QString &alarmState,const QString&alarmReplyTime);
     //void eliminateNoItemAlarm(const QString&extNum,const QString &loopNum,const QString &addrNum,const QString networkNum,const QString &type,const QString &time);
     void clearAlarmFromTable();
     void editGlobalItem();
@@ -106,6 +115,8 @@ signals:
     void findAlarmNum(int totalNum,int currentNum);
     void showExtNumState();
     void sendAnalogValue(GraphicsItem*curItem,quint8 channelNum);
+    void clearAllAlarmExceptFire();
+
 
 
 public slots:
@@ -134,17 +145,22 @@ public slots:
     void batchItems();
     void changeItemsInfoFromFloor();
     void excelFileProcess(QString filePath);
+    void setDeviceSelect(bool selected);
+    void setSysSelect(bool selected);
+    void setChannelSelect(bool selected);
+    void setAnalogSelect(bool selected);
+    void setSizeSelect(bool selected);
 
 private:
     void initWidget();
     void showMenu(const QPoint &point );
     QHash<QString, QVariant> saveViewInfo(QStandardItem *item);
-    void initFromJsonFile();
+
     void initFromDataBase(GraphicsView *view, const QString &buildingName, const QString &floor);
     GraphicsView* setViewFromJson(const QHash<QString, QVariant> &hash, QStandardItem *treeItem);
     void findFireAlarm(int pos);
 
-    void setGlobalArchiteFromJson();
+
     void updateAlarmWidget(GraphicsView *currentView);
     void deleteAlarmWidget(GraphicsView *currentView);
     void filterAlarm(GraphicsItem *item);
@@ -157,6 +173,13 @@ private:
     void updateAlarmText(GraphicsItem*item,const QString &alarmType);
     QString speechInfo(GraphicsItem*item,const QString &alarmType);
     void saveItemInfoToDb(GraphicsItem*item);
+    void deleteItemInfoFromDb(GraphicsItem*item);
+    void deleteInfoFromFloor(const QString &floorName);
+    void deleteInfoFromBuilding(const QString &buildingName);
+    void clearDbInfo();
+    void resetItemNumFromView(GraphicsView*view);
+    void clearGlobalViewAlarm();
+    void clearItemsAlarmText(GraphicsItem *item);
 
 private:
     TreeView *m_treeView;
@@ -200,15 +223,20 @@ private:
     QQuickView *m_analogAlarmView;
     QQuickView *m_maintenanceView;
     QObject *m_itemSettingObj;
+    QObject *m_maintenanceObj;
     QObject *m_analogAlarmObj;
+
     FirstFireAlarmInfoWidget*m_firstFireWidget;
     static bool m_itemLimit;
-    ExcelManager *m_excelManager;
     QHash<quint32,QString>m_loopAddrExtHash;
     QHash<quint32,QString>m_loopAddrDeviceHash;
-    QStringList m_dbValueList;
-   // QHash<quint32,QString>m_loopAddrFloorHash;
-    CustomTimer *m_startArchiteViewTimer;
+    QHash<quint32,QString>m_loopAddrLocationHash;
+    QMenu *m_modeSelectMenu;
+    QHash<QString,bool>m_itemInfoSelectHash;
+    bool m_firstSetSysInfo;
+    CustomTimer *m_checkAlarmTimer;
+     QHash<GraphicsView*,QString>m_viewImageHash;
+     QMutex m_mutex;
 
 
 };

@@ -36,23 +36,15 @@ enum AlarmPriority//报警优先级
     FireAlarm=1,//火警
     Supervision,//监管
     Startover,//启动
-    Feedback,//反馈
+    Respond,//反馈
     Breakdown,//故障
     Shield,//屏蔽
     AnalogFireAlarm,//模拟火警
     AnalogSupervision,//模拟监管
     AnalogStartover,//模拟启动
-    AnalogFeedback,//模拟反馈
+    AnalogRespond,//模拟反馈
     AnalogBreakdown,//模拟故障
     AnalogShield//模拟屏蔽
-};
-
-struct AlarmRecord//用来记录所有报警信息
-{
-    AlarmPriority m_alarmPriority;
-    QString m_alarmRecordTime;//记录报警时间
-    QString m_alarmRecordState;//状态
-    QString m_alarmRecordReplyTime;//报警恢复时间
 };
 
 class GraphicsItem : public QObject,public QGraphicsItem
@@ -70,9 +62,6 @@ public:
     void stopColorAnimation();
     void startScaleAnimation();
     void stopScaleAnimation();
-//    void startRotationAnimation();
-//    void stopRotationAnimation();
-   // void setColorEffectStrength(qreal strength);
     void setAnimationDuration(int duration);
     void setAnimationLoopCount(int count);
     QPointF graphicsItemPos() const;
@@ -80,7 +69,6 @@ public:
     void setColorEndValue(const QVariant &value);
     void setScaleStartValue(const QVariant &value);
     void setScaleEndValue(const QVariant &value);
-    void setColorEffectValue(qreal value);
     void restoreSize();
 
     void setColor(const QColor &color);
@@ -113,7 +101,7 @@ public:
     Q_INVOKABLE QString &loopNum();
     Q_INVOKABLE QString &addrNum();
     Q_INVOKABLE QString &networkNum();
-    Q_INVOKABLE QString &currentState();
+    Q_INVOKABLE QString currentState();
     Q_INVOKABLE QString &deviceNum();
     Q_INVOKABLE QString &equipmentModel();
     Q_INVOKABLE QString &sysOfDevice();
@@ -131,9 +119,7 @@ public:
     Q_INVOKABLE QString alarmState(const QString  &alarmType);
     Q_INVOKABLE QString &powerAddr();
     QList<QString>alarmTypeList();
-    QList<AlarmRecord *> alarmRecordList();
-    AlarmRecord *record(const QString &alarmType);
-    AlarmRecord *currentAlarmRecord();
+    QString currentAlarmRecord();
     void setAlarmRecord(const QString &alarmType,const QString &alarmTime,const QString &alarmState);
     void removeAlarmRecord(const QString &alarmType, const QString &alarmReplyTime);
     void clearAllAlarm();
@@ -153,9 +139,9 @@ private:
 private:
     QPropertyAnimation *m_colorAnimation;
     QPropertyAnimation *m_scaleAnimation;
-   // QPropertyAnimation *m_rotateAnimation;
-    QParallelAnimationGroup *m_parallelAnimGroup;
+//    QParallelAnimationGroup *m_parallelAnimGroup;
     QColor m_color;
+    QColor m_penColor;
     GraphicsScene *m_graphicsScene;
     qreal m_radius;
     QString m_hoverText;
@@ -163,21 +149,21 @@ private:
     QString m_iconName;
     ItemInfo m_itemInfo;
     QFont m_itemTextFont;
-    ItemIconInfoToJson m_itemIconInfoToJson;
-    QGraphicsColorizeEffect *m_colorEffect;
     int m_iconIndex;
     QHash<int, QVariant >m_analogValueHash;//模拟量
     int m_channelNum;//通道数量
-    //bool m_isHavingAnalogValue;
     QString m_analogType;
     bool m_itemTextIsVisiable;
-    QHash<QString,AlarmRecord*>m_alarmRecordHash;
+    QHash<QString,QString>m_alarmTimeHash;
+    QHash<QString,QString>m_alarmReplyTimeHash;
+    QHash<QString,QString>m_alarmStateHash;
+    QHash<QString,int>m_alarmPriorityHash;
+
     QString m_currentState;
-   // qreal m_angle;
     qreal m_scale;
     QString m_powerAddr;
-    QImage m_iconImage;
-    DrawImageThread *m_drawImageThread;
+    int m_scaleRunNum;
+    int m_colorRunNum;
 
 };
 

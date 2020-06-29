@@ -55,11 +55,17 @@ TcpLink::TcpLink(QObject *parent)
     {
         m_tcpServer->writeData(array);
     });
+
+    connect(this,&TcpLink::oneFrameData,this,[=](const QByteArray &array){
+        m_tcpServer->writeOneFrameData(array);
+    });
     connect(m_tcpServer,&TcpServer::readData,this,&TcpLink::getData);
     connect(m_tcpServer,&TcpServer::newConnection,this,[=](){
 
         emit isConnected(true);
     });
+
+    connect(m_tcpServer,&TcpServer::writeDataSuccess,this,&TcpLink::sendDataSuccess);
 
 }
 

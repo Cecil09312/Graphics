@@ -6,6 +6,7 @@ import QtQuick.Window 2.3
 import Qt.labs.platform 1.0
 import operatorInfo 1.0
 import controller 1.0
+import QtQuick.Dialogs 1.2 as Dialog1_2
 import "../infoSetting"
 
 Rectangle {
@@ -29,6 +30,9 @@ Rectangle {
             id: primaryArchiteName
             Layout.row: 0
             Layout.column: 1
+            selectionColor: "blue"
+            selectedTextColor: "white"
+            selectByMouse: true
             // echoMode: TextInput.Password
             inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase
                               | Qt.ImhSensitiveData | Qt.ImhNoPredictiveText
@@ -39,6 +43,12 @@ Rectangle {
             Layout.column: 2
             text: qsTr("确认")
             onClicked: {
+
+                if(TreeView.nameIsExist(primaryArchiteName.text))
+                {
+                   messageDialog.open()
+                   return;
+                }
                 TreeView.setItemName(primaryArchiteName.text)
                 OperatorInfo.insertEvent(qsTr("建筑平面图名称更改"),
                                          qsTr(String("由\"%1\"变更为\"%2\"").arg(
@@ -63,6 +73,10 @@ Rectangle {
             id: primArchImageTextField
             Layout.row: 1
             Layout.column: 1
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
+
         }
         NaviButton {
             id: primArchImageBtn
@@ -70,6 +84,7 @@ Rectangle {
             Layout.column: 2
             text: qsTr("选择图片")
             onClicked: {
+                //fileDialog.close()
                 fileDialog.open()
             }
         }
@@ -94,13 +109,28 @@ Rectangle {
         //            }
         //        }
     }
+
+    MessageDialog {
+        id: messageDialog
+        title: qsTr("错误提示")
+        text: qsTr("楼层已经存在，请重新修改")
+        flags: Qt.WindowStaysOnTopHint|Qt.MSWindowsFixedSizeDialogHint|Qt.WindowCloseButtonHint
+    }
     FileDialog {
         id: fileDialog
         title: "Please choose a file"
         folder: filePath
+        flags: Qt.WindowStaysOnTopHint|Qt.MSWindowsFixedSizeDialogHint|Qt.WindowCloseButtonHint
+
         //folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
        // nameFilters: ["SVG Files(*.svg)","JPG Files(*.jpg)","PNG Files(*.png)","BMP Files(*.bmp)"]
         onAccepted: {
+
+            if(TreeView.nameIsExist(Controller.getFileNameFromUrl(currentFile.toString())))
+            {
+               messageDialog.open()
+               return;
+            }
             filePath = file
             OperatorInfo.insertEvent(qsTr("建筑平面图更改"),
                                      qsTr(String("\"%1\"变更为\"%2\"").arg(
@@ -116,6 +146,8 @@ Rectangle {
         }
     }
 
+
+
     function clearTextField() {
         primaryArchiteName.clear()
         primArchImageTextField.clear()
@@ -130,5 +162,15 @@ Rectangle {
     function setArchiteImage(image) {
         primArchImageTextField.text = image
         architeImage = image
+    }
+
+    function retranslate()
+    {
+      primaryArchiteTxt.text = qsTr("名称修改:")
+        primaryArchiteBtn.text = qsTr("确认")
+        primaryImageTxt.text = qsTr("图片路径:")
+        primArchImageBtn.text=qsTr("选择图片")
+        messageDialog.text=qsTr("楼层已经存在，请重新修改")
+        messageDialog.title = qsTr("错误提示")
     }
 }

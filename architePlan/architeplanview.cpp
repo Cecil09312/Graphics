@@ -9,26 +9,27 @@
 #include <QModelIndex>
 #include <QQuickItem>
 #include <QQmlContext>
+//#ifdef Q_OS_LINUX
+#include "xlsxdocument.h"
+
+using namespace QXlsx;
+//#endif
 
 QHash<int,GraphicsView *>ArchitePlanView::m_widgetHash =QHash<int,GraphicsView *>();
 bool ArchitePlanView::m_itemLimit = false;
 ArchitePlanView::ArchitePlanView(QWidget *parent)
     : QWidget(parent),
-      m_currentAlarmType("火警"),
+      m_currentAlarmType(tr("火警")),
       m_alarmPos(0),
-      m_alarmNum(0)
+      m_alarmNum(0),
+      m_firstSetSysInfo(false)
 {
 
     initWidget();
-    setGlobalArchiteFromJson();
-    initFromJsonFile();
+    //    setGlobalArchiteFromJson();
+    //    initFromJsonFile();
     setContextMenuPolicy(Qt::CustomContextMenu);
-    //    connect(m_startArchiteViewTimer,&CustomTimer::timeout,this,[=](){
-    //        setGlobalArchiteFromJson();
-    //        initFromJsonFile();
 
-    //    });
-    // m_startArchiteViewTimer->start(5000);
 
     connect(this,&ArchitePlanView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)
     {
@@ -51,10 +52,14 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
                 GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
                 if(scene!=nullptr)
                 {
+                    GraphicsItem*item= dynamic_cast<GraphicsItem*>(scene->itemAt(scene->currentScenePos(),QTransform())) ;
+                    deleteItemInfoFromDb(item);
+
                     scene->removeGraphicsItem(scene->currentScenePos());
 
                 }
-                saveArchiteInfoToDb();
+
+                resetItemNumFromView(view);
             }
         }
 
@@ -100,7 +105,7 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
                     QMetaObject::invokeMethod(m_itemSettingObj,"clearItemInfo");
                 }
 
-                m_itemSettingView->close();
+                // m_itemSettingView->close();
                 m_itemSettingView->show();
 
             }
@@ -165,12 +170,20 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
                         }
                         scene->getItemList().clear();
                         Controller::instance()->getDataStore()->clearTypeItem();
-                        saveArchiteInfoToDb();
+                        QStandardItem *stdItem=   getItemFromView(view);
+                        if(stdItem!=nullptr)
+                        {
+                            deleteInfoFromFloor(stdItem->text()) ;
+
+                        }
+
                     }
-                    else
-                    {
-                        QMessageBox::warning(nullptr,tr("警告"),tr("存在报警信息，不能被清空"));
-                    }
+
+                }
+
+                if(view->getItemList().isEmpty())
+                {
+                    Controller::instance()->getDataStore()->setItemNum(0);
                 }
 
             }
@@ -213,19 +226,19 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
 
                             if(graphicsItem!=nullptr)
                             {
+
+                                deleteItemInfoFromDb(graphicsItem);
                                 scene->removeItem(graphicsItem);
                                 scene->getItemList().removeOne(graphicsItem);
                                 Controller::instance()->getDataStore()->deleteTypeItem(graphicsItem);
                             }
                         }
 
-                        saveArchiteInfoToDb();
                     }
-                    else
-                    {
-                        QMessageBox::warning(nullptr,tr("警告"),tr("存在报警信息，不能被删除"));
-                    }
+
                 }
+
+                resetItemNumFromView(view);
             }
         }
     });
@@ -274,7 +287,6 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
                     QObject *maintObj = m_maintenanceView->rootObject();
                     Q_ASSERT(maintObj);
                     QMetaObject::invokeMethod(maintObj,"setEquipmentCode",Q_ARG(QVariant,item->deviceNum()));
-                    QMetaObject::invokeMethod(maintObj,"setMaintTime",Q_ARG(QVariant,QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss")));
                     QMetaObject::invokeMethod(maintObj,"setBuildingName",Q_ARG(QVariant,item->buildingName()));
                     QMetaObject::invokeMethod(maintObj,"setFloor",Q_ARG(QVariant,item->floorOfDevice()));
                     QMetaObject::invokeMethod(maintObj,"setLocation",Q_ARG(QVariant,item->deviceLocation()));
@@ -308,7 +320,65 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
             QMetaObject::invokeMethod(m_itemSettingObj,"setEquipmentModel",Q_ARG(QVariant,m_loopAddrDeviceHash.value(loopAndAddrValue)));
         }
 
+        if(m_loopAddrLocationHash.contains(loopAndAddrValue))
+        {
+            QMetaObject::invokeMethod(m_itemSettingObj,"setDeviceLocation",Q_ARG(QVariant,m_loopAddrLocationHash.value(loopAndAddrValue)));
+        }
+
     });
+
+
+
+    connect(m_checkAlarmTimer,&CustomTimer::timeout,this,[=](){
+
+
+        QMutexLocker lock(&m_mutex);
+
+#ifdef Q_OS_LINUX
+        sigsetjmp(sigEnv,1);
+#endif
+        GraphicsView *view= currentGraphicsView();
+        if(view==nullptr)
+        {
+#ifdef Q_OS_LINUX
+            signal(SIGSEGV, segFaultReceive);
+#endif
+            return;
+        }
+        QRect rect=  m_firstFireWidget->frameGeometry();
+        QPoint topLeftPos = QPoint(rect.topLeft());
+        QPoint bottomRightPos = QPoint(rect.bottomRight());
+        QPointF curTopLeftPos= view->mapToScene(view->mapFromGlobal(topLeftPos));
+        QPointF curBottomRightPos= view->mapToScene(view->mapFromGlobal(bottomRightPos));
+        QRect curRect = QRect(curTopLeftPos.toPoint(),curBottomRightPos.toPoint());
+        QList<QGraphicsItem*> itemList=  view->scene()->items(curRect,Qt::IntersectsItemBoundingRect);
+
+        if(itemList.isEmpty())
+        {
+#ifdef Q_OS_LINUX
+            signal(SIGSEGV, segFaultReceive);
+#endif
+            return;
+        }
+        foreach(QGraphicsItem*item,itemList)
+        {
+            GraphicsItem *curItem = dynamic_cast<GraphicsItem *>(item);
+            if(curItem!=nullptr)
+            {
+                QString itemAlarmStr = curItem->currentState();
+
+                if(!itemAlarmStr.isEmpty()&&itemAlarmStr!=tr("正常"))
+                {
+                    m_firstFireWidget->updateGeometry();
+                }
+            }
+        }
+#ifdef Q_OS_LINUX
+        signal(SIGSEGV, segFaultReceive);
+#endif
+
+    });
+
     Q_ASSERT(m_itemSettingObj);
     connect(m_itemSettingObj,SIGNAL(setSize(qreal)),this,SLOT(setItemSize(qreal)));
     connect(m_itemSettingObj,SIGNAL(setIcon(QString)),this,SLOT(setItemIcon(QString)));
@@ -324,7 +394,17 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
     connect(m_itemSettingObj,SIGNAL(startBatch()),this,SLOT(batchItems()));
     connect(m_itemSettingObj,SIGNAL(changeInfoFromFloor()),this,SLOT(changeItemsInfoFromFloor()));
     connect(m_itemSettingObj,SIGNAL(importExcelFile(QString)),this,SLOT(excelFileProcess(QString)));
-    connect(m_itemSettingObj,SIGNAL(setExcelFileAvailable(bool)),this,SLOT(excelFileAvailable(bool)));
+
+
+    connect(m_itemSettingObj,SIGNAL(selectDevice(bool)),this,SLOT(setDeviceSelect(bool)));
+
+    connect(m_itemSettingObj,SIGNAL(selectDevice(bool)),this,SLOT(setDeviceSelect(bool)));
+    connect(m_itemSettingObj,SIGNAL(selectSys(bool)),this,SLOT(setSysSelect(bool)));
+    connect(m_itemSettingObj,SIGNAL(selectChannel(bool)),this,SLOT(setChannelSelect(bool)));
+
+    connect(m_itemSettingObj,SIGNAL(selectAnalog(bool)),this,SLOT(setAnalogSelect(bool)));
+    connect(m_itemSettingObj,SIGNAL(selectSize(bool)),this,SLOT(setSizeSelect(bool)));
+
 
     connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::addGlobalItem,this,[=](GlobalGraphicsItem*item)
     {
@@ -361,6 +441,7 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
     connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::clearItem,this,[=]()
     {
         m_treeView->clearItem();
+        Controller::instance()->getDataStore()->reInit();
     });
 
     connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::goToArchitePlan,this,[=](GlobalGraphicsItem*item)
@@ -460,12 +541,14 @@ ArchitePlanView::~ArchitePlanView()
 {
     // m_dockWidget->close();
     m_firstFireWidget->close();
+
     m_autoSwitchTimer->stop();
     m_autoSwitchTimer->deleteLater();
     m_sqliteManager->close();
     m_sqliteManager->deleteLater();
-    m_startArchiteViewTimer->stop();
-    m_startArchiteViewTimer->deleteLater();
+    m_checkAlarmTimer->stop();
+    m_checkAlarmTimer->deleteLater();
+
     delete m_graphicsItemSettingMenu;
     delete m_analogValueQueryMenu;
     m_itemSettingView->close();
@@ -484,6 +567,7 @@ void ArchitePlanView::createAlarm(const QString&extNum,const QString&loopNum,con
     if(item!=nullptr)
     {
         createAlarm(item,alarmTypeName,alarmState,alarmTime);
+
     }
 
 }
@@ -495,6 +579,7 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item, const QString &alarmTyp
     {
         return;
     }
+
 
     QString oldState = "";
     QString oldAlarmState =item->alarmState(alarmType);
@@ -508,32 +593,22 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item, const QString &alarmTyp
         {
             oldState = alarmType;
         }
-        else
-        {
-            return;
-        }
     }
 
-    emit eliminateAlarmFromTable(item,alarmType);
+    emit eliminateAlarmFromTable(item,alarmType,alarmReplyTime);
     item->removeAlarmRecord(alarmType,alarmReplyTime);
     item->stopAnimations();
 
-    disconnect(item,&GraphicsItem::moveToPos,0,0);
+    disconnect(item,&GraphicsItem::moveToPos,nullptr,nullptr);
+    disconnect(item,&GraphicsItem::sizeChanged,nullptr,nullptr);
     deleteAlarmText(item,oldState);
     Controller::instance()->getDataStore()->deleteTypeItem(oldState,item);
-    if(oldState!=tr("正常"))
-    {
-        emit alarmHappend(oldState);
-    }
+
     GraphicsView*curView = Controller::instance()->getDataStore()->itemDisplayView(item);
     if(curView!=nullptr)
     {
         curView->removeGraphicsTextItem(oldState);
     }
-    filterAlarm(item);
-    startAlarmAnimation(oldState);
-
-
     if(curView!=nullptr)
     {
         if(!curView->haveAlarmType(oldState))
@@ -546,7 +621,7 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item, const QString &alarmTyp
             {
                 m_alarmViewList.removeOne(curView);
             }
-            deleteAlarmWidget(tr("全部"),curView);
+
             QStandardItem *parentItem =   getParnentItemFromView(curView);
             if(parentItem!=nullptr)
             {
@@ -560,13 +635,14 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item, const QString &alarmTyp
                 }
             }
         }
-        updateAlarmWidget(curView);
+        updateAlarmWidget(currentGraphicsView());
     }
     if(haveAlarms(tr("火警")).isEmpty())
     {
         m_firstFireWidget->close();
     }
-    viewSwitch();
+
+    filterAlarm(item);
 }
 
 void ArchitePlanView::eliminateAlarm(const QString &extNum, const QString &loopNum, const QString &addrNum,const QString &networkNum, const QString &alarmType)
@@ -602,7 +678,7 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, const QString 
         Controller::instance()->getDataStore()->insertTypeItem(alarmTypeName,item);
         filterAlarm(item);
         emit alarmItem(item,curAlarmType);
-        emit alarmHappend(alarmTypeName);
+        //emit alarmHappend(alarmTypeName);
     }
 }
 
@@ -661,17 +737,21 @@ void ArchitePlanView::initWidget()
 
     m_treeView = new TreeView(this);
     m_stackedWidget = new QStackedWidget(this);
+
     m_tabWidget = new QTabWidget(this);
     m_globalGraphicsView = new GlobalGraphicsView(this);
     m_sysArchitePlanView = new SysArchitePlanView(this);
     m_autoSwitchTimer = new CustomTimer();
-    m_startArchiteViewTimer= new CustomTimer;
+    m_checkAlarmTimer = new CustomTimer;
+    //m_startArchiteViewTimer= new CustomTimer;
     m_firstFireWidget = new FirstFireAlarmInfoWidget();
-    m_excelManager = new ExcelManager(this);
+    //m_excelManager = new ExcelManager(this);
     m_treeView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-    m_treeView->setMaximumWidth(180);
+
+    m_treeView->setMaximumWidth(800);
+    m_treeView->setMinimumWidth(150);
     m_stackedWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-    m_stackedWidget->setStyleSheet("QStackedWidget{border:1px solid black}");
+    m_stackedWidget->setStyleSheet("QWidget{border:1px solid black}");
     m_treeView->setStyleSheet("QTreeView{border:1px solid black}");
 
 
@@ -681,6 +761,11 @@ void ArchitePlanView::initWidget()
     QVBoxLayout*globalVLayout = new QVBoxLayout;
     splitter->addWidget(m_stackedWidget);
     splitter->addWidget(m_treeView);
+
+    m_stackedWidget->sizePolicy().setHorizontalStretch(90);
+    m_treeView->sizePolicy().setHorizontalStretch(10);
+    //splitter->setStretchFactor(0, 20);
+    // splitter->setStretchFactor(1, 80);
 
     m_tabWidget->addTab(m_globalGraphicsView ,tr("总平面布局图"));
     m_tabWidget->addTab(splitter,tr("建筑平面图"));
@@ -692,7 +777,7 @@ void ArchitePlanView::initWidget()
     Controller::instance()->setSysArchitePlanView(m_sysArchitePlanView);
     QString dbName = QCoreApplication::applicationDirPath()+"/architeInfo.db";
     m_architeInfoDbName = dbName;
-    m_sqliteManager = SqlManager::fromDriver("QSQLITE");
+    m_sqliteManager = new SqlManager;
 
     m_sqliteManager->setDataBase("QSQLITE","info", "",
                                  "","",dbName,8888);
@@ -722,7 +807,7 @@ void ArchitePlanView::initWidget()
     }
 
     m_graphicsItemSettingMenu = new QMenu;
-    QMenu *modeSelectMenu = new QMenu("模式选择",m_graphicsItemSettingMenu);
+    m_modeSelectMenu = new QMenu(tr("模式选择"),m_graphicsItemSettingMenu);
     m_deleteAction = new QAction(tr("删除"),m_graphicsItemSettingMenu);
     m_editAction = new QAction(tr("编辑"),m_graphicsItemSettingMenu);
     m_clearAction = new QAction(tr("清空"),m_graphicsItemSettingMenu);
@@ -730,16 +815,17 @@ void ArchitePlanView::initWidget()
     m_closeAction= new QAction(tr("关闭"),m_graphicsItemSettingMenu);
     m_analogAlarmAction = new QAction(tr("报警模拟"),m_graphicsItemSettingMenu);
     m_maintenanceAction = new QAction(tr("设备维保"),m_graphicsItemSettingMenu);
-    m_handDragAction = new QAction(tr("手动拖拽模式"),modeSelectMenu);
-    m_rubberBandDragAction = new QAction(tr("橡皮筋模式"),modeSelectMenu);
+    m_handDragAction = new QAction(tr("手动拖拽模式"),m_modeSelectMenu);
+    m_rubberBandDragAction = new QAction(tr("橡皮筋模式"),m_modeSelectMenu);
     m_itemTextVisiableAction = new QAction(tr("文字可见"),m_graphicsItemSettingMenu);
     m_fitViewAction = new QAction(tr("最佳视图"),m_graphicsItemSettingMenu);
-
+    // m_xAlignmentAction = new QAction(tr("行对齐"),m_graphicsItemSettingMenu);
+    //m_yAlignmentAction = new QAction(tr("列对齐"),m_graphicsItemSettingMenu);
     m_analogValueQueryAction = new QAction(tr("模拟量查询"),m_graphicsItemSettingMenu);
     m_analogValueQueryMenu = new QMenu;
     m_modeActionGroup = new QActionGroup(this);
-    modeSelectMenu->addAction(m_handDragAction);
-    modeSelectMenu->addAction(m_rubberBandDragAction);
+    m_modeSelectMenu->addAction(m_handDragAction);
+    m_modeSelectMenu->addAction(m_rubberBandDragAction);
     m_modeActionGroup->addAction(m_rubberBandDragAction);
     m_modeActionGroup->addAction(m_handDragAction);
     m_analogValueQueryAction->setMenu(m_analogValueQueryMenu);
@@ -748,27 +834,32 @@ void ArchitePlanView::initWidget()
     m_rubberBandDragAction->setCheckable(true);
     m_itemTextVisiableAction->setCheckable(true);
     m_handDragAction->setChecked(true);
-    m_graphicsItemSettingMenu->addMenu(modeSelectMenu);
+    m_graphicsItemSettingMenu->addMenu(m_modeSelectMenu);
     m_itemSettingView = new QQuickView;
     m_itemSettingView->setSource(QUrl("qrc:/qml/itemSetting/GraphicsItemEditor.qml"));
     m_itemSettingView->setTitle(tr("设备信息设置界面"));
-    //m_itemSettingView->setMaximumSize(QSize(860,640));
-    //m_itemSettingView->setMinimumSize(QSize(860,640));
+
+    m_itemSettingView->setFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
+
     m_itemSettingView->setResizeMode(QQuickView::SizeRootObjectToView);
 
     m_itemSettingView->rootContext()->setContextProperty("ArchitePlanView",this);
     m_analogAlarmView = new QQuickView;
     m_analogAlarmView->setSource(QUrl("qrc:/qml/itemSetting/AnalogAlarmItem.qml"));
     m_analogAlarmView->setTitle(tr("报警模拟界面"));
+    m_analogAlarmObj = m_analogAlarmView->rootObject();
     m_analogAlarmView->rootContext()->setContextProperty("ArchitePlanView",this);
 
-    m_analogAlarmView->setMinimumSize(QSize(480,480));
-    m_analogAlarmView->setMaximumSize(QSize(480,480));
+    //    m_analogAlarmView->setMinimumSize(QSize(480,480));
+    //    m_analogAlarmView->setMaximumSize(QSize(480,480));
+    m_analogAlarmView->setFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
     m_maintenanceView = new QQuickView;
     m_maintenanceView->setSource(QUrl("qrc:/qml/infoSetting/MaintenanceInfo.qml"));
     m_maintenanceView->setTitle(tr("设备维保"));
-    m_maintenanceView->setMinimumSize(QSize(900,560));
-    m_maintenanceView->setMaximumSize(QSize(900,560));
+    m_maintenanceObj = m_maintenanceView->rootObject();
+    //    m_maintenanceView->setMinimumSize(QSize(900,560));
+    //    m_maintenanceView->setMaximumSize(QSize(900,560));
+    m_maintenanceView->setFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
     m_itemSettingObj= m_itemSettingView->rootObject();
     m_graphicsItemSettingMenu->addAction(m_itemTextVisiableAction);
     m_graphicsItemSettingMenu->addAction(m_editAction);
@@ -776,14 +867,17 @@ void ArchitePlanView::initWidget()
     m_graphicsItemSettingMenu->addAction(m_analogAlarmAction);
     m_graphicsItemSettingMenu->addAction(m_maintenanceAction);
     m_graphicsItemSettingMenu->addAction(m_analogValueQueryAction);
+    // m_graphicsItemSettingMenu->addAction(m_xAlignmentAction);
+    //m_graphicsItemSettingMenu->addAction(m_yAlignmentAction);
     m_graphicsItemSettingMenu->addAction(m_deleteAction);
     m_graphicsItemSettingMenu->addAction(m_deleteSelectedAction);
     m_graphicsItemSettingMenu->addAction(m_clearAction);
+
     m_graphicsItemSettingMenu->addAction(m_closeAction);
 
     // connect(m_showExtOnlineAction,&QAction::triggered,this,&ArchitePlanView::showExtNumState);
 
-    m_startArchiteViewTimer->setSingleShot(true);
+    //m_startArchiteViewTimer->setSingleShot(true);
 
 
     connect(m_treeView,&TreeView::treeIndex,this,[=](QStandardItem*item)
@@ -832,7 +926,6 @@ void ArchitePlanView::initWidget()
             if(currentView!=nullptr)
             {
                 m_stackedWidget->setCurrentWidget(currentView);
-                updateAlarmWidget(currentView);
             }
 
 
@@ -873,6 +966,7 @@ void ArchitePlanView::initWidget()
         if(widget!=nullptr)
         {
             widget->loadPixmap(fileName);
+            widget->updateSvg();
         }
 
     });
@@ -881,37 +975,57 @@ void ArchitePlanView::initWidget()
     {
         QList<GraphicsView*>viewList = m_alarmWidgetHash[m_currentAlarmType];
         int count = viewList.size();
+        GraphicsView *view = m_widgetHash.value(index);
+        int currentIndex= viewList.indexOf(view);
+        if(m_treeView!=nullptr)
+        {
+            QStandardItem *stdItem = getItemFromView(view);
+            if(stdItem!=nullptr)
+            {
+                if(stdItem->index()!=m_treeView->currentIndex())
+                {
+                    m_treeView->setCurrentIndex(stdItem->index());
+                }
+            }
+        }
+
         if(count>1)
         {
-            if(index<m_widgetHash.size())
+            if(count>2)
             {
-                GraphicsView *view = m_widgetHash.value(index);
-                int currentIndex= viewList.indexOf(view);
-                if(currentIndex==0)
-                {
-                    emit toFirstPage();
-                }
-                else if(currentIndex>0 && currentIndex <count-1)
+                if(currentIndex>=1&&currentIndex<count-1)
                 {
                     emit normalPage();
+                }
+                else if(currentIndex<1)
+                {
+                    emit toFirstPage();
                 }
                 else if(currentIndex==count-1)
                 {
                     emit toLastPage();
                 }
-                else if(currentIndex<0)
+            }
+            else
+            {
+                if(currentIndex<1)
                 {
-                    emit noPage();
+                    emit toFirstPage();
+                }
+                else
+                {
+                    emit toLastPage();
                 }
             }
+
         }
         else
         {
             emit noPage();
         }
 
-
     });
+
     connect(m_treeView,&TreeView::toGlobalGraphicsView,this,[=](QStandardItem*item)
     {
         GlobalGraphicsItem*globalGraphicsItem=  m_globalToArchitePlanHash.key(item);
@@ -922,7 +1036,82 @@ void ArchitePlanView::initWidget()
 
     });
 
-    connect(m_tabWidget,&QTabWidget::currentChanged,this,&ArchitePlanView::tabIndex);
+    //    connect(m_xAlignmentAction,&QAction::triggered,this,[=]()
+    //    {
+    //        qreal yMin = 10000.000;
+    //        GraphicsView *graphicsView=currentGraphicsView();
+    //        if(graphicsView!=nullptr)
+    //        {
+    //           if(graphicsView->scene()!=nullptr)
+    //           {
+    //               QList<QGraphicsItem*>itemList = graphicsView->scene()->selectedItems();
+    //               foreach (QGraphicsItem*curItem, itemList)
+    //               {
+    //                   GraphicsItem*item = dynamic_cast<GraphicsItem*>(curItem);
+    //                   if(item!=nullptr)
+    //                   {
+    //                     yMin= qMin(yMin,item->pos().y());
+    //                   }
+    //               }
+    //           }
+
+    //           QList<QGraphicsItem*>itemList = graphicsView->scene()->selectedItems();
+    //           foreach (QGraphicsItem*curItem, itemList)
+    //           {
+    //               GraphicsItem*item = dynamic_cast<GraphicsItem*>(curItem);
+    //               if(item!=nullptr)
+    //               {
+    //                 item->setY(yMin);
+    //               }
+    //           }
+    //        }
+    //    });
+
+    //    connect(m_yAlignmentAction,&QAction::triggered,this,[=]()
+    //    {
+    //        qreal xMin = 10000.000;
+    //        GraphicsView *graphicsView=currentGraphicsView();
+    //        if(graphicsView!=nullptr)
+    //        {
+    //           if(graphicsView->scene()!=nullptr)
+    //           {
+    //               QList<QGraphicsItem*>itemList = graphicsView->scene()->selectedItems();
+    //               foreach (QGraphicsItem*curItem, itemList)
+    //               {
+    //                   GraphicsItem*item = dynamic_cast<GraphicsItem*>(curItem);
+    //                   if(item!=nullptr)
+    //                   {
+    //                     xMin= qMin(xMin,item->pos().x());
+    //                   }
+    //               }
+    //           }
+
+    //           QList<QGraphicsItem*>itemList = graphicsView->scene()->selectedItems();
+    //           foreach (QGraphicsItem*curItem, itemList)
+    //           {
+    //               GraphicsItem*item = dynamic_cast<GraphicsItem*>(curItem);
+    //               if(item!=nullptr)
+    //               {
+    //                 item->setX(xMin);
+    //               }
+    //           }
+    //        }
+    //    });
+
+    connect(m_tabWidget,&QTabWidget::currentChanged,this,[=](int index)
+    {
+        if(index==2)
+        {
+
+            if(!m_firstSetSysInfo)
+            {
+                m_sysArchitePlanView->setSysArchitePlanInfo();
+                m_firstSetSysInfo = true;
+            }
+
+        }
+        emit tabIndex(index);
+    });
     connect(m_firstFireWidget,&FirstFireAlarmInfoWidget::toFirstFire,this,&ArchitePlanView::firstFireAlarm);
 
 
@@ -954,30 +1143,33 @@ void ArchitePlanView::showMenu(const QPoint &point)
                 else
                 {
                     m_analogValueQueryAction->setEnabled(true);
-                }
-
-                int curChannelNum = selectGrraphicsItem->channelNum();
-                if(curChannelNum==0)
-                {
-                    QAction *curAction = new QAction(QString(tr("当前设备")),m_analogValueQueryMenu);
-                    m_analogValueQueryMenu->addAction(curAction);
-                    connect(curAction,&QAction::triggered,this,[=]()
+                    if(m_analogValueQueryMenu->isEmpty())
                     {
-                        emit sendAnalogValue(selectGrraphicsItem,0);
-                    });
-                }
-                else
-                {
-                    for(int i=0;i<curChannelNum;i++)
-                    {
-
-                        QAction *action = new QAction(QString(tr("%1通道")).arg(i+1),m_analogValueQueryMenu);
-                        m_analogValueQueryMenu->addAction(action);
-                        connect(action,&QAction::triggered,this,[=]()
+                        QAction *curAction = new QAction(QString(tr("当前设备")),m_analogValueQueryMenu);
+                        m_analogValueQueryMenu->addAction(curAction);
+                        connect(curAction,&QAction::triggered,this,[=]()
                         {
-                            emit sendAnalogValue(selectGrraphicsItem,i+1);
+                            emit sendAnalogValue(selectGrraphicsItem,0);
                         });
+
+                        int curChannelNum = selectGrraphicsItem->channelNum();
+
+                        if(curChannelNum>0)
+                        {
+                            for(int i=0;i<curChannelNum;i++)
+                            {
+
+                                QAction *action = new QAction(QString(tr("%1通道")).arg(i+1),m_analogValueQueryMenu);
+                                m_analogValueQueryMenu->addAction(action);
+                                connect(action,&QAction::triggered,this,[=]()
+                                {
+                                    emit sendAnalogValue(selectGrraphicsItem,quint8(i+1));
+
+                                });
+                            }
+                        }
                     }
+
                 }
 
             }
@@ -1083,8 +1275,11 @@ void ArchitePlanView::autoFitView(QGraphicsView *view)
     if(currentView !=nullptr)
     {
         m_stackedWidget->setCurrentWidget(currentView);
+
         QRectF currentRectF = currentView->scene()->sceneRect();
         currentView->fitInView(currentRectF.adjusted(0,0,currentView->pos().x(),view->pos().y()),Qt::KeepAspectRatio);
+        currentView->scaleValueChanged(currentView->transform().m11());
+
     }
 
 }
@@ -1266,9 +1461,8 @@ void ArchitePlanView::initFromJsonFile()
         return;
     }
     QList<QString>buildingNameList;
-    foreach (QGraphicsItem*item, globalScene->items())
+    foreach (GlobalGraphicsItem*gItem, globalScene->currentItemList())
     {
-        GlobalGraphicsItem*gItem = dynamic_cast<GlobalGraphicsItem*>(item);
         if(gItem!=nullptr)
         {
             buildingNameList.push_back(gItem->buildName());
@@ -1276,7 +1470,6 @@ void ArchitePlanView::initFromJsonFile()
     }
 
     QList<QVariant>   jsonValueList=JsonEdit::instance()->readFile(c_jsonFilePath).toList();
-    // m_dbValueList=  m_sqliteManager->executeQuery("select *from ItemInfo");
     foreach (QString name, buildingNameList)
     {
         QStandardItem *parentItem= m_treeView->addRootItem(name);
@@ -1303,12 +1496,14 @@ void ArchitePlanView::initFromJsonFile()
                         if(parentIndex.isValid())
                         {
                             QStandardItem *childItem= m_treeView->addChildItem(parentIndex);
-                            if(childItem)
+                            if(childItem!=nullptr)
                             {
                                 childItem->setText(childHash.value("name").toString());
                                 QHash<QString,QVariant> childPixmapHash = childHash["image"].toHash();
                                 GraphicsView*view=  setViewFromJson(childPixmapHash,childItem);
                                 initFromDataBase(view,parentItem->text(),childItem->text());
+
+
                             }
                         }
 
@@ -1318,13 +1513,40 @@ void ArchitePlanView::initFromJsonFile()
         }
 
     }
+    GraphicsView *curView=   currentGraphicsView();
+    if(curView!=nullptr)
+    {
+        QStandardItem *curStdItem=   getItemFromView(curView);
+        if(curStdItem!=nullptr)
+        {
+            if(m_treeView!=nullptr)
+            {
+                m_treeView->setCurrentIndex(curStdItem->index());
+            }
+        }
+    }
+
+}
+
+void ArchitePlanView::startCheckAlarmTimer(int ms)
+{
+    if(!m_checkAlarmTimer->isActive())
+    {
+        m_checkAlarmTimer->start(ms);
+    }
+}
+
+void ArchitePlanView::stopCheckAlarmTimer()
+{
+    m_checkAlarmTimer->stop();
 }
 
 void ArchitePlanView::initFromDataBase(GraphicsView *view,const QString &buildingName,const QString &floor)
 {
 
-    m_dbValueList=  m_sqliteManager->executeQuery(QString("select *from ItemInfo where buildingName ='%1' and floorOfDevice = '%2'").arg(buildingName).arg(floor));
-    int valueSize = m_dbValueList.size();
+    QStringList dbValueList=  m_sqliteManager->executeQuery(QString("select *from ItemInfo where buildingName ='%1' and floorOfDevice = '%2'").arg(buildingName).arg(floor));
+    int valueSize = dbValueList.size();
+
     if(view!=nullptr)
     {
         QGraphicsScene *scene = view->scene();
@@ -1333,37 +1555,55 @@ void ArchitePlanView::initFromDataBase(GraphicsView *view,const QString &buildin
         {
             for(int j=0;j<valueSize;j=j+m_itemInfoTableSize)
             {
+
                 if(valueSize>j+m_itemInfoTableSize-1)
                 {
+
+
                     GraphicsItem *item = new GraphicsItem(graphicsScene);
-                    item->extNum() =m_dbValueList.at(j);
+
+                    item->extNum() =dbValueList.at(j);
                     Controller::instance()->getDataStore()->extNum()=item->extNum();
-                    item->addrNum() = m_dbValueList.at(j+1);
-                    item->loopNum() =m_dbValueList.at(j+2);
+                    item->addrNum() = dbValueList.at(j+1);
+                    item->loopNum() =dbValueList.at(j+2);
                     Controller::instance()->getDataStore()->loopNum() = item->loopNum();
-                    item->networkNum() =m_dbValueList.at(j+3);
-                    Controller::instance()->getDataStore()->networkNum() = item->networkNum();
-                    item->powerAddr() = m_dbValueList.at(j+4);
-                    Controller::instance()->getDataStore()->powerAddr() = item->powerAddr();
-                    item->buildingName() = m_dbValueList.at(j+5);
-                    item->currentState() =m_dbValueList.at(j+6);
-                    item->deviceLocation() = m_dbValueList.at(j+7);
-                    item->deviceNum() =m_dbValueList.at(j+8);
-                    item->equipmentModel() = m_dbValueList.at(j+9);
-                    item->floorOfDevice() =m_dbValueList.at(j+10);
-                    QString pixPath =m_dbValueList.at(j+11);
+                    QString curNetworkNum = dbValueList.at(j+3);
+                    if(curNetworkNum.isEmpty())
+                    {
+                        curNetworkNum="0";
+                    }
+
+                    item->networkNum() =curNetworkNum;
+                    Controller::instance()->getDataStore()->networkNum() = curNetworkNum;
+                    QString curPowerAddr= dbValueList.at(j+4);
+                    if(curPowerAddr.isEmpty())
+                    {
+                        curPowerAddr= "0";
+                    }
+
+                    item->powerAddr() = curPowerAddr;
+                    Controller::instance()->getDataStore()->powerAddr() = curPowerAddr;
+                    item->buildingName() = dbValueList.at(j+5);
+                    item->currentState() =dbValueList.at(j+6);
+                    item->deviceLocation() = dbValueList.at(j+7);
+                    item->deviceNum() =dbValueList.at(j+8);
+                    QString pixPath =dbValueList.at(j+11);
                     item->setIconName(pixPath);
-                    item->manufacturers() =m_dbValueList.at(j+12);
-                    item->deviceInstallTime()=m_dbValueList.at(j+13);
-                    item->periodOfValidity() = m_dbValueList.at(j+14);
-                    QString posStr = m_dbValueList.at(j+15);
+
+                    item->equipmentModel() = dbValueList.at(j+9);
+                    item->floorOfDevice() =dbValueList.at(j+10);
+
+                    item->manufacturers() =dbValueList.at(j+12);
+                    item->deviceInstallTime()=dbValueList.at(j+13);
+                    item->periodOfValidity() = dbValueList.at(j+14);
+                    QString posStr = dbValueList.at(j+15);
                     item->setPos(QPointF(posStr.section(",",0,0).toDouble(),posStr.section(",",1,1).toDouble()));
-                    QString sizeStr = m_dbValueList.at(j+16);
+                    QString sizeStr = dbValueList.at(j+16);
                     item->setRadius(sizeStr.toDouble());
-                    item->sysOfDevice() =m_dbValueList.at(j+17);
-                    item->deviceOperator() = m_dbValueList.at(j+18);
-                    item->analogType() = m_dbValueList.at(j+19);
-                    QString channelNumStr = m_dbValueList.at(j+20);
+                    item->sysOfDevice() =dbValueList.at(j+17);
+                    item->deviceOperator() = dbValueList.at(j+18);
+                    item->analogType() = dbValueList.at(j+19);
+                    QString channelNumStr = dbValueList.at(j+20);
                     item->channelNum() = channelNumStr.toInt();
                     if(graphicsScene!=nullptr)
                     {
@@ -1377,7 +1617,8 @@ void ArchitePlanView::initFromDataBase(GraphicsView *view,const QString &buildin
             }
         }
     }
-    m_dbValueList.clear();
+
+    // m_dbValueList.clear();
 }
 
 GraphicsView* ArchitePlanView::setViewFromJson(const QHash<QString,QVariant> &hash,QStandardItem *treeItem)
@@ -1392,7 +1633,6 @@ GraphicsView* ArchitePlanView::setViewFromJson(const QHash<QString,QVariant> &ha
         if(widget!=nullptr)
         {
             QString pixPath= hash.value("path").toString();
-
             widget->loadPixmap(pixPath);
         }
         return widget;
@@ -1423,7 +1663,12 @@ void ArchitePlanView::findFireAlarm(int pos)
                         if(currentItem==itemList.at(pos))
                         {
                             m_tabWidget->setCurrentIndex(1);
-                            m_stackedWidget->setCurrentWidget(currentView);
+                            QStandardItem *stdItem=  getItemFromView(currentView);
+                            if(stdItem!=nullptr)
+                            {
+                                m_treeView->setCurrentIndex(stdItem->index());
+                            }
+
                             autoFitView(currentView);
                             return;
                         }
@@ -1433,7 +1678,6 @@ void ArchitePlanView::findFireAlarm(int pos)
                         if(currentItem==itemList.at(listSize-1))
                         {
                             m_tabWidget->setCurrentIndex(1);
-                            m_stackedWidget->setCurrentWidget(currentView);
                             autoFitView(currentView);
                             return;
                         }
@@ -1488,7 +1732,7 @@ void ArchitePlanView::createAlarm(GraphicsItem *item,const QString &alarmType,co
         filterAlarm(item);
         filterAlarmView(item,curAlarmType);
         emit alarmItem(item,alarmType);
-        emit alarmHappend(curAlarmType);
+        //emit alarmHappend(curAlarmType);
 
     }
 }
@@ -1535,6 +1779,64 @@ void ArchitePlanView::closeQuickView()
     m_firstFireWidget->close();
 }
 
+void ArchitePlanView::retranslate()
+{
+    m_treeView->retranslate();
+    m_sysArchitePlanView->retranslate();
+    m_globalGraphicsView->retranslate();
+
+    if(m_tabWidget->count()>2)
+    {
+        m_tabWidget->setTabText(0,tr("总平面布局图"));
+        m_tabWidget->setTabText(1,tr("建筑平面图"));
+        m_tabWidget->setTabText(2,tr("系统图"));
+    }
+    m_modeSelectMenu->setTitle(tr("模式选择"));
+    m_deleteAction->setText(tr("删除"));
+    m_editAction->setText(tr("编辑"));
+    m_clearAction->setText(tr("清空"));
+    m_deleteSelectedAction->setText(tr("删除选中"));
+    m_closeAction->setText(tr("关闭"));
+    m_analogAlarmAction->setText(tr("报警模拟"));
+    m_maintenanceAction->setText(tr("设备维保"));
+    m_handDragAction->setText(tr("手动拖拽模式"));
+    m_rubberBandDragAction->setText(tr("橡皮筋模式"));
+    m_itemTextVisiableAction->setText(tr("文字可见"));
+    m_fitViewAction->setText(tr("最佳视图"));
+    m_analogValueQueryAction->setText(tr("模拟量查询"));
+    m_itemSettingView->setTitle(tr("设备信息设置界面"));
+    m_analogAlarmView->setTitle(tr("报警模拟界面"));
+    m_maintenanceView->setTitle(tr("设备维保"));
+
+    if(m_itemSettingObj!=nullptr)
+    {
+        QMetaObject::invokeMethod(m_itemSettingObj,"retranslate");
+    }
+
+    if(m_maintenanceObj!=nullptr)
+    {
+        QMetaObject::invokeMethod(m_maintenanceObj,"retranslate");
+    }
+
+    if(m_analogAlarmObj!=nullptr)
+    {
+        QMetaObject::invokeMethod(m_analogAlarmObj,"retranslate");
+    }
+
+    m_firstFireWidget->retranslate();
+
+}
+
+bool ArchitePlanView::firstAlarmViewIsVisible()
+{
+    return m_firstFireWidget->isVisible();
+}
+
+FirstFireAlarmInfoWidget *ArchitePlanView::getFirstFireAlarmWidget()
+{
+    return  m_firstFireWidget;
+}
+
 void ArchitePlanView::setGlobalArchiteFromJson()
 {
     QmlForJson qmlForJson;
@@ -1569,24 +1871,39 @@ void ArchitePlanView::updateAlarmWidget(GraphicsView *currentView)
 {
     if(currentView!=nullptr)
     {
-        int currentIndex = m_alarmWidgetHash[m_currentAlarmType].indexOf(currentView);
-        if(totalPage()>1)
-        {
-            if(currentIndex>0&&currentIndex<totalPage()-1)
-            {
-                emit normalPage();
-            }
-            else if(currentIndex==0)
-            {
-                emit toFirstPage();
 
-            }
-            else if(currentIndex==totalPage()-1)
+        int currentIndex = m_alarmWidgetHash[m_currentAlarmType].indexOf(currentView);
+        int total = totalPage();
+        if(total>1)
+        {
+            if(total>2)
             {
-                emit toLastPage();
+                if(currentIndex>=1&&currentIndex<total-1)
+                {
+                    emit normalPage();
+                }
+                else if(currentIndex<1)
+                {
+                    emit toFirstPage();
+                }
+                else if(currentIndex==total-1)
+                {
+                    emit toLastPage();
+                }
+            }
+            else
+            {
+                if(currentIndex<1)
+                {
+                    emit toFirstPage();
+                }
+                else
+                {
+                    emit toLastPage();
+                }
             }
         }
-        else if(totalPage()<=1)
+        else if(total<=1)
         {
             emit noPage();
         }
@@ -1596,19 +1913,12 @@ void ArchitePlanView::updateAlarmWidget(GraphicsView *currentView)
 
 void ArchitePlanView::deleteAlarmWidget(GraphicsView *currentView)
 {
-    if(m_currentAlarmType!="全部")
-    {
-        if(m_alarmWidgetHash.value("全部").contains(currentView))
-        {
-            m_alarmWidgetHash["全部"].removeOne(currentView);
-        }
-    }
+
     if(m_alarmWidgetHash.value(m_currentAlarmType).contains(currentView))
     {
         m_alarmWidgetHash[m_currentAlarmType].removeOne(currentView);
     }
-    GraphicsView*view =dynamic_cast<GraphicsView*>(m_stackedWidget->currentWidget());
-    updateAlarmWidget(view);
+    updateAlarmWidget(currentGraphicsView());
 }
 
 void ArchitePlanView::filterAlarm(GraphicsItem *item)
@@ -1640,8 +1950,7 @@ void ArchitePlanView::filterAlarmView(GraphicsItem *item, const QString &alarmTy
     if(view!=nullptr)
     {
         insertAlarmWidget(alarmType,view);
-        insertAlarmWidget("全部",view);
-        updateAlarmWidget(view);
+        updateAlarmWidget(currentGraphicsView());
         if(!m_alarmViewList.contains(view))
         {
             m_alarmViewList.push_back(view);
@@ -1694,11 +2003,18 @@ void ArchitePlanView::viewSwitch()
             {
                 GraphicsView *view=   Controller::instance()->getDataStore()->itemDisplayView(curItem);
 
-                autoFitView(view);
+
                 if(filterType==tr("火警"))
                 {
+                    if(!m_checkAlarmTimer->isActive())
+                    {
+                        m_checkAlarmTimer->start(500);
+                    }
+
+                    autoFitView(view);
                     m_firstFireWidget->setFirstFireInfo(curItem);
-                    m_firstFireWidget->setGeometry(QRect(155,130,m_firstFireWidget->width(),m_firstFireWidget->height()));
+                    //qDebug() << m_treeView->geometry().x();
+                    m_firstFireWidget->updateGeometry();
                     m_firstFireWidget->show();
                 }
                 break;
@@ -1739,20 +2055,6 @@ void ArchitePlanView::startAlarmAnimation(GraphicsItem *item)
             return;
         }
 
-
-
-        if(curState.endsWith(tr("故障")))
-        {
-            item->setColorEndValue(QColor("yellow"));
-        }
-        else if(curState.endsWith(tr("屏蔽")))
-        {
-            item->setColorEndValue(QColor("orange"));
-        }
-        else
-        {
-            item->setColorEndValue(QColor("red"));
-        }
         QList<QGraphicsItem*> itemList= Controller::instance()->getDataStore()->getTypeItemList(curState);
         if(!itemList.isEmpty())
         {
@@ -1761,27 +2063,87 @@ void ArchitePlanView::startAlarmAnimation(GraphicsItem *item)
             {
                 if(curState.endsWith(tr("火警")))
                 {
-                    item->startAnimations();
+                    item->startScaleAnimation();
+                    // item->startAnimations();
+                    // item->setColorEndValue(QColor("red"));
                 }
                 else
+
                 {
                     item->startColorAnimation();
+                    if(curState.endsWith(tr("故障")))
+                    {
+                        item->setColorEndValue(QColor("yellow"));
+                    }
+                    else if(curState.endsWith(tr("屏蔽")))
+                    {
+                        item->setColorEndValue(QColor("orange"));
+                    }
+                    else
+                    {
+                        item->setColorEndValue(QColor("red"));
+                    }
+
+                    //                    if(curState.endsWith(tr("故障")))
+                    //                    {
+                    //                        item->setColor(QColor("yellow"));
+                    //                    }
+                    //                    else if(curState.endsWith(tr("屏蔽")))
+                    //                    {
+                    //                        item->setColor(QColor("orange"));
+                    //                    }
+                    //                    else
+                    //                    {
+                    //                        item->setColor(QColor("red"));
+                    //                    }
+
                 }
 
                 if(view!=nullptr)
                 {
-                    view->addGraphicsTextItem(QPointF(item->pos().x()-item->radius()*2,item->pos().y()+item->radius()*1.5),curState);
+
+                    qreal scaleValue = 0.6;
+                    if(item!=nullptr)
+                    {
+                        view->addGraphicsTextItem(QPointF(item->pos().x()-item->radius()*0.8/view->transform().m11(),item->pos().y()+item->radius()*scaleValue/view->transform().m22()),curState);
+                    }
+
                     QGraphicsTextItem *textItem = view->textItem(curState);
                     if(textItem!=nullptr)
                     {
                         connect(item,&GraphicsItem::moveToPos,this,[=](const QPointF &pos)
                         {
-                            textItem->setPos(QPointF(pos.x()-item->radius(),pos.y()+item->radius()));
+
+                            if(textItem!=nullptr&&item!=nullptr)
+                            {
+                                qreal m11 = view->transform().m11();
+                                qreal m22 = view->transform().m22();
+                                textItem->setPos(QPointF(pos.x()-item->radius()*1/m11*0.8,pos.y()+item->radius()*1/m22*scaleValue));
+                            }
+
                         });
                         connect(item,&GraphicsItem::sizeChanged,this,[=](qreal size)
                         {
-                            textItem->setPos(QPointF(item->scenePos().x()-size,item->scenePos().y()+size));
+                            if(textItem!=nullptr&&item!=nullptr)
+                            {
+                                qreal m11 = view->transform().m11();
+                                qreal m22 = view->transform().m22();
+                                textItem->setPos(QPointF(item->pos().x()-size*0.8/m11,item->pos().y()+size*scaleValue/m22));
+                            }
+
                         });
+
+                        connect(view,&GraphicsView::currentScaleValue,this,[=](qreal currentValue){
+                            if(textItem!=nullptr&&item!=nullptr)
+                            {
+                                textItem->setPos(QPointF(item->pos().x()-item->radius()/currentValue*0.8,item->pos().y()+item->radius()*scaleValue/currentValue));
+                            }
+
+                        });
+
+                        //                        QObject::connect(view,&GraphicsView::scaleValue,this,[=](qreal value){
+                        //                            qDebug() << value;
+                        //                        });
                         //connect(item,&GraphicsItem::)
                     }
 
@@ -1789,8 +2151,6 @@ void ArchitePlanView::startAlarmAnimation(GraphicsItem *item)
             }
             else
             {
-
-                item->setColorEffectValue(1.0);
                 if(curState.endsWith(tr("故障")))
                 {
                     item->setColor(QColor("yellow"));
@@ -1855,8 +2215,8 @@ QString ArchitePlanView::speechInfo(GraphicsItem *item, const QString &alarmType
                 }
             }
 
-            speechText += ","+item->buildingName()+","+item->floorOfDevice()+","+item->deviceLocation()+
-                    ";"+QString("%1,%2,%3,%4").arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->networkNum());
+            //speechText += ","+item->buildingName()+","+item->floorOfDevice()+","+item->deviceLocation()+
+            // ";"+QString("%1,%2,%3,%4").arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->networkNum());
 
 
         }
@@ -1885,6 +2245,84 @@ void ArchitePlanView::saveItemInfoToDb(GraphicsItem *item)
     }
 }
 
+void ArchitePlanView::deleteItemInfoFromDb(GraphicsItem *item)
+{
+    if(item!=nullptr)
+    {
+        QString deleteStr = QString("delete from ItemInfo where extNum ='%1' and loopNum='%2' and addrNum ='%3' and networkNum ='%4' and powerAddr='%5'").arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->networkNum()).arg(item->powerAddr());
+        m_sqliteManager->executeQuery(deleteStr);
+    }
+
+
+}
+
+void ArchitePlanView::deleteInfoFromFloor(const QString &floorName)
+{
+    m_sqliteManager->executeQuery(QString("delete from ItemInfo where floorOfDevice ='%1'").arg(floorName));
+}
+
+void ArchitePlanView::deleteInfoFromBuilding(const QString &buildingName)
+{
+    m_sqliteManager->executeQuery(QString("delete from ItemInfo where buildingName ='%1'").arg(buildingName));
+}
+
+void ArchitePlanView::clearDbInfo()
+{
+
+}
+
+void ArchitePlanView::resetItemNumFromView(GraphicsView *view)
+{
+    if(view!=nullptr)
+    {
+        if(view->getItemList().size()>0)
+        {
+            int value =0;
+            foreach(QGraphicsItem*curItem,view->getItemList())
+            {
+                GraphicsItem *curGraphicsItem = dynamic_cast<GraphicsItem *>(curItem);
+                if(curGraphicsItem!=nullptr)
+                {
+                    value=qMax(value,curGraphicsItem->addrNum().toInt());
+                }
+            }
+            Controller::instance()->getDataStore()->setItemNum(value);
+        }
+        else
+        {
+            Controller::instance()->getDataStore()->setItemNum(0);
+        }
+    }
+
+}
+
+void ArchitePlanView::clearGlobalViewAlarm()
+{
+    QList<QGraphicsItem*> globalGraphicsItemList= m_globalGraphicsView->currentScene()->items();
+    foreach (QGraphicsItem*item, globalGraphicsItemList)
+    {
+        GlobalGraphicsItem *globalGraphicsItem = dynamic_cast<GlobalGraphicsItem*>(item);
+        if(globalGraphicsItem!=nullptr)
+        {
+            if(globalGraphicsItem->animalIsRunning())
+            {
+                globalGraphicsItem->startAnimal(false);
+            }
+        }
+    }
+}
+
+void ArchitePlanView::clearItemsAlarmText(GraphicsItem*item)
+{
+    if(item!=nullptr)
+    {
+       foreach(const QString &type,item->alarmTypeList())
+       {
+           deleteAlarmText(item,type);
+       }
+    }
+}
+
 
 
 int ArchitePlanView::numOfTypeAlarm(const QString &type)
@@ -1896,11 +2334,12 @@ int ArchitePlanView::numOfTypeAlarm(const QString &type)
 void ArchitePlanView::setGlobalArchitePixmap(const QString &pixmapName)
 {
     QString filePath=  Controller::instance()->fileNameFromQml(pixmapName);
+
 #ifdef Q_OS_LINUX
     if(!filePath.startsWith("/home"))
     {
         QFileInfo fileInfo(filePath);
-        filePath ="/home/rpdzkj/usr/" +fileInfo.fileName();
+        filePath =QApplication::applicationDirPath()+"/楼层图/" +fileInfo.fileName();
     }
 #endif
     m_globalArchitePlanPixmapName = filePath;
@@ -1926,75 +2365,25 @@ int ArchitePlanView::currentPage()
 
 void ArchitePlanView::clearAlarm(bool clearFireAlarm)
 {
-    QList< QList<QGraphicsItem *> >list= Controller::instance()->getDataStore()->getTypeItemHash().values();
-    foreach (QList<QGraphicsItem *>itemList, list)
-    {
-        foreach (QGraphicsItem *currentItem, itemList)
-        {
-            GraphicsItem *item = dynamic_cast<GraphicsItem *>(currentItem);
-            if(item!=nullptr)
-            {
-                item->stopAnimations();
-
-                disconnect(item,&GraphicsItem::moveToPos,0,0);
-                item->clearAllAlarm();
-            }
-        }
-    }
-
-    emit clearTableAlarm();
-
-    //alarmDataOnTable();
+    m_firstFireWidget->close();
+    emit reduInstruction(clearFireAlarm);
+    Controller::instance()->getDataStore()->clearStoreAlarm();
     emit findAlarmNum(0,0);
-
-    QList<QString>alarmTypeTitleList;
-    alarmTypeTitleList << tr("首火警") << tr("火警") << tr("监管") << tr("启动") <<tr("反馈") << tr("故障") <<tr("屏蔽");
-    QList<QString> speechTextList =Controller::instance()->getSpeechObj()->alarmTextList();
-    foreach (QString curSpeechText, speechTextList)
-    {
-
-        foreach (QString alarmType, alarmTypeTitleList)
-        {
-            if(curSpeechText.startsWith(alarmType))
-            {
-                Controller::instance()->getSpeechObj()->removeAlarmText(curSpeechText);
-            }
-        }
-    }
-
     clearAllGraphicsTextItem();
-    Controller::instance()->getSpeechObj()->removeAlarmText(tr("传输故障"));
-    Controller::instance()->getSpeechObj()->removeAlarmText(tr("主电故障"));
-    Controller::instance()->getSpeechObj()->removeAlarmText(tr("备电故障"));
-    Controller::instance()->getDataStore()->clearTypeItem();
+    Controller::instance()->getSpeechObj()->clearAlarmText();
     clearAlarmWidget();
     m_alarmViewList.clear();
-
     emit noPage();
-    emit reduInstruction(clearFireAlarm);
-    m_firstFireWidget->close();
-    QList<QGraphicsItem*> globalGraphicsItemList= m_globalGraphicsView->currentScene()->items();
-    foreach (QGraphicsItem*item, globalGraphicsItemList)
-    {
-        GlobalGraphicsItem *globalGraphicsItem = dynamic_cast<GlobalGraphicsItem*>(item);
-        if(globalGraphicsItem!=nullptr)
-        {
-            if(globalGraphicsItem->animalIsRunning())
-            {
-                globalGraphicsItem->startAnimal(false);
-            }
-        }
-    }
-    //emit clearAlarmFromTable();
+    clearGlobalViewAlarm();
+    emit clearAlarmFromTable();
 }
 
 void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum)
 {
-    //qDebug() << "clearAlarmFromExtNum";
-    //qDebug()<<Controller::instance()->getDataStore()->getTypeItemHash() << Controller::instance()->getDataStore()->getTypeItemHash().size();
+
     QList< QList<QGraphicsItem *> >list= Controller::instance()->getDataStore()->getTypeItemHash().values();
-    QStringList alarmStringList;
-    alarmStringList<< "火警"<<"启动" << "监管" << "故障"<<"反馈" <<"屏蔽";
+    //QStringList alarmStringList;
+    //alarmStringList<< tr("火警")<<tr("启动") << tr("监管") << tr("故障")<<tr("反馈") <<tr("屏蔽");
     foreach (QList<QGraphicsItem *>itemList, list)
     {
         foreach (QGraphicsItem *currentItem, itemList)
@@ -2005,38 +2394,31 @@ void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum)
                 GraphicsView*curView = Controller::instance()->getDataStore()->itemDisplayView(item);
                 if(item->extNum()==extNum)
                 {
-                    foreach (QString alarmType, alarmStringList)
+                 QString curAlarmStr=   item->alarmType();
+                    int itemIndex=Controller::instance()->getDataStore()->getTypeItemList(curAlarmStr).indexOf(item);
+                    if(itemIndex==0)
                     {
-                        QList<QGraphicsItem *>alarmTypeItemList  =Controller::instance()->getDataStore()->getTypeItemList(alarmType);
-                        if(alarmTypeItemList.size()>0)
+                        if(curAlarmStr==tr("火警"))
                         {
-                            GraphicsItem *curItem = dynamic_cast<GraphicsItem *>(alarmTypeItemList.at(0));
-                            if(curItem==item)
-                            {
-                                if(alarmType.endsWith("火警"))
-                                {
-                                    m_firstFireWidget->close();
-                                }
-                                if(curView!=nullptr)
-                                {
-                                    curView->removeGraphicsTextItem(alarmType);
-
-                                }
-
-                                disconnect(item,&GraphicsItem::moveToPos,0,0);
-                            }
-
+                            m_firstFireWidget->close();
                         }
-                        deleteAlarmText(item,alarmType);
+
+                        if(curView!=nullptr)
+                        {
+                            curView->removeGraphicsTextItem(curAlarmStr);
+                        }
+
+                        disconnect(item,&GraphicsItem::moveToPos,nullptr,nullptr);
+                        disconnect(item,&GraphicsItem::sizeChanged,nullptr,nullptr);
                     }
 
-
+                    clearItemsAlarmText(item);
                     item->stopAnimations();
                     item->clearAllAlarm();
                     Controller::instance()->getDataStore()->deleteTypeItem(item);
                     if(curView!=nullptr)
                     {
-                        foreach (QString curAlarm, alarmStringList)
+                        foreach (QString curAlarm, item->alarmTypeList())
                         {
                             if(!curView->haveAlarmType(curAlarm))
                             {
@@ -2051,7 +2433,7 @@ void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum)
                             {
                                 m_alarmViewList.removeOne(curView);
                             }
-                            deleteAlarmWidget(tr("全部"),curView);
+
                             QStandardItem *parentItem =   getParnentItemFromView(curView);
                             if(parentItem!=nullptr)
                             {
@@ -2069,24 +2451,30 @@ void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum)
                 }
             }
         }
-        Controller::instance()->getDataStore()->deleteTypeNoItem(extNum);
 
     }
+
+    Controller::instance()->getDataStore()->deleteTypeNoItem(extNum);
+
 
     int totalNum = Controller::instance()->getDataStore()->numOfTypeItem(m_currentAlarmType);
     emit findAlarmNum(totalNum,0);
-    foreach (QString curAlarm, alarmStringList)
-    {
-        alarmHappend(curAlarm);
-        // updateAlarmText(curAlarm);
-    }
+    //    foreach (QString curAlarm, alarmStringList)
+    //    {
+    //        alarmHappend(curAlarm);
+    //        // updateAlarmText(curAlarm);
+    //    }
     emit alarmStateUpdate(extNum);
+
+
 
 }
 
 void ArchitePlanView::clearExcptFireAlarm()
 {
     clearAlarm(false);
+    emit clearAllAlarmExceptFire();
+
 }
 
 void ArchitePlanView::toPreviousPage()
@@ -2102,14 +2490,6 @@ void ArchitePlanView::toPreviousPage()
             {
                 m_stackedWidget->setCurrentWidget(viewList.at(currentIndex-1));
             }
-        }
-        if(currentPage()==0)
-        {
-            emit toFirstPage();
-        }
-        else
-        {
-            emit normalPage();
         }
     }
 
@@ -2129,22 +2509,7 @@ void ArchitePlanView::toNextPage()
                 m_stackedWidget->setCurrentWidget(viewList.at(currentIndex+1));
             }
         }
-        if(currentPage()==(count-1))
-        {
-            if(count==1)
-            {
-                emit noPage();
-            }
-            else
-            {
-                emit toLastPage();
-            }
 
-        }
-        else
-        {
-            emit normalPage();
-        }
     }
 }
 
@@ -2177,17 +2542,13 @@ void ArchitePlanView::toArchitePlan(const QString &extNum, const QString &loopNu
                                 m_tabWidget->setCurrentIndex(1);
                             }
                         }
-                        m_stackedWidget->setCurrentWidget(view);
-                        qreal size=currentItem->scale()*currentItem->radius()*8;
-                        QRectF currentRectF = QRectF(currentItem->pos().x(),currentItem->pos().y(),size,size);
-                        view->fitInView(currentRectF.adjusted(-size,-size,view->pos().x()/2,view->pos().y()/2),Qt::KeepAspectRatio);
 
-                        //                        if(m_currentAlarmType!=tr("全部"))
-                        //                        {
-                        //                            int totalNum = Controller::instance()->getDataStore()->numOfTypeItem(m_currentAlarmType);
-                        //                            int currentNum = Controller::instance()->getDataStore()->indexOfItem(extNum,loopNum,addressNum,networkNum,m_currentAlarmType);
-                        //                            emit findAlarmNum(totalNum,currentNum+1);
-                        //                        }
+                        //m_treeView->setCurrentIndex(getItemFromView(view)->index());
+                        m_stackedWidget->setCurrentWidget(view);
+                        //qreal size=currentItem->scale()*currentItem->radius()*4;
+                        //QRectF currentRectF = QRectF(currentItem->pos().x(),currentItem->pos().y(),size,size);
+                        view->fitInView(currentItem,Qt::KeepAspectRatio);
+                        view->scaleValueChanged(view->transform().m11());
                         return;
                     }
                 }
@@ -2219,6 +2580,8 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
                 globalGraphicsItem= nullptr;
             }
         }
+
+        deleteInfoFromBuilding(item->text());
 
     }
     if(item->hasChildren())
@@ -2276,62 +2639,58 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
         // delete globalItem;
     }
     m_treeView->getTreeIndexMap().remove(item);
-    saveArchiteInfoToDb();
     saveGeneralLayoutInfo();
 }
 
 void ArchitePlanView::viewsAutoSwitch()
 {
+
+    QMutexLocker lock(&m_mutex);
+#ifdef Q_OS_LINUX
+    sigsetjmp(sigEnv,1);
+#endif
     if(m_tabWidget->count()>=2)
     {
         if(m_tabWidget->currentIndex()!=1)
         {
             m_tabWidget->setCurrentIndex(1);
         }
-
     }
-    //    if(m_currentAlarmType==tr("全部"))
-    //    {
-    //        // emit findAlarmNum(0,0);
-    //        QList<GraphicsView*> alarmViewList= haveAlarms(m_currentAlarmType);
-    //        if(alarmViewList.size()>m_alarmPos)
-    //        {
-    //            autoFitView(alarmViewList.at(m_alarmPos));
-    //            m_alarmPos++;
-    //        }
-    //        else
-    //        {
-    //            m_alarmPos =0;
-    //        }
-    //    }
-    //    else
+    QList<QGraphicsItem*> gItemList= Controller::instance()->getDataStore()->getTypeItemList(tr("火警")/*m_currentAlarmType*/);
+    if(m_alarmNum<gItemList.size())
     {
-        QList<QGraphicsItem*> gItemList= Controller::instance()->getDataStore()->getTypeItemList("火警"/*m_currentAlarmType*/);
-        if(m_alarmNum<gItemList.size())
+        QGraphicsItem*curItem = gItemList.at(m_alarmNum);
+        GraphicsItem *item = dynamic_cast<GraphicsItem*>(curItem);
+        if(item!=nullptr)
         {
-            QGraphicsItem*curItem = gItemList.at(m_alarmNum);
-            GraphicsItem *item = dynamic_cast<GraphicsItem*>(curItem);
-            if(item!=nullptr)
+            // qreal size=item->scale()*item->radius()*8;
+            //QRectF currentRectF = QRectF(item->pos().x(),item->pos().y(),size,size);
+            GraphicsView *view = dynamic_cast<GraphicsView *>(Controller::instance()->getDataStore()->itemDisplayView(item));
+            if(view!=nullptr)
             {
-                qreal size=item->scale()*item->radius()*8;
-                QRectF currentRectF = QRectF(item->pos().x(),item->pos().y(),size,size);
-                QGraphicsView *view = Controller::instance()->getDataStore()->itemDisplayView(item);
-                if(view!=nullptr)
-                {
-                    m_stackedWidget->setCurrentWidget(view);
-                    view->fitInView(currentRectF.adjusted(-size,-size,view->pos().x()/2,view->pos().y()/2),Qt::KeepAspectRatio);
-                }
-            }
-            m_alarmNum++;
-            int totalNum = Controller::instance()->getDataStore()->numOfTypeItem("火警"/*m_currentAlarmType*/);
-            emit findAlarmNum(totalNum,m_alarmNum);
-        }
-        else
-        {
-            m_alarmNum=0;
-        }
-    }
+                //                QStandardItem *stdItem = getItemFromView(view);
+                //                if(stdItem!=nullptr)
+                //                {
+                //                    m_treeView->setCurrentIndex(stdItem->index());
+                //                }
 
+                m_stackedWidget->setCurrentWidget(view);
+                view->fitInView(item,Qt::KeepAspectRatio);
+                //view->fitInView(currentRectF.adjusted(-size,-size,view->pos().x()/2,view->pos().y()/2),Qt::KeepAspectRatio);
+                view->scaleValueChanged(view->transform().m11());
+            }
+        }
+        m_alarmNum++;
+        int totalNum = Controller::instance()->getDataStore()->numOfTypeItem(tr("火警")/*m_currentAlarmType*/);
+        emit findAlarmNum(totalNum,m_alarmNum);
+    }
+    else
+    {
+        m_alarmNum=0;
+    }
+#ifdef Q_OS_LINUX
+    signal(SIGSEGV, segFaultReceive);
+#endif
 }
 
 void ArchitePlanView::startAutoSwitch(bool isAuto)
@@ -2400,8 +2759,12 @@ void ArchitePlanView::setItemInfoFromType(const QString &type, const QString &in
                         QMetaObject::invokeMethod(m_itemSettingObj,"setExtNum",Q_ARG(QVariant,m_loopAddrExtHash.value(loopAddrValue)));
                         QMetaObject::invokeMethod(m_itemSettingObj,"setEquipmentModel",Q_ARG(QVariant,m_loopAddrDeviceHash.value(loopAddrValue)));
 
+                        QMetaObject::invokeMethod(m_itemSettingObj,"setDeviceLocation",Q_ARG(QVariant,m_loopAddrLocationHash.value(loopAddrValue)));
+
+
                         scene->setItemInfoFromType("extNum",m_loopAddrExtHash.value(loopAddrValue));
                         scene->setItemInfoFromType("equipmentModel",m_loopAddrDeviceHash.value(loopAddrValue));
+                        scene->setItemInfoFromType("deviceLocation",m_loopAddrLocationHash.value(loopAddrValue));
 
 
                     }
@@ -2481,27 +2844,40 @@ void ArchitePlanView::setDeviceInstallTime(int index, QString deviceInstallTime)
 
 void ArchitePlanView::saveGeneralLayoutInfo()
 {
-    m_sqliteManager->executeQuery("delete from GlobalArchite");
-    QList<QGraphicsItem*> itemList=  m_globalGraphicsView->currentScene()->items();
-    QList<QVariant>buildingNameList,personOnDutyList,posList,sizeList,iconNameList,valueList;
-    foreach (QGraphicsItem*graphicsItem, itemList)
+    QList<QString> nameList;
+    for(int i=0;i<m_treeView->model()->rowCount();i++)
     {
-        GlobalGraphicsItem *globalItem = dynamic_cast<GlobalGraphicsItem *>(graphicsItem);
-        if(globalItem!=nullptr)
+        QStandardItemModel* curModel= dynamic_cast<QStandardItemModel*>(m_treeView->model()) ;
+        if(curModel!=nullptr)
         {
-            buildingNameList.push_back(globalItem->buildName());
-            personOnDutyList.push_back(globalItem->personOnDuty());
-            posList.push_back(QString("%1,%2").arg( globalItem->scenePos().x()).arg(globalItem->scenePos().y()));
-            sizeList.push_back(globalItem->itemSize());
-            iconNameList.push_back(globalItem->iconName());
+            nameList.push_back( curModel->item(i)->text());
         }
     }
-    valueList.push_back(buildingNameList);
-    valueList.push_back(personOnDutyList);
-    valueList.push_back(posList);
-    valueList.push_back(sizeList);
-    valueList.push_back(iconNameList);
-    m_sqliteManager->insertBatch("GlobalArchite",valueList);
+    m_globalGraphicsView->currentScene()->sortItemList(nameList);
+
+    m_sqliteManager->executeQuery("delete from GlobalArchite");
+    QList<GlobalGraphicsItem *> itemList=  m_globalGraphicsView->currentScene()->currentItemList();
+    QList<QVariant>buildingNameList,personOnDutyList,posList,sizeList,iconNameList,valueList;
+    if(itemList.size()>0)
+    {
+        foreach (GlobalGraphicsItem*globalItem, itemList)
+        {
+            if(globalItem!=nullptr)
+            {
+                buildingNameList.push_back(globalItem->buildName());
+                personOnDutyList.push_back(globalItem->personOnDuty());
+                posList.push_back(QString("%1,%2").arg( globalItem->scenePos().x()).arg(globalItem->scenePos().y()));
+                sizeList.push_back(globalItem->itemSize());
+                iconNameList.push_back(globalItem->iconName());
+            }
+        }
+        valueList.push_back(buildingNameList);
+        valueList.push_back(personOnDutyList);
+        valueList.push_back(posList);
+        valueList.push_back(sizeList);
+        valueList.push_back(iconNameList);
+        m_sqliteManager->insertBatch("GlobalArchite",valueList);
+    }
 }
 
 void ArchitePlanView::updateTreeItems()
@@ -2564,6 +2940,7 @@ void ArchitePlanView::batchItems()
     maxLoopNum=maxLoopNumValue.toInt();
     minAddrNum= minAddrNumValue.toInt();
     maxAddrNum= maxAddrNumValue.toInt();
+    QString curEquipmentModel= ItemIconInfoToJson::getValue(QString::number(ItemIconInfoToJson::iconIndex(iconName.toString())),"deviceName");
     quint8 curValue=0;
     if(!minNetworkNumValue.toString().isEmpty()&&!maxNetworkNumValue.toString().isEmpty())
     {
@@ -2610,251 +2987,514 @@ void ArchitePlanView::batchItems()
     foreach (GraphicsView *currentView, viewList)
     {
 
-        QList<QGraphicsItem*> itemList= currentView->getItemList();
-        foreach (QGraphicsItem*item, itemList)
+        if(currentView!=nullptr)
         {
-            GraphicsItem *curItem = dynamic_cast<GraphicsItem *>(item);
-            if(curItem!=nullptr)
+
+
+            QList<QGraphicsItem*> itemList= currentView->getItemList();
+            foreach (QGraphicsItem*item, itemList)
             {
-                int curNetworkNum = curItem->networkNum().toInt();
-                int curExtNum = curItem->extNum().toInt();
-                int curLoopNum = curItem->loopNum().toInt();
-                int curAddrNum = curItem->addrNum().toInt();
-                switch (curValue&0x0f) {
-                case 0x01:
-                    if(curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
-                    {
-                        curItem->setIconName(iconName.toString());
-                        curItem->setRadius(iconSizeValue.toReal());
-                        curItem->sysOfDevice() = sysValue.toString();
-                        curItem->deviceOperator() = operatorValue.toString();
-                        if(!channelNum.toString().isEmpty())
+                GraphicsItem *curItem = dynamic_cast<GraphicsItem *>(item);
+                if(curItem!=nullptr)
+                {
+                    int curNetworkNum = curItem->networkNum().toInt();
+                    int curExtNum = curItem->extNum().toInt();
+                    int curLoopNum = curItem->loopNum().toInt();
+                    int curAddrNum = curItem->addrNum().toInt();
+                    switch (curValue&0x0f) {
+                    case 0x01:
+                        if(curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
                         {
-                            curItem->setChannelNum(channelNum.toInt());
-                        }
+                            if(m_itemInfoSelectHash.value("device"))
+                            {
+                                curItem->setIconName(iconName.toString());
+                                curItem->equipmentModel() =curEquipmentModel;
+                            }
+                            if(m_itemInfoSelectHash.value("size"))
+                            {
+                                curItem->setRadius(iconSizeValue.toReal());
+                            }
+                            if(m_itemInfoSelectHash.value("sys"))
+                            {
+                                curItem->sysOfDevice() = sysValue.toString();
+                            }
 
-                        curItem->analogType() = analogType.toString();
-                    }
-                    break;
-                case 0x02:
-                    if(curAddrNum>=minAddrNum&&curAddrNum<=maxAddrNum)
-                    {
-                        curItem->setIconName(iconName.toString());
-                        curItem->setRadius(iconSizeValue.toReal());
-                        curItem->sysOfDevice() = sysValue.toString();
-                        curItem->deviceOperator() = operatorValue.toString();
-                        if(!channelNum.toString().isEmpty())
+
+                            if(m_itemInfoSelectHash.value("channel"))
+                            {
+                                if(!channelNum.toString().isEmpty())
+                                {
+                                    curItem->setChannelNum(channelNum.toInt());
+                                }
+                            }
+
+                            if(m_itemInfoSelectHash.value("analog"))
+                            {
+                                curItem->analogType() = analogType.toString();
+                            }
+
+                        }
+                        break;
+                    case 0x02:
+                        if(curAddrNum>=minAddrNum&&curAddrNum<=maxAddrNum)
                         {
-                            curItem->setChannelNum(channelNum.toInt());
-                        }
+                            if(m_itemInfoSelectHash.value("device"))
+                            {
+                                curItem->setIconName(iconName.toString());
+                                curItem->equipmentModel() =curEquipmentModel;
 
-                        curItem->analogType() = analogType.toString();
-                    }
-                    break;
-                case 0x03:
-                    if(curAddrNum>=minAddrNum&&curAddrNum<=maxAddrNum&&curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
-                    {
-                        curItem->setIconName(iconName.toString());
-                        curItem->setRadius(iconSizeValue.toReal());
-                        curItem->sysOfDevice() = sysValue.toString();
-                        curItem->deviceOperator() = operatorValue.toString();
-                        if(!channelNum.toString().isEmpty())
+                            }
+                            if(m_itemInfoSelectHash.value("size"))
+                            {
+                                curItem->setRadius(iconSizeValue.toReal());
+                            }
+                            if(m_itemInfoSelectHash.value("sys"))
+                            {
+                                curItem->sysOfDevice() = sysValue.toString();
+                            }
+
+
+                            if(m_itemInfoSelectHash.value("channel"))
+                            {
+                                if(!channelNum.toString().isEmpty())
+                                {
+                                    curItem->setChannelNum(channelNum.toInt());
+                                }
+                            }
+
+                            if(m_itemInfoSelectHash.value("analog"))
+                            {
+                                curItem->analogType() = analogType.toString();
+                            }
+                        }
+                        break;
+                    case 0x03:
+                        if(curAddrNum>=minAddrNum&&curAddrNum<=maxAddrNum&&curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
                         {
-                            curItem->setChannelNum(channelNum.toInt());
+                            if(m_itemInfoSelectHash.value("device"))
+                            {
+                                curItem->setIconName(iconName.toString());
+                                curItem->equipmentModel() =curEquipmentModel;
+                            }
+                            if(m_itemInfoSelectHash.value("size"))
+                            {
+                                curItem->setRadius(iconSizeValue.toReal());
+                            }
+                            if(m_itemInfoSelectHash.value("sys"))
+                            {
+                                curItem->sysOfDevice() = sysValue.toString();
+                            }
+
+
+                            if(m_itemInfoSelectHash.value("channel"))
+                            {
+                                if(!channelNum.toString().isEmpty())
+                                {
+                                    curItem->setChannelNum(channelNum.toInt());
+                                }
+                            }
+
+                            if(m_itemInfoSelectHash.value("analog"))
+                            {
+                                curItem->analogType() = analogType.toString();
+                            }
                         }
+                        break;
 
-                        curItem->analogType() = analogType.toString();
-                    }
-                    break;
-
-                case 0x04:
-                    if(curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum)
-                    {
-                        curItem->setIconName(iconName.toString());
-                        curItem->setRadius(iconSizeValue.toReal());
-                        curItem->sysOfDevice() = sysValue.toString();
-                        curItem->deviceOperator() = operatorValue.toString();
-                        if(!channelNum.toString().isEmpty())
+                    case 0x04:
+                        if(curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum)
                         {
-                            curItem->setChannelNum(channelNum.toInt());
-                        }
+                            if(m_itemInfoSelectHash.value("device"))
+                            {
+                                curItem->setIconName(iconName.toString());
+                                curItem->equipmentModel() =curEquipmentModel;
+                            }
+                            if(m_itemInfoSelectHash.value("size"))
+                            {
+                                curItem->setRadius(iconSizeValue.toReal());
+                            }
+                            if(m_itemInfoSelectHash.value("sys"))
+                            {
+                                curItem->sysOfDevice() = sysValue.toString();
+                            }
 
-                        curItem->analogType() = analogType.toString();
-                    }
-                    break;
-                case 0x05:
-                    if(curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum&&curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
-                    {
-                        curItem->setIconName(iconName.toString());
-                        curItem->setRadius(iconSizeValue.toReal());
-                        curItem->sysOfDevice() = sysValue.toString();
-                        curItem->deviceOperator() = operatorValue.toString();
-                        if(!channelNum.toString().isEmpty())
+
+                            if(m_itemInfoSelectHash.value("channel"))
+                            {
+                                if(!channelNum.toString().isEmpty())
+                                {
+                                    curItem->setChannelNum(channelNum.toInt());
+                                }
+                            }
+
+                            if(m_itemInfoSelectHash.value("analog"))
+                            {
+                                curItem->analogType() = analogType.toString();
+                            }
+                        }
+                        break;
+                    case 0x05:
+                        if(curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum&&curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
                         {
-                            curItem->setChannelNum(channelNum.toInt());
-                        }
+                            if(m_itemInfoSelectHash.value("device"))
+                            {
+                                curItem->setIconName(iconName.toString());
+                                curItem->equipmentModel() =curEquipmentModel;
+                            }
+                            if(m_itemInfoSelectHash.value("size"))
+                            {
+                                curItem->setRadius(iconSizeValue.toReal());
+                            }
+                            if(m_itemInfoSelectHash.value("sys"))
+                            {
+                                curItem->sysOfDevice() = sysValue.toString();
+                            }
 
-                        curItem->analogType() = analogType.toString();
-                    }
-                    break;
-                case 0x06:
-                    if(curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum&&curAddrNum>=minAddrNum&&curAddrNum<=maxAddrNum)
-                    {
-                        curItem->setIconName(iconName.toString());
-                        curItem->setRadius(iconSizeValue.toReal());
-                        curItem->sysOfDevice() = sysValue.toString();
-                        curItem->deviceOperator() = operatorValue.toString();
-                        if(!channelNum.toString().isEmpty())
+
+                            if(m_itemInfoSelectHash.value("channel"))
+                            {
+                                if(!channelNum.toString().isEmpty())
+                                {
+                                    curItem->setChannelNum(channelNum.toInt());
+                                }
+                            }
+
+                            if(m_itemInfoSelectHash.value("analog"))
+                            {
+                                curItem->analogType() = analogType.toString();
+                            }
+                        }
+                        break;
+                    case 0x06:
+                        if(curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum&&curAddrNum>=minAddrNum&&curAddrNum<=maxAddrNum)
                         {
-                            curItem->setChannelNum(channelNum.toInt());
-                        }
+                            if(m_itemInfoSelectHash.value("device"))
+                            {
+                                curItem->setIconName(iconName.toString());
+                                curItem->equipmentModel() =curEquipmentModel;
+                            }
+                            if(m_itemInfoSelectHash.value("size"))
+                            {
+                                curItem->setRadius(iconSizeValue.toReal());
+                            }
+                            if(m_itemInfoSelectHash.value("sys"))
+                            {
+                                curItem->sysOfDevice() = sysValue.toString();
+                            }
 
-                        curItem->analogType() = analogType.toString();
-                    }
-                    break;
-                case 0x07:
-                    if(curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum&&curAddrNum>=minAddrNum&&curAddrNum<=maxAddrNum
-                            &&curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
-                    {
-                        curItem->setIconName(iconName.toString());
-                        curItem->setRadius(iconSizeValue.toReal());
-                        curItem->sysOfDevice() = sysValue.toString();
-                        curItem->deviceOperator() = operatorValue.toString();
-                        if(!channelNum.toString().isEmpty())
+
+                            if(m_itemInfoSelectHash.value("channel"))
+                            {
+                                if(!channelNum.toString().isEmpty())
+                                {
+                                    curItem->setChannelNum(channelNum.toInt());
+                                }
+                            }
+
+                            if(m_itemInfoSelectHash.value("analog"))
+                            {
+                                curItem->analogType() = analogType.toString();
+                            }
+                        }
+                        break;
+                    case 0x07:
+                        if(curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum&&curAddrNum>=minAddrNum&&curAddrNum<=maxAddrNum
+                                &&curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
                         {
-                            curItem->setChannelNum(channelNum.toInt());
-                        }
+                            if(m_itemInfoSelectHash.value("device"))
+                            {
+                                curItem->setIconName(iconName.toString());
+                                curItem->equipmentModel() =curEquipmentModel;
+                            }
+                            if(m_itemInfoSelectHash.value("size"))
+                            {
+                                curItem->setRadius(iconSizeValue.toReal());
+                            }
+                            if(m_itemInfoSelectHash.value("sys"))
+                            {
+                                curItem->sysOfDevice() = sysValue.toString();
+                            }
 
-                        curItem->analogType() = analogType.toString();
-                    }
-                    break;
-                case 0x08:
-                    if(curExtNum>=minExtNum&&curExtNum<=maxExtNum)
-                    {
-                        curItem->setIconName(iconName.toString());
-                        curItem->setRadius(iconSizeValue.toReal());
-                        curItem->sysOfDevice() = sysValue.toString();
-                        curItem->deviceOperator() = operatorValue.toString();
-                        if(!channelNum.toString().isEmpty())
+
+                            if(m_itemInfoSelectHash.value("channel"))
+                            {
+                                if(!channelNum.toString().isEmpty())
+                                {
+                                    curItem->setChannelNum(channelNum.toInt());
+                                }
+                            }
+
+                            if(m_itemInfoSelectHash.value("analog"))
+                            {
+                                curItem->analogType() = analogType.toString();
+                            }
+                        }
+                        break;
+                    case 0x08:
+                        if(curExtNum>=minExtNum&&curExtNum<=maxExtNum)
                         {
-                            curItem->setChannelNum(channelNum.toInt());
-                        }
+                            if(m_itemInfoSelectHash.value("device"))
+                            {
+                                curItem->setIconName(iconName.toString());
+                                curItem->equipmentModel() =curEquipmentModel;
+                            }
+                            if(m_itemInfoSelectHash.value("size"))
+                            {
+                                curItem->setRadius(iconSizeValue.toReal());
+                            }
+                            if(m_itemInfoSelectHash.value("sys"))
+                            {
+                                curItem->sysOfDevice() = sysValue.toString();
+                            }
 
-                        curItem->analogType() = analogType.toString();
-                    }
-                    break;
-                case 0x09:
-                    if(curExtNum>=minExtNum&&curExtNum<=maxExtNum&&curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
-                    {
-                        curItem->setIconName(iconName.toString());
-                        curItem->setRadius(iconSizeValue.toReal());
-                        curItem->sysOfDevice() = sysValue.toString();
-                        curItem->deviceOperator() = operatorValue.toString();
-                        if(!channelNum.toString().isEmpty())
+
+                            if(m_itemInfoSelectHash.value("channel"))
+                            {
+                                if(!channelNum.toString().isEmpty())
+                                {
+                                    curItem->setChannelNum(channelNum.toInt());
+                                }
+                            }
+
+                            if(m_itemInfoSelectHash.value("analog"))
+                            {
+                                curItem->analogType() = analogType.toString();
+                            }
+                        }
+                        break;
+                    case 0x09:
+                        if(curExtNum>=minExtNum&&curExtNum<=maxExtNum&&curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
                         {
-                            curItem->setChannelNum(channelNum.toInt());
-                        }
+                            if(m_itemInfoSelectHash.value("device"))
+                            {
+                                curItem->setIconName(iconName.toString());
+                                curItem->equipmentModel() =curEquipmentModel;
+                            }
+                            if(m_itemInfoSelectHash.value("size"))
+                            {
+                                curItem->setRadius(iconSizeValue.toReal());
+                            }
+                            if(m_itemInfoSelectHash.value("sys"))
+                            {
+                                curItem->sysOfDevice() = sysValue.toString();
+                            }
 
-                        curItem->analogType() = analogType.toString();
-                    }
-                    break;
-                case 0x0a:
-                    if(curExtNum>=minExtNum&&curExtNum<=maxExtNum&&curAddrNum>=minAddrNum&&curAddrNum<=maxAddrNum)
-                    {
-                        curItem->setIconName(iconName.toString());
-                        curItem->setRadius(iconSizeValue.toReal());
-                        curItem->sysOfDevice() = sysValue.toString();
-                        curItem->deviceOperator() = operatorValue.toString();
-                        if(!channelNum.toString().isEmpty())
+
+                            if(m_itemInfoSelectHash.value("channel"))
+                            {
+                                if(!channelNum.toString().isEmpty())
+                                {
+                                    curItem->setChannelNum(channelNum.toInt());
+                                }
+                            }
+
+                            if(m_itemInfoSelectHash.value("analog"))
+                            {
+                                curItem->analogType() = analogType.toString();
+                            }
+                        }
+                        break;
+                    case 0x0a:
+                        if(curExtNum>=minExtNum&&curExtNum<=maxExtNum&&curAddrNum>=minAddrNum&&curAddrNum<=maxAddrNum)
                         {
-                            curItem->setChannelNum(channelNum.toInt());
-                        }
+                            if(m_itemInfoSelectHash.value("device"))
+                            {
+                                curItem->setIconName(iconName.toString());
+                                curItem->equipmentModel() =curEquipmentModel;
+                            }
+                            if(m_itemInfoSelectHash.value("size"))
+                            {
+                                curItem->setRadius(iconSizeValue.toReal());
+                            }
+                            if(m_itemInfoSelectHash.value("sys"))
+                            {
+                                curItem->sysOfDevice() = sysValue.toString();
+                            }
 
-                        curItem->analogType() = analogType.toString();
-                    }
-                    break;
-                case 0x0b:
-                    if(curExtNum>=minExtNum&&curExtNum<=maxExtNum&&curAddrNum>=minAddrNum
-                            &&curAddrNum<=maxAddrNum&&curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
-                    {
-                        curItem->setIconName(iconName.toString());
-                        curItem->setRadius(iconSizeValue.toReal());
-                        curItem->sysOfDevice() = sysValue.toString();
-                        curItem->deviceOperator() = operatorValue.toString();
-                        if(!channelNum.toString().isEmpty())
+
+                            if(m_itemInfoSelectHash.value("channel"))
+                            {
+                                if(!channelNum.toString().isEmpty())
+                                {
+                                    curItem->setChannelNum(channelNum.toInt());
+                                }
+                            }
+
+                            if(m_itemInfoSelectHash.value("analog"))
+                            {
+                                curItem->analogType() = analogType.toString();
+                            }
+                        }
+                        break;
+                    case 0x0b:
+                        if(curExtNum>=minExtNum&&curExtNum<=maxExtNum&&curAddrNum>=minAddrNum
+                                &&curAddrNum<=maxAddrNum&&curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
                         {
-                            curItem->setChannelNum(channelNum.toInt());
+                            if(m_itemInfoSelectHash.value("device"))
+                            {
+                                curItem->setIconName(iconName.toString());
+                                curItem->equipmentModel() =curEquipmentModel;
+                            }
+                            if(m_itemInfoSelectHash.value("size"))
+                            {
+                                curItem->setRadius(iconSizeValue.toReal());
+                            }
+                            if(m_itemInfoSelectHash.value("sys"))
+                            {
+                                curItem->sysOfDevice() = sysValue.toString();
+                            }
+
+
+                            if(m_itemInfoSelectHash.value("channel"))
+                            {
+                                if(!channelNum.toString().isEmpty())
+                                {
+                                    curItem->setChannelNum(channelNum.toInt());
+                                }
+                            }
+
+                            if(m_itemInfoSelectHash.value("analog"))
+                            {
+                                curItem->analogType() = analogType.toString();
+                            }
                         }
+                        break;
 
-                        curItem->analogType() = analogType.toString();
-                    }
-                    break;
-
-                case 0x0c:
-                    if(curExtNum>=minExtNum&&curExtNum<=maxExtNum&&curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum)
-                    {
-                        curItem->setIconName(iconName.toString());
-                        curItem->setRadius(iconSizeValue.toReal());
-                        curItem->sysOfDevice() = sysValue.toString();
-                        curItem->deviceOperator() = operatorValue.toString();
-                        if(!channelNum.toString().isEmpty())
+                    case 0x0c:
+                        if(curExtNum>=minExtNum&&curExtNum<=maxExtNum&&curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum)
                         {
-                            curItem->setChannelNum(channelNum.toInt());
-                        }
+                            if(m_itemInfoSelectHash.value("device"))
+                            {
+                                curItem->setIconName(iconName.toString());
+                                curItem->equipmentModel() =curEquipmentModel;
+                            }
+                            if(m_itemInfoSelectHash.value("size"))
+                            {
+                                curItem->setRadius(iconSizeValue.toReal());
+                            }
+                            if(m_itemInfoSelectHash.value("sys"))
+                            {
+                                curItem->sysOfDevice() = sysValue.toString();
+                            }
 
-                        curItem->analogType() = analogType.toString();
-                    }
-                    break;
-                case 0x0d:
-                    if(curExtNum>=minExtNum&&curExtNum<=maxExtNum&&curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum&&curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
-                    {
-                        curItem->setIconName(iconName.toString());
-                        curItem->setRadius(iconSizeValue.toReal());
-                        curItem->sysOfDevice() = sysValue.toString();
-                        curItem->deviceOperator() = operatorValue.toString();
-                        if(!channelNum.toString().isEmpty())
+
+                            if(m_itemInfoSelectHash.value("channel"))
+                            {
+                                if(!channelNum.toString().isEmpty())
+                                {
+                                    curItem->setChannelNum(channelNum.toInt());
+                                }
+                            }
+
+                            if(m_itemInfoSelectHash.value("analog"))
+                            {
+                                curItem->analogType() = analogType.toString();
+                            }
+                        }
+                        break;
+                    case 0x0d:
+                        if(curExtNum>=minExtNum&&curExtNum<=maxExtNum&&curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum&&curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
                         {
-                            curItem->setChannelNum(channelNum.toInt());
-                        }
+                            if(m_itemInfoSelectHash.value("device"))
+                            {
+                                curItem->setIconName(iconName.toString());
+                                curItem->equipmentModel() =curEquipmentModel;
+                            }
+                            if(m_itemInfoSelectHash.value("size"))
+                            {
+                                curItem->setRadius(iconSizeValue.toReal());
+                            }
+                            if(m_itemInfoSelectHash.value("sys"))
+                            {
+                                curItem->sysOfDevice() = sysValue.toString();
+                            }
 
-                        curItem->analogType() = analogType.toString();
-                    }
-                    break;
-                case 0x0e:
-                    if(curExtNum>=minExtNum&&curExtNum<=maxExtNum&&curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum&&curAddrNum>=minAddrNum&&curAddrNum<=maxAddrNum)
-                    {
-                        curItem->setIconName(iconName.toString());
-                        curItem->setRadius(iconSizeValue.toReal());
-                        curItem->sysOfDevice() = sysValue.toString();
-                        curItem->deviceOperator() = operatorValue.toString();
-                        if(!channelNum.toString().isEmpty())
+
+                            if(m_itemInfoSelectHash.value("channel"))
+                            {
+                                if(!channelNum.toString().isEmpty())
+                                {
+                                    curItem->setChannelNum(channelNum.toInt());
+                                }
+                            }
+
+                            if(m_itemInfoSelectHash.value("analog"))
+                            {
+                                curItem->analogType() = analogType.toString();
+                            }
+                        }
+                        break;
+                    case 0x0e:
+                        if(curExtNum>=minExtNum&&curExtNum<=maxExtNum&&curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum&&curAddrNum>=minAddrNum&&curAddrNum<=maxAddrNum)
                         {
-                            curItem->setChannelNum(channelNum.toInt());
-                        }
+                            if(m_itemInfoSelectHash.value("device"))
+                            {
+                                curItem->setIconName(iconName.toString());
+                                curItem->equipmentModel() =curEquipmentModel;
+                            }
+                            if(m_itemInfoSelectHash.value("size"))
+                            {
+                                curItem->setRadius(iconSizeValue.toReal());
+                            }
+                            if(m_itemInfoSelectHash.value("sys"))
+                            {
+                                curItem->sysOfDevice() = sysValue.toString();
+                            }
 
-                        curItem->analogType() = analogType.toString();
-                    }
-                    break;
-                case 0x0f:
-                    if(curExtNum>=minExtNum&&curExtNum<=maxExtNum&&curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum&&curAddrNum>=minAddrNum&&curAddrNum<=maxAddrNum&&curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
-                    {
-                        curItem->setIconName(iconName.toString());
-                        curItem->setRadius(iconSizeValue.toReal());
-                        curItem->sysOfDevice() = sysValue.toString();
-                        curItem->deviceOperator() = operatorValue.toString();
-                        if(!channelNum.toString().isEmpty())
+
+                            if(m_itemInfoSelectHash.value("channel"))
+                            {
+                                if(!channelNum.toString().isEmpty())
+                                {
+                                    curItem->setChannelNum(channelNum.toInt());
+                                }
+                            }
+
+                            if(m_itemInfoSelectHash.value("analog"))
+                            {
+                                curItem->analogType() = analogType.toString();
+                            }
+                        }
+                        break;
+                    case 0x0f:
+                        if(curExtNum>=minExtNum&&curExtNum<=maxExtNum&&curLoopNum>=minLoopNum&&curLoopNum<=maxLoopNum&&curAddrNum>=minAddrNum&&curAddrNum<=maxAddrNum&&curNetworkNum>=minNetworkNum&&curNetworkNum<=maxNetworkNum)
                         {
-                            curItem->setChannelNum(channelNum.toInt());
-                        }
+                            if(m_itemInfoSelectHash.value("device"))
 
-                        curItem->analogType() = analogType.toString();
+                            {
+                                curItem->setIconName(iconName.toString());
+                                curItem->equipmentModel() =curEquipmentModel;
+                            }
+                            if(m_itemInfoSelectHash.value("size"))
+                            {
+                                curItem->setRadius(iconSizeValue.toReal());
+                            }
+                            if(m_itemInfoSelectHash.value("sys"))
+                            {
+                                curItem->sysOfDevice() = sysValue.toString();
+                            }
+
+
+                            if(m_itemInfoSelectHash.value("channel"))
+                            {
+                                if(!channelNum.toString().isEmpty())
+                                {
+                                    curItem->setChannelNum(channelNum.toInt());
+                                }
+                            }
+
+                            if(m_itemInfoSelectHash.value("analog"))
+                            {
+                                curItem->analogType() = analogType.toString();
+                            }
+                        }
+                        break;
+                    default:
+                        break;
                     }
-                    break;
-                default:
-                    break;
                 }
             }
-
+            //  currentView->scene()->update();
         }
     }
 
@@ -2871,6 +3511,7 @@ void ArchitePlanView::changeItemsInfoFromFloor()
     QMetaObject::invokeMethod(m_itemSettingObj,"getChannelNum",Q_RETURN_ARG(QVariant,channelNum));
     QMetaObject::invokeMethod(m_itemSettingObj,"getAnalogType",Q_RETURN_ARG(QVariant,analogType));
     GraphicsView *curView =currentGraphicsView();
+    QString curEquipmentModel= ItemIconInfoToJson::getValue(QString::number(ItemIconInfoToJson::iconIndex(iconName.toString())),"deviceName");
     if(curView!=nullptr)
     {
         QList<QGraphicsItem*> itemList=  curView->getItemList();
@@ -2879,87 +3520,234 @@ void ArchitePlanView::changeItemsInfoFromFloor()
             GraphicsItem *curItem = dynamic_cast<GraphicsItem *>(item);
             if(curItem!=nullptr)
             {
-                curItem->setIconName(iconName.toString());
-                curItem->setRadius(iconSizeValue.toReal());
-                curItem->sysOfDevice() = sysValue.toString();
-                curItem->deviceOperator() = operatorValue.toString();
-                if(!channelNum.toString().isEmpty())
+                if(m_itemInfoSelectHash.value("device"))
                 {
-                    curItem->setChannelNum(channelNum.toInt());
+                    curItem->setIconName(iconName.toString());
+                    curItem->equipmentModel() = curEquipmentModel;
+                }
+                if(m_itemInfoSelectHash.value("size"))
+                {
+                    curItem->setRadius(iconSizeValue.toReal());
+                }
+                if(m_itemInfoSelectHash.value("sys"))
+                {
+                    curItem->sysOfDevice() = sysValue.toString();
                 }
 
-                curItem->analogType() = analogType.toString();
+                if(m_itemInfoSelectHash.value("channel"))
+                {
+                    if(!channelNum.toString().isEmpty())
+                    {
+                        curItem->setChannelNum(channelNum.toInt());
+                    }
+                }
+
+                if(m_itemInfoSelectHash.value("analog"))
+                {
+                    curItem->analogType() = analogType.toString();
+                }
+
             }
         }
+
+        // curView->scene()->update();
     }
 }
 
 void ArchitePlanView::excelFileProcess(QString filePath)
 {
-
     QString curFileName = Controller::instance()->fileNameFromQml(filePath);
-    bool excelIsOpen=  m_excelManager->openExcel(curFileName);
-    if(excelIsOpen)
+    //#ifdef Q_OS_WIN
+
+
+    //    bool excelIsOpen=  m_excelManager->openExcel(curFileName);
+    //    if(excelIsOpen)
+    //    {
+    //        m_loopAddrExtHash.clear();
+    //        m_loopAddrDeviceHash.clear();
+    //        m_loopAddrLocationHash.clear();
+
+    //        QVariant bus=  m_excelManager->readExcel("总线");//
+    //        QVariant dataMapping=  m_excelManager->readExcel("数据映射表");//
+    //        QList<QVariant> dataMappingList= dataMapping.toList();
+    //        // qDebug() << dataMappingList.size();
+    //        QHash<quint8,QPair<quint8,quint8> >dataMappingHash;
+    //        for(int i=1;i<dataMappingList.size();i++)
+    //        {
+    //            QList<QVariant>curList= dataMappingList.at(i).toList();
+    //            if(curList.size()>4)
+    //            {
+    //                QString type=  curList.at(1).toString();
+    //                if(!type.isEmpty())
+    //                {
+    //                    QPair<quint8,quint8>pair;
+    //                    pair.first = curList.at(2).toUInt();
+    //                    pair.second = curList.at(3).toUInt();
+    //                    dataMappingHash[curList.at(0).toUInt()]=pair;
+    //                }
+    //            }
+    //        }
+
+    //        QList<QVariant>busList=  bus.toList();
+    //        for (int j=1;j<busList.size();j++) {
+    //            QList<QVariant>curBusList=  busList.at(j).toList();
+    //            if(curBusList.size()>=6)
+    //            {
+    //                QString loopAddr = curBusList.at(0).toString();
+    //                if(!loopAddr.isEmpty())
+    //                {
+    //                    quint32 loopAddrValue = loopAddr.toUInt();
+    //                    m_loopAddrDeviceHash[loopAddrValue]=curBusList.at(1).toString();
+    //                    m_loopAddrLocationHash[loopAddrValue]=curBusList.at(3).toString();
+    //                    quint8 loopNum = loopAddrValue/1000;
+    //                    QList<QPair<quint8,quint8> >pairList=dataMappingHash.values();
+    //                    for (int m=0;m< pairList.size();m++)
+    //                    {
+    //                        QPair<quint8,quint8>curPair = pairList.at(m);
+    //                        if(loopNum>=curPair.first&&loopNum<=curPair.second)
+    //                        {
+    //                            m_loopAddrExtHash[loopAddrValue] =QString::number(dataMappingHash.key(curPair));
+
+    //                        }
+    //                    }
+
+    //                }
+
+    //            }
+    //        }
+    //        QMetaObject::invokeMethod(m_itemSettingObj,"setImportExcelState",Q_ARG(QVariant,true));
+    //        m_excelManager->closeExcel();
+    //        m_excelManager->quitExcel();
+
+    //    }
+    //    else
+    //    {
+    //        QMetaObject::invokeMethod(m_itemSettingObj,"setImportExcelState",Q_ARG(QVariant,false));
+    //    }
+    //#elif defined Q_OS_LINUX
+    Document xlsx(curFileName);
+    QList<QString> sheetNameList=xlsx.sheetNames();
+    if(!sheetNameList.isEmpty())
     {
         m_loopAddrExtHash.clear();
         m_loopAddrDeviceHash.clear();
-        //m_loopAddrFloorHash.clear();
-        QVariant bus=  m_excelManager->readExcel("总线");//
-        QVariant dataMapping=  m_excelManager->readExcel("数据映射表");//
-        QList<QVariant> dataMappingList= dataMapping.toList();
-        // qDebug() << dataMappingList.size();
-        QHash<quint8,QPair<quint8,quint8> >dataMappingHash;
-        for(int i=1;i<dataMappingList.size();i++)
-        {
-            QList<QVariant>curList= dataMappingList.at(i).toList();
-            if(curList.size()>4)
-            {
-                QString type=  curList.at(1).toString();
-                if(!type.isEmpty())
-                {
-                    QPair<quint8,quint8>pair;
-                    pair.first = curList.at(2).toUInt();
-                    pair.second = curList.at(3).toUInt();
-                    dataMappingHash[curList.at(0).toUInt()]=pair;
-                }
-            }
-        }
-
-        QList<QVariant>busList=  bus.toList();
-        for (int j=1;j<busList.size();j++) {
-            QList<QVariant>curBusList=  busList.at(j).toList();
-            if(curBusList.size()>=6)
-            {
-                QString loopAddr = curBusList.at(0).toString();
-                if(!loopAddr.isEmpty())
-                {
-                    quint32 loopAddrValue = loopAddr.toUInt();
-                    m_loopAddrDeviceHash[loopAddrValue]=curBusList.at(1).toString();
-                    //m_loopAddrFloorHash[loopAddrValue]=curBusList.at(5).toString();
-                    quint8 loopNum = loopAddrValue/1000;
-                    QList<QPair<quint8,quint8> >pairList=dataMappingHash.values();
-                    for (int m=0;m< pairList.size();m++)
-                    {
-                        QPair<quint8,quint8>curPair = pairList.at(m);
-                        if(loopNum>=curPair.first&&loopNum<=curPair.second)
-                        {
-                            m_loopAddrExtHash[loopAddrValue] =QString::number(dataMappingHash.key(curPair));
-                        }
-                    }
-
-                }
-
-            }
-        }
-        QMetaObject::invokeMethod(m_itemSettingObj,"setImportExcelState",Q_ARG(QVariant,true));
-        m_excelManager->closeExcel();
-        m_excelManager->quitExcel();
-
+        m_loopAddrLocationHash.clear();
     }
     else
     {
         QMetaObject::invokeMethod(m_itemSettingObj,"setImportExcelState",Q_ARG(QVariant,false));
+        return;
     }
+    QHash<quint32,QPair<quint32,quint32> >dataMappingHash;
+    if(sheetNameList.contains("数据映射表"))
+    {
+        xlsx.selectSheet("数据映射表");
+        CellRange range;
+
+        range = xlsx.dimension();
+
+        int curHostNum=1,startLoopNum=3,endLoopNum=4;
+        for(int j=1;j<range.columnCount();j++)
+        {
+            if(xlsx.read(1,j).toString().contains("联网主机号"))
+            {
+                curHostNum=j;
+            }
+            else if(xlsx.read(1,j).toString().contains("起始回路"))
+            {
+                startLoopNum =j;
+            }
+            else if(xlsx.read(1,j).toString().contains("终止回路"))
+            {
+                endLoopNum =j;
+            }
+        }
+
+        for(int i=2;i<range.rowCount();i++)
+        {
+            if(xlsx.read(i,2).isValid())
+            {
+                QPair<quint32,quint32> pair;
+                quint32 ext=  xlsx.read(i,curHostNum).toUInt();
+                pair.first=  xlsx.read(i,startLoopNum).toUInt();
+                pair.second= xlsx.read(i,endLoopNum).toUInt();
+                dataMappingHash[ext]=pair;
+            }
+        }
+
+    }
+
+    if(sheetNameList.contains("总线"))
+    {
+        xlsx.selectSheet("总线");
+        CellRange range;
+
+        int addrCodeIndex=1,deviceTypeIndex=2,descriptionIndex=3;
+        range = xlsx.dimension();
+        for(int j=1;j<range.columnCount();j++)
+        {
+            if(xlsx.read(1,j).toString()=="地址码")
+            {
+                addrCodeIndex =j;
+            }
+
+            else if(xlsx.read(1,j).toString()=="设备类型")
+            {
+                deviceTypeIndex =j;
+            }
+            else if(xlsx.read(1,j).toString()=="描述")
+            {
+                descriptionIndex =j;
+            }
+        }
+
+        for(int i=2;i<range.rowCount();i++)
+        {
+            quint32 curValue= xlsx.read(i,addrCodeIndex).toUInt();
+            m_loopAddrDeviceHash[curValue] = xlsx.read(i,deviceTypeIndex).toString();
+            m_loopAddrLocationHash[curValue]=xlsx.read(i,descriptionIndex).toString();
+            foreach(quint32 extNum,dataMappingHash.keys())
+            {
+
+                quint32 currentValue= curValue/1000;
+                QPair<quint32,quint32>curPair = dataMappingHash.value(extNum);
+
+                if(currentValue>=curPair.first && currentValue <=curPair.second)
+                {
+                    m_loopAddrExtHash[curValue] = QString::number(extNum);
+
+                }
+            }
+
+        }
+    }
+    QMetaObject::invokeMethod(m_itemSettingObj,"setImportExcelState",Q_ARG(QVariant,true));
+    //#endif
+}
+
+void ArchitePlanView::setDeviceSelect(bool selected)
+{
+    m_itemInfoSelectHash["device"] = selected;
+}
+
+void ArchitePlanView::setSysSelect(bool selected)
+{
+    m_itemInfoSelectHash["sys"] = selected;
+}
+
+void ArchitePlanView::setChannelSelect(bool selected)
+{
+    m_itemInfoSelectHash["channel"] = selected;
+}
+
+void ArchitePlanView::setAnalogSelect(bool selected)
+{
+    m_itemInfoSelectHash["analog"] = selected;
+}
+
+void ArchitePlanView::setSizeSelect(bool selected)
+{
+    m_itemInfoSelectHash["size"] = selected;
 }
 
 
@@ -3008,34 +3796,19 @@ QList<GraphicsView *> ArchitePlanView::haveAlarms(const QString &alarm)
     for(int i=0;i<m_stackedWidget->count();i++)
     {
         GraphicsView*view =dynamic_cast<GraphicsView*>(m_stackedWidget->widget(i));
-        if(alarm==tr("全部"))
+
+        if(view!=nullptr)
         {
-            if(view!=nullptr)
+            if(view->haveAlarmType(alarm))
             {
-                if(view->haveAnyAlarm())
+                if(!viewList.contains(view))
                 {
-                    if(!viewList.contains(view))
-                    {
-                        viewList.push_back(view);
-                    }
+                    viewList.push_back(view);
                 }
             }
-
         }
-        else
-        {
-            if(view!=nullptr)
-            {
-                if(view->haveAlarmType(alarm))
-                {
-                    if(!viewList.contains(view))
-                    {
-                        viewList.push_back(view);
-                    }
-                }
-            }
 
-        }
+
     }
     return viewList;
 }
@@ -3089,17 +3862,18 @@ void ArchitePlanView::clearAllGraphicsTextItem()
     {
         if(view!=nullptr)
         {
+            //disconnect(view,&GraphicsView::currentScaleValue,0,0);
             view->clearGraphicsTextItem();
         }
     }
 }
 
-void ArchitePlanView::startCreatView()
+void ArchitePlanView::itemIconSetting()
 {
-    Controller::instance()->delayMs(1000);
-    setGlobalArchiteFromJson();
-    initFromJsonFile();
+    QMetaObject::invokeMethod(m_itemSettingObj,"initIconSetting");
 }
+
+
 
 bool &ArchitePlanView::itemLimit()
 {

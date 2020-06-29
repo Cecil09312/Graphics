@@ -1,11 +1,13 @@
-#include "excelmanager.h"
+﻿#include "excelmanager.h"
 #include <QVariant>
 #include <QDebug>
+
 ExcelManager::ExcelManager(QObject *parent)
     : QObject(parent)
 {
 
 #ifdef Q_OS_WIN
+
     m_worksheets=nullptr;
     m_workbook=nullptr;
     m_excel = new QAxObject("Excel.Application",this);

@@ -4,15 +4,20 @@
 #include <QSystemSemaphore>
 #include <QSharedMemory>
 #include <QTransform>
+#include <QObject>
+#include "control/controller.h"
+
 int main(int argc, char *argv[])
 {
 
 #ifdef Q_OS_LINUX
     qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
     QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
-#endif
-    QApplication a(argc, argv);
+    QCoreApplication::setAttribute(Qt::AA_X11InitThreads, true);
+   // QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
 
+#endif
+   QApplication a(argc, argv);
     // 创建信号量
     QSystemSemaphore semaphore("SingleAppSemaphore", 1);
     // 启用信号量，禁止其他实例通过共享内存一起工作
@@ -46,6 +51,7 @@ int main(int argc, char *argv[])
     }
 
 
+
     QFile file(":/qss/styleSheet.qss");
     QByteArray array;
     if(file.open(QIODevice::ReadOnly))
@@ -55,15 +61,13 @@ int main(int argc, char *argv[])
     }
     a.setStyleSheet(QString(array));
 
-//    QTranslator translator;
-//      translator.load("D:/program/GraphicsDisplay/zh_CN.qm");
-//       a.installTranslator(&translator);
-
-
     CrtWidget w;
+    w.initArchiteView();
+    w.startTranslate();
     w.showMaximized();
-
-
+    w.setItemIconInfo();
+    w.readDeviceOnlineInfoFromJson();
+    Controller::instance()->getCommObj()->connectLink();
     return a.exec();
 }
 

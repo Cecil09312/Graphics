@@ -3,69 +3,38 @@
 #include "control/controller.h"
 #include <QDebug>
 GlobalGraphicsItem::GlobalGraphicsItem(GlobalGraphicsScene *scene)
-    :m_radius(25.0)
+    :m_radius(30.0)
 {
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);
     setAcceptHoverEvents(true);
     m_scene = scene;
+    m_propertyAnimation =nullptr;
     m_iconName = ":/images/build.png";
     setProperty("size",m_radius);
-    m_propertyAnimation = new QPropertyAnimation(this,"size");
-    m_propertyAnimation->setDuration(1000);
-    m_propertyAnimation->setStartValue(0.3);
-    m_propertyAnimation->setEndValue(1.2);
-    m_propertyAnimation->setLoopCount(-1);
+
     m_font.setPointSize(qFloor(m_radius/4));
-    m_font.setFamily("宋体");
-    connect(m_propertyAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &value)
-    {
-        qreal scale =qvariant_cast<qreal> (value);
-        setScale(scale);
-        if(m_scene!=nullptr)
-        {
-            m_scene->update();
-        }
-        //setItemSize(value.toDouble());
-    });
-
-    connect(m_propertyAnimation,&QPropertyAnimation::stateChanged,this,[=](QAbstractAnimation::State newState, QAbstractAnimation::State oldState)
-    {
-        if(oldState==QAbstractAnimation::Running&&newState==QAbstractAnimation::Stopped)
-        {
-            //setItemSize(40.0);
-            QTransform currentTransform = transform();
-            qreal xScale = currentTransform.m11();
-            qreal yScale = currentTransform.m22();
-            if(xScale*yScale>0)
-            {
-                if(qAbs(xScale-yScale)<=0.0001)
-                {
-                    setScale(1.0/xScale);
-                }
-                else
-                {
-                    currentTransform.scale(1.0/xScale,1.0/yScale);
-                    setTransform(currentTransform);
-                }
-                update();
-            }
-
-        }
-    });
+    m_font.setFamily("Times New Roman");
 
 }
 
 GlobalGraphicsItem::~GlobalGraphicsItem()
 {
     startAnimal(false);
+    if(m_propertyAnimation!=nullptr)
+    {
+        m_propertyAnimation->deleteLater();
+        m_propertyAnimation = nullptr;
+    }
+
 }
 
 void GlobalGraphicsItem::setIconName(const QString &name)
 {
-    m_iconName = name;
+    m_iconName = Controller::instance()->fileNameFromQml(name);
+   // m_scene->update();
+    Controller::instance()->getDrawImageThread()->drawImage(m_iconName);
     update();
-    // m_scene->update();
 }
 
 QString GlobalGraphicsItem::iconName()
@@ -105,26 +74,80 @@ void GlobalGraphicsItem::setBuildName(const QString &name)
 
 void GlobalGraphicsItem::startAnimal(bool isStart)
 {
-    if(isStart)
+
+    if(m_propertyAnimation==nullptr)
     {
-        m_propertyAnimation->start();
+        m_propertyAnimation = new QPropertyAnimation(this,"size");
+        m_propertyAnimation->setDuration(1200);
+        m_propertyAnimation->setStartValue(0.5);
+        m_propertyAnimation->setEndValue(2);
+        m_propertyAnimation->setLoopCount(-1);
+
+        connect(m_propertyAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &value)
+        {
+            if(m_scaleRunNum>=60)
+            {
+                m_scaleRunNum =0;
+            }
+            if(m_scaleRunNum%12==0)
+            {
+                qreal scale =qvariant_cast<qreal> (value);
+                setScale(scale);
+            }
+            m_scaleRunNum++;
+        });
     }
-    else
+
+    if(m_propertyAnimation!=nullptr)
     {
-        m_propertyAnimation->stop();
+        if(isStart)
+        {
+            m_propertyAnimation->start();
+        }
+        else
+        {
+            m_scaleRunNum =0;
+            m_propertyAnimation->stop();
+            QTransform currentTransform = transform();
+            qreal xScale = currentTransform.m11();
+            qreal yScale = currentTransform.m22();
+            if(xScale*yScale>0)
+            {
+                if(qAbs(xScale-yScale)<=0.0001)
+                {
+                    setScale(1.0/xScale);
+                }
+                else
+                {
+                    currentTransform.scale(1.0/xScale,1.0/yScale);
+                    setTransform(currentTransform);
+                }
+            }
+
+
+        }
     }
+
 }
 
 bool GlobalGraphicsItem::animalIsRunning()
 {
-    if(m_propertyAnimation->state()==QAbstractAnimation::Running)
+    if(m_propertyAnimation!=nullptr)
     {
-        return true;
+        if(m_propertyAnimation->state()==QAbstractAnimation::Running)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
     else
     {
         return false;
     }
+
 
 }
 
@@ -144,53 +167,49 @@ QRectF GlobalGraphicsItem::boundingRect() const
     if(m_radius>0)
     {
         return QRectF(-m_radius - penWidth / 2, -m_radius - penWidth / 2,
-                      m_radius*2.5 + penWidth, m_radius*2.5 + penWidth);
+                      m_radius*2.7+ penWidth, m_radius*2 + penWidth);
     }
     else
     {
 
-        return QRectF(-10 - penWidth / 2, -10 - penWidth / 2,
-                      25 + penWidth, 25 + penWidth);
+        return QRectF(-40 - penWidth / 2, -40 - penWidth / 2,
+                      108+ penWidth, 80 + penWidth);
     }
 }
 
 void GlobalGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
 {
+
+    QString curBuildName = m_buildName;
+
     m_font.setPointSize(qFloor(m_radius/4));
     painter->setFont(m_font);
+
+
     if(m_radius>0)
     {
-        painter->drawText(QRect(-m_radius,-m_radius,2*m_radius,2*m_radius),m_buildName);
-        QRectF rectF = QRectF(-m_radius/1.25,-m_radius/1.25,m_radius*2,m_radius*2);
-        if(m_iconName.endsWith(".svg"))
+
+        if(curBuildName.size()>8)
         {
-            QSvgRenderer renderer(m_iconName);
-            renderer.render(painter,rectF);
+            painter->drawText(QRectF(-m_radius,-m_radius,2.7*m_radius,2.7*m_radius),Qt::AlignHCenter,curBuildName);
         }
         else
         {
-            if(!QPixmap(m_iconName).isNull())
-            {
-                painter->drawPixmap(rectF.toRect(),QPixmap(m_iconName));
-            }
+            painter->drawText(QRectF(-m_radius,-m_radius,2*m_radius,2*m_radius),Qt::AlignHCenter,curBuildName);
         }
 
-    }
-    else
-    {
-        if(!QPixmap(m_iconName).isNull())
-        {
-            painter->drawPixmap(-40/1.25,-40/1.25,80,80,QPixmap(m_iconName));
-        }
-        painter->drawText(QRectF(-40,-40,80,80),m_buildName);
+        QRectF rectF = QRectF(-m_radius/2,-m_radius/2,m_radius,m_radius);
+       // DrawImageThread drawImageThread;
 
+        painter->drawImage(rectF,Controller::instance()->getDrawImageThread()->getImageFromName(m_iconName));
     }
+
 
     if (option->state & QStyle::State_Selected)
     {
         painter->setPen(QPen(Qt::black, 0, Qt::DashLine));
         painter->setBrush(Qt::NoBrush);
-        painter->drawRect(boundingRect().adjusted(m_radius*2.5, m_radius*2.5, -m_radius*2.5, -m_radius*2.5));
+        painter->drawRect(boundingRect().adjusted(0.4*m_radius,0.4*m_radius, -1.1*m_radius, -0.4*m_radius));
     }
 }
 
@@ -210,9 +229,9 @@ void GlobalGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void GlobalGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
-    QString hoverText = QString("建筑名称:%1\n"
-                                "值班人员:%2\n"
-                                "大小:%3").arg(m_buildName)
+
+    QString hoverText = QString(tr("建筑名称:%1")+ "\n"+ tr("值班人员:%2")+"\n"
+                                +tr("大小:%3")).arg(m_buildName)
             .arg(m_personOnDuty)
             .arg(m_radius);
     setHoverText(hoverText);

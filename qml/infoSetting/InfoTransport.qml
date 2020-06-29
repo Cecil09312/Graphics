@@ -16,6 +16,7 @@ Item {
         columns: 3
         spacing: 5
         Text {
+            id:managementAgencyTxt
             text: qsTr("消防控制室的管理机构")
             verticalAlignment: Text.AlignVCenter
             height: 30
@@ -23,6 +24,9 @@ Item {
         TextField {
             id: managInstitutionsTextField
             readOnly: true
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
         NaviButton {
             id: managInstitutionsBtn
@@ -34,6 +38,7 @@ Item {
         }
 
         Text {
+            id:completionDragram
             text: qsTr("系统竣工图纸")
             verticalAlignment: Text.AlignVCenter
             height: 30
@@ -41,6 +46,9 @@ Item {
         TextField {
             id: sysAsbuiltDrawingsTextField
             readOnly: true
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
         NaviButton {
             id: sysAsbuiltDrawingsBtn
@@ -52,6 +60,7 @@ Item {
         }
 
         Text {
+            id:explanationTxt
             text: qsTr("各分系统控制逻辑关系说明")
             verticalAlignment: Text.AlignVCenter
             height: 30
@@ -59,6 +68,9 @@ Item {
         TextField {
             id: logicalThatTextField
             readOnly: true
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
         NaviButton {
             id: logicalThatBtn
@@ -70,6 +82,7 @@ Item {
         }
 
         Text {
+            id:equipmentInstTxt
             text: qsTr("设备使用说明书")
             verticalAlignment: Text.AlignVCenter
             height: 30
@@ -77,6 +90,9 @@ Item {
         TextField {
             id: equipmentInstTextField
             readOnly: true
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
         NaviButton {
             id: equipmentInstBtn
@@ -88,6 +104,7 @@ Item {
         }
 
         Text {
+            id:sysProceduresTxt
             text: qsTr("系统操作规程")
             verticalAlignment: Text.AlignVCenter
             height: 30
@@ -95,6 +112,9 @@ Item {
         TextField {
             id: sysProceduresTextField
             readOnly: true
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
         NaviButton {
             id: sysProceduresBtn
@@ -106,6 +126,7 @@ Item {
         }
 
         Text {
+            id:emergencyPlanTxt
             text: qsTr("应急预案")
             verticalAlignment: Text.AlignVCenter
             height: 30
@@ -113,6 +134,9 @@ Item {
         TextField {
             id: emergencyPlanTextField
             readOnly: true
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
         NaviButton {
             id: emergencyPlanBtn
@@ -124,6 +148,7 @@ Item {
         }
 
         Text {
+            id:onDutySysTxt
             text: qsTr("值班制度")
             verticalAlignment: Text.AlignVCenter
             height: 30
@@ -131,6 +156,9 @@ Item {
         TextField {
             id: onDutySysTextField
             readOnly: true
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
         NaviButton {
             id: onDutySysBtn
@@ -142,6 +170,7 @@ Item {
         }
 
         Text {
+            id:maintainSysTxt
             text: qsTr("维护保养制度")
             verticalAlignment: Text.AlignVCenter
             height: 30
@@ -149,6 +178,9 @@ Item {
         TextField {
             id: maintainSysTextField
             readOnly: true
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
 
 
@@ -162,6 +194,7 @@ Item {
         }
 
         Text {
+            id:maintainRecordTxt
             text: qsTr("维护保养记录")
             verticalAlignment: Text.AlignVCenter
             height: 30
@@ -169,6 +202,9 @@ Item {
         TextField {
             id: maintainRecordTextField
             readOnly: true
+            selectByMouse: true
+            selectionColor: "blue"
+            selectedTextColor: "white"
         }
 
         NaviButton {
@@ -187,6 +223,7 @@ Item {
         id: fileDialog
         title: "Please choose a file"
         folder: filePath
+        flags: Qt.WindowStaysOnTopHint|Qt.MSWindowsFixedSizeDialogHint|Qt.WindowCloseButtonHint
         //folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
         onAccepted: {
 
@@ -254,5 +291,29 @@ Item {
         TransportInfo.setTransportInfo(qsTr("值班制度"), onDutySysTextField.text)
         TransportInfo.setTransportInfo(qsTr("维护保养制度"), maintainSysTextField.text)
         TransportInfo.setTransportInfo(qsTr("维护保养记录"), maintainRecordTextField.text)
+    }
+
+    function retranslate()
+    {
+      managementAgencyTxt.text = qsTr("消防控制室的管理机构")
+        managInstitutionsBtn.text = qsTr("选择文件")
+        completionDragram.text =  qsTr("系统竣工图纸")
+        sysAsbuiltDrawingsBtn.text = qsTr("选择文件")
+        explanationTxt.text = qsTr("各分系统控制逻辑关系说明")
+        logicalThatBtn.text = qsTr("选择文件")
+        equipmentInstTxt.text = qsTr("设备使用说明书")
+        equipmentInstBtn.text =  qsTr("选择文件")
+        sysProceduresTxt.text = qsTr("系统操作规程")
+        sysProceduresBtn.text = qsTr("选择文件")
+        emergencyPlanTxt.text = qsTr("应急预案")
+        emergencyPlanBtn.text = qsTr("选择文件")
+        onDutySysTxt.text = qsTr("值班制度")
+        onDutySysBtn.text = qsTr("选择文件")
+        maintainSysTxt.text = qsTr("维护保养制度")
+        maintainSysBtn.text = qsTr("选择文件")
+        maintainRecordTxt.text = qsTr("维护保养记录")
+        maintainRecordBtn.text = qsTr("选择文件")
+
+
     }
 }

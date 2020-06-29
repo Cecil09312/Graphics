@@ -24,10 +24,9 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
     m_globalItemSettingView->rootContext()->setContextProperty("GlobalItemSettingView",this);
     m_globalItemSettingView->setTitle(tr("建筑物信息设置界面"));
     m_globalItemObj = m_globalItemSettingView->rootObject();
-    m_globalItemSettingView->setMinimumSize(QSize(420,320));
-    m_globalItemSettingView->setMaximumSize(QSize(420,320));
+    m_globalItemSettingView->setFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
     m_menu->addAction(m_editItemAction);
-   // m_menu->addAction(m_saveGeneralLayoutItemsAction);
+
     m_menu->addAction(m_removeItemAction);
     m_menu->addAction(m_removeSelectItemAction);
     m_menu->addAction(m_clearItemAction);
@@ -36,24 +35,18 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
 
     connect(m_removeItemAction,&QAction::triggered,this,[=]()
     {
-        int btnValue= QMessageBox::warning(nullptr,tr("删除提示窗口"),tr("确认要删除吗?"),QMessageBox::Ok,QMessageBox::No);
+        int btnValue= QMessageBox::warning(nullptr,tr("删除提示窗口"),tr("删除当前建筑物以及其下的所有楼层和设备信息，确认要删除吗?"),QMessageBox::Ok,QMessageBox::No);
         if(btnValue==QMessageBox::Ok)
         {
             QGraphicsItem *graphicsItem =  itemAt(m_pointF,QTransform());
             GlobalGraphicsItem *item = dynamic_cast<GlobalGraphicsItem *>(graphicsItem);
             if(item!=nullptr)
             {
-                if(!item->animalIsRunning())
-                {
-                    removeItem(graphicsItem);
-                    emit deleteGlobalItem(item);
-                    delete graphicsItem;
-                    graphicsItem = nullptr;
-                }
-                else
-                {
-                    QMessageBox::warning(nullptr,tr("信息警告"),tr("有报警信息存在，不能被删除"));
-                }
+                removeItem(graphicsItem);
+                m_globalCurrentItemList.removeOne(item);
+                emit deleteGlobalItem(item);
+                delete graphicsItem;
+                graphicsItem = nullptr;
             }
             emit deleteItems();
         }
@@ -63,7 +56,7 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
     connect(m_removeSelectItemAction,&QAction::triggered,this,[=]()
     {
 
-        int btnValue= QMessageBox::warning(nullptr,tr("删除提示窗口"),tr("确认要删除吗?"),QMessageBox::Ok,QMessageBox::No);
+        int btnValue= QMessageBox::warning(nullptr,tr("删除提示窗口"),tr("删除所有选中的建筑物以及其下的所有楼层和设备信息，确认要删除吗?"),QMessageBox::Ok,QMessageBox::No);
         if(btnValue==QMessageBox::Ok)
         {
             QList<QGraphicsItem*>itemList =selectedItems();
@@ -77,6 +70,7 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
                     {
 
                         removeItem(item);
+                        m_globalCurrentItemList.removeOne(item);
                         emit deleteGlobalItem(item);
                         delete item;
                         item = nullptr;
@@ -93,11 +87,11 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
 
     });
 
-   // connect(m_saveGeneralLayoutItemsAction,&QAction::triggered,this,&GlobalGraphicsScene::saveGeneralLayoutItems);
+    // connect(m_saveGeneralLayoutItemsAction,&QAction::triggered,this,&GlobalGraphicsScene::saveGeneralLayoutItems);
 
     connect(m_editItemAction,&QAction::triggered,this,[=]()
     {
-        m_globalItemSettingView->close();
+        // m_globalItemSettingView->close();
         m_globalItemSettingView->show();
         Q_ASSERT(m_globalItemObj);
         QMetaObject::invokeMethod(m_globalItemObj,"setBuileName",Q_ARG(QVariant,currentBuildName()));
@@ -118,7 +112,7 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
     connect(m_clearItemAction,&QAction::triggered,this,[=]()
     {
 
-        int btnValue= QMessageBox::warning(nullptr,tr("清空提示窗口"),tr("确认要清空吗?"),QMessageBox::Ok,QMessageBox::No);
+        int btnValue= QMessageBox::warning(nullptr,tr("清空提示窗口"),tr("清空所有建筑物以及其下的楼层和设备信息，确认要清空吗?"),QMessageBox::Ok,QMessageBox::No);
         if(btnValue==QMessageBox::Ok)
         {
             QList<QGraphicsItem*>itemList=  items();
@@ -138,11 +132,13 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
             if(!isHaveAlarm)
             {
                 emit clearItem();
+                m_globalCurrentItemList.clear();
             }
             else
             {
                 QMessageBox::warning(nullptr,tr("信息警告"),tr("有报警信息存在，不能被清空"));
             }
+
         }
 
     });
@@ -196,7 +192,7 @@ void GlobalGraphicsScene::showMenu(const QPoint &point)
             {
                 m_clearItemAction->setEnabled(false);
             }
-           // m_saveGeneralLayoutItemsAction->setEnabled(true);
+            // m_saveGeneralLayoutItemsAction->setEnabled(true);
 
         }
         else
@@ -268,9 +264,12 @@ GlobalGraphicsItem * GlobalGraphicsScene::addGlobalGraphicsItem(QPointF point)
         }
     }
     m_num++;
+
     item->setBuildName(QString(tr("%1号楼")).arg(m_num));
     item->setPos(point);
     addItem(item);
+
+    m_globalCurrentItemList.push_back(item);
     return item;
 }
 
@@ -386,23 +385,87 @@ QString GlobalGraphicsScene::personOnDuty()
     }
 }
 
+bool GlobalGraphicsScene::buildNameIsExist(const QString &name)
+{
+    bool isExist = false;
+    QGraphicsItem *graphicsItem =  itemAt(m_pointF,QTransform());
+    GlobalGraphicsItem *item = dynamic_cast<GlobalGraphicsItem *>(graphicsItem);
+    QList <QGraphicsItem *>itemList=this->items();
+    foreach (QGraphicsItem *curItem, itemList) {
+        GlobalGraphicsItem *gItem = dynamic_cast<GlobalGraphicsItem *>(curItem);
+        if(gItem!=nullptr)
+        {
+            if(item!=gItem&&gItem->buildName()==name)
+            {
+                isExist = true;
+                break;
+            }
+        }
+    }
+    return isExist;
+    //    if(item!=nullptr)
+    //    {
+    //        return item->buildName();
+    //    }
+}
+
 GlobalGraphicsItem *GlobalGraphicsScene::itemFromBuildingName(const QString &buildingName)
 {
- QList<QGraphicsItem*>itemList  = items();
- GlobalGraphicsItem*item = nullptr;
- foreach (QGraphicsItem*curItem, itemList)
- {
-     GlobalGraphicsItem*gItem = dynamic_cast<GlobalGraphicsItem*>(curItem);
-     if(gItem!=nullptr)
-     {
-         if(gItem->buildName()==buildingName)
-         {
-             item = gItem;
-             break;
-         }
-     }
- }
- return item;
+    QList<QGraphicsItem*>itemList  = items();
+    GlobalGraphicsItem*item = nullptr;
+    foreach (QGraphicsItem*curItem, itemList)
+    {
+        GlobalGraphicsItem*gItem = dynamic_cast<GlobalGraphicsItem*>(curItem);
+        if(gItem!=nullptr)
+        {
+            if(gItem->buildName()==buildingName)
+            {
+                item = gItem;
+                break;
+            }
+        }
+    }
+    return item;
+}
+
+void GlobalGraphicsScene::retranslate()
+{
+    m_removeItemAction->setText(tr("删除"));
+    m_editItemAction->setText(tr("编辑"));
+    m_removeSelectItemAction->setText(tr("删除选中"));
+    m_goToAchitePlanAction->setText(tr("转到建筑平面"));
+    m_clearItemAction->setText(tr("清空"));
+    m_globalItemSettingView->setTitle(tr("建筑物信息设置界面"));
+    if(m_globalItemObj!=nullptr)
+    {
+        QMetaObject::invokeMethod(m_globalItemObj,"retranslate");
+    }
+}
+
+
+
+QList<GlobalGraphicsItem *> &GlobalGraphicsScene::currentItemList()
+{
+    return  m_globalCurrentItemList;
+}
+
+void GlobalGraphicsScene::sortItemList(const QList<QString> &nameList)
+{
+    //QList<GlobalGraphicsItem *> tempList;
+    if(nameList.size()==m_globalCurrentItemList.size())
+    {
+            foreach(GlobalGraphicsItem *item,m_globalCurrentItemList)
+            {
+                int key = nameList.indexOf(item->buildName());
+                int itemIndex = m_globalCurrentItemList.indexOf(item);
+                if(key!=itemIndex)
+                {
+                    m_globalCurrentItemList.swap(itemIndex,key);
+                }
+            }
+    }
+
+
 }
 
 void GlobalGraphicsScene::setCurrentItemIcon(const QString &icon)

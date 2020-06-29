@@ -22,7 +22,11 @@ public:
     Q_INVOKABLE qreal currentItemSize();
     Q_INVOKABLE QString currentItemIcon();
     Q_INVOKABLE QString personOnDuty();
+    Q_INVOKABLE bool buildNameIsExist(const QString &name);
     GlobalGraphicsItem *itemFromBuildingName(const QString &buildingName);
+    void retranslate();
+    QList<GlobalGraphicsItem *> &currentItemList();
+    void sortItemList(const QList<QString> &nameList);
 public slots:
     void setCurrentItemSize(qreal size);
     void setCurrentItemIcon(const QString &icon);
@@ -42,6 +46,7 @@ signals:
     void deleteItems();
 
 
+
 protected:
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent*event);
     void mousePressEvent(QGraphicsSceneMouseEvent*event);
@@ -57,6 +62,7 @@ private:
     int m_num;
     QQuickView *m_globalItemSettingView;
     QObject *m_globalItemObj;
+    QList<GlobalGraphicsItem *>m_globalCurrentItemList;
 };
 
 #endif // GLOBALGRAPHICSSCENE_H

@@ -11,7 +11,7 @@
 #include <QtConcurrent>
 
 JsonEdit *JsonEdit:: m_jsonEdit = nullptr;
-JsonEdit::AutoDelete autoDelete;
+JsonEdit::AutoDelete autoDelete();
 JsonEdit::JsonEdit(QObject *parent) : QObject(parent)
 {
     m_rootList = QList<QVariant>();

@@ -21,6 +21,7 @@ SqlManager::SqlManager(QObject *parent)
       d(new SqlManagerPrivate)
 {
 
+
 }
 
 SqlManager::~SqlManager()
@@ -31,6 +32,16 @@ SqlManager::~SqlManager()
         d = nullptr;
     }
 
+}
+
+QStringList SqlManager::getDatabases()
+{
+    return QStringList();
+}
+
+void SqlManager::quitThread()
+{
+   // quit();
 }
 QStringList SqlManager::getTables()
 {
@@ -83,7 +94,6 @@ bool SqlManager::insertBatch(const QString &tableName, const QList<QVariant> &va
             sqlStr+=")";
             QSqlQuery query(d->m_database);
             d->m_database.transaction();
-            // QThread::msleep(10);
             query.prepare(sqlStr);
             foreach (QVariant value, valueList)
             {
@@ -103,14 +113,14 @@ bool SqlManager::insertBatch(const QString &tableName, const QList<QVariant> &va
 QStringList SqlManager::executeQuery(const QString &sql)
 {
     QStringList valueList;
-    bool isTransaction= false;
+
     QFuture<void> future = QtConcurrent::run([&]
     {
         if(d->m_database.isOpen())
         {
             QSqlQuery query(d->m_database);
 
-            isTransaction= d->m_database.transaction();
+            bool isTransaction= d->m_database.transaction();
             if(isTransaction)
             {
 
@@ -131,8 +141,8 @@ QStringList SqlManager::executeQuery(const QString &sql)
 
         }
     });
-
     future.waitForFinished();
+
     return valueList;
 }
 
@@ -141,7 +151,7 @@ SqlManager*SqlManager::fromDriver(const QString &driver)
 
     if(driver.contains("SQLITE",Qt::CaseInsensitive))
     {
-        return new SqliteManager;
+        return new SqlManager;
     }
     else if(driver.contains("MYSQL",Qt::CaseInsensitive))
     {
@@ -244,6 +254,42 @@ void SqlManager::setPort(int p)
 QString SqlManager::connectionName()
 {
     return d->m_database.connectionName();
+}
+
+
+
+void SqlManager::processDb(QList<QString>  &sqlList)
+{
+
+    if(d->m_database.isOpen())
+    {
+        QSqlQuery query(d->m_database);
+
+        bool isTransaction= d->m_database.transaction();
+        if(isTransaction)
+        {
+            foreach (const QString &sql, sqlList)
+            {
+                query.prepare(sql);
+                bool isSuccess=query.exec();
+                if(isSuccess)
+                {
+                    sqlList.removeOne(sql);
+                }
+             //   msleep(5);
+
+            }
+            d->m_database.commit();
+            query.finish();
+        }
+
+
+    }
+}
+
+QSqlDatabase &SqlManager::getDb()
+{
+    return d->m_database;
 }
 
 

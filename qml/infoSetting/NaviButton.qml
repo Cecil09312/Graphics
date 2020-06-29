@@ -4,8 +4,8 @@ import QtQuick.Controls 2.2
 Button {
     id: button
 
-    font.pointSize: 14
-    font.family: "宋体"
+    font.pointSize: 12
+    font.family: "Times New Roman"
     background: Rectangle
     {
         id:backRect

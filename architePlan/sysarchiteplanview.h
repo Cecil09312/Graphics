@@ -17,6 +17,8 @@ public:
     explicit SysArchitePlanView(QWidget *parent = nullptr);
     ~SysArchitePlanView();
     QVariant infoToJson();
+    void retranslate();
+    void setSysArchitePlanInfo();
 signals:
 
 public slots:
@@ -25,14 +27,17 @@ public slots:
     void currentGraphicsViewZoom(bool isZoomIn);
 private:
     void init();
-    void setSysArchitePlanInfo();
+
 
 private:
-    QStackedWidget *m_stackedWidget;
+
     QListView *m_listView;
     QStandardItemModel *m_itemModel;
-    QHash<QString,GraphicsView*>m_graphicsViewHash;
+   // QHash<QString,GraphicsView*>m_graphicsViewHash;
+    GraphicsView *m_graphicsView;
     StyledItemDelegate *m_delegate;
+    QStringList m_sysViewNameList;
+    QHash<QString,QVariant>m_imageNameHash;
 
 };
 

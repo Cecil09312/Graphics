@@ -27,6 +27,7 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
     QHash<int, QByteArray> roleNames() const Q_DECL_OVERRIDE;
     Q_INVOKABLE void sqlCommit(const QString &sqlStr);
+    void sqlCommit(const QSqlQuery &query);
     QList<QString> roleNameList();
     void setRoleNameList(const QList <QString> &roleNamesList);
     void setTitleList(const QList <QString> &titleList);
@@ -47,11 +48,13 @@ public:
     void setDbPort(int port);
     Q_INVOKABLE bool dbOpen();
     Q_INVOKABLE void setDbOpen(bool isOpen);
-    Q_INVOKABLE void saveToPdf();
+    Q_INVOKABLE void saveToPdf(const QString &fileName);
     Q_INVOKABLE void startPrint();
     Q_INVOKABLE void printPreview();
     QList<QVariant>getValues();
     Q_INVOKABLE QString getValue(int row,const QString&roleName);
+signals:
+
 private:
     QHash<int, QByteArray>m_roleHash;
     QList<QString> m_roleNameList;
@@ -68,7 +71,6 @@ private:
     int m_dbPort;
     bool m_dbOpen;
     Print *m_print;
-
 };
 
 #endif // QMLTABLEMODEL_H

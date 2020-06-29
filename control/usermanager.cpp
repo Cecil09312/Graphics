@@ -2,11 +2,17 @@
 #include <QCoreApplication>
 #include <QDebug>
 UserManager::UserManager(QObject *parent)
-    : QObject(parent),
-      m_userRight(UserManager::User),
-      m_userName(tr("119"))
+    : QObject(parent)
+
 {
-    m_sqliteManager = SqlManager::fromDriver("SQLITE");
+#ifdef Q_OS_LINUX
+    m_userRight=UserManager::User;
+    m_userName="119";
+#elif defined (Q_OS_WIN)
+    m_userRight=UserManager::Super;
+    m_userName="super";
+#endif
+    m_sqliteManager = new SqlManager;
     if(m_sqliteManager!=nullptr)
     {
         QString dbName = QCoreApplication::applicationDirPath()+"/userSetting.db";
@@ -53,8 +59,8 @@ QString UserManager::password(const UserManager::UserRight &right,const QString 
         case UserManager::User:
             valueList= m_sqliteManager->executeQuery(QString("select password from UserInfo where userRight='普通用户' and userName = '%1'").arg(userName));
             break;
-        default:
-            break;
+//        default:
+//            break;
         }
         if(valueList.size()>0)
         {
@@ -79,8 +85,9 @@ void UserManager::setPassword(const UserManager::UserRight &right, const QString
         case UserManager::User:
             m_sqliteManager->executeQuery(QString("update UserInfo set password = '%1' where userRight = '普通用户' and userName = '%2'").arg(userPassword).arg(userName));
             break;
-        default:
-            break;
+
+//        default:
+//            break;
         }
     }
 }
@@ -123,8 +130,8 @@ void UserManager::addUser(const QString &userName, const UserManager::UserRight 
         case UserManager::User:
             m_sqliteManager->executeQuery(QString("insert into UserInfo values ('普通用户','%1','%2')").arg(userName).arg(password));
             break;
-        default:
-            break;
+//        default:
+//            break;
         }
     }
 }
@@ -144,8 +151,8 @@ void UserManager::removeUser(const QString &userName, const UserManager::UserRig
         case UserManager::User:
             m_sqliteManager->executeQuery(QString("delete from UserInfo where userRight = '普通用户' and userName='%1' and password='%2'").arg(userName).arg(password));
             break;
-        default:
-            break;
+//        default:
+//            break;
         }
     }
 }
@@ -168,8 +175,8 @@ bool UserManager::userIsExist(const QString &userName, const UserManager::UserRi
         case UserManager::User:
             valueList= m_sqliteManager->executeQuery(QString("select password from UserInfo where userRight='普通用户' and userName = '%1'").arg(userName));
             break;
-        default:
-            break;
+//        default:
+//            break;
         }
 //        if(valueList.size()>0)
 //        {

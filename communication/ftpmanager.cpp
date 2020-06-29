@@ -56,7 +56,7 @@ FtpManager::FtpManager(QObject *parent)
         {
             Q_UNUSED(error)
             emit ftpError(reply->errorString());
-            qDebug() << reply->errorString();
+            //qDebug() << reply->errorString();
         });
 
         connect(reply,&QNetworkReply::uploadProgress,this,[=](qint64 bytesSent, qint64 bytesTotal)
@@ -130,14 +130,17 @@ void FtpManager::uploadFile(const QString &fileName )
         url.setScheme("ftp");
         url.setHost(hostStr);
         QString curFileName=QUrl(pathStr).fileName();
-//        QFile curFile;
-//        if(!curFileName.isEmpty())
-//        {
-//            curFile.setFileName(curFileName);
-//            curFile.rename(m_fileNameHash.value(curFileName));
-//        }
-       // qDebug() << "curFile.fileName()" << curFile.fileName();
-        url.setPath(m_fileNameHash.value(curFileName));
+
+        if(m_fileNameHash.contains(curFileName))
+        {
+            url.setPath(m_fileNameHash.value(curFileName));
+
+        }
+        else
+        {
+            url.setPath(curFileName);
+        }
+
         if(!userStr.isEmpty())
         {
             url.setUserName(userStr);
@@ -157,10 +160,10 @@ void FtpManager::uploadFile(const QString &fileName )
     });
     future.waitForFinished();
     m_sendDataSuccess = false;
-    if(!m_timeoutTimer->isActive())
-    {
-        m_timeoutTimer->start(10000);
-    }
+//    if(!m_timeoutTimer->isActive())
+//    {
+//        m_timeoutTimer->start(10000);
+//    }
     emit sendData(url,dataArray);
 
 }

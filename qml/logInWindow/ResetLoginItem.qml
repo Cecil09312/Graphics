@@ -18,6 +18,7 @@ Rectangle
             spacing: 10
 
             Text {
+                id:passwordTxt
                 text: qsTr("密码")
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
@@ -29,6 +30,9 @@ Rectangle
                 id:passwordTextField
                 echoMode:TextInput.Password
                 width: 150
+                selectByMouse: true
+                selectionColor: "blue"
+                selectedTextColor: "white"
 
             }
         }
@@ -75,7 +79,7 @@ Rectangle
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             width: 150
-            font.family: "宋体"
+            font.family: "Times New Roman"
             font.pointSize: 12
         }
     }
@@ -98,5 +102,12 @@ Rectangle
     {
        loginState.text = ""
        passwordTextField.clear()
+    }
+
+    function retranslate()
+    {
+       passwordTxt.text = qsTr("密码")
+       confirmBtn.text = qsTr("确认")
+       cancelBtn.text = qsTr("退出")
     }
 }

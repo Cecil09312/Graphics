@@ -16,6 +16,7 @@ TreeView::TreeView(QWidget *parent):
 {
     initWidget();
     initMenu();
+    setDragDropMode(QAbstractItemView::InternalMove);
     setEditTriggers(QAbstractItemView::NoEditTriggers);
     connect(m_closeAction,&QAction::triggered,this,[=]()
     {
@@ -27,6 +28,7 @@ TreeView::TreeView(QWidget *parent):
         addChildItem(index);
         saveTreeItem();
         emit updateTreeItemInfo();
+
     });
 
     connect(m_editAction,&QAction::triggered,this,[=]()
@@ -44,14 +46,14 @@ TreeView::TreeView(QWidget *parent):
                 QMetaObject::invokeMethod(obj, "setArchiteImage",Q_ARG(QVariant,graphicsView->pixmapName()));
             }
         }
-        m_architeSettingView->close();
+        //m_architeSettingView->close();
         //QMetaObject::invokeMethod(obj,"clearTextField");
         m_architeSettingView->show();
     });
 
     connect(m_deleteAction,&QAction::triggered,this,[=]()
     {
-        int btnValue= QMessageBox::warning(nullptr,tr("删除提示窗口"),tr("确认要删除吗?"),QMessageBox::Ok,QMessageBox::No);
+        int btnValue= QMessageBox::warning(nullptr,tr("删除提示窗口"),tr("如果是建筑物，将删除此建筑物及其下的所有楼层和设备信息；如果是楼层，将删除此楼层和其下的设备信息；确认要删除吗?"),QMessageBox::Ok,QMessageBox::No);
         if(btnValue==QMessageBox::Ok)
         {
             QModelIndex index = indexAt(m_rootPoint);
@@ -61,38 +63,23 @@ TreeView::TreeView(QWidget *parent):
         }
 
     });
-    connect(m_clearAction,&QAction::triggered,this,[=]()
-    {
-        int btnValue= QMessageBox::warning(nullptr,tr("清空提示窗口"),tr("确认要清空吗?"),QMessageBox::Ok,QMessageBox::No);
-        if(btnValue==QMessageBox::Ok)
-        {
-            QList<GraphicsView*>viewList= Controller::instance()->getArchitePlanView()->getWidgetHash().values();
-            bool isCanClear = false;
-            foreach (GraphicsView*view, viewList)
-            {
-                if(view!=nullptr)
-                {
-                    if(view->haveAnyAlarm())
-                    {
-                        isCanClear = true;
-                        break;
-                    }
-                }
-            }
 
-            if(isCanClear)
-            {
-                QMessageBox::warning(this,tr("警告"),tr("存在报警信息，消除报警才能清除"));
-            }
-            else
-            {
-                clearItem();
-                saveTreeItem();
-                emit updateTreeItemInfo();
-            }
+//    connect(m_stdModel,&QStandardItemModel::rowsAboutToBeMoved,this,[=](const QModelIndex &sourceParent, int sourceStart, int sourceEnd, const QModelIndex &destinationParent, int destinationRow)
+//    {
+//        qDebug() << sourceParent << sourceStart <<sourceEnd << destinationParent <<destinationRow;
+//    });
+//    connect(m_clearAction,&QAction::triggered,this,[=]()
+//    {
+//        int btnValue= QMessageBox::warning(nullptr,tr("清空提示窗口"),tr("确认要清空吗?"),QMessageBox::Ok,QMessageBox::No);
+//        if(btnValue==QMessageBox::Ok)
+//        {
+//            QList<GraphicsView*>viewList= Controller::instance()->getArchitePlanView()->getWidgetHash().values();
 
-        }
-    });
+//            clearItem();
+//            saveTreeItem();
+//            emit updateTreeItemInfo();
+//        }
+//    });
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this,&TreeView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)
     {
@@ -131,20 +118,20 @@ TreeView::TreeView(QWidget *parent):
                 m_addChildAction->setEnabled(false);
             }
 
-            if(m_stdModel->rowCount()>0)
-            {
-                m_clearAction->setEnabled(true);
-            }
-            else
-            {
-                m_clearAction->setEnabled(false);
-            }
+//            if(m_stdModel->rowCount()>0)
+//            {
+//                m_clearAction->setEnabled(true);
+//            }
+//            else
+//            {
+//                m_clearAction->setEnabled(false);
+//            }
         }
         else
         {
             m_editAction->setEnabled(false);
             m_deleteAction->setEnabled(false);
-            m_clearAction->setEnabled(false);
+            //m_clearAction->setEnabled(false);
             //m_addAction->setEnabled(false);
             m_addChildAction->setEnabled(false);
 
@@ -165,6 +152,8 @@ TreeView::TreeView(QWidget *parent):
         }
 
     });
+
+
 }
 
 TreeView::~TreeView()
@@ -299,6 +288,45 @@ void TreeView::closeQuickView()
     m_architeSettingView->close();
 }
 
+bool TreeView::nameIsExist(const QString &name)
+{
+    bool isExist = false;
+    QStandardItem *item = m_stdModel->itemFromIndex(indexAt(m_rootPoint));
+
+    if(item!=nullptr)
+    {
+        QStandardItem *parentItem = item->parent();
+        if(parentItem!=nullptr)
+        {
+            int row =parentItem->rowCount();
+
+            for(int i=0;i<row;i++)
+            {
+                QStandardItem *curChild=  parentItem->child(i);
+                if(curChild!=nullptr)
+                {
+                    if(curChild->text()==name&&item!=curChild)
+                    {
+                        isExist = true;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return isExist;
+}
+
+void TreeView::retranslate()
+{
+    m_architeSettingView->setTitle(tr("建筑平面设置界面"));
+    m_addChildAction->setText(tr("添加楼层"));
+    m_editAction->setText(tr("编辑"));
+    m_deleteAction->setText(tr("删除"));
+    //m_clearAction->setText(tr("清空"));
+    m_closeAction->setText(tr("关闭"));
+}
+
 
 
 void TreeView::deleteTreeItem(QModelIndex index)
@@ -306,15 +334,6 @@ void TreeView::deleteTreeItem(QModelIndex index)
     if(index.isValid())
     {
         QStandardItem *standardItem = m_stdModel->itemFromIndex(index);
-        GraphicsView*view=  Controller::instance()->getArchitePlanView()->viewFromChildItem(standardItem);
-        if(view!=nullptr)
-        {
-            if(view->haveAnyAlarm())
-            {
-                QMessageBox::warning(this,tr("警告"),tr("存在报警，消除报警后才能删除"));
-                return;
-            }
-        }
 
         emit deleteIndex(standardItem);
         if(standardItem->parent()==nullptr)
@@ -408,6 +427,7 @@ void TreeView::initWidget()
     m_architeSettingView->setGeometry(500,50,m_architeSettingView->width(),m_architeSettingView->height());
     m_architeSettingView->rootContext()->setContextProperty("TreeView",this);
     m_architeSettingView->setTitle(tr("建筑平面设置界面"));
+    m_architeSettingView->setFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
     header()->hide();
     setModel(m_stdModel);
 }
@@ -419,13 +439,13 @@ void TreeView::initMenu()
     m_addChildAction = new QAction(tr("添加楼层"),m_treeSettingMenu);
     m_editAction = new QAction(tr("编辑"),m_treeSettingMenu);
     m_deleteAction= new QAction(tr("删除"),m_treeSettingMenu);
-    m_clearAction= new QAction(tr("清空"),m_treeSettingMenu);
+    //m_clearAction= new QAction(tr("清空"),m_treeSettingMenu);
     m_closeAction = new QAction(tr("关闭"),m_treeSettingMenu);
     //m_treeSettingMenu->addAction(m_addAction);
     m_treeSettingMenu->addAction(m_addChildAction);
     m_treeSettingMenu->addAction(m_editAction);
     m_treeSettingMenu->addAction(m_deleteAction);
-    m_treeSettingMenu->addAction(m_clearAction);
+    //m_treeSettingMenu->addAction(m_clearAction);
     m_treeSettingMenu->addAction(m_closeAction);
 
 }

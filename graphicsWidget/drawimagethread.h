@@ -4,21 +4,24 @@
 #include <QRectF>
 #include <QImage>
 #include <QPainter>
-class DrawImageThread : public QThread
+#include <QtConcurrent>
+
+class DrawImageThread : public QObject
 {
     Q_OBJECT
 public:
     DrawImageThread(QObject*parent = nullptr);
     ~DrawImageThread();
-    void drawImage();
-    void setImageName(const QString &name);
-    void setImageRect(const QRectF& rectF);
+    void drawImage(const QString &name);
+    QImage getImageFromName(const QString &name);
+     //QPixmap getImage(const QString &name);
 signals:
-    void startDrawImages();
-    void currentImage(QImage image);
+     void startDrawImage(const QString&name);
+     void drawCurrentImage();
 private:
-    QString m_imageName;
-    QRectF m_rectF;
+     QThread *m_thread;
+     QHash<QString,QImage>m_imageHash;
+
 
 };
 

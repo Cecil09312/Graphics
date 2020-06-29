@@ -4,7 +4,6 @@ import QtQuick.Layouts 1.3
 import ftpConfigurationManager 1.0
 import tcpConfigurationManager 1.0
 import tcpLink 1.0
-import "../databaseSetting"
 import transportInfo 1.0
 
 
@@ -48,6 +47,7 @@ Item {
                 // anchors.horizontalCenter: parent.horizontalCenter
                 GridLayout {
                     Text {
+                        id:addrTxt
                         text: qsTr("地址:")
                         Layout.row: 0
                         Layout.column: 0
@@ -57,18 +57,26 @@ Item {
                         id: tcpAddrTextField
                         Layout.row: 0
                         Layout.column: 1
+                        selectByMouse: true
+                        selectionColor: "blue"
+                        selectedTextColor: "white"
                     }
 
                     Text {
+                        id:portTxt
                         text: qsTr("端口:")
                         Layout.row: 1
                         Layout.column: 0
+
                     }
 
                     TextField {
                         id: tcpPortTextField
                         Layout.row: 1
                         Layout.column: 1
+                        selectByMouse: true
+                        selectionColor: "blue"
+                        selectedTextColor: "white"
                     }
 
                     Row {
@@ -112,6 +120,7 @@ Item {
                 title: qsTr("FTP信息设置")
                 GridLayout {
                     Text {
+                        id:ftpAddrTxt
                         text: qsTr("地址:")
                         Layout.row: 0
                         Layout.column: 0
@@ -122,9 +131,13 @@ Item {
                         Layout.row: 0
                         Layout.column: 1
                         text: "192.195.1.1"
+                        selectByMouse: true
+                        selectionColor: "blue"
+                        selectedTextColor: "white"
                     }
 
                     Text {
+                        id:ftpPortTxt
                         text: qsTr("端口:")
                         Layout.row: 1
                         Layout.column: 0
@@ -135,9 +148,13 @@ Item {
                         Layout.row: 1
                         Layout.column: 1
                         text: "21"
+                        selectByMouse: true
+                        selectionColor: "blue"
+                        selectedTextColor: "white"
                     }
 
                     Text {
+                        id:ftpUserTxt
                         text: qsTr("用户:")
                         Layout.row: 2
                         Layout.column: 0
@@ -148,9 +165,13 @@ Item {
                         Layout.row: 2
                         Layout.column: 1
                         text: "sss"
+                        selectByMouse: true
+                        selectionColor: "blue"
+                        selectedTextColor: "white"
                     }
 
                     Text {
+                        id:ftpPasswordTxt
                         text: qsTr("密码:")
                         Layout.row: 3
                         Layout.column: 0
@@ -162,6 +183,9 @@ Item {
                         Layout.column: 1
                         text: "1234"
                         echoMode: TextInput.Password
+                        selectByMouse: true
+                        selectionColor: "blue"
+                        selectedTextColor: "white"
                     }
 
                     NaviButton {
@@ -237,6 +261,23 @@ Item {
     function controlCenterEnable(enable)
     {
        controlCenterCheckBox.checked =enable
+    }
+
+    function retranslate()
+    {
+
+        controlCenterCheckBox.text = qsTr("中心通信权限打开")
+        tcpSettingGroupBox.title =qsTr("TCP信息设置")
+        addrTxt.text = qsTr("地址:")
+        portTxt.text = qsTr("端口:")
+        saveTcpInfoBtn.text = qsTr("保存并连接")
+        closeTcpInfoBtn.text = qsTr("关闭")
+        ftpSettingGroupBox.title = qsTr("FTP信息设置")
+        ftpAddrTxt.text = qsTr("地址:")
+        ftpPortTxt.text =  qsTr("端口:")
+        ftpUserTxt.text = qsTr("用户:")
+        ftpPasswordTxt.text = qsTr("密码:")
+        saveftpInfoBtn.text = qsTr("保存")
     }
 
 }

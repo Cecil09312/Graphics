@@ -15,11 +15,10 @@ public:
     void setPicture(const QString &pictureName);
     QString pictureName();
     GlobalGraphicsScene *currentScene();
+    void retranslate();
 
 private:
     SvgItem *m_item;
-   // QGraphicsSvgItem *m_svgItem;
-   // QGraphicsPixmapItem *m_pixmapItem;
     GlobalGraphicsScene *m_graphicsScene;
     QString m_pictureName;
 };

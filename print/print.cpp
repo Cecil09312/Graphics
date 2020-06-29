@@ -4,29 +4,47 @@
 #include <QFileDialog>
 #include <QTextBlock>
 #include <QPrintPreviewDialog>
+#include "control/controller.h"
 Print::Print(QObject *parent) : QObject(parent)
 {
+    m_thread = new QThread;
 
-}
+    this->moveToThread(m_thread);
+   m_thread->start();
 
-void Print::saveToPdf(QList<QString> roleNameList, QList<QVariant> valueList)
-{
-    QPrinter printer(QPrinter::HighResolution);
-    printer.setPageSize(QPageSize(QPageSize::A4));
-    printer.setOutputFormat(QPrinter::PdfFormat);
-
-    QString fileName=   QFileDialog::getSaveFileName(nullptr, tr("保存PDF文件"), QString(), "*.pdf");
-    if(!fileName.isEmpty())
+    connect(this,&Print::startSaveToPdf,this,[&](const QString&valueStr,const QString &fileName)
     {
-        printer.setOutputFileName(fileName);
-        QTextDocument text_document;
-        text_document.setHtml(createHtml(roleNameList,valueList,580));
-        text_document.print(&printer);
-        text_document.end();
-    }
+        QPrinter printer(QPrinter::HighResolution);
+        printer.setPageSize(QPageSize(QPageSize::A4));
+        printer.setOutputFormat(QPrinter::PdfFormat);
+
+
+        QString curFileName;
+        if(!fileName.endsWith(".pdf"))
+        {
+            curFileName= fileName+".pdf";
+        }
+        curFileName= Controller::instance()->fileNameFromQml(fileName);
+
+        printer.setOutputFileName(curFileName);
+        QTextDocument textDocument;
+        textDocument.setHtml(valueStr);
+        textDocument.print(&printer);
+        textDocument.end();
+    });
 }
 
-QString Print::createHtml(QList<QString> roleNameList, QList<QVariant> valueList,int tableSize)
+void Print::saveToPdf(const QList<QString> &roleNameList, const QList<QVariant> &valueList,const QString&fileName)
+{
+
+    QString curFileValue = createHtml(roleNameList,valueList,580);
+    emit startSaveToPdf(curFileValue,fileName);
+
+   // emit startSaveToPdf(roleNameList,valueList,fileName);
+
+}
+
+QString Print::createHtml(const QList<QString> &roleNameList, const QList<QVariant> &valueList,int tableSize)
 {
     int roleSize = roleNameList.size();
     int valueSize = valueList.size();
@@ -58,29 +76,30 @@ QString Print::createHtml(QList<QString> roleNameList, QList<QVariant> valueList
     return html;
 }
 
-void Print::startPrint(QList<QString> roleNameList, QList<QVariant> valueList)
+void Print::startPrint(const QList<QString> &roleNameList, const QList<QVariant> &valueList)
 {
     QPrinter printer(QPrinter::HighResolution);
     printer.setPageSize(QPageSize(QPageSize::A4));
-    QTextDocument text_document;
-    text_document.setHtml(createHtml(roleNameList,valueList,580));
-    text_document.print(&printer);
-    text_document.end();
+    QTextDocument textDocument;
+    textDocument.setHtml(createHtml(roleNameList,valueList,580));
+    textDocument.print(&printer);
+    textDocument.end();
 }
 
-void Print::printPreview(QList<QString> roleNameList, QList<QVariant> valueList)
+void Print::printPreview(const QList<QString> &roleNameList, const QList<QVariant> &valueList)
 {
     QPrinter printer(QPrinter::HighResolution);
     //纸张大小
     printer.setPageSize(QPageSize(QPageSize::A4));
     QPrintPreviewDialog previewDialog(&printer, nullptr);
+    previewDialog.setWindowFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
     previewDialog.setMinimumSize(960,720);
     connect(&previewDialog,&QPrintPreviewDialog::paintRequested,this,[=](QPrinter *printer)
     {
-        QTextDocument text_document;
-        text_document.setHtml(createHtml(roleNameList,valueList,580));
-        text_document.print(printer);
-        text_document.end();
+        QTextDocument textDocument;
+        textDocument.setHtml(createHtml(roleNameList,valueList,580));
+        textDocument.print(printer);
+        textDocument.end();
     });
     previewDialog.exec();
 

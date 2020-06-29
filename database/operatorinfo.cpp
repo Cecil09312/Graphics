@@ -6,7 +6,7 @@
 OperatorInfo::OperatorInfo(QObject *parent)
     : QObject(parent)
 {
-    m_sqlManager = SqlManager::fromDriver("QSQLITE");
+    m_sqlManager = new SqliteManager;
     m_operatorInfoDbPath = QCoreApplication::applicationDirPath()+"/operatorInfo.db";
     m_sqlManager->setDataBase("QSQLITE","operatorInfo", "",
                               "","",m_operatorInfoDbPath,6666);
@@ -14,7 +14,7 @@ OperatorInfo::OperatorInfo(QObject *parent)
     if(m_sqlManager->isOpen())
     {
         QDateTime curDateTime = QDateTime::currentDateTime();
-        curDateTime = curDateTime.addMonths(-6);
+        curDateTime = curDateTime.addYears(-3);
         QString curDateTimeStr = curDateTime.toString("yyyy/MM/dd hh:mm:ss");
         QStringList maintenanceList;
         maintenanceList << "设备编码 text primary key not null"<<"维保时间 text not null"<<"状态现象 text"<<"维保方法 text"<<"内容描述 text"<<"维保员 text"<<"楼层 text" <<"部位 text"<<"系统 text" <<"建筑名称 text"<<"值班人员 text" <<"操作人员 text";
@@ -97,8 +97,10 @@ void OperatorInfo::insertEvent(const QString &eventName,const QString &result)
     case UserManager::Super:
         userRightStr = "超级用户";
         break;
-    default:
-        break;
+
+//    default:
+
+//        break;
     }
     m_sqlManager->executeQuery(QString("insert into operator values ('%1','%2','%3','%4','%5')").arg(userName).arg(userRightStr).arg(eventName).arg(result).arg(currentTime));
 }

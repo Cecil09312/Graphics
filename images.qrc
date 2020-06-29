@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>images/close.png</file>
-        <file>images/help.png</file>
         <file>images/userLogin.png</file>
         <file>images/settings.png</file>
         <file>images/dialog.png</file>
@@ -10,8 +9,6 @@
         <file>images/fireAlarm.png</file>
         <file>images/delete.png</file>
         <file>images/ldlogo.png</file>
-        <file>images/fire.png</file>
-        <file>images/limitSettings.png</file>
-        <file>qml/deviceOnline/DeviceOnline.qml</file>
+        <file>images/greenCircle.png</file>
     </qresource>
 </RCC>

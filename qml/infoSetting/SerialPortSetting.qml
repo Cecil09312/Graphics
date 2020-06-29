@@ -28,6 +28,7 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         spacing: 50
         GroupBox {
+            id:groupBox
             title: qsTr("主机通信")
             GridLayout {
 
@@ -101,7 +102,7 @@ Item {
                     id: parityComboBox
                     Layout.row: 4
                     Layout.column: 1
-                    model: ["无校验", "奇校验", "偶校验"]
+                    model: [qsTr("无校验"), qsTr("奇校验"), qsTr("偶校验")]
                     enabled: false
                 }
 
@@ -116,7 +117,7 @@ Item {
                     id: flowControlComboBox
                     Layout.row: 5
                     Layout.column: 1
-                    model: ["无"]
+                    model: [qsTr("无")]
                     enabled: false
                 }
 
@@ -166,7 +167,7 @@ Item {
 
                 NaviButton {
                     id: closeBtn
-                    text: "关闭"
+                    text: qsTr("关闭")
                     Layout.row: 8
                     Layout.column: 1
                     Layout.fillWidth: true
@@ -363,8 +364,27 @@ Item {
                                      value: SerialPortInfo.portNameValue(i)
                                  })
         }
-        portComboBox.currentIndex = portComboBox.find(
-                    SerialPortInfo.currentPortName())
+
+        var curIndex = portComboBox.find(SerialPortInfo.currentPortName());
+        if(curIndex<0)
+        {
+           portComboBox.currentIndex = portComboBox.find("ttyS1")
+        }
+        else
+        {
+           portComboBox.currentIndex =curIndex;
+        }
+
+//        if(SerialPortInfo.currentPortName()!="ttyS1")
+//        {
+
+
+//        }
+//        else
+//        {
+//        portComboBox.currentIndex = portComboBox.find(
+//                    SerialPortInfo.currentPortName())
+//        }
     }
 
 //    function setPortName1() {
@@ -409,5 +429,21 @@ Item {
                     SerialPortInfo.currentFlowControl())
 //        flowControlComboBox1.currentIndex = flowControlComboBox1.find(
 //                    IndicatorConfiguration.currentFlowControl())
+    }
+
+    function retranslate()
+    {
+     groupBox.title = qsTr("主机通信")
+        port.text = qsTr("端口")
+        baud.text = qsTr("波特率")
+        dataBits.text = qsTr("数据位")
+        stopBits.text = qsTr("停止位")
+        parity.text = qsTr("校验")
+        parityComboBox.model = [qsTr("无校验"), qsTr("奇校验"), qsTr("偶校验")]
+        flowControl.text = qsTr("流控制")
+        flowControlComboBox.model =[qsTr("无")]
+        flushBtn.text = qsTr("刷新")
+        saveBtn.text = qsTr("保存并打开")
+        closeBtn.text = qsTr("关闭")
     }
 }
