@@ -7,7 +7,7 @@ UserManager::UserManager(QObject *parent)
 {
 #ifdef Q_OS_LINUX
     m_userRight=UserManager::User;
-    m_userName="119";
+    m_userName="default";
 #elif defined (Q_OS_WIN)
     m_userRight=UserManager::Super;
     m_userName="super";
@@ -184,7 +184,12 @@ bool UserManager::userIsExist(const QString &userName, const UserManager::UserRi
 //        }
     }
     return !valueList.isEmpty();
-   // return customPassword;
+    // return customPassword;
+}
+
+void UserManager::deleteUsers(const QString &userName)
+{
+    m_sqliteManager->executeQuery(QString("delete from UserInfo where userRight != '超级用户' and userName='%1'").arg(userName));
 }
 
 UserManager::~UserManager()
@@ -196,6 +201,15 @@ UserManager::~UserManager()
         m_sqliteManager = nullptr;
     }
 }
+
+
+
+QVariantList UserManager::selectUsers()
+{
+    return  m_sqliteManager->queryFromSql(QString("select userName from UserInfo where userRight!='超级用户'"));
+}
+
+
 
 
 

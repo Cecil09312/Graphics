@@ -24,6 +24,7 @@ signals:
     void setAlarmNum(int totalNum,int curNum);
     void showAlalogValue();
     void showAlarmValue();
+    void addDataToTable(int curDataSize);
 public slots:
     void toMaxPosition();
 private:

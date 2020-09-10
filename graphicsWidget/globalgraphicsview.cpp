@@ -61,3 +61,22 @@ void GlobalGraphicsView::retranslate()
     }
 
 }
+
+void GlobalGraphicsView::deleteItemFromScene(GlobalGraphicsItem *item)
+{
+    if(m_graphicsScene!=nullptr)
+    {
+        if(m_graphicsScene->items().contains(item))
+        {
+            m_graphicsScene->removeItem(item);
+            m_graphicsScene->currentItemList().removeOne(item);
+            if(item!=nullptr)
+            {
+                item->deleteLater();
+                item=nullptr;
+            }
+
+        }
+    }
+
+}

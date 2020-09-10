@@ -28,7 +28,10 @@ public:
                                   const QString &user, const QString &password, const QString &dataBase, const int &port);
     bool insertBatch(const QString &tableName, const QList<QVariant> &valueList);
     virtual QStringList executeQuery(const QString &sql);
+
+    Q_INVOKABLE QVariantList queryFromSql(const QString &sql);
     static SqlManager *fromDriver(const QString &driver);
+    QList<QVariant> getQuearyRecord(const QString &sql);
     Q_INVOKABLE bool open();
     Q_INVOKABLE bool isOpen() const;
     Q_INVOKABLE void close();

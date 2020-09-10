@@ -138,7 +138,7 @@ bool GraphicsView::haveAlarmType(const QString &type)
         GraphicsItem*currentItem=  dynamic_cast<GraphicsItem*>(item);
         if(currentItem!=nullptr)
         {
-            if(currentItem->currentState()!=tr("正常")&&currentItem->alarmType().endsWith(type))
+            if(currentItem->currentState()!="OK"&&currentItem->alarmType().contains(type))
             {
                 haveAlarm = true;
                 break;
@@ -202,8 +202,8 @@ void GraphicsView::removeGraphicsTextItem(const QString &alarmType)
     {
         m_textItemHash.remove(alarmType);
         m_scene->removeItem(item);
-        delete item;
-        item = nullptr;
+//        delete item;
+//        item = nullptr;
     }
     disconnect(this,&GraphicsView::currentScaleValue,nullptr,nullptr);
     // textItem->setPos(pointF);
@@ -216,8 +216,8 @@ void GraphicsView::clearGraphicsTextItem()
         if(item!=nullptr)
         {
             m_scene->removeItem(item);
-            delete item;
-            item = nullptr;
+//            delete item;
+//            item = nullptr;
         }
     }
     m_textItemHash.clear();
@@ -247,6 +247,11 @@ void GraphicsView::updateSvg()
 QGraphicsScene *GraphicsView::sysScene()
 {
     return m_sysViewScene;
+}
+
+QList<QGraphicsTextItem *> GraphicsView::textItemList()
+{
+    return m_textItemHash.values();
 }
 
 

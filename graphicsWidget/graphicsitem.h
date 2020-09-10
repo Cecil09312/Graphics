@@ -60,7 +60,7 @@ public:
     void stopAnimations();
     void startColorAnimation();
     void stopColorAnimation();
-    void startScaleAnimation();
+    void startScaleAnimation(int loopCount=-1);
     void stopScaleAnimation();
     void setAnimationDuration(int duration);
     void setAnimationLoopCount(int count);

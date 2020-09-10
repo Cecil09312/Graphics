@@ -9,6 +9,7 @@
 #include <QModelIndex>
 #include <QQuickItem>
 #include <QQmlContext>
+#include <QDesktopWidget>
 //#ifdef Q_OS_LINUX
 #include "xlsxdocument.h"
 
@@ -30,7 +31,7 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
     //    initFromJsonFile();
     setContextMenuPolicy(Qt::CustomContextMenu);
 
-
+    m_typeList << tr("火警") << tr("启动") << tr("监管") << tr("故障")<< tr("反馈") << tr("屏蔽");
     connect(this,&ArchitePlanView::customContextMenuRequested,this,[=](const QPoint&/*pos*/)
     {
         if(m_tabWidget->currentIndex()==1)
@@ -43,23 +44,48 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
 
     connect(m_deleteAction,&QAction::triggered,this,[=]()
     {
-        int btnValue= QMessageBox::warning(nullptr,tr("删除提示窗口"),tr("确认要删除吗?"),QMessageBox::Ok,QMessageBox::No);
-        if(btnValue==QMessageBox::Ok)
-        {
-            GraphicsView *view= currentGraphicsView();
-            if(view!=nullptr)
-            {
-                GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
-                if(scene!=nullptr)
-                {
-                    GraphicsItem*item= dynamic_cast<GraphicsItem*>(scene->itemAt(scene->currentScenePos(),QTransform())) ;
-                    deleteItemInfoFromDb(item);
 
-                    scene->removeGraphicsItem(scene->currentScenePos());
+        GraphicsView *view= currentGraphicsView();
+        if(view!=nullptr)
+        {
+            GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
+            if(scene!=nullptr)
+            {
+                GraphicsItem*item= dynamic_cast<GraphicsItem*>(scene->itemAt(scene->currentScenePos(),QTransform())) ;
+                if(item!=nullptr)
+                {
+
+                    if(item->currentState()=="OK"||item->currentState().isEmpty())
+                    {
+                        QMessageBox messageBox(QMessageBox::Question,tr("删除提示窗口"),tr("确认要删除吗?"));
+                        messageBox.addButton(QMessageBox::Yes);
+                        messageBox.addButton(QMessageBox::No);
+                        messageBox.setWindowFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
+                        int btnValue=messageBox.exec();
+                        if(btnValue==QMessageBox::Yes)
+                        {
+                            deleteItemInfoFromDb(item);
+                            scene->removeGraphicsItem(scene->currentScenePos());
+                            resetItemNumFromView(view);
+                            if(item!=nullptr)
+                            {
+                                Controller::instance()->getOperatorInfo()->insertEvent(tr("删除设备"),QString(tr("分机号:%1,回路号:%2,地址号:%3,网络号:%4,设备删除成功")).arg(item->extNum())
+                                                                                       .arg(item->loopNum()).arg(item->addrNum()).arg(item->networkNum()));
+                            }
+
+
+                        }
+
+                    }
+                    else
+                    {
+                        QMessageBox messageBox(QMessageBox::Warning,tr("提示窗口"),tr("正在报警或者不是正常状态,不能删除!"));
+                        messageBox.setWindowFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
+                        messageBox.exec();
+                    }
 
                 }
 
-                resetItemNumFromView(view);
             }
         }
 
@@ -114,25 +140,7 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
         }
     });
 
-    connect(m_analogValueQueryAction,&QAction::triggered,this,[=](){
 
-        GraphicsView *view= currentGraphicsView();
-        if(view!=nullptr)
-        {
-            GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
-            if(scene!=nullptr)
-            {
-                GraphicsItem *currentItem= dynamic_cast<GraphicsItem *> (scene->itemAt(scene->currentScenePos(),QTransform()));
-                if(currentItem!=nullptr)
-                {
-                    if(currentItem->channelNum()==0)
-                    {
-                        emit sendAnalogValue(currentItem,0);
-                    }
-                }
-            }
-        }
-    });
 
     connect(m_itemTextVisiableAction,&QAction::triggered,this,[=]()
     {
@@ -152,21 +160,35 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
     });
     connect(m_clearAction,&QAction::triggered,this,[=]()
     {
-        int btnValue= QMessageBox::warning(nullptr,tr("清空提示窗口"),tr("确认要清空吗?"),QMessageBox::Ok,QMessageBox::No);
-        if(btnValue==QMessageBox::Ok)
+        GraphicsView *view= currentGraphicsView();
+        if(view!=nullptr)
         {
-            GraphicsView *view= currentGraphicsView();
-            if(view!=nullptr)
+            GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
+            if(scene!=nullptr)
             {
-                GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
-                if(scene!=nullptr)
+                bool isHavingAlarm = scene->isHavingAlarms();
+                if(!isHavingAlarm)
                 {
-                    bool isHavingAlarm = scene->isHavingAlarms();
-                    if(!isHavingAlarm)
+                    QMessageBox messageBox(QMessageBox::Question,tr("清空提示窗口"),tr("确认要清空吗?"));
+                    messageBox.addButton(QMessageBox::Yes);
+                    messageBox.addButton(QMessageBox::No);
+                    messageBox.setWindowFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
+                    int btnValue=messageBox.exec();
+
+
+                    if(btnValue==QMessageBox::Yes)
                     {
                         foreach (QGraphicsItem*item, scene->getItemList())
                         {
-                            scene->removeItem(item);
+                            GraphicsItem*gItem =dynamic_cast<GraphicsItem*>(item);
+
+                            scene->removeItem(gItem);
+                            if(gItem!=nullptr)
+                            {
+                                gItem->deleteLater();
+                                gItem=nullptr;
+                            }
+
                         }
                         scene->getItemList().clear();
                         Controller::instance()->getDataStore()->clearTypeItem();
@@ -174,51 +196,61 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
                         if(stdItem!=nullptr)
                         {
                             deleteInfoFromFloor(stdItem->text()) ;
-
+                            Controller::instance()->getOperatorInfo()->insertEvent(tr("清空设备"),QString(tr("楼层:%1,清空设备成功")).arg(stdItem->text()));
                         }
 
-                    }
 
+                    }
                 }
 
-                if(view->getItemList().isEmpty())
+                else
                 {
-                    Controller::instance()->getDataStore()->setItemNum(0);
+                    QMessageBox messageBox(QMessageBox::Warning,tr("提示窗口"),tr("有报警不能清空!"));
+                    messageBox.setWindowFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
+                    messageBox.exec();
                 }
 
             }
+
+            if(view->getItemList().isEmpty())
+            {
+                Controller::instance()->getDataStore()->setItemNum(0);
+            }
+
         }
-
-
     });
     connect(m_deleteSelectedAction,&QAction::triggered,this,[=]()
     {
-        int btnValue= QMessageBox::warning(nullptr,tr("删除提示窗口"),tr("确认要删除吗?"),QMessageBox::Ok,QMessageBox::No);
-        if(btnValue==QMessageBox::Ok)
+        GraphicsView *view= currentGraphicsView();
+        if(view!=nullptr)
         {
-            GraphicsView *view= currentGraphicsView();
-            if(view!=nullptr)
+            GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
+            if(scene!=nullptr)
             {
-                GraphicsScene *scene = dynamic_cast<GraphicsScene *>(view->currentGraphicsScene());
-                if(scene!=nullptr)
+                QList<QGraphicsItem*>itemList = scene->selectedItems();
+                bool isHavingAlarm = false;
+                foreach (QGraphicsItem*item,itemList)
                 {
-                    QList<QGraphicsItem*>itemList = scene->selectedItems();
-                    bool isHavingAlarm = false;
-                    foreach (QGraphicsItem*item,itemList)
-                    {
-                        GraphicsItem *graphicsItem = dynamic_cast<GraphicsItem*>(item);
+                    GraphicsItem *graphicsItem = dynamic_cast<GraphicsItem*>(item);
 
-                        if(graphicsItem!=nullptr)
+                    if(graphicsItem!=nullptr)
+                    {
+                        if(graphicsItem->currentState()!="OK")
                         {
-                            if(graphicsItem->currentState()!=tr("正常"))
-                            {
-                                isHavingAlarm = true;
-                                break;
-                            }
+                            isHavingAlarm = true;
+                            break;
                         }
                     }
+                }
 
-                    if(!isHavingAlarm)
+                if(!isHavingAlarm)
+                {
+                    QMessageBox messageBox(QMessageBox::Warning,tr("删除提示窗口"),tr("确认要删除吗?"));
+                    messageBox.addButton(QMessageBox::Yes);
+                    messageBox.addButton(QMessageBox::No);
+                    messageBox.setWindowFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
+                    int btnValue=messageBox.exec();
+                    if(btnValue==QMessageBox::Yes)
                     {
                         foreach (QGraphicsItem*item,itemList)
                         {
@@ -232,16 +264,28 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
                                 scene->getItemList().removeOne(graphicsItem);
                                 Controller::instance()->getDataStore()->deleteTypeItem(graphicsItem);
                             }
+                            if(graphicsItem!=nullptr)
+                            {
+                                graphicsItem->deleteLater();
+                                graphicsItem=nullptr;
+                            }
                         }
-
+                        resetItemNumFromView(view);
+                        Controller::instance()->getOperatorInfo()->insertEvent(tr("删除选中设备"));
                     }
 
                 }
+                else
+                {
+                    QMessageBox messageBox(QMessageBox::Warning,tr("提示窗口"),tr("有报警存在,不能删除!"));
+                    messageBox.setWindowFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
+                    messageBox.exec();
+                }
 
-                resetItemNumFromView(view);
             }
         }
     });
+
     connect(m_closeAction,&QAction::triggered,this,[=]()
     {
         m_graphicsItemSettingMenu->close();
@@ -329,56 +373,6 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
 
 
 
-    connect(m_checkAlarmTimer,&CustomTimer::timeout,this,[=](){
-
-
-        QMutexLocker lock(&m_mutex);
-
-#ifdef Q_OS_LINUX
-        sigsetjmp(sigEnv,1);
-#endif
-        GraphicsView *view= currentGraphicsView();
-        if(view==nullptr)
-        {
-#ifdef Q_OS_LINUX
-            signal(SIGSEGV, segFaultReceive);
-#endif
-            return;
-        }
-        QRect rect=  m_firstFireWidget->frameGeometry();
-        QPoint topLeftPos = QPoint(rect.topLeft());
-        QPoint bottomRightPos = QPoint(rect.bottomRight());
-        QPointF curTopLeftPos= view->mapToScene(view->mapFromGlobal(topLeftPos));
-        QPointF curBottomRightPos= view->mapToScene(view->mapFromGlobal(bottomRightPos));
-        QRect curRect = QRect(curTopLeftPos.toPoint(),curBottomRightPos.toPoint());
-        QList<QGraphicsItem*> itemList=  view->scene()->items(curRect,Qt::IntersectsItemBoundingRect);
-
-        if(itemList.isEmpty())
-        {
-#ifdef Q_OS_LINUX
-            signal(SIGSEGV, segFaultReceive);
-#endif
-            return;
-        }
-        foreach(QGraphicsItem*item,itemList)
-        {
-            GraphicsItem *curItem = dynamic_cast<GraphicsItem *>(item);
-            if(curItem!=nullptr)
-            {
-                QString itemAlarmStr = curItem->currentState();
-
-                if(!itemAlarmStr.isEmpty()&&itemAlarmStr!=tr("正常"))
-                {
-                    m_firstFireWidget->updateGeometry();
-                }
-            }
-        }
-#ifdef Q_OS_LINUX
-        signal(SIGSEGV, segFaultReceive);
-#endif
-
-    });
-
     Q_ASSERT(m_itemSettingObj);
     connect(m_itemSettingObj,SIGNAL(setSize(qreal)),this,SLOT(setItemSize(qreal)));
     connect(m_itemSettingObj,SIGNAL(setIcon(QString)),this,SLOT(setItemIcon(QString)));
@@ -414,7 +408,10 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
             if(standardItem!=nullptr)
             {
                 m_globalToArchitePlanHash[item] = standardItem;
+                Controller::instance()->getOperatorInfo()->insertEvent(tr("添加建筑物"),QString(tr("建筑物:%1,添加成功")).arg(item->buildName()));
             }
+
+
 
             m_sqliteManager->executeQuery(QString("insert into GlobalArchite values ('%1','%2','%3','%4','%5')").arg(item->buildName()).arg(item->personOnDuty()).arg(QString("%1,%2").arg(item->scenePos().x()).arg(item->scenePos().y())).arg(item->itemSize()).arg(item->iconName()));
         }
@@ -429,10 +426,16 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
 
     connect(m_globalGraphicsView->currentScene(),&GlobalGraphicsScene::deleteGlobalItem,this,[=](GlobalGraphicsItem*item)
     {
-        if(m_globalToArchitePlanHash.contains(item))
+        if(item!=nullptr)
         {
-            QModelIndex index= m_globalToArchitePlanHash[item]->index();
-            m_treeView->deleteTreeItem(index);
+            if(m_globalToArchitePlanHash.contains(item))
+            {
+
+                QModelIndex index= m_globalToArchitePlanHash.value(item)->index();
+                m_treeView->deleteTreeItem(index);
+
+
+            }
         }
     });
 
@@ -539,15 +542,12 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
 
 ArchitePlanView::~ArchitePlanView()
 {
-    // m_dockWidget->close();
-    m_firstFireWidget->close();
 
     m_autoSwitchTimer->stop();
     m_autoSwitchTimer->deleteLater();
     m_sqliteManager->close();
     m_sqliteManager->deleteLater();
-    m_checkAlarmTimer->stop();
-    m_checkAlarmTimer->deleteLater();
+
 
     delete m_graphicsItemSettingMenu;
     delete m_analogValueQueryMenu;
@@ -589,7 +589,7 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item, const QString &alarmTyp
     }
     else
     {
-        if(oldAlarmState!=tr("正常"))
+        if(oldAlarmState!="OK")
         {
             oldState = alarmType;
         }
@@ -628,21 +628,24 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item, const QString &alarmTyp
                 GlobalGraphicsItem*globalGraphicsItem=  m_globalToArchitePlanHash.key(parentItem);
                 if(globalGraphicsItem!=nullptr)
                 {
+                    globalGraphicsItem->setCurAnimationRunState(false);
                     if(globalGraphicsItem->animalIsRunning())
                     {
                         globalGraphicsItem->startAnimal(false);
+
+
                     }
                 }
             }
         }
         updateAlarmWidget(currentGraphicsView());
     }
-    if(haveAlarms(tr("火警")).isEmpty())
-    {
-        m_firstFireWidget->close();
-    }
+
 
     filterAlarm(item);
+    emit updateFirstAlarmView();
+
+
 }
 
 void ArchitePlanView::eliminateAlarm(const QString &extNum, const QString &loopNum, const QString &addrNum,const QString &networkNum, const QString &alarmType)
@@ -661,7 +664,7 @@ void ArchitePlanView::generateAlarm(const QString &alarmTypeName, const QString 
     if(item!=nullptr)
     {
         QString state = item->alarmState(alarmTypeName);
-        if(state!=tr("正常")&&!state.isEmpty())
+        if(state!="OK"&&!state.isEmpty())
         {
             return;
         }
@@ -742,9 +745,9 @@ void ArchitePlanView::initWidget()
     m_globalGraphicsView = new GlobalGraphicsView(this);
     m_sysArchitePlanView = new SysArchitePlanView(this);
     m_autoSwitchTimer = new CustomTimer();
-    m_checkAlarmTimer = new CustomTimer;
+
     //m_startArchiteViewTimer= new CustomTimer;
-    m_firstFireWidget = new FirstFireAlarmInfoWidget();
+
     //m_excelManager = new ExcelManager(this);
     m_treeView->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 
@@ -894,10 +897,137 @@ void ArchitePlanView::initWidget()
                 {
                     connect(curScene,&GraphicsScene::addOneItem,this,[=](GraphicsItem *item)
                     {
-                        if(item!=nullptr)
+                        QList<GraphicsView*>viewList=  getWidgetHash().values();
+                        bool isReplaced=false;
+                        foreach(GraphicsView*view,viewList)
                         {
-                            saveItemInfoToDb(item);
+                            if(view!=nullptr)
+                            {
+                                QList<QGraphicsItem *> curItemList= view->getItemList();
+
+                                foreach(QGraphicsItem *gItem,curItemList)
+                                {
+                                    GraphicsItem*curItem = dynamic_cast<GraphicsItem*>(gItem);
+                                    if(curItem!=nullptr)
+                                    {
+                                        if(curItem!=item&&curItem->addrNum()==item->addrNum()&&
+                                                curItem->loopNum()==item->loopNum()
+                                                &&curItem->extNum()==item->extNum()&&
+                                                curItem->networkNum()==item->networkNum()
+                                                &&curItem->powerAddr()==item->powerAddr())
+                                        {
+                                            QMessageBox messageBox(QMessageBox::Question,tr("信息提示"),tr("已经存在，确认要替换吗"));
+                                            messageBox.addButton(QMessageBox::Yes);
+                                            messageBox.addButton(QMessageBox::No);
+                                            messageBox.setWindowFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
+                                            int buttonValue=messageBox.exec();
+                                            if(buttonValue==QMessageBox::Yes)
+                                            {
+                                                if(item!=nullptr)
+                                                {
+                                                    GraphicsScene*currentScene=dynamic_cast<GraphicsScene*>(view->currentGraphicsScene());
+                                                    if(currentScene!=nullptr)
+                                                    {
+                                                        currentScene->removeGraphicsItem(curItem);
+                                                    }
+
+                                                    saveItemInfoToDb(item);
+                                                    isReplaced = true;
+                                                    Controller::instance()->getOperatorInfo()->insertEvent(tr("添加设备"),QString(tr("分机号:%1,回路号:%2,地址号:%3,网络号:%4,设备添加成功")).arg(item->extNum())
+                                                                                                           .arg(item->loopNum()).arg(item->addrNum()).arg(item->networkNum()));
+                                                }
+
+                                            }
+                                            else
+                                            {
+                                                curScene->removeGraphicsItem(item);
+                                            }
+                                        }
+
+                                    }
+                                }
+                            }
                         }
+
+                        if(!isReplaced)
+                        {
+                            if(item!=nullptr)
+                            {
+                                Controller::instance()->getOperatorInfo()->insertEvent(tr("添加设备"),QString(tr("分机号:%1,回路号:%2,地址号:%3,网络号:%4,设备添加成功")).arg(item->extNum())
+                                                                                       .arg(item->loopNum()).arg(item->addrNum()).arg(item->networkNum()));
+                            }
+
+                        }
+                    });
+
+
+                    connect(curScene,&GraphicsScene::itemSetting,this,[=](GraphicsItem *item)
+                    {
+                        QList<GraphicsView*>viewList=  getWidgetHash().values();
+                        foreach(GraphicsView*view,viewList)
+                        {
+                            if(view!=nullptr)
+                            {
+                                QList<QGraphicsItem *> curItemList= view->getItemList();
+                                if(item!=nullptr)
+                                {
+                                    foreach(QGraphicsItem *gItem,curItemList)
+                                    {
+                                        GraphicsItem*curItem = dynamic_cast<GraphicsItem*>(gItem);
+                                        if(curItem!=nullptr)
+                                        {
+                                            if(curItem!=item&&curItem->addrNum()==item->addrNum()&&
+                                                    curItem->loopNum()==item->loopNum()
+                                                    &&curItem->extNum()==item->extNum()&&
+                                                    curItem->networkNum()==item->networkNum()
+                                                    &&curItem->powerAddr()==item->powerAddr())
+                                            {
+                                                GraphicsScene*currentScene=dynamic_cast<GraphicsScene*>(view->currentGraphicsScene());
+                                                QMessageBox messageBox;
+                                                messageBox.setWindowFlags(Qt::WindowStaysOnTopHint);
+                                                int buttonValue=messageBox.information(this,tr("信息提示"),tr("已经存在，确认要替换吗"),QMessageBox::Yes,QMessageBox::No);
+
+                                                if(buttonValue==QMessageBox::Yes)
+                                                {
+                                                    if(currentScene!=nullptr)
+                                                    {
+                                                        currentScene->removeGraphicsItem(curItem);
+                                                    }
+                                                    saveItemInfoToDb(item);
+
+                                                }
+                                                else
+                                                {
+
+
+
+                                                    QString curValue=  currentScene->itemOldInfo(item);
+                                                    QStringList curStrList=   curValue.split(",");
+                                                    if(curStrList.size()>=5)
+                                                    {
+                                                        item->extNum()=curStrList.at(0);
+                                                        item->loopNum()=curStrList.at(1);
+                                                        item->addrNum()=curStrList.at(2);
+                                                        item->networkNum()=curStrList.at(3);
+                                                        item->powerAddr()=curStrList.at(4);
+                                                        item->deviceNum() = QString("%1-%2").arg(item->loopNum()).arg(item->addrNum());
+                                                        item->update();
+
+
+                                                    }
+                                                    curScene->clearItemOldInfo();
+                                                    // curScene->removeGraphicsItem(item);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+
+
+
                     });
                 }
                 m_widgetHash[page]=widget;
@@ -907,11 +1037,21 @@ void ArchitePlanView::initWidget()
         }
 
     });
-    connect(m_treeView,&TreeView::clicked,this,[=](const QModelIndex&index)
+    connect(m_treeView,&TreeView::doubleClicked,this,[=](const QModelIndex&index)
     {
+
         int page=0;
         QStandardItemModel*model =dynamic_cast<QStandardItemModel*>(m_treeView->model());
+        if(model==nullptr)
+        {
+            return;
+        }
         QStandardItem *item= model->itemFromIndex(index);
+
+        if(item==nullptr)
+        {
+            return ;
+        }
         if(item->parent()==nullptr)
         {
             return;
@@ -919,7 +1059,6 @@ void ArchitePlanView::initWidget()
         QMap<QStandardItem*,int>itemMap;
         itemMap = m_treeView->getTreeIndexMap();
         page =itemMap.value(item);
-
         if(m_widgetHash.value(page)!=nullptr)
         {
             GraphicsView *currentView = dynamic_cast<GraphicsView *>(m_widgetHash.value(page));
@@ -930,7 +1069,6 @@ void ArchitePlanView::initWidget()
 
 
         }
-
     });
 
     connect(m_treeView,&TreeView::clearIndex,this,[=]()
@@ -942,8 +1080,6 @@ void ArchitePlanView::initWidget()
             if(widget!=nullptr)
             {
                 m_stackedWidget->removeWidget(widget);
-                delete widget;
-                widget = nullptr;
             }
 
         }
@@ -954,8 +1090,18 @@ void ArchitePlanView::initWidget()
         m_sqliteManager->executeQuery("delete from GlobalArchite");
     });
 
-    connect(m_treeView,&TreeView::deleteIndex,this,&ArchitePlanView::deleteViewFromItem);
-
+    connect(m_treeView,&TreeView::deleteParentIndex,this,&ArchitePlanView::deleteViewFromItem);
+    connect(m_treeView,&TreeView::deleteChildIndex,this,[=](QStandardItem*item){
+        QMap<QStandardItem*,int>itemMap;
+        itemMap = m_treeView->getTreeIndexMap();
+        int chileItemPage = itemMap.value(item);
+        GraphicsView*childWidget = m_widgetHash.value(chileItemPage);
+        if(childWidget!=nullptr)
+        {
+            m_stackedWidget->removeWidget(childWidget);
+            deleteAlarmWidget(childWidget);
+        }
+    });
     connect(m_treeView,&TreeView::insertAnchPixmap,this,[=](QStandardItem*item,const QString &fileName)
     {
         QMap<QStandardItem*,int>itemMap;
@@ -973,15 +1119,37 @@ void ArchitePlanView::initWidget()
 
     connect(m_stackedWidget,&QStackedWidget::currentChanged,this,[=](int index)
     {
+
         QList<GraphicsView*>viewList = m_alarmWidgetHash[m_currentAlarmType];
         int count = viewList.size();
-        GraphicsView *view = m_widgetHash.value(index);
+
+        GraphicsView *view = dynamic_cast<GraphicsView *>(m_stackedWidget->widget(index));
         int currentIndex= viewList.indexOf(view);
+        if(view!=nullptr)
+        {
+            if(view->haveAnyAlarm())
+            {
+                QList<QGraphicsItem *>alarmItemList=  view->getItemList();
+                foreach(QGraphicsItem *curItem,alarmItemList)
+                {
+                    GraphicsItem*curGraphicsItem = dynamic_cast<GraphicsItem*>(curItem);
+                    if(curGraphicsItem!=nullptr)
+                    {
+                        if(curGraphicsItem->currentState()!="OK"&&m_typeList.contains(curGraphicsItem->alarmType()))
+                        {
+                            startAlarmAnimation(curGraphicsItem);
+                        }
+                    }
+                }
+
+            }
+        }
         if(m_treeView!=nullptr)
         {
             QStandardItem *stdItem = getItemFromView(view);
             if(stdItem!=nullptr)
             {
+
                 if(stdItem->index()!=m_treeView->currentIndex())
                 {
                     m_treeView->setCurrentIndex(stdItem->index());
@@ -993,6 +1161,7 @@ void ArchitePlanView::initWidget()
         {
             if(count>2)
             {
+
                 if(currentIndex>=1&&currentIndex<count-1)
                 {
                     emit normalPage();
@@ -1022,6 +1191,32 @@ void ArchitePlanView::initWidget()
         else
         {
             emit noPage();
+        }
+
+    });
+
+    connect(m_itemSettingView,&QQuickView::visibleChanged,this,[=](bool arg)
+    {
+        if(!arg)
+        {
+            m_itemSettingView->close();
+            QList<GraphicsView*>viewList=  m_widgetHash.values();
+            foreach(GraphicsView*curView,viewList)
+            {
+                if(curView!=nullptr)
+                {
+                    GraphicsScene*curScene=dynamic_cast<GraphicsScene*>(curView->currentGraphicsScene());
+                    if(curScene!=nullptr)
+                    {
+                        curScene->checkSettingItem();
+                    }
+                }
+
+
+            }
+
+
+
         }
 
     });
@@ -1110,11 +1305,34 @@ void ArchitePlanView::initWidget()
             }
 
         }
+        else if(index==0)
+        {
+            if(m_globalGraphicsView!=nullptr)
+            {
+                GlobalGraphicsScene *scene=  m_globalGraphicsView->currentScene();
+                if(scene!=nullptr)
+                {
+                    QList<GlobalGraphicsItem*> itemList=   scene->currentItemList();
+                    foreach(GlobalGraphicsItem*curItem,itemList)
+                    {
+                        if(curItem!=nullptr)
+                        {
+                            if(curItem->curAnimationRunState())
+                            {
+                                curItem->startAnimal(true);
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
         emit tabIndex(index);
     });
-    connect(m_firstFireWidget,&FirstFireAlarmInfoWidget::toFirstFire,this,&ArchitePlanView::firstFireAlarm);
 
+    connect(m_analogAlarmObj,SIGNAL(creatAnalogAlarm(QString)),this,SIGNAL(getAnalogAlarm(QString)));
 
+    connect(m_analogAlarmObj,SIGNAL(eliminateCurrentAlarm(QString)),this,SIGNAL(eliminateAnalogAlarm(QString)));
 }
 
 void ArchitePlanView::showMenu(const QPoint &point)
@@ -1149,7 +1367,21 @@ void ArchitePlanView::showMenu(const QPoint &point)
                         m_analogValueQueryMenu->addAction(curAction);
                         connect(curAction,&QAction::triggered,this,[=]()
                         {
-                            emit sendAnalogValue(selectGrraphicsItem,0);
+                            QMessageBox messageBox(QMessageBox::Question,tr("查询模拟量带子网号确认"),tr("是否带子网号查询模拟量"));
+                            messageBox.addButton(QMessageBox::Yes);
+                            messageBox.addButton(QMessageBox::No);
+                            messageBox.setWindowFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
+                            int curInfo=messageBox.exec();
+                            if(curInfo==QMessageBox::Yes)
+                            {
+                                emit sendAnalogValue(selectGrraphicsItem,0);
+
+                            }
+                            else
+                            {
+                                emit sendAnalogNoNetwork(selectGrraphicsItem,0);
+                            }
+
                         });
 
                         int curChannelNum = selectGrraphicsItem->channelNum();
@@ -1163,7 +1395,22 @@ void ArchitePlanView::showMenu(const QPoint &point)
                                 m_analogValueQueryMenu->addAction(action);
                                 connect(action,&QAction::triggered,this,[=]()
                                 {
-                                    emit sendAnalogValue(selectGrraphicsItem,quint8(i+1));
+                                    QMessageBox messageBox(QMessageBox::Question,tr("查询模拟量带子网号确认"),tr("是否带子网号查询模拟量"));
+                                    messageBox.addButton(QMessageBox::Yes);
+                                    messageBox.addButton(QMessageBox::No);
+                                    messageBox.setWindowFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
+                                    int curInfo=messageBox.exec();
+
+                                    if(curInfo==QMessageBox::Yes)
+                                    {
+
+                                        emit sendAnalogValue(selectGrraphicsItem,quint8(i+1));
+                                    }
+                                    else
+                                    {
+                                        emit sendAnalogNoNetwork(selectGrraphicsItem,quint8(i+1));
+                                    }
+
 
                                 });
                             }
@@ -1180,7 +1427,7 @@ void ArchitePlanView::showMenu(const QPoint &point)
                 m_analogValueQueryAction->setEnabled(false);
             }
 
-            if(userRight==UserManager::Super||userRight==UserManager::Administrator)
+            if(userRight==UserManager::Super)
             {
 
                 if(!itemList.isEmpty())
@@ -1260,6 +1507,8 @@ void ArchitePlanView::showMenu(const QPoint &point)
         }
 
     }
+
+
 }
 
 void ArchitePlanView::saveArchiteInfo()
@@ -1528,18 +1777,9 @@ void ArchitePlanView::initFromJsonFile()
 
 }
 
-void ArchitePlanView::startCheckAlarmTimer(int ms)
-{
-    if(!m_checkAlarmTimer->isActive())
-    {
-        m_checkAlarmTimer->start(ms);
-    }
-}
 
-void ArchitePlanView::stopCheckAlarmTimer()
-{
-    m_checkAlarmTimer->stop();
-}
+
+
 
 void ArchitePlanView::initFromDataBase(GraphicsView *view,const QString &buildingName,const QString &floor)
 {
@@ -1713,10 +1953,10 @@ void ArchitePlanView::createAlarm(GraphicsItem *item,const QString &alarmType,co
     if(item!=nullptr)
     {
         QString  state=item->alarmState(alarmType);
-        if(!state.isEmpty()&&item->alarmState(alarmType)!=tr("正常"))
-        {
-            return;
-        }
+        //        if(!state.isEmpty()&&item->alarmState(alarmType)!="OK")
+        //        {
+        //            return;
+        //        }
         item->setAlarmRecord(alarmType,alarmTime,alarmState);
         QString curAlarmType=alarmType;
 
@@ -1776,7 +2016,6 @@ void ArchitePlanView::closeQuickView()
     m_maintenanceView->close();
     m_globalGraphicsView->currentScene()->closeQuickView();
     m_treeView->closeQuickView();
-    m_firstFireWidget->close();
 }
 
 void ArchitePlanView::retranslate()
@@ -1823,19 +2062,15 @@ void ArchitePlanView::retranslate()
         QMetaObject::invokeMethod(m_analogAlarmObj,"retranslate");
     }
 
-    m_firstFireWidget->retranslate();
+    m_typeList.clear();
+
+    m_typeList << tr("火警") << tr("启动") << tr("监管") << tr("故障")<< tr("反馈") << tr("屏蔽");
+
+
 
 }
 
-bool ArchitePlanView::firstAlarmViewIsVisible()
-{
-    return m_firstFireWidget->isVisible();
-}
 
-FirstFireAlarmInfoWidget *ArchitePlanView::getFirstFireAlarmWidget()
-{
-    return  m_firstFireWidget;
-}
 
 void ArchitePlanView::setGlobalArchiteFromJson()
 {
@@ -1927,7 +2162,7 @@ void ArchitePlanView::filterAlarm(GraphicsItem *item)
     {
         QString curType = item->alarmType();
         QString curState= item->currentState();
-        if(curState!=tr("正常")&&!curState.isEmpty())
+        if(curState!="OK"&&!curState.isEmpty())
         {
             if(!curType.startsWith(tr("模拟")))
             {
@@ -1940,7 +2175,7 @@ void ArchitePlanView::filterAlarm(GraphicsItem *item)
             return;
         }
         startAlarmAnimation(item);
-        viewSwitch();
+        viewSwitch(item);
     }
 }
 
@@ -1969,10 +2204,16 @@ void ArchitePlanView::filterAlarmView(GraphicsItem *item, const QString &alarmTy
             GlobalGraphicsItem*globalGraphicsItem=  m_globalToArchitePlanHash.key(parentItem);
             if(globalGraphicsItem!=nullptr)
             {
-                if(!globalGraphicsItem->animalIsRunning())
+                globalGraphicsItem->setCurAnimationRunState(true);
+                if(m_tabWidget->currentIndex()==0)
                 {
-                    globalGraphicsItem->startAnimal(true);
+                    if(!globalGraphicsItem->animalIsRunning())
+                    {
+                        globalGraphicsItem->startAnimal(true);
+
+                    }
                 }
+
             }
         }
 
@@ -1981,10 +2222,8 @@ void ArchitePlanView::filterAlarmView(GraphicsItem *item, const QString &alarmTy
 
 }
 
-void ArchitePlanView::viewSwitch()
+void ArchitePlanView::viewSwitch(GraphicsItem *item)
 {
-    QList<QString> alarmTypeList;
-    alarmTypeList << tr("火警") << tr("监管") << tr("启动") << tr("反馈") << tr("故障") << tr("屏蔽");
     if(m_tabWidget->count()>=2)
     {
         if(m_tabWidget->currentIndex()!=1)
@@ -1992,32 +2231,17 @@ void ArchitePlanView::viewSwitch()
             m_tabWidget->setCurrentIndex(1);
         }
     }
-    foreach (const QString &filterType, alarmTypeList)
+
+    QList<QGraphicsItem *> itemList=  Controller::instance()->getDataStore()->getTypeItemList(tr("火警"));
+    if(item!=nullptr)
     {
-        QList<QGraphicsItem *> itemList=  Controller::instance()->getDataStore()->getTypeItemList(filterType);
-
-        if(itemList.size()>0)
+        GraphicsView *view=   Controller::instance()->getDataStore()->itemDisplayView(item);
+        if(!itemList.isEmpty())
         {
-            GraphicsItem *curItem = dynamic_cast<GraphicsItem *>(itemList.at(0));
-            if(curItem!=nullptr)
+
+            if(item->alarmType()==tr("火警")&&itemList.at(0)==item)
             {
-                GraphicsView *view=   Controller::instance()->getDataStore()->itemDisplayView(curItem);
-
-
-                if(filterType==tr("火警"))
-                {
-                    if(!m_checkAlarmTimer->isActive())
-                    {
-                        m_checkAlarmTimer->start(500);
-                    }
-
-                    autoFitView(view);
-                    m_firstFireWidget->setFirstFireInfo(curItem);
-                    //qDebug() << m_treeView->geometry().x();
-                    m_firstFireWidget->updateGeometry();
-                    m_firstFireWidget->show();
-                }
-                break;
+                autoFitView(view);
             }
         }
     }
@@ -2043,7 +2267,7 @@ void ArchitePlanView::startAlarmAnimation(GraphicsItem *item)
         QString curType = item->alarmType();
         QString curState= item->currentState();
         GraphicsView *view = Controller::instance()->getDataStore()->itemDisplayView(item);
-        if(curState!=tr("正常")&&!curState.isEmpty())
+        if(curState!="OK"&&!curState.isEmpty())
         {
             if(!curType.startsWith(tr("模拟")))
             {
@@ -2059,17 +2283,22 @@ void ArchitePlanView::startAlarmAnimation(GraphicsItem *item)
         if(!itemList.isEmpty())
         {
             GraphicsItem *curItem = dynamic_cast<GraphicsItem*>(itemList.at(0));
+
             if(curItem==item)
             {
+
+                emit setFirstAlarmInfo(item);
+
                 if(curState.endsWith(tr("火警")))
                 {
                     item->startScaleAnimation();
-                    // item->startAnimations();
-                    // item->setColorEndValue(QColor("red"));
                 }
                 else
-
                 {
+                    if(view!=currentGraphicsView())
+                    {
+                        return;
+                    }
                     item->startColorAnimation();
                     if(curState.endsWith(tr("故障")))
                     {
@@ -2084,20 +2313,8 @@ void ArchitePlanView::startAlarmAnimation(GraphicsItem *item)
                         item->setColorEndValue(QColor("red"));
                     }
 
-                    //                    if(curState.endsWith(tr("故障")))
-                    //                    {
-                    //                        item->setColor(QColor("yellow"));
-                    //                    }
-                    //                    else if(curState.endsWith(tr("屏蔽")))
-                    //                    {
-                    //                        item->setColor(QColor("orange"));
-                    //                    }
-                    //                    else
-                    //                    {
-                    //                        item->setColor(QColor("red"));
-                    //                    }
-
                 }
+
 
                 if(view!=nullptr)
                 {
@@ -2141,16 +2358,16 @@ void ArchitePlanView::startAlarmAnimation(GraphicsItem *item)
 
                         });
 
-                        //                        QObject::connect(view,&GraphicsView::scaleValue,this,[=](qreal value){
-                        //                            qDebug() << value;
-                        //                        });
-                        //connect(item,&GraphicsItem::)
                     }
 
                 }
             }
             else
             {
+                if(view!=currentGraphicsView())
+                {
+                    return;
+                }
                 if(curState.endsWith(tr("故障")))
                 {
                     item->setColor(QColor("yellow"));
@@ -2215,8 +2432,8 @@ QString ArchitePlanView::speechInfo(GraphicsItem *item, const QString &alarmType
                 }
             }
 
-            //speechText += ","+item->buildingName()+","+item->floorOfDevice()+","+item->deviceLocation()+
-            // ";"+QString("%1,%2,%3,%4").arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->networkNum());
+            speechText += ","+item->buildingName()+","+item->floorOfDevice()+","+item->deviceLocation()+
+                    ";"+QString("%1,%2,%3,%4").arg(item->extNum()).arg(item->loopNum()).arg(item->addrNum()).arg(item->networkNum());
 
 
         }
@@ -2304,9 +2521,11 @@ void ArchitePlanView::clearGlobalViewAlarm()
         GlobalGraphicsItem *globalGraphicsItem = dynamic_cast<GlobalGraphicsItem*>(item);
         if(globalGraphicsItem!=nullptr)
         {
+            globalGraphicsItem->setCurAnimationRunState(false);
             if(globalGraphicsItem->animalIsRunning())
             {
                 globalGraphicsItem->startAnimal(false);
+
             }
         }
     }
@@ -2316,10 +2535,10 @@ void ArchitePlanView::clearItemsAlarmText(GraphicsItem*item)
 {
     if(item!=nullptr)
     {
-       foreach(const QString &type,item->alarmTypeList())
-       {
-           deleteAlarmText(item,type);
-       }
+        foreach(const QString &type,item->alarmTypeList())
+        {
+            deleteAlarmText(item,type);
+        }
     }
 }
 
@@ -2365,7 +2584,7 @@ int ArchitePlanView::currentPage()
 
 void ArchitePlanView::clearAlarm(bool clearFireAlarm)
 {
-    m_firstFireWidget->close();
+    emit hideFirstFireAlarmInfo();
     emit reduInstruction(clearFireAlarm);
     Controller::instance()->getDataStore()->clearStoreAlarm();
     emit findAlarmNum(0,0);
@@ -2378,7 +2597,7 @@ void ArchitePlanView::clearAlarm(bool clearFireAlarm)
     emit clearAlarmFromTable();
 }
 
-void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum)
+void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum,const QString &networkNum)
 {
 
     QList< QList<QGraphicsItem *> >list= Controller::instance()->getDataStore()->getTypeItemHash().values();
@@ -2394,13 +2613,13 @@ void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum)
                 GraphicsView*curView = Controller::instance()->getDataStore()->itemDisplayView(item);
                 if(item->extNum()==extNum)
                 {
-                 QString curAlarmStr=   item->alarmType();
+                    QString curAlarmStr=   item->alarmType();
                     int itemIndex=Controller::instance()->getDataStore()->getTypeItemList(curAlarmStr).indexOf(item);
                     if(itemIndex==0)
                     {
                         if(curAlarmStr==tr("火警"))
                         {
-                            m_firstFireWidget->close();
+                            emit hideFirstFireAlarmInfo();
                         }
 
                         if(curView!=nullptr)
@@ -2440,6 +2659,7 @@ void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum)
                                 GlobalGraphicsItem*globalGraphicsItem=  m_globalToArchitePlanHash.key(parentItem);
                                 if(globalGraphicsItem!=nullptr)
                                 {
+                                    globalGraphicsItem->setCurAnimationRunState(false);
                                     if(globalGraphicsItem->animalIsRunning())
                                     {
                                         globalGraphicsItem->startAnimal(false);
@@ -2464,7 +2684,7 @@ void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum)
     //        alarmHappend(curAlarm);
     //        // updateAlarmText(curAlarm);
     //    }
-    emit alarmStateUpdate(extNum);
+    emit alarmStateUpdate(extNum,networkNum);
 
 
 
@@ -2543,11 +2763,19 @@ void ArchitePlanView::toArchitePlan(const QString &extNum, const QString &loopNu
                             }
                         }
 
-                        //m_treeView->setCurrentIndex(getItemFromView(view)->index());
+                        QString curAlarmType= currentItem->alarmType();
+                        int curIndex=Controller::instance()->getDataStore()->indexOfItem(extNum,loopNum,addressNum,networkNum,curAlarmType);
+                        if(curIndex>0)
+                        {
+                            currentItem->startScaleAnimation(1);
+                        }
+                        else if(curIndex<0)
+                        {
+                            view->fitInView(currentItem,Qt::KeepAspectRatio);
+                        }
+
+
                         m_stackedWidget->setCurrentWidget(view);
-                        //qreal size=currentItem->scale()*currentItem->radius()*4;
-                        //QRectF currentRectF = QRectF(currentItem->pos().x(),currentItem->pos().y(),size,size);
-                        view->fitInView(currentItem,Qt::KeepAspectRatio);
                         view->scaleValueChanged(view->transform().m11());
                         return;
                     }
@@ -2566,77 +2794,58 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
 {
     QMap<QStandardItem*,int>itemMap;
     itemMap = m_treeView->getTreeIndexMap();
-
-    if(item->parent()==nullptr)
+    if(item!=nullptr)
     {
         GlobalGraphicsItem*globalGraphicsItem=  m_globalToArchitePlanHash.key(item);
-        if(globalGraphicsItem!=nullptr)
-        {
-            GlobalGraphicsScene * scene = m_globalGraphicsView->currentScene();
-            if(scene!=nullptr && scene->items().contains(globalGraphicsItem))
-            {
-                scene->removeItem(globalGraphicsItem);
-                delete globalGraphicsItem;
-                globalGraphicsItem= nullptr;
-            }
-        }
-
+        m_globalGraphicsView->deleteItemFromScene(globalGraphicsItem);
         deleteInfoFromBuilding(item->text());
 
-    }
-    if(item->hasChildren())
-    {
-        for(int i=0;i<item->rowCount();i++)
+        if(item->hasChildren())
         {
-            QStandardItem*childItem =  item->child(i);
-            int chileItemPage = itemMap[childItem];
-            GraphicsView*childWidget = m_widgetHash.value(chileItemPage);
-            if(childWidget!=nullptr)
+            for(int i=0;i<item->rowCount();i++)
             {
-                m_stackedWidget->removeWidget(childWidget);
-                deleteAlarmWidget(childWidget);
-                delete childWidget;
-                childWidget = nullptr;
+                QStandardItem*childItem =  item->child(i);
+                int chileItemPage = itemMap.value(childItem);
+                GraphicsView*childWidget = m_widgetHash.value(chileItemPage);
+                if(childWidget!=nullptr)
+                {
+                    m_stackedWidget->removeWidget(childWidget);                    deleteAlarmWidget(childWidget);
 
+                }
+
+                m_widgetHash.remove(chileItemPage);
+                m_treeView->getTreeIndexMap().remove(childItem);
             }
-
-            m_widgetHash.remove(chileItemPage);
-            m_treeView->getTreeIndexMap().remove(childItem);
         }
     }
-    else
+    m_treeView->getTreeIndexMap().remove(item);
+    saveGeneralLayoutInfo();
+}
+
+void ArchitePlanView::deleteViewFromIndex(QStandardItem *item)
+{
+    QMap<QStandardItem*,int>itemMap;
+    itemMap = m_treeView->getTreeIndexMap();
+    if(item!=nullptr)
     {
-        int itemPage = itemMap[item];
-        GraphicsView*gWidget = m_widgetHash.value(itemPage);
-        if(gWidget!=nullptr)
+        deleteInfoFromBuilding(item->text());
+        if(item->hasChildren())
         {
-            m_stackedWidget->removeWidget(gWidget);
-            deleteAlarmWidget(gWidget);
-            delete gWidget;
-            gWidget = nullptr;
-
-        }
-
-        m_widgetHash.remove(itemPage);
-        m_treeView->getTreeIndexMap().remove(item);
-    }
-
-    GlobalGraphicsItem*globalItem =  m_globalToArchitePlanHash.key(item);
-    if(globalItem!=nullptr)
-    {
-        GlobalGraphicsScene *globalScene = m_globalGraphicsView->currentScene();
-        if(globalScene!=nullptr)
-        {
-            if(globalScene->items().contains(globalItem))
+            for(int i=0;i<item->rowCount();i++)
             {
-                globalScene->removeItem(globalItem);
-                delete globalItem;
-                globalItem = nullptr;
+                QStandardItem*childItem =  item->child(i);
+                int chileItemPage = itemMap.value(childItem);
+                GraphicsView*childWidget = m_widgetHash.value(chileItemPage);
+                if(childWidget!=nullptr)
+                {
+                    m_stackedWidget->removeWidget(childWidget);                    deleteAlarmWidget(childWidget);
+
+                }
+
+                m_widgetHash.remove(chileItemPage);
+                m_treeView->getTreeIndexMap().remove(childItem);
             }
-
         }
-
-        // delete globalItem;
     }
     m_treeView->getTreeIndexMap().remove(item);
     saveGeneralLayoutInfo();
@@ -2645,7 +2854,7 @@ void ArchitePlanView::deleteViewFromItem(QStandardItem* item)
 void ArchitePlanView::viewsAutoSwitch()
 {
 
-    QMutexLocker lock(&m_mutex);
+    //QMutexLocker lock(&m_mutex);
 #ifdef Q_OS_LINUX
     sigsetjmp(sigEnv,1);
 #endif
@@ -2674,8 +2883,15 @@ void ArchitePlanView::viewsAutoSwitch()
                 //                    m_treeView->setCurrentIndex(stdItem->index());
                 //                }
 
+                QString curAlarmType= item->alarmType();
+                int curIndex=Controller::instance()->getDataStore()->indexOfTypeFromItem(curAlarmType,item);
+                if(curIndex>0)
+                {
+                    item->startScaleAnimation(1);
+                }
+
                 m_stackedWidget->setCurrentWidget(view);
-                view->fitInView(item,Qt::KeepAspectRatio);
+                //view->fitInView(item,Qt::KeepAspectRatio);
                 //view->fitInView(currentRectF.adjusted(-size,-size,view->pos().x()/2,view->pos().y()/2),Qt::KeepAspectRatio);
                 view->scaleValueChanged(view->transform().m11());
             }
@@ -3639,88 +3855,93 @@ void ArchitePlanView::excelFileProcess(QString filePath)
         return;
     }
     QHash<quint32,QPair<quint32,quint32> >dataMappingHash;
-    if(sheetNameList.contains("数据映射表"))
+    foreach(const QString name,sheetNameList)
     {
-        xlsx.selectSheet("数据映射表");
-        CellRange range;
 
-        range = xlsx.dimension();
-
-        int curHostNum=1,startLoopNum=3,endLoopNum=4;
-        for(int j=1;j<range.columnCount();j++)
+        if(name.contains("数据映射表"))
         {
-            if(xlsx.read(1,j).toString().contains("联网主机号"))
-            {
-                curHostNum=j;
-            }
-            else if(xlsx.read(1,j).toString().contains("起始回路"))
-            {
-                startLoopNum =j;
-            }
-            else if(xlsx.read(1,j).toString().contains("终止回路"))
-            {
-                endLoopNum =j;
-            }
-        }
+            xlsx.selectSheet(name);
+            CellRange range;
 
-        for(int i=2;i<range.rowCount();i++)
-        {
-            if(xlsx.read(i,2).isValid())
+            range = xlsx.dimension();
+
+            int curHostNum=1,startLoopNum=3,endLoopNum=4;
+            for(int j=1;j<range.columnCount();j++)
             {
-                QPair<quint32,quint32> pair;
-                quint32 ext=  xlsx.read(i,curHostNum).toUInt();
-                pair.first=  xlsx.read(i,startLoopNum).toUInt();
-                pair.second= xlsx.read(i,endLoopNum).toUInt();
-                dataMappingHash[ext]=pair;
-            }
-        }
-
-    }
-
-    if(sheetNameList.contains("总线"))
-    {
-        xlsx.selectSheet("总线");
-        CellRange range;
-
-        int addrCodeIndex=1,deviceTypeIndex=2,descriptionIndex=3;
-        range = xlsx.dimension();
-        for(int j=1;j<range.columnCount();j++)
-        {
-            if(xlsx.read(1,j).toString()=="地址码")
-            {
-                addrCodeIndex =j;
-            }
-
-            else if(xlsx.read(1,j).toString()=="设备类型")
-            {
-                deviceTypeIndex =j;
-            }
-            else if(xlsx.read(1,j).toString()=="描述")
-            {
-                descriptionIndex =j;
-            }
-        }
-
-        for(int i=2;i<range.rowCount();i++)
-        {
-            quint32 curValue= xlsx.read(i,addrCodeIndex).toUInt();
-            m_loopAddrDeviceHash[curValue] = xlsx.read(i,deviceTypeIndex).toString();
-            m_loopAddrLocationHash[curValue]=xlsx.read(i,descriptionIndex).toString();
-            foreach(quint32 extNum,dataMappingHash.keys())
-            {
-
-                quint32 currentValue= curValue/1000;
-                QPair<quint32,quint32>curPair = dataMappingHash.value(extNum);
-
-                if(currentValue>=curPair.first && currentValue <=curPair.second)
+                if(xlsx.read(1,j).toString().contains("联网主机号"))
                 {
-                    m_loopAddrExtHash[curValue] = QString::number(extNum);
+                    curHostNum=j;
+                }
+                else if(xlsx.read(1,j).toString().contains("起始回路"))
+                {
+                    startLoopNum =j;
+                }
+                else if(xlsx.read(1,j).toString().contains("终止回路"))
+                {
+                    endLoopNum =j;
+                }
+            }
 
+            for(int i=2;i<range.rowCount();i++)
+            {
+                if(xlsx.read(i,2).isValid())
+                {
+                    QPair<quint32,quint32> pair;
+                    quint32 ext=  xlsx.read(i,curHostNum).toUInt();
+                    pair.first=  xlsx.read(i,startLoopNum).toUInt();
+                    pair.second= xlsx.read(i,endLoopNum).toUInt();
+                    dataMappingHash[ext]=pair;
                 }
             }
 
         }
+        else if(name.contains("总线"))
+        {
+            xlsx.selectSheet(name);
+            CellRange range;
+
+            int addrCodeIndex=1,deviceTypeIndex=2,descriptionIndex=3;
+            range = xlsx.dimension();
+            for(int j=1;j<range.columnCount();j++)
+            {
+                if(xlsx.read(1,j).toString()=="地址码")
+                {
+                    addrCodeIndex =j;
+                }
+
+                else if(xlsx.read(1,j).toString()=="设备类型")
+                {
+                    deviceTypeIndex =j;
+                }
+                else if(xlsx.read(1,j).toString()=="描述")
+                {
+                    descriptionIndex =j;
+                }
+            }
+
+            for(int i=2;i<range.rowCount();i++)
+            {
+                quint32 curValue= xlsx.read(i,addrCodeIndex).toUInt();
+                m_loopAddrDeviceHash[curValue] = xlsx.read(i,deviceTypeIndex).toString();
+                m_loopAddrLocationHash[curValue]=xlsx.read(i,descriptionIndex).toString();
+                foreach(quint32 extNum,dataMappingHash.keys())
+                {
+
+                    quint32 currentValue= curValue/1000;
+                    QPair<quint32,quint32>curPair = dataMappingHash.value(extNum);
+
+                    if(currentValue>=curPair.first && currentValue <=curPair.second)
+                    {
+                        m_loopAddrExtHash[curValue] = QString::number(extNum);
+
+                    }
+                }
+
+            }
+
+        }
     }
+
     QMetaObject::invokeMethod(m_itemSettingObj,"setImportExcelState",Q_ARG(QVariant,true));
     //#endif
 }
@@ -3749,6 +3970,8 @@ void ArchitePlanView::setSizeSelect(bool selected)
 {
     m_itemInfoSelectHash["size"] = selected;
 }
+
+
 
 
 

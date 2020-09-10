@@ -136,6 +136,7 @@ Rectangle
         maintenanceInfo.retranslate()
         controlCenteSetting.retranslate()
         infoTransport.retranslate()
+        speechSetting.reinitSpeech()
     }
 
     function initSpeechSetting()

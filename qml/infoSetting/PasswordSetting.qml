@@ -45,6 +45,14 @@ Item {
             value: qsTr("普通用户")
         }
     }
+
+
+    //    ListModel
+    //    {
+    //        id:deleteUserModel
+
+
+    //    }
     Column {
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
@@ -61,15 +69,17 @@ Item {
 
                         changePasswordGridLayout.visible = true
                         addUserGridLayout.visible = false
+                        deleteUserGridLayout.visible=false
                     } else {
                         changePasswordGridLayout.visible = false
                         addUserGridLayout.visible = true
+                        deleteUserGridLayout.visible=false
                     }
                 }
             }
             RadioButton {
                 id: addUserRadionBtn
-                text: qsTr("增加或删除用户")
+                text: qsTr("添加用户")
                 Layout.fillWidth: true
                 autoExclusive: true
                 onClicked: {
@@ -78,13 +88,36 @@ Item {
 
                         changePasswordGridLayout.visible = false
                         addUserGridLayout.visible = true
+                        deleteUserGridLayout.visible=false
                     } else {
                         changePasswordGridLayout.visible = true
                         addUserGridLayout.visible = false
+                        deleteUserGridLayout.visible=false
+                    }
+                }
+            }
+
+
+            RadioButton {
+                id: deleteUserRadionBtn
+                text: qsTr("删除用户")
+                Layout.fillWidth: true
+                autoExclusive: true
+
+                onClicked: {
+
+                    if(checked)
+                    {
+                        deleteUserGridLayout.visible=true
+                        changePasswordGridLayout.visible = false
+                        addUserGridLayout.visible = false
+                        deleteUserComboBox.model = UserManager.selectUsers();
+
                     }
                 }
             }
         }
+
         GridLayout {
             id: changePasswordGridLayout
             visible: true
@@ -281,7 +314,7 @@ Item {
                 NaviButton {
                     id: addNewUserconfineBtn
 
-                    text: qsTr("增加")
+                    text: qsTr("确认")
                     onClicked: {
                         if(newUserPasswordTextField.text.length<=0)
                         {
@@ -334,55 +367,65 @@ Item {
                 }
 
 
-                NaviButton
+
+            }
+        }
+
+        GridLayout
+        {
+            id:deleteUserGridLayout
+            visible: false;
+            //spacing: 5
+            Text {
+                id: deleteUserText
+                Layout.row: 0
+                Layout.column: 0
+                text: qsTr("用户名")
+            }
+            ComboBox
+            {
+                id:deleteUserComboBox
+                Layout.row: 0
+                Layout.column: 1
+                Layout.fillWidth: true
+                width: 500
+                // model: deleteUserModel
+
+            }
+
+            NaviButton
+            {
+                id:removeBtn
+                Layout.row: 1
+                Layout.column: 1
+                text: qsTr("删除")
+                onClicked:
                 {
-                    id:removeBtn
-                    text: qsTr("删除")
-                    onClicked:
+                    if(UserManager.userRight()===UserManager.Super)
                     {
-                        if(newUserPasswordTextField.text.length<=0)
+
+                        UserManager.deleteUsers(deleteUserComboBox.currentText)
+                        var index =deleteUserComboBox.find(deleteUserComboBox.currentText)
+                        deleteUserComboBox.model = UserManager.selectUsers();
+                        if(deleteUserComboBox.count>0)
                         {
-                            warningMessageDialog.open()
+                            deleteUserComboBox.currentIndex=0
                         }
-                        else
-                        {
-                            if (newUserComboBox.currentText === qsTr("管理员")) {
-
-
-
-                                if (UserManager.password(
-                                            UserManager.Administrator,
-                                            newUserTextField.text) === newUserPasswordTextField.text) {
-                                    UserManager.removeUser(newUserTextField.text,
-                                                           UserManager.Administrator,
-                                                           newUserPasswordTextField.text)
-                                    removeUserSuccessDialog.open()
-                                    OperatorInfo.insertEvent(qsTr("删除用户成功"))
-                                } else {
-                                    removeUserFailureDialog.open()
-                                    OperatorInfo.insertEvent(qsTr("删除失败(密码错误)或用户不存在"), qsTr("删除失败或用户不存在"))
-                                }
-                            } else if (newUserComboBox.currentText === qsTr("普通用户")) {
-
-
-                                if (UserManager.password(
-                                            UserManager.User,
-                                            newUserTextField.text) === newUserPasswordTextField.text) {
-                                    UserManager.removeUser(newUserTextField.text,
-                                                           UserManager.User,
-                                                           newUserPasswordTextField.text)
-                                    removeUserSuccessDialog.open()
-                                    OperatorInfo.insertEvent(qsTr("删除用户成功"))
-                                } else {
-                                    removeUserFailureDialog.open()
-                                    OperatorInfo.insertEvent(qsTr("删除失败(密码错误)或用户不存在"), qsTr("删除失败或用户不存在"))
-                                }
-                            }
-                        }
+                        removeUserSuccessDialog.open()
 
                     }
+                    else
+                    {
+
+                        removeUserFailureDialog.open()
+
+                    }
+
                 }
+
             }
+
+
         }
     }
 
@@ -494,8 +537,8 @@ Item {
     MessageDialog {
         id: removeUserFailureDialog
         //icon: StandardIcon.Critical
-        title: qsTr("错误信息提示")
-        text: qsTr("删除失败或用户不存在")
+        title: qsTr("信息提示")
+        text: qsTr("只能在超级用户权限下才能删除用户")
         flags:Qt.MSWindowsFixedSizeDialogHint|Qt.WindowCloseButtonHint|Qt.WindowStaysOnTopHint|Qt.WindowMaximizeButtonHint
     }
 
@@ -537,7 +580,10 @@ Item {
     function retranslate()
     {
         passwordChangeRadionBtn.text = qsTr("密码修改")
-        addUserRadionBtn.text = qsTr("增加或删除用户")
+        addUserRadionBtn.text = qsTr("添加用户")
+        deleteUserText.text =qsTr("用户名")
+        deleteUserRadionBtn.text=qsTr("删除用户")
+
         userRight.text= qsTr("用户权限")
         userName.text = qsTr("用户名")
         userNameTextField.text = qsTr("用户名")
@@ -550,12 +596,27 @@ Item {
         newUserRight.text = qsTr("操作用户权限")
         newUserName.text = qsTr("用户名")
         newUserPassword.text = qsTr("密码")
-        addNewUserconfineBtn.text = qsTr("增加")
+        addNewUserconfineBtn.text = qsTr("确认")
         removeBtn.text = qsTr("删除")
         userRightComboBox.model = changePasswordModel
         managerRightComboBox.model = managerRightModel
         newUserComboBox.model = addUserModel
+        //deleteUserComboBox.model = deleteUserModel
 
+        criticalMessageDialog.title= qsTr("错误提示")
+        criticalMessageDialog.text=qsTr("初始密码错误，请重新输入......")
+        warningMessageDialog.title=qsTr("警告信息")
+        warningMessageDialog.text=qsTr("有密码为空，请重新设置......")
+        infoMessageDialog.title=qsTr("信息提示")
+        infoMessageDialog.text=qsTr("密码修改成功")
+        addNewUserSuccessDialog.title=qsTr("信息提示")
+        addNewUserSuccessDialog.text= qsTr("添加用户成功")
+        addNewUserFailureDialog.title=qsTr("错误信息提示")
+        addNewUserFailureDialog.text=qsTr("添加用户失败,或者用户已经存在")
+        removeUserSuccessDialog.title=qsTr("信息提示")
+        removeUserSuccessDialog.text=qsTr("删除用户成功")
+        removeUserFailureDialog.title=qsTr("信息提示")
+        removeUserFailureDialog.text=qsTr("只能在超级用户权限下才能删除用户")
 
     }
 }

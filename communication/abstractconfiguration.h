@@ -18,7 +18,7 @@ public:
         Udp,
         Ftp,
         Can,
-        Indicator
+        SpeechSerialCom
     };
     AbstractConfiguration();
     virtual ~AbstractConfiguration();

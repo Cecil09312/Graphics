@@ -19,18 +19,19 @@ SqliteManager::SqliteManager(QObject *parent)
     m_thread->start();
     connect(this,&SqliteManager::startProcessData,this,[=](const QString &sql)
     {
-        QMutexLocker lock(&m_mutex);
+        //QMutexLocker lock(&m_mutex);
         m_sqlList.push_back(sql);
         if(m_isAnalog)
         {
             processDb(m_sqlList);
             emit finishUpdateData();
+            m_thread->msleep(10);
         }
         else
         {
             if(!m_timer->isActive())
             {
-                m_timer->start(200);
+                m_timer->start(500);
             }
         }
 
@@ -39,12 +40,18 @@ SqliteManager::SqliteManager(QObject *parent)
     });
     connect(m_timer,&QTimer::timeout,this,[=]()
     {
-        QMutex mutex;
-        QMutexLocker lock(&mutex);
+       // QMutex mutex;
+        QMutexLocker lock(&m_mutex);
         if(!m_sqlList.isEmpty())
         {
             processDb(m_sqlList);
-            emit finishedProcessData();
+
+            QSqlQuery selectQuery(getDb());
+            if(getDb().isOpen())
+            {
+                selectQuery.exec(QString("select %1 from AlarmInfo  where 备注 != '%2' order by rowid desc limit 256").arg(m_selectAlarmInfoList.join(",")).arg("OK"));
+            }
+            emit selectData(selectQuery);
 
         }
         else
@@ -53,6 +60,8 @@ SqliteManager::SqliteManager(QObject *parent)
             m_timer->stop();
             //emit finishUpdateData();
         }
+
+        m_thread->msleep(20);
 
         //        m_thread->msleep(10);
     });
@@ -88,7 +97,7 @@ QStringList SqliteManager::executeQuery(const QString &sql)
 void SqliteManager::quitThread()
 {
     m_startRunning = false;
-//    quit();
+    m_thread->quit();
     //    wait();
 }
 

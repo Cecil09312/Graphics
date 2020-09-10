@@ -3,7 +3,7 @@ import QtQuick.Controls 2.2
 Item {
 
     height:300
-    width: 400
+    width: 500
 
 
     ListModel
@@ -83,14 +83,14 @@ Item {
         listModel.clear()
     }
 
-    function deleteStandbyPowerState(extNum)
+    function deleteStandbyPowerState(extNum,network)
     {
         for(var i=0;i<listModel.count;i++)
         {
             var curValue = new String
             curValue = listModel.get(i)["value"]
-            var curStateValue=  curValue.substring(0,5)
-            if(curStateValue===String(qsTr("主机号:%1")).arg(extNum))
+
+            if(curValue.match(String(qsTr("主机号:%1,网络号:%2")).arg(extNum).arg(network))!=null)
             {
                  listModel.remove(i)
 

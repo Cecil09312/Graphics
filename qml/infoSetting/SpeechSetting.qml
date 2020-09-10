@@ -89,6 +89,7 @@ Item {
             text: qsTr("频率")
             height: 40
             verticalAlignment: Text.AlignVCenter
+            visible: !Controller.sysOnLinux()||(Controller.sysOnLinux()&&SpeechObj.isEnglish())
         }
 
         Slider {
@@ -97,7 +98,7 @@ Item {
             to: SpeechObj.rateMax()
             stepSize: SpeechObj.rateStep()
             width: 300
-            //enabled: !Controller.sysOnLinux()
+            visible: !Controller.sysOnLinux()||(Controller.sysOnLinux()&&SpeechObj.isEnglish())
             ToolTip {
                 parent: rateSlider.handle
                 visible: rateSlider.pressed | rateSlider.hovered
@@ -115,6 +116,7 @@ Item {
             text: qsTr("音调")
             height: 40
             verticalAlignment: Text.AlignVCenter
+            visible: !Controller.sysOnLinux()
         }
 
         Slider {
@@ -124,7 +126,7 @@ Item {
             stepSize: SpeechObj.pitchStep()
 
             width: 300
-           // enabled: !Controller.sysOnLinux()
+            visible: !Controller.sysOnLinux()
             ToolTip {
                 parent: pitchSlider.handle
                 visible: pitchSlider.pressed | pitchSlider.hovered
@@ -143,15 +145,16 @@ Item {
         rateSlider.value = SpeechObj.rate
         pitchSlider.value = SpeechObj.pitch
 
-
         engineModel.append({value:"default"})
         for(var i=0;i<SpeechObj.engineNameNum();i++)
         {
             engineModel.append({value:SpeechObj.engineName(i)})
         }
 
+        languageModel.clear()
         if(!Controller.sysOnLinux())
         {
+
             for(var j=0;j<SpeechObj.languageNum();j++)
             {
                 languageModel.append({value:SpeechObj.languageName(j)})
@@ -162,10 +165,12 @@ Item {
             if(!SpeechObj.isEnglish())
             {
                 languageModel.append({value:"中文"})
+
             }
             else
             {
                languageModel.append({value:"English"})
+
             }
         }
 
@@ -179,9 +184,6 @@ Item {
             engineComboBox.currentIndex =0;
         }
 
-        //        var pos=  languageComboBox.find(SpeechObj.currentLanguage())
-        //        languageComboBox.currentIndex=pos
-
     }
 
     function retranslate()
@@ -191,7 +193,6 @@ Item {
         volumeTxt.text = qsTr("音量")
         frequencyTxt.text = qsTr("频率")
         toneTxt.text = qsTr("音调")
-
 
     }
 
@@ -221,23 +222,33 @@ Item {
             {
                 languageModel.append({value:SpeechObj.languageName(j)})
             }
+
         }
         else
         {
             if(!SpeechObj.isEnglish())
             {
                 languageModel.append({value:"中文"})
+                languageComboBox.model = languageModel
+                frequencyTxt.visible = false;
+                rateSlider.visible=false;
+                pitchSlider.visible=false
+                toneTxt.visible =false
             }
             else
             {
 
                 languageModel.append({value:"English"})
-//                for(var i=0;i<SpeechObj.languageNum();i++)
-//                {
-//                    languageModel.append({value:SpeechObj.languageName(i)})
-//                }
+
+
+                frequencyTxt.visible = true
+                rateSlider.visible=true
+                pitchSlider.visible=true
+                toneTxt.visible =true
+
             }
         }
+
 
         if(languageComboBox.count>0)
         {

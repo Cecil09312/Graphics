@@ -54,7 +54,7 @@ private:
     QPointF m_pointF;
     QMenu *m_menu;
     QAction *m_removeItemAction;
-    QAction *m_removeSelectItemAction;
+   // QAction *m_removeSelectItemAction;
     QAction *m_editItemAction;
     QAction *m_clearItemAction;
     QAction *m_goToAchitePlanAction;

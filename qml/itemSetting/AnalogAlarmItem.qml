@@ -2,9 +2,12 @@
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
 import "../infoSetting"
+//import crtWidget 1.0
 Rectangle {
     width: 300
     height: 360
+    signal creatAnalogAlarm(string alarmType)
+    signal eliminateCurrentAlarm(string alarmType)
 
     Column
     {
@@ -112,9 +115,9 @@ Rectangle {
                                             loopNumTextField.text.replace(/\s+/g,""),
                                             addrNumTextField.text.replace(/\s+/g,""),
                                             networkNumTextField.text.replace(/\s+/g,""),
-                                            alarmStateComboBox.currentText.replace(/\s+/g,""),
+                                            alarmStateComboBox.currentText,
                                             qsTr("模拟")+alarmStateComboBox.currentText)
-
+             emit:creatAnalogAlarm(alarmStateComboBox.currentText)
             }
         }
 
@@ -129,6 +132,7 @@ Rectangle {
                 ArchitePlanView.eliminateAlarm(extNumTextField.text,
                                                loopNumTextField.text, addrNumTextField.text,
                                                networkNumTextField.text,qsTr(alarmStateComboBox.currentText))
+                emit:eliminateCurrentAlarm(qsTr(alarmStateComboBox.currentText))
             }
         }
 

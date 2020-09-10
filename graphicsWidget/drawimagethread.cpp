@@ -11,31 +11,18 @@ DrawImageThread::DrawImageThread(QObject *parent):
  m_thread = new QThread();
  this->moveToThread(m_thread);
 
- //qDebug() << "mainThread" << QThread::currentThread();
-
  connect(this,&DrawImageThread::startDrawImage,this,[=](const QString&name)
  {
-
-
-     if(!m_imageHash.contains(name))
+     if(!name.endsWith(".svg"))
      {
-         QImage image(name);
-         int imageSize = image.size().width();
-        // qDebug() << image.byteCount();
-         QImage curImage;
-         if(imageSize>36)
+         if(!m_imageHash.contains(name))
          {
-              curImage = image.scaled(36,36);
+             QImage image(name);
+             m_imageHash[name] = image;
+             emit drawCurrentImage();
          }
-         else
-         {
-             curImage = image.scaled(imageSize,imageSize);
-         }
-
-         m_imageHash[name] = curImage;
-         emit drawCurrentImage();
-         m_thread->msleep(5);
      }
+
  });
 
 

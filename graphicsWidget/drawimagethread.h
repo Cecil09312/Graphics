@@ -5,6 +5,7 @@
 #include <QImage>
 #include <QPainter>
 #include <QtConcurrent>
+#include <QSvgRenderer>
 
 class DrawImageThread : public QObject
 {
@@ -14,13 +15,13 @@ public:
     ~DrawImageThread();
     void drawImage(const QString &name);
     QImage getImageFromName(const QString &name);
-     //QPixmap getImage(const QString &name);
 signals:
      void startDrawImage(const QString&name);
      void drawCurrentImage();
 private:
      QThread *m_thread;
      QHash<QString,QImage>m_imageHash;
+
 
 
 };

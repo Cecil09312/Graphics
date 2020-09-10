@@ -146,6 +146,42 @@ QStringList SqlManager::executeQuery(const QString &sql)
     return valueList;
 }
 
+QVariantList SqlManager::queryFromSql(const QString &sql)
+{
+   QVariantList valueList;
+
+    QFuture<void> future = QtConcurrent::run([&]
+    {
+        if(d->m_database.isOpen())
+        {
+            QSqlQuery query(d->m_database);
+
+            bool isTransaction= d->m_database.transaction();
+            if(isTransaction)
+            {
+
+                query.prepare(sql);
+                query.exec();
+
+                QSqlRecord record = query.record();
+                while (query.next())
+                {
+                    for(int i=0;i<record.count();i++)
+                    {
+                        valueList.push_back(query.value(i));
+                    }
+                }
+                d->m_database.commit();
+                query.finish();
+            }
+
+        }
+    });
+    future.waitForFinished();
+
+    return valueList;
+}
+
 SqlManager*SqlManager::fromDriver(const QString &driver)
 {
 
@@ -161,6 +197,42 @@ SqlManager*SqlManager::fromDriver(const QString &driver)
     {
         return nullptr;
     }
+}
+
+QList<QVariant> SqlManager::getQuearyRecord(const QString &sql)
+{
+
+    QList<QVariant> valueList;
+    QFuture<void> future = QtConcurrent::run([&]
+    {
+        if(d->m_database.isOpen())
+        {
+            QSqlQuery query(d->m_database);
+
+            bool isTransaction= d->m_database.transaction();
+            if(isTransaction)
+            {
+
+                query.prepare(sql);
+                query.exec();
+
+                QSqlRecord record = query.record();
+                while (query.next())
+                {
+                    for(int i=0;i<record.count();i++)
+                    {
+                        valueList.push_back(query.value(i));
+                    }
+                }
+                d->m_database.commit();
+                query.finish();
+            }
+
+        }
+    });
+    future.waitForFinished();
+
+    return valueList;
 }
 
 bool SqlManager::open()
@@ -276,7 +348,6 @@ void SqlManager::processDb(QList<QString>  &sqlList)
                 {
                     sqlList.removeOne(sql);
                 }
-             //   msleep(5);
 
             }
             d->m_database.commit();

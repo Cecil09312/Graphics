@@ -14,80 +14,51 @@ Rectangle {
     property bool loginState: false
     signal startClose()
     signal closeView()
-    GridLayout {
-        id: gridLayout
+    signal userLogin()
+    signal setTipInfo()
+
+    ColumnLayout {
+        id: columnLayout
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
-        columnSpacing: 5
+        spacing: 5
+        Row
+        {
 
-        Text {
-            id: userRight
-            text: qsTr("用户权限")
+            id:curRow
+            spacing: 5
             Layout.row: 0
             Layout.column: 0
-        }
-        ComboBox {
-            id: userRightComboBox
-            model: [qsTr("超级用户"), qsTr("管理员"), qsTr("普通用户")]
-            Layout.row: 0
-            Layout.column: 1
-            Layout.fillWidth: true
-            onCurrentTextChanged: {
-                if (currentText == qsTr("超级用户")) {
-                    userName.visible = false
-                    userNameTextField.visible = false
-                } else {
-                    userName.visible = true
-                    userNameTextField.visible = true
+
+            Text {
+                id: userRightTxt
+                text: qsTr("用户权限")
+                height: 40
+                width: 60
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment:Text.AlignHCenter
+
+            }
+            ComboBox {
+                id: userRightComboBox
+                model: [ qsTr("超级用户"),qsTr("管理员"),qsTr("普通用户")]
+                currentIndex: 0
+                width: 150
+                onCurrentTextChanged: {
+                    if (currentText == qsTr("超级用户")) {
+                        userName.visible = false
+                        userNameTextField.visible = false
+                    } else {
+                        userName.visible = true
+                        userNameTextField.visible = true
+                    }
                 }
             }
-        }
-        Text {
-            id: userName
-            text: qsTr("用户名")
-            Layout.row: 1
-            Layout.column: 0
-        }
-        TextField {
-            id: userNameTextField
-            Layout.row: 1
-            Layout.column: 1
-            Layout.fillWidth: true
-            placeholderText: qsTr("用户名")
-            selectByMouse: true
-            selectionColor: "blue"
-            selectedTextColor: "white"
-        }
 
-        Text {
-
-            id: password
-            text: qsTr("密码")
-            Layout.row: 2
-            Layout.column: 0
-        }
-        TextField {
-            id: passwordTextField
-            Layout.row: 2
-            Layout.column: 1
-            echoMode: TextInput.Password
-            placeholderText: qsTr("密码")
-            selectByMouse: true
-            selectionColor: "blue"
-            selectedTextColor: "white"
-            inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase
-                              | Qt.ImhSensitiveData | Qt.ImhNoPredictiveText
-            Layout.fillWidth: true
-        }
-
-        RowLayout {
-            Layout.row: 3
-            Layout.column: 1
-            spacing: 5
-            Layout.topMargin: 10
             NaviButton {
                 id:loginBtn
                 text: qsTr("登录")
+                width: 100
                 onClicked: {
                     var passwordStr = new String
                     var userRight = new Number
@@ -116,6 +87,8 @@ Rectangle {
                             UserManager.setUserName(userNameTextField.text)
                         }
                         OperatorInfo.insertEvent(qsTr("用户登陆"))
+                        emit:userLogin()
+                        emit:setTipInfo()
                         infoMessageDialog.open()
                         loginState = true
                     } else {
@@ -125,15 +98,65 @@ Rectangle {
                     }
                 }
             }
+ }
 
-            NaviButton {
-                id:quitBtn
-                text: qsTr("退出")
-                onClicked: {
-                    emit:closeView()
-                }
+        Row
+        {
+
+            id:userRow
+
+            spacing: 5
+            Text {
+                id: userName
+                text: qsTr("用户名")
+                height: 40
+                width: 60
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment:Text.AlignHCenter
             }
+            TextField {
+                id: userNameTextField
+                placeholderText: qsTr("用户名")
+                selectByMouse: true
+                selectionColor: "blue"
+                selectedTextColor: "white"
+                width: 150
+            }
+
+
+            Text {
+
+                id: password
+                text: qsTr("密码")
+                height: 40
+                width: 60
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment:Text.AlignHCenter
+
+            }
+            TextField {
+                id: passwordTextField
+                echoMode: TextInput.Password
+                width: 150
+                placeholderText: qsTr("密码")
+                selectByMouse: true
+                selectionColor: "blue"
+                selectedTextColor: "white"
+                inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase
+                                  | Qt.ImhSensitiveData | Qt.ImhNoPredictiveText
+                Layout.fillWidth: true
+            }
+
         }
+
+        //            NaviButton {
+        //                id:quitBtn
+        //                text: qsTr("退出")
+        //                onClicked: {
+        //                    emit:closeView()
+        //                }
+        //            }
+        // }
     }
 
     MessageDialog {
@@ -149,11 +172,11 @@ Rectangle {
     MessageDialog {
         id: infoMessageDialog
         buttons: MessageDialog.Yes
-       // standardButtons: StandardButton.Yes | StandardButton.No
+        // standardButtons: StandardButton.Yes | StandardButton.No
         title: qsTr("信息提示")
         text: qsTr("密码输入正确!登录成功!")
         flags:Qt.WindowStaysOnTopHint|Qt.WindowMaximizeButtonHint|Qt.MSWindowsFixedSizeDialogHint|Qt.WindowCloseButtonHint
-       // icon: StandardIcon.Information
+        // icon: StandardIcon.Information
         onYesClicked: {
             //CrtWidget.logWidgetClose()
             emit:closeView()
@@ -164,6 +187,8 @@ Rectangle {
     Component.onCompleted: {
         userName.visible = false
         userNameTextField.visible = false
+
+        userRightComboBox.currentIndex=2
     }
 
     function clearLoginInfo() {
@@ -173,7 +198,7 @@ Rectangle {
     }
     function getLoginState()
     {
-       return loginState
+        return loginState
     }
 
     function initToGeneralUser()
@@ -184,17 +209,27 @@ Rectangle {
 
     function retranslate()
     {
-      userRight.text = qsTr("用户权限")
+        userRightTxt.text = qsTr("用户权限")
         userRightComboBox.model =[qsTr("超级用户"), qsTr("管理员"), qsTr("普通用户")]
-        userName.text = qsTr("用户名")
+        userName.text = qsTr("用户名  ")
         userNameTextField.placeholderText =qsTr("用户名")
-        password.text = qsTr("密码")
+        password.text = qsTr("   密码  ")
         passwordTextField.placeholderText=qsTr("密码")
         loginBtn.text = qsTr("登录")
-        quitBtn.text = qsTr("退出")
         criticalMessageDialog.title =qsTr("错误提示")
         criticalMessageDialog.text = qsTr("密码或者用户名错误，请重新输入......")
         infoMessageDialog.title = qsTr("信息提示")
+        tipInfo()
+        //infoMessageDialog.text = qsTr("密码输入正确!登录成功!")
+    }
+
+    function tipInfo()
+    {
         infoMessageDialog.text = qsTr("密码输入正确!登录成功!")
+        if (userRightComboBox.currentText != qsTr("超级用户"))
+        {
+            infoMessageDialog.text += "\r\n"+qsTr("使用软件关机，过8秒以后再开机，设备才能正常启动。")
+        }
+
     }
 }

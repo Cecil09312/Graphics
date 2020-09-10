@@ -28,7 +28,7 @@ TcpServer::~TcpServer()
 
 void TcpServer::writeData(const QByteArray &array)
 {
-    m_sendArrayList.push_back(array);
+
     if(m_socketList.isEmpty())
     {
         m_sendSuccess= false;
@@ -36,12 +36,13 @@ void TcpServer::writeData(const QByteArray &array)
         return;
     }
 
-    foreach (QTcpSocket*curSocket, m_socketList)
-    {
-        if(curSocket!=nullptr)
-        {
+    m_sendArrayList.push_back(array);
 
-            foreach (const QByteArray &curArray, m_sendArrayList)
+    foreach (const QByteArray &curArray, m_sendArrayList)
+    {
+        foreach (QTcpSocket*curSocket, m_socketList)
+        {
+            if(curSocket!=nullptr)
             {
                 if(curSocket->state()==QTcpSocket::ConnectedState)
                 {
@@ -53,24 +54,24 @@ void TcpServer::writeData(const QByteArray &array)
                 {
                     m_sendSuccess = false;
                 }
-                m_sendArrayList.removeOne(curArray);
-                QThread::msleep(5);
+
+                QThread::msleep(10);
             }
-
-
+            else
+            {
+                m_sendSuccess= false;
+            }
             // qDebug() << "write";
         }
-        else
-        {
-            m_sendSuccess= false;
-        }
-        QThread::msleep(5);
+
+        m_sendArrayList.removeOne(curArray);
+
     }
 
     if(m_sendArrayList.isEmpty())
     {
         emit writeDataSuccess(m_sendSuccess);
-        QThread::msleep(5);
+        QThread::msleep(10);
     }
 
 }
@@ -103,14 +104,14 @@ void TcpServer::sendAllData()
                     {
                         m_sendArrayList.removeOne(array);
                     }
-                    QThread::msleep(5);
+                    QThread::msleep(10);
                 }
             }
             else
             {
                 m_sendSuccess= false;
             }
-            QThread::msleep(5);
+            QThread::msleep(10);
         }
     }
 
@@ -146,21 +147,21 @@ void TcpServer::cleanSendData()
 
 void TcpServer::writeOneFrameData(const QByteArray &array)
 {
-     foreach (QTcpSocket*curSocket, m_socketList)
-     {
-         if(curSocket!=nullptr)
-         {
-             if(curSocket->state()==QTcpSocket::ConnectedState)
-             {
-                 curSocket->write(array);
-                 m_sendSuccess = true;
-             }
-             else
-             {
-                 m_sendSuccess = false;
-             }
-         }
-     }
+    foreach (QTcpSocket*curSocket, m_socketList)
+    {
+        if(curSocket!=nullptr)
+        {
+            if(curSocket->state()==QTcpSocket::ConnectedState)
+            {
+                curSocket->write(array);
+                m_sendSuccess = true;
+            }
+            else
+            {
+                m_sendSuccess = false;
+            }
+        }
+    }
 }
 
 void TcpServer::incomingConnection(qintptr socketDescriptor)

@@ -20,8 +20,8 @@
 #include "crtwidget.h"
 #include "database/operatorinfo.h"
 #include "jsonEdit/transportinfo.h"
-#include "communication/indicatorlightconfiguration.h"
-#include "communication/indicatorlightcom.h"
+#include "communication/speechcomconfiguration.h"
+#include "communication/speechcom.h"
 #include "database/mysqlmanager.h"
 #include <QFileInfo>
 //#include "LogMsg/logmsg.h"
@@ -76,7 +76,7 @@ private:
     static QSharedPointer<Controller>m_controller;
     QSharedPointer<AbstractLink>m_commObj;
     QSharedPointer<AbstractLink>m_tcpObj;
-    QSharedPointer<AbstractLink>m_IndicatorObj;
+   // QSharedPointer<AbstractLink>m_IndicatorObj;
     SysArchitePlanView *m_sysArthitePlanView;
     ArchitePlanView *m_architePlanView;
     UserManager*m_userManager;
@@ -91,6 +91,7 @@ private:
    // QSharedPointer<LogMsg>m_logMsg;
     QSharedPointer<DataStore>m_dataStore;
     QSharedPointer<DrawImageThread>m_drawImageThread;
+
 
 
 };

@@ -1,20 +1,25 @@
-﻿#include "indicatorlightcom.h"
-#include "indicatorlightconfiguration.h"
-IndicatorLightCom::IndicatorLightCom()
+﻿#include "speechcom.h"
+#include "speechcomconfiguration.h"
+#include <QDebug>
+SpeechCom::SpeechCom()
 {
     m_thread = new QThread();
     m_serialPort = new QSerialPort();
-    m_indicatorConfiguration = Configuration(new IndicatorLightConfiguration);
+    m_speechComConfiguration = Configuration(new SpeechComConfiguration);
     m_serialPort->moveToThread(m_thread);
     moveToThread(m_thread);
     m_thread->start();
     qRegisterMetaType<QList<QString> >("QList<QString>");
     qRegisterMetaType<QList<qint32> >("QList <qint32>");
 
-    connect(m_serialPort,&QSerialPort::readyRead,this,&IndicatorLightCom::readData);
-    connect(this,&IndicatorLightCom::writeData,this,[=](const QByteArray &array)
+    connect(m_serialPort,&QSerialPort::readyRead,this,&SpeechCom::readData);
+    connect(this,&SpeechCom::writeData,this,[=](const QByteArray &array)
     {
-        m_serialPort->write(array);
+        if(m_serialPort->isOpen())
+        {
+            m_serialPort->write(array);
+        }
+
     });
     connect(m_serialPort,&QSerialPort::errorOccurred,this,[=](QSerialPort::SerialPortError/* error*/)
     {
@@ -23,13 +28,13 @@ IndicatorLightCom::IndicatorLightCom()
 
 
 
-    connect(this,&IndicatorLightCom::startConnect,this,[=]()
+    connect(this,&SpeechCom::startConnect,this,[=]()
     {
-        QHash <QString,QVariant>valueHash=  m_indicatorConfiguration.data()->getConfiguration().toHash();
-        QString portName = valueHash["portName"].toString();
+        QHash <QString,QVariant>valueHash=  m_speechComConfiguration.data()->getConfiguration().toHash();
+        QString portName = valueHash.value("portName").toString();
+        m_serialPort->close();//关闭以前的连接
         if(m_serialPort->portName()!=portName)
         {
-            m_serialPort->close();
             m_serialPort->setPortName(portName);
         }
         if(!m_serialPort->isOpen())
@@ -49,7 +54,7 @@ IndicatorLightCom::IndicatorLightCom()
 
     });
 
-    connect(this,&IndicatorLightCom::stopConnect,this,[=]()
+    connect(this,&SpeechCom::stopConnect,this,[=]()
     {
         m_serialPort->close();
         m_isOpen = false;
@@ -58,7 +63,7 @@ IndicatorLightCom::IndicatorLightCom()
 
 }
 
-IndicatorLightCom::~IndicatorLightCom()
+SpeechCom::~SpeechCom()
 {
     disconnectLink();
     m_serialPort->deleteLater();
@@ -66,16 +71,16 @@ IndicatorLightCom::~IndicatorLightCom()
     m_thread->deleteLater();
 }
 
-void IndicatorLightCom::readData()
+void SpeechCom::readData()
 {
     QByteArray array = m_serialPort->readAll();
     emit getData(array);
 }
 
 
-void IndicatorLightCom::setConfiguration()
+void SpeechCom::setConfiguration()
 {
-    QHash <QString,QVariant>valueHash=  m_indicatorConfiguration.data()->getConfiguration().toHash();
+    QHash <QString,QVariant>valueHash=  m_speechComConfiguration.data()->getConfiguration().toHash();
     m_serialPort->setBaudRate(valueHash["baudRate"].toInt());
     m_serialPort->setDataBits(QSerialPort::DataBits(valueHash["dataBits"].toInt()));
     m_serialPort->setStopBits(QSerialPort::StopBits(valueHash["stopBits"].toInt()));

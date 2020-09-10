@@ -7,6 +7,7 @@
 #include <QStandardItemModel>
 #include <QItemDelegate>
 #include <QQuickView>
+#include <QMutex>
 //class Controller;
 class ItemDelegate;
 class TreeView : public QTreeView
@@ -25,14 +26,16 @@ public:
     void retranslate();
 signals:
     void treeIndex(QStandardItem*item);
-    void deleteIndex(QStandardItem*item);
+   // void deleteIndex(QStandardItem*item);
+    void deleteParentIndex(QStandardItem*item);
+    void deleteChildIndex(QStandardItem*item);
     void clearIndex();
     void insertAnchPixmap(QStandardItem*item,const QString &fileName);
     void toGlobalGraphicsView(QStandardItem*item);
     void updateTreeItemInfo();
 
 public slots:
-    void deleteTreeItem(QModelIndex index);
+    void deleteTreeItem(const QModelIndex &index);
     void clearItem();
     void setItemName(const QString &name);
     void insertPixmap(const QString &fileName);
@@ -61,9 +64,8 @@ private:
     QMap<QStandardItem*,int>m_treeIndexMap;
     ItemDelegate *m_itemDelegate;
     QQuickView *m_architeSettingView;
+    QObject *m_treeViewEditObj;
     QStandardItem *m_currentItem;
-
-
     //QWidget *m_architeSettingContainer;
 
 };

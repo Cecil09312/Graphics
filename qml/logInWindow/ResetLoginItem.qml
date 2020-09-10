@@ -29,18 +29,13 @@ Rectangle
             {
                 id:passwordTextField
                 echoMode:TextInput.Password
-                width: 150
+                width: 120
                 selectByMouse: true
                 selectionColor: "blue"
                 selectedTextColor: "white"
 
             }
-        }
 
-        Row
-        {
-            id:btnRow
-            spacing: 10
             NaviButton
             {
                 id:confirmBtn
@@ -62,24 +57,31 @@ Rectangle
                     }
                 }
             }
-            NaviButton
-            {
-                id:cancelBtn
-                width: 80
-                text: qsTr("退出")
-                onClicked:
-                {
-                   emit:curLoginState(false)
-                }
-            }
+//            NaviButton
+//            {
+//                id:cancelBtn
+//                width: 80
+//                text: qsTr("退出")
+//                onClicked:
+//                {
+//                   emit:curLoginState(false)
+//                }
+//            }
         }
+
+//        Row
+//        {
+//            id:btnRow
+//            spacing: 10
+
+//        }
 
         Text {
             id: loginState
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             width: 150
-            font.family: "Times New Roman"
+            //font.family: "Times New Roman"
             font.pointSize: 12
         }
     }
@@ -108,6 +110,6 @@ Rectangle
     {
        passwordTxt.text = qsTr("密码")
        confirmBtn.text = qsTr("确认")
-       cancelBtn.text = qsTr("退出")
+       //cancelBtn.text = qsTr("退出")
     }
 }

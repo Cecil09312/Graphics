@@ -18,6 +18,7 @@ public:
     GraphicsItem* addGraphicsItem(const QPointF &pointF);
     void removeGraphicsItem(qreal ax, qreal ay);
     void removeGraphicsItem(const QPointF &pointF);
+    void removeGraphicsItem(QGraphicsItem*currentItem);
 
     QPointF currentScenePos();
     QList<QGraphicsItem *> &getItemList();
@@ -25,10 +26,14 @@ public:
     void setItemInfo(GraphicsItem*item, const QHash<QString,QVariant>&itemHash);
     bool isHavingAlarms();
     //void setItemFromIconIndex();
+    void checkSettingItem();
+    QString itemOldInfo(GraphicsItem*item);
+    void clearItemOldInfo();
 
 signals:
     void createItem(GraphicsItem *item);
     void addOneItem(GraphicsItem *item);
+    void itemSetting(GraphicsItem *item);
 
 
 protected:
@@ -49,6 +54,8 @@ public slots:
 private:
     QList<QGraphicsItem*>m_itemList;
     QPointF m_currentPointF;
+    QList<GraphicsItem*>m_settingItemList;
+    QHash<GraphicsItem*,QString>m_oldItemInfoHash;
 };
 
 #endif // GRAPHICSSCENE_H

@@ -4,7 +4,8 @@
 #include <QGraphicsScene>
 #include "architePlan/architeplanview.h"
 DataStore::DataStore(QObject *parnet)
-    :QObject(parnet)
+    :QObject(parnet),
+      m_priority(100)
 {
     reInit();
 }
@@ -40,6 +41,7 @@ QGraphicsItem *DataStore::getTypeItem(const QString &type, int pos)
 void DataStore::deleteTypeItems(const QString &type)
 {
     m_typeItemHash.remove(type);
+     updatePriority();
 }
 
 void DataStore::deleteTypeItem(QGraphicsItem *item)
@@ -55,6 +57,11 @@ void DataStore::deleteTypeItem(QGraphicsItem *item)
                 if(m_typeItemHash.value(type).contains(item))
                 {
                     m_typeItemHash[type].removeOne(item);
+                    if(m_typeItemHash.value(type).isEmpty())
+                    {
+                        m_typeItemHash.remove(type);
+                    }
+                    updatePriority();
                 }
 
                 return;
@@ -68,6 +75,11 @@ void DataStore::deleteTypeItem(const QString &type, QGraphicsItem *item)
     if(m_typeItemHash.value(type).contains(item))
     {
         m_typeItemHash[type].removeOne(item);
+        if(m_typeItemHash.value(type).isEmpty())
+        {
+            m_typeItemHash.remove(type);
+        }
+         updatePriority();
     }
 }
 
@@ -77,17 +89,28 @@ void DataStore::deleteTypeItem(const QString &type, int pos)
     if(m_typeItemHash[type].size()>pos)
     {
         m_typeItemHash[type].removeAt(pos);
+        if(m_typeItemHash.value(type).isEmpty())
+        {
+            m_typeItemHash.remove(type);
+        }
+        updatePriority();
     }
+
 }
 
 void DataStore::insertTypeItem(const QString &type, QGraphicsItem *item)
 {
     if(item!=nullptr)
     {
-        if(!m_typeItemHash.value(type).contains(item))
-        {
+       // if(!m_typeItemHash.value(type).contains(item))
+       // {
             m_typeItemHash[type].push_back(item);
-        }
+            if(m_priority>m_priorityHash.value(type))
+            {
+                m_priority = m_priorityHash.value(type);
+            }
+
+       // }
     }
 }
 
@@ -98,7 +121,14 @@ void DataStore::deleteType(const QString &type, const QString &extNum, const QSt
     if(m_typeNoItemHash.value(type).contains(curStr))
     {
         m_typeNoItemHash[type].removeOne(curStr);
+        m_typeNoItemTimeHash.remove(curStr);
+        if(m_typeNoItemHash.value(type).isEmpty())
+        {
+            m_typeNoItemHash.remove(type);
+        }
+        updatePriority();
     }
+
 }
 
 void DataStore::deleteTypeItem(const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum)
@@ -108,6 +138,7 @@ void DataStore::deleteTypeItem(const QString &extNum, const QString &loopNum, co
     {
         deleteType(type,extNum,loopNum,addrNum,networkNum);
     }
+    updatePriority();
 
 }
 
@@ -122,19 +153,30 @@ void DataStore::deleteTypeNoItem(const QString &extNum)
             if(value.startsWith(extNum))
             {
                 m_typeNoItemHash[type].removeOne(value);
+                m_typeNoItemTimeHash.remove(value);
+                if(m_typeNoItemHash.value(type).isEmpty())
+                {
+                    m_typeNoItemHash.remove(type);
+                }
             }
         }
 
     }
+    updatePriority();
 }
 
-void DataStore::insertTypeNoItem(const QString &type, const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum,const QString &powerAddr)
+void DataStore::insertTypeNoItem(const QString &type, const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum,const QString &powerAddr,const QString&timeStr)
 {
     QString curStr=QString("%1,%2,%3,%4,%5").arg(extNum).arg(loopNum).arg(addrNum).arg(networkNum).arg(powerAddr);
-    if(!m_typeNoItemHash.value(type).contains(curStr))
-    {
+    m_typeNoItemTimeHash[curStr] = timeStr;
+    //if(!m_typeNoItemHash.value(type).contains(curStr))
+   // {
         m_typeNoItemHash[type].push_back(curStr);
-    }
+        if(m_priority>m_priorityHash.value(type))
+        {
+            m_priority = m_priorityHash.value(type);
+        }
+   // }
 
 }
 
@@ -142,6 +184,8 @@ void DataStore::clearTypeItem()
 {
     m_typeItemHash.clear();
     m_typeNoItemHash.clear();
+    m_typeNoItemTimeHash.clear();
+    m_priority=100;
 
 }
 
@@ -222,7 +266,12 @@ int DataStore::indexOfItem(const QString &extNum, const QString &loopNum, const 
     }
 }
 
-bool DataStore::containsFireAlarm(const QString&alarm)
+int DataStore::indexOfTypeFromItem(const QString &alarmType, GraphicsItem *item)
+{
+    return m_typeItemHash.value(alarmType).indexOf(item);
+}
+
+bool DataStore::containsAlarms(const QString&alarm)
 {
     if(getTypeItemList(alarm).size()>0)
     {
@@ -234,7 +283,7 @@ bool DataStore::containsFireAlarm(const QString&alarm)
     }
 }
 
-bool DataStore::containsFireAlarmNoItem(const QString &alarm)
+bool DataStore::containsAlarmsNoItem(const QString &alarm)
 {
 
     if(m_typeNoItemHash.value(alarm).size()>0)
@@ -324,9 +373,11 @@ void DataStore::reInit()
     m_sysName = "";
     m_channelNum=0;
     m_analogValue="无";
-    m_iconSize=30;
+    m_iconSize=40;
     m_operator="";
     s_itemNumTemp =0;
+    setPriority();
+
 }
 
 void DataStore::clearStoreAlarm()
@@ -348,6 +399,83 @@ void DataStore::clearStoreAlarm()
         }
     }
     clearTypeItem();
+}
+
+
+
+int &DataStore::priority()
+{
+    return m_priority;
+}
+
+QString DataStore::priorityType(int prioityValue)
+{
+    return   m_priorityHash.key(prioityValue);
+}
+
+QString DataStore::currentPriorityType()
+{
+    return  m_priorityHash.key(m_priority);
+}
+
+
+void DataStore::updatePriority()
+{
+
+
+    if(m_typeItemHash.isEmpty()&&m_typeNoItemHash.isEmpty())
+    {
+        m_priority=100;
+    }
+    else
+    {
+
+        if(!m_typeItemHash.value(tr("火警")).isEmpty()||!m_typeNoItemHash.value(tr("火警")).isEmpty())
+        {
+            m_priority =1;
+        }
+        else if(!m_typeItemHash.value(tr("监管")).isEmpty()||!m_typeNoItemHash.value(tr("监管")).isEmpty())
+        {
+             m_priority =2;
+        }
+        else if(!m_typeItemHash.value(tr("启动")).isEmpty()||!m_typeNoItemHash.value(tr("启动")).isEmpty())
+        {
+            m_priority =3;
+        }
+        else if(!m_typeItemHash.value(tr("反馈")).isEmpty()||!m_typeNoItemHash.value(tr("反馈")).isEmpty())
+        {
+            m_priority =4;
+        }
+        else if(!m_typeItemHash.value(tr("故障")).isEmpty()||!m_typeNoItemHash.value(tr("故障")).isEmpty())
+        {
+            m_priority =5;
+        }
+
+        else if(!m_typeItemHash.value(tr("屏蔽")).isEmpty()||!m_typeNoItemHash.value(tr("屏蔽")).isEmpty())
+        {
+            m_priority =6;
+        }
+    }
+
+
+    // qDebug() <<"1111" << m_typeItemHash<<m_priority;
+}
+
+QString DataStore::getTypeNoItemTime(const QString &str)
+{
+    return  m_typeNoItemTimeHash.value(str);
+}
+
+void DataStore::setPriority()
+{
+    m_priorityHash.clear();
+    m_priorityHash[tr("火警")]=1;
+    m_priorityHash[tr("监管")]=2;
+    m_priorityHash[tr("启动")]=3;
+    m_priorityHash[tr("反馈")]=4;
+    m_priorityHash[tr("故障")]=5;
+    m_priorityHash[tr("屏蔽")]=6;
+
 }
 
 

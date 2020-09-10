@@ -14,7 +14,7 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
     m_menu = new QMenu();
     m_removeItemAction = new QAction(tr("删除"),m_menu);
     m_editItemAction = new QAction(tr("编辑"),m_menu);
-    m_removeSelectItemAction = new QAction(tr("删除选中"),m_menu);
+    // m_removeSelectItemAction = new QAction(tr("删除选中"),m_menu);
     m_goToAchitePlanAction = new QAction(tr("转到建筑平面"),m_menu);
     m_clearItemAction = new QAction(tr("清空"),m_menu);
     //m_saveGeneralLayoutItemsAction = new QAction(tr("保存"),m_menu);
@@ -28,64 +28,88 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
     m_menu->addAction(m_editItemAction);
 
     m_menu->addAction(m_removeItemAction);
-    m_menu->addAction(m_removeSelectItemAction);
+    //m_menu->addAction(m_removeSelectItemAction);
     m_menu->addAction(m_clearItemAction);
     m_menu->addAction(m_goToAchitePlanAction);
 
 
     connect(m_removeItemAction,&QAction::triggered,this,[=]()
     {
-        int btnValue= QMessageBox::warning(nullptr,tr("删除提示窗口"),tr("删除当前建筑物以及其下的所有楼层和设备信息，确认要删除吗?"),QMessageBox::Ok,QMessageBox::No);
-        if(btnValue==QMessageBox::Ok)
+
+        QGraphicsItem *graphicsItem =  itemAt(m_pointF,QTransform());
+        GlobalGraphicsItem *item = dynamic_cast<GlobalGraphicsItem *>(graphicsItem);
+        if(item!=nullptr)
         {
-            QGraphicsItem *graphicsItem =  itemAt(m_pointF,QTransform());
-            GlobalGraphicsItem *item = dynamic_cast<GlobalGraphicsItem *>(graphicsItem);
-            if(item!=nullptr)
+            if(!item->curAnimationRunState())
             {
-                removeItem(graphicsItem);
-                m_globalCurrentItemList.removeOne(item);
-                emit deleteGlobalItem(item);
-                delete graphicsItem;
-                graphicsItem = nullptr;
-            }
-            emit deleteItems();
-        }
-
-    });
-
-    connect(m_removeSelectItemAction,&QAction::triggered,this,[=]()
-    {
-
-        int btnValue= QMessageBox::warning(nullptr,tr("删除提示窗口"),tr("删除所有选中的建筑物以及其下的所有楼层和设备信息，确认要删除吗?"),QMessageBox::Ok,QMessageBox::No);
-        if(btnValue==QMessageBox::Ok)
-        {
-            QList<QGraphicsItem*>itemList =selectedItems();
-
-            foreach (QGraphicsItem*currentItem, itemList)
-            {
-                GlobalGraphicsItem *item=  dynamic_cast<GlobalGraphicsItem *>(currentItem);
-                if(item!=nullptr)
+                QMessageBox messageBox(QMessageBox::Warning,tr("删除提示窗口"),tr("删除当前建筑物以及其下的所有楼层和设备信息，确认要删除吗?"));
+                messageBox.addButton(QMessageBox::Yes);
+                messageBox.addButton(QMessageBox::No);
+                messageBox.setWindowFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
+                int btnValue=messageBox.exec();
+                if(btnValue==QMessageBox::Yes)
                 {
-                    if(!item->animalIsRunning())
-                    {
+                    Controller::instance()->getOperatorInfo()->insertEvent(tr("删除建筑物"),QString(tr("建筑物:%1,删除成功")).arg(item->buildName()));
+                    removeItem(graphicsItem);
+                    emit deleteGlobalItem(item);
+                    m_globalCurrentItemList.removeOne(item);
+                    delete graphicsItem;
+                    graphicsItem = nullptr;
+                    emit deleteItems();
 
-                        removeItem(item);
-                        m_globalCurrentItemList.removeOne(item);
-                        emit deleteGlobalItem(item);
-                        delete item;
-                        item = nullptr;
-                    }
-                    else
-                    {
-                        QMessageBox::warning(nullptr,tr("信息警告"),tr("有报警信息存在，不能被删除"));
-                    }
                 }
             }
+            else
+            {
+                QMessageBox messageBox(QMessageBox::Warning,tr("提示窗口"),tr("存在报警不能删除！"));
+                messageBox.setWindowFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
+                messageBox.exec();
+            }
 
-            emit deleteItems();
         }
 
+
     });
+
+    //    connect(m_removeSelectItemAction,&QAction::triggered,this,[=]()
+    //    {
+
+    //        int btnValue= QMessageBox::warning(nullptr,tr("删除提示窗口"),tr("删除所有选中的建筑物以及其下的所有楼层和设备信息，确认要删除吗?"),QMessageBox::Ok,QMessageBox::No);
+    //        if(btnValue==QMessageBox::Ok)
+    //        {
+    //            QList<QGraphicsItem*>itemList =selectedItems();
+
+    //            foreach (QGraphicsItem*currentItem, itemList)
+    //            {
+    //                GlobalGraphicsItem *item=  dynamic_cast<GlobalGraphicsItem *>(currentItem);
+    //                if(item!=nullptr)
+    //                {
+    //                    if(!item->animalIsRunning())
+    //                    {
+
+    //                        emit deleteGlobalItem(item);
+    //                        removeItem(item);
+    //                        m_globalCurrentItemList.removeOne(item);
+
+    //                        if(item!=nullptr)
+    //                        {
+    //                            item->deleteLater();
+    //                            item = nullptr;
+    //                        }
+    ////                        delete item;
+    ////                        item = nullptr;
+    //                    }
+    //                    else
+    //                    {
+    //                        QMessageBox::warning(nullptr,tr("信息警告"),tr("有报警信息存在，不能被删除"));
+    //                    }
+    //                }
+    //            }
+
+    //            emit deleteItems();
+    //        }
+
+    //    });
 
     // connect(m_saveGeneralLayoutItemsAction,&QAction::triggered,this,&GlobalGraphicsScene::saveGeneralLayoutItems);
 
@@ -111,35 +135,43 @@ GlobalGraphicsScene::GlobalGraphicsScene(QObject *parent):
     });
     connect(m_clearItemAction,&QAction::triggered,this,[=]()
     {
-
-        int btnValue= QMessageBox::warning(nullptr,tr("清空提示窗口"),tr("清空所有建筑物以及其下的楼层和设备信息，确认要清空吗?"),QMessageBox::Ok,QMessageBox::No);
-        if(btnValue==QMessageBox::Ok)
+        QList<QGraphicsItem*>itemList=  items();
+        bool isHaveAlarm = false;
+        foreach (QGraphicsItem*item, itemList)
         {
-            QList<QGraphicsItem*>itemList=  items();
-            bool isHaveAlarm = false;
-            foreach (QGraphicsItem*item, itemList)
+            GlobalGraphicsItem *globalGraphics = dynamic_cast<GlobalGraphicsItem*>(item);
+            if(globalGraphics!=nullptr)
             {
-                GlobalGraphicsItem *globalGraphics = dynamic_cast<GlobalGraphicsItem*>(item);
-                if(globalGraphics!=nullptr)
+                if(globalGraphics->animalIsRunning())
                 {
-                    if(globalGraphics->animalIsRunning())
-                    {
-                        isHaveAlarm = true;
-                        break;
-                    }
+                    isHaveAlarm = true;
+                    break;
                 }
             }
-            if(!isHaveAlarm)
+        }
+        if(!isHaveAlarm)
+        {
+            QMessageBox messageBox(QMessageBox::Warning,tr("清空提示窗口"),tr("清空所有建筑物以及其下的楼层和设备信息，确认要清空吗?"));
+            messageBox.addButton(QMessageBox::Yes);
+            messageBox.addButton(QMessageBox::No);
+            messageBox.setWindowFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
+            int btnValue=messageBox.exec();
+            if(btnValue==QMessageBox::Yes)
             {
                 emit clearItem();
                 m_globalCurrentItemList.clear();
-            }
-            else
-            {
-                QMessageBox::warning(nullptr,tr("信息警告"),tr("有报警信息存在，不能被清空"));
+                Controller::instance()->getOperatorInfo()->insertEvent(tr("清空建筑物"));
+
             }
 
         }
+        else
+        {
+            QMessageBox messageBox(QMessageBox::Warning,tr("信息警告"),tr("有报警信息存在，不能被清空！"));
+            messageBox.setWindowFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
+            messageBox.exec();
+        }
+
 
     });
     Q_ASSERT(m_globalItemObj);
@@ -201,29 +233,29 @@ void GlobalGraphicsScene::showMenu(const QPoint &point)
             m_clearItemAction->setEnabled(false);
             //m_saveGeneralLayoutItemsAction->setEnabled(false);
         }
-        if(selectedItems().isEmpty())
-        {
-            m_removeSelectItemAction->setEnabled(false);
-        }
-        else
-        {
-            if(ArchitePlanView::itemLimit())
-            {
-                m_removeSelectItemAction->setEnabled(true);
-            }
-            else
-            {
-                m_removeSelectItemAction->setEnabled(false);
-            }
+        //        if(selectedItems().isEmpty())
+        //        {
+        //            m_removeSelectItemAction->setEnabled(false);
+        //        }
+        //        else
+        //        {
+        //            if(ArchitePlanView::itemLimit())
+        //            {
+        //                m_removeSelectItemAction->setEnabled(true);
+        //            }
+        //            else
+        //            {
+        //                m_removeSelectItemAction->setEnabled(false);
+        //            }
 
-        }
+        //        }
 
     }
     else
     {
         m_removeItemAction->setEnabled(false);
         m_editItemAction->setEnabled(false);
-        m_removeSelectItemAction->setEnabled(false);
+        //m_removeSelectItemAction->setEnabled(false);
         m_clearItemAction->setEnabled(false);
         //m_saveGeneralLayoutItemsAction->setEnabled(false);
     }
@@ -282,8 +314,12 @@ void GlobalGraphicsScene::clearGraphicsItem()
         if(currentItem!=nullptr)
         {
             removeItem(currentItem);
-            delete currentItem;
-            currentItem = nullptr;
+            if(currentItem!=nullptr)
+            {
+                currentItem->deleteLater();
+                currentItem=nullptr;
+            }
+
         }
     }
 }
@@ -432,7 +468,7 @@ void GlobalGraphicsScene::retranslate()
 {
     m_removeItemAction->setText(tr("删除"));
     m_editItemAction->setText(tr("编辑"));
-    m_removeSelectItemAction->setText(tr("删除选中"));
+    //m_removeSelectItemAction->setText(tr("删除选中"));
     m_goToAchitePlanAction->setText(tr("转到建筑平面"));
     m_clearItemAction->setText(tr("清空"));
     m_globalItemSettingView->setTitle(tr("建筑物信息设置界面"));
@@ -454,15 +490,15 @@ void GlobalGraphicsScene::sortItemList(const QList<QString> &nameList)
     //QList<GlobalGraphicsItem *> tempList;
     if(nameList.size()==m_globalCurrentItemList.size())
     {
-            foreach(GlobalGraphicsItem *item,m_globalCurrentItemList)
+        foreach(GlobalGraphicsItem *item,m_globalCurrentItemList)
+        {
+            int key = nameList.indexOf(item->buildName());
+            int itemIndex = m_globalCurrentItemList.indexOf(item);
+            if(key!=itemIndex)
             {
-                int key = nameList.indexOf(item->buildName());
-                int itemIndex = m_globalCurrentItemList.indexOf(item);
-                if(key!=itemIndex)
-                {
-                    m_globalCurrentItemList.swap(itemIndex,key);
-                }
+                m_globalCurrentItemList.swap(itemIndex,key);
             }
+        }
     }
 
 

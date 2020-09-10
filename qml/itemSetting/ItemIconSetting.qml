@@ -30,6 +30,7 @@ Rectangle {
             manufacturers: qsTr("北京利达华信电子有限公司")
             deviceInstallTime:""
             periodOfvalidity:""
+            selectIconBtnName:qsTr("选择图标")
         }
     }
 
@@ -104,7 +105,7 @@ Rectangle {
                     {
                         id:deviceInstallYearSpinBox
                         height: 30
-                        width: 50
+                        width: 60
                         minimumValue: 1990
                         maximumValue: 2200
                         value:parseInt(JsDateTime.getDataFromStr(deviceInstallTime,"yyyy/MM/dd",0))
@@ -125,8 +126,6 @@ Rectangle {
 
                         onEditingFinished:
                         {
-
-
                             var deviceInstallDateValue= Date.fromLocaleString(Qt.locale(),String("%1/%2/%3").arg(deviceInstallYearSpinBox.value).arg(deviceInstallMonthSpinBox.value).arg(deviceInstallDateSpinBox.value),"yyyy/M/d");
                             var deviceInstallDate = new Date(deviceInstallDateValue)
                             var deviceInstallDateStr=Qt.formatDateTime(deviceInstallDate,"yyyy/MM/dd");
@@ -224,7 +223,7 @@ Rectangle {
                     {
                         id:periodYearSpinBox
                         height: 30
-                        width: 50
+                        width: 60
                         minimumValue: 1990
                         maximumValue: 2200
                         value: parseInt(JsDateTime.getDataFromStr(periodOfvalidity,"yyyy/MM/dd",0))
@@ -350,10 +349,13 @@ Rectangle {
                     id: imageSettingBtn
                     width: 100
                     height: 30
-                    text: qsTr("选择图标")
+                    text:selectIconBtnName
+                    font.pointSize: 10
                     onClicked: {
                         fileDialog.open()
                     }
+
+
                 }
 
                 Image {
@@ -393,6 +395,8 @@ Rectangle {
                 }
             }
         }
+
+
     }
 
 
@@ -410,12 +414,16 @@ Rectangle {
             for(var i=0;i<currentFiles.length;i++)
             {
                 var obj = new Object
+                var curDate = new Date
+                var periodOfvalidity= new Date
+                periodOfvalidity.setFullYear(curDate.getFullYear()+13)
                 obj["imagePath"] = Qt.resolvedUrl(
                             decodeURI(currentFiles[i]))
                 obj["deviceName"] = Controller.getFileNameFromUrl(currentFiles[i].toString(),false)
                 obj["manufacturers"] = qsTr("北京利达华信电子有限公司")
-                obj["deviceInstallTime"] = Qt.formatDate(new Date,"yyyy/MM/dd")
-                obj["periodOfvalidity"] = Qt.formatDate(new Date,"yyyy/MM/dd")
+                obj["deviceInstallTime"] = Qt.formatDate(curDate,"yyyy/MM/dd")
+                obj["periodOfvalidity"] = Qt.formatDate(periodOfvalidity,"yyyy/MM/dd")
+                obj["selectIconBtnName"] = qsTr("选择图标")
                 listModel.append(obj)
             }
             saveInfo()
@@ -433,14 +441,14 @@ Rectangle {
             width: 40
             // height: 40
             text: qsTr("图标")
-            font.family: "Times New Roman"
+            //font.family: "Times New Roman"
             font.pixelSize: 14
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
         }
         Text {
             id: deviceNameTxt
-            font.family: "Times New Roman"
+            //font.family: "Times New Roman"
             font.pixelSize: 14
             // height: 40
             width: 150
@@ -453,7 +461,7 @@ Rectangle {
             width: 160
             // height: 40
             text: qsTr("制造商")
-            font.family: "Times New Roman"
+            //font.family: "Times New Roman"
             font.pixelSize: 14
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
@@ -464,7 +472,7 @@ Rectangle {
             width: 160
             // height: 40
             text: qsTr("安装时间")
-            font.family: "Times New Roman"
+            //font.family: "Times New Roman"
             font.pixelSize: 14
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
@@ -475,7 +483,7 @@ Rectangle {
             width: 150
             // height: 40
             text: qsTr("有效期")
-            font.family: "Times New Roman"
+            //font.family: "Times New Roman"
             font.pixelSize: 14
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
@@ -483,7 +491,7 @@ Rectangle {
 
         Text {
             id: pathTxt
-            font.family: "Times New Roman"
+            //font.family: "Times New Roman"
             font.pixelSize: 14
             width: 150
             text: qsTr("图标路径")
@@ -518,12 +526,16 @@ Rectangle {
             text: qsTr("增加项目")
             onClicked: {
                 var obj = new Object
+                var curDate = new Date
+                var periodOfvalidity= new Date
+                periodOfvalidity.setFullYear(curDate.getFullYear()+13)
                 obj["imagePath"] = Qt.resolvedUrl(
                             decodeURI("qrc:/images/fireAlarm.png"))
                 obj["deviceName"] = String(qsTr("报警装置%1").arg(listModel.count))
                 obj["manufacturers"] = qsTr("北京利达华信电子有限公司")
-                obj["periodOfvalidity"] = Qt.formatDate(new Date,"yyyy/MM/dd")
-                obj["deviceInstallTime"] = Qt.formatDate(new Date,"yyyy/MM/dd")
+                obj["periodOfvalidity"] = Qt.formatDate(periodOfvalidity,"yyyy/MM/dd")
+                obj["deviceInstallTime"] = Qt.formatDate(curDate,"yyyy/MM/dd")
+                obj["selectIconBtnName"] = qsTr("选择图标")
                 listModel.append(obj)
                 saveInfo()
             }
@@ -590,7 +602,12 @@ Rectangle {
                 itemIconInfo.saveItemIconInfo(String("%1").arg(i),
                                               "periodOfvalidity",
                                               obj["periodOfvalidity"].toString())
+                itemIconInfo.saveItemIconInfo(String("%1").arg(i),
+                                              "selectIconBtnName",
+                                              obj["selectIconBtnName"].toString())
+
             }
+
 
         }
         itemIconInfo.itemIconInfoToJson()
@@ -614,6 +631,7 @@ Rectangle {
                     currentObj["imagePath"] = itemIconInfo.getValue(String("%1").arg(currentIndex),"imagePath");
                     currentObj["manufacturers"] = itemIconInfo.getValue(String("%1").arg(currentIndex),"manufacturers");
                     currentObj["periodOfvalidity"] = itemIconInfo.getValue(String("%1").arg(currentIndex),"periodOfvalidity");
+                    currentObj["selectIconBtnName"]=itemIconInfo.getValue(String("%1").arg(currentIndex),"selectIconBtnName");
                     listModel.set(currentIndex, currentObj)
                 }
 
@@ -625,6 +643,7 @@ Rectangle {
                     obj["imagePath"] = itemIconInfo.getValue(index,"imagePath");
                     obj["manufacturers"] = itemIconInfo.getValue(index,"manufacturers");
                     obj["periodOfvalidity"] = itemIconInfo.getValue(index,"periodOfvalidity");
+                    obj["selectIconBtnName"]=itemIconInfo.getValue(index,"selectIconBtnName");
                     listModel.append(obj)
                 }
 
@@ -639,6 +658,7 @@ Rectangle {
                     obj2["imagePath"] = itemIconInfo.getValue(index2,"imagePath");
                     obj2["manufacturers"] = itemIconInfo.getValue(index2,"manufacturers");
                     obj2["periodOfvalidity"] = itemIconInfo.getValue(index2,"periodOfvalidity");
+                    obj2["selectIconBtnName"]=itemIconInfo.getValue(index2,"selectIconBtnName");
                     listModel.append(obj2)
                 }
             }
@@ -670,5 +690,6 @@ Rectangle {
         batchInsertItemBtn.text = qsTr("批量插入")
         saveBtn.text = qsTr("保存")
         clearBtn.text = qsTr("清空")
+
     }
 }

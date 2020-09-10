@@ -5,7 +5,7 @@ import userManager 1.0
 import "../infoSetting"
 import Qt.labs.platform 1.0
 Item {
-    width: 680
+    width: 760
     height: 640
     property int indicatorNum: 256
     signal editIndicatorState(string networkNum)
@@ -18,7 +18,7 @@ Item {
         anchors.left: parent.left
         anchors.topMargin: 10
         anchors.leftMargin: 5
-        //anchors.horizontalCenter: parent.horizontalCenter
+
         font.pointSize: 12
         width: parent.width
         wrapMode: Text.WordWrap
@@ -247,6 +247,8 @@ Item {
         initTxt.text = qsTr("   初始状态:")
         networkTxt.text = qsTr("   网络号:")
         deviceOnlineBtn.text = qsTr("设置")
+        messageDialog.title = qsTr("信息提示")
+        messageDialog.text = qsTr("在超级用户模式下才可打开")
 
     }
 

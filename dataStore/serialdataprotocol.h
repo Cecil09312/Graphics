@@ -3,7 +3,7 @@
 #include "abstractdataprotocol.h"
 #include <QThread>
 #include <QMutex>
-
+#include <QTimer>
 class SerialDataProtocol : public AbstractDataProtocol
 {
     Q_OBJECT
@@ -29,6 +29,7 @@ private:
     QList<QByteArray>m_dataArrayList;
     QMutex m_mutex;
     QThread *m_thread;
+    QTimer*m_processDataTimer;
 };
 
 #endif // SERIALDATAPROTOCOL_H

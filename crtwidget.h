@@ -65,6 +65,8 @@ public:
     void readDeviceOnlineInfoFromJson();
     void startTranslate();
     void setItemIconInfo();
+    void setDongleIsExist(bool isExist);
+    void lightsOff();
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -72,7 +74,6 @@ signals:
     void getSerialData();
     void getTcpData();
     void checkExtNum(quint8 extNum,quint8 networkNum);
-
 
 public slots:
     void widgetExit();
@@ -89,6 +90,7 @@ public slots:
     void tcpDataProcessing(const QByteArray&arrayValue);
     void openHelpFile();
     void sendAnalogCommand(quint8 networkNum, quint8 extNum, quint8 loopNum, quint8 addrNum, quint8 channelNum, quint8 analogType);
+    void sendAnalogCommand(quint8 extNum, quint8 loopNum, quint8 addrNum, quint8 channelNum, quint8 analogType);
     void startReset();
     void clearVoice();//
     void setIndicatorState(bool isOk);
@@ -111,15 +113,14 @@ public slots:
 
     void chAndEnSwitch();
     void allAlarmStatistics();
+    void setCurrentUserInfo();
+    void setCloseTipInfo();
    /*测试*/
-    void sendSeralData();
-
-
+    void sendSerialData();
 
 private:
     void closeSys();
     void initWidget();
-
     bool setSysTime(const QDateTime &dateTime);
     void sendFireInfo(quint8 extNum, quint8 loopNum, quint8 addrNum, const QString &dateTimeStr);
     void reSendCmd();//广播重传指令
@@ -133,11 +134,11 @@ private:
 
     void setIndicator(bool state);
     void closeAllOnlineState();
-    void insertOtherAlarmInfo(const QString &info,const QString&extNum="",const QString&networkNum="");
-    void updateOtherAlarmInfo(const QString &alarmType, const QString &curState, const QString &extNum="", const QString &networkNum="");
+    void insertOtherAlarmInfo(const QString &info,const QString&extNum="",const QString&networkNum="",const QString& curTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
+    void updateOtherAlarmInfo(const QString &alarmType, const QString &curState, const QString &extNum="", const QString &networkNum="",const QString& curTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));
     void clearCheckExtInfo();
-
     void saveOnlineInfoToJson();
+    void initVariable();
 
 private slots:
     void processViewsData(const QByteArray &array);
@@ -154,6 +155,9 @@ private slots:
     void updateAllOnlineState(int network,bool state);
     void updateOneOnlineState(int network, int index, bool state);
     void networkChangedOnlineState(int network);
+    void queryDataOnTable(const QSqlQuery &query);
+    void startSelectCurAlarm(QString alarm);
+
 
 
 
@@ -169,6 +173,10 @@ private:
     QQuickView *m_settingView;
     QQuickView *m_infoQueryView;
     QQuickView *m_extNumStateView;
+
+    QQuickView *m_oneAlarmSelectView;
+    QObject *m_oneAlarmSelectObj;
+
 
     QQuickView *m_deviceOnlineSettingView;
     QObject *m_toolBarObj;
@@ -205,9 +213,10 @@ private:
     CustomTimer *m_mainHeartBeatTimer;
     CustomTimer *m_checkSendDataTimer;
     CustomTimer *m_updateTimer;
-    CustomTimer *m_setVisibleTimer;
     CustomTimer *m_controlCenterHeartbeatTimer;
     CustomTimer * m_checkExtNumTimer;
+
+    QTimer *m_testTimer;
     QString m_alarmSqlInfo;
     QString m_updateAlarmSqlInfo;
     QProcess m_process;
@@ -217,7 +226,7 @@ private:
     bool m_serialCurState;
    // QTcpSocket *m_controlCenterSocket;
     QHash<quint8,QString>m_sysNameHash;
-
+    QHash<quint8,QString>m_gasFireExtinguisherHash;//气体灭火盘
     QHash<QString,bool>m_extNumStateHash;
     QHash<QString,bool>m_extAndNetworkStateHash;
     QHash<QString,bool>m_extEnableHash;
@@ -238,7 +247,7 @@ private:
     QHash<QString,QString>m_handOrAutoStateHash;
     bool m_receiveDataIsSuccess;
     Language m_curLanguage{Chinese};
-    QTranslator m_translator;
+    QTranslator *m_translator;
     bool m_translatorToEnglish{false};
     bool m_firstEnter{true};
     QStringList m_selectAlarmInfoList;
@@ -246,11 +255,10 @@ private:
 
     QHash<quint8,QString>m_alarmTypeHash,m_commuStatusHash,m_faultStateHash,m_emergencyDeviceTypeHash,m_emergencyStateHash,m_emergencyTypeHash;
     bool m_isAnalog{false};
+    FirstAlarmInfoWidget*m_firstAlarmWidget;
+    bool m_dongleIsExist;
    // Language m_language;
     //QTranslator *m_translator;
-
-
-
 
 };
 

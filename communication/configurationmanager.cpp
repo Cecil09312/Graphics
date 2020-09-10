@@ -12,7 +12,7 @@ ConfigurationManager::ConfigurationManager(Configuration configuration,QObject *
     m_canConfigurationHash = configurationValueHash["can"].toHash();
     m_udpConfigurationHash = configurationValueHash["udp"].toHash();
     m_ftpConfigurationHash = configurationValueHash["ftp"].toHash();
-    //m_indicatorConfigurationHash = configurationValueHash["indicator"].toHash();
+    m_indicatorConfigurationHash = configurationValueHash["speechSerialCom"].toHash();
     if(m_serialConfigurationHash.isEmpty())
     {
         m_serialConfigurationHash["portName"]="ttyS1";
@@ -25,15 +25,15 @@ ConfigurationManager::ConfigurationManager(Configuration configuration,QObject *
 
     }
 
-//    if(m_indicatorConfigurationHash.isEmpty())
-//    {
-//        m_indicatorConfigurationHash["portName"]="";
-//        m_indicatorConfigurationHash["baudRate"] = 9600;
-//        m_indicatorConfigurationHash["dataBits"] = 8;
-//        m_indicatorConfigurationHash["stopBits"] = 1;
-//        m_indicatorConfigurationHash["parity"]  = tr("无校验");
-//        m_indicatorConfigurationHash["flowControl"] = tr("无");
-//    }
+    if(m_indicatorConfigurationHash.isEmpty())
+    {
+        m_indicatorConfigurationHash["portName"]="ttyS3";
+        m_indicatorConfigurationHash["baudRate"] = 9600;
+        m_indicatorConfigurationHash["dataBits"] = 8;
+        m_indicatorConfigurationHash["stopBits"] = 1;
+        m_indicatorConfigurationHash["parity"]  = tr("无校验");
+        m_indicatorConfigurationHash["flowControl"] = tr("无");
+    }
     if(m_tcpConfigurationHash.isEmpty())
     {
         m_tcpConfigurationHash["hostAddr"] = "192.195.1.1";
@@ -81,7 +81,7 @@ ConfigurationManager::ConfigurationManager(Configuration configuration,QObject *
     {
         m_configuration.data()->setConfiguration(m_ftpConfigurationHash);
     }
-    else if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Indicator){
+    else if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::SpeechSerialCom){
         m_configuration.data()->setConfiguration(m_indicatorConfigurationHash);
     }
 }
@@ -109,7 +109,7 @@ void ConfigurationManager::saveConfiguration()
 
 QString ConfigurationManager::currentPortName()
 {
-    if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Indicator)
+    if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::SpeechSerialCom)
     {
         return  m_indicatorConfigurationHash["portName"].toString();
     }
@@ -121,7 +121,7 @@ QString ConfigurationManager::currentPortName()
 
 quint32 ConfigurationManager::currentBaudRate()
 {
-    if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Indicator)
+    if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::SpeechSerialCom)
     {
         return m_indicatorConfigurationHash["baudRate"].toUInt();
     }
@@ -134,7 +134,7 @@ quint32 ConfigurationManager::currentBaudRate()
 
 QString ConfigurationManager::currentParity()
 {
-    if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Indicator)
+    if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::SpeechSerialCom)
     {
         return m_indicatorConfigurationHash["parity"].toString();
     }
@@ -147,7 +147,7 @@ QString ConfigurationManager::currentParity()
 
 QString ConfigurationManager::currentFlowControl()
 {
-    if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Indicator)
+    if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::SpeechSerialCom)
     {
         return m_indicatorConfigurationHash["flowControl"].toString();
     }
@@ -159,7 +159,7 @@ QString ConfigurationManager::currentFlowControl()
 
 int ConfigurationManager::currentDataBits()
 {
-    if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Indicator)
+    if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::SpeechSerialCom)
     {
         return m_indicatorConfigurationHash["dataBits"].toInt();
     }
@@ -170,7 +170,7 @@ int ConfigurationManager::currentDataBits()
 }
 
 int ConfigurationManager::currentStopBits()
-{   if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::Indicator)
+{   if(m_configuration.data()->getConfigurationType()==AbstractConfiguration::SpeechSerialCom)
     {
         return m_indicatorConfigurationHash["stopBits"].toInt();
     }

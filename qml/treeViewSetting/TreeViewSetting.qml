@@ -166,7 +166,7 @@ Rectangle {
 
     function retranslate()
     {
-      primaryArchiteTxt.text = qsTr("名称修改:")
+        primaryArchiteTxt.text = qsTr("名称修改:")
         primaryArchiteBtn.text = qsTr("确认")
         primaryImageTxt.text = qsTr("图片路径:")
         primArchImageBtn.text=qsTr("选择图片")

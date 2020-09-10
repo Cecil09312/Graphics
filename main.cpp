@@ -6,7 +6,8 @@
 #include <QTransform>
 #include <QObject>
 #include "control/controller.h"
-
+#include "dongle/checkdonglethread.h"
+#include <QFontDatabase>
 int main(int argc, char *argv[])
 {
 
@@ -14,10 +15,13 @@ int main(int argc, char *argv[])
     qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
     QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
     QCoreApplication::setAttribute(Qt::AA_X11InitThreads, true);
-   // QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
+    // QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
+
+
+    // qDebug() <<"result" <<th.getCheckValue();
 
 #endif
-   QApplication a(argc, argv);
+    QApplication a(argc, argv);
     // 创建信号量
     QSystemSemaphore semaphore("SingleAppSemaphore", 1);
     // 启用信号量，禁止其他实例通过共享内存一起工作
@@ -61,13 +65,54 @@ int main(int argc, char *argv[])
     }
     a.setStyleSheet(QString(array));
 
+
     CrtWidget w;
+
     w.initArchiteView();
-    w.startTranslate();
     w.showMaximized();
     w.setItemIconInfo();
     w.readDeviceOnlineInfoFromJson();
     Controller::instance()->getCommObj()->connectLink();
+#ifdef Q_OS_LINUX
+    Controller::instance()->getSpeechObj()->speechSetting();
+
+    CheckDongleThread m_dongleThread;
+    m_dongleThread.startTimerMs(5000);
+    int num =0;
+    //bool isExist = false;
+
+    QMessageBox messageBox(QMessageBox::Warning,QObject::tr("警告!"),QObject::tr("未识别到加密狗，请检查加密狗是否插好！"));
+    messageBox.addButton(QMessageBox::Yes);
+    messageBox.setWindowFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
+
+    QObject::connect(&m_dongleThread,&CheckDongleThread::sendCheckDongleResult,&w,[&](int result)
+    {
+
+        if(result==1)
+        {
+            num=0;
+            return;
+        }
+        else
+        {
+           num++;
+        }
+
+        if(num>=24)
+        {
+            m_dongleThread.startStopTimer();
+            w.setDongleIsExist(false);
+            w.lightsOff();
+            w.close();
+            num=0;
+            messageBox.exec();
+        }
+
+
+
+    },Qt::QueuedConnection);
+#endif
+
     return a.exec();
 }
 

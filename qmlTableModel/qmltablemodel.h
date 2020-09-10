@@ -51,6 +51,7 @@ public:
     Q_INVOKABLE void saveToPdf(const QString &fileName);
     Q_INVOKABLE void startPrint();
     Q_INVOKABLE void printPreview();
+    Q_INVOKABLE void clearData();
     QList<QVariant>getValues();
     Q_INVOKABLE QString getValue(int row,const QString&roleName);
 signals:

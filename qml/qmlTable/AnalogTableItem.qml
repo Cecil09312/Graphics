@@ -107,12 +107,12 @@ Item
             onClicked: {
                 // console.log(networkNumTextField)
 
-                Crt.sendAnalogCommand(
-                            parseInt(networkNumTextField.text)&0xff, parseInt(
-                                extNumTextField.text) & 0xff,
-                            parseInt(loopNumTextField.text) & 0xff, parseInt(
-                                addrNumTextField.text) & 0xff,
-                            parseInt(curChannelTextField.text) & 0xff, 1)
+//                CrtWidget.sendAnalogCommand(
+//                            parseInt(networkNumTextField.text)&0xff, parseInt(
+//                                extNumTextField.text) & 0xff,
+//                            parseInt(loopNumTextField.text) & 0xff, parseInt(
+//                                addrNumTextField.text) & 0xff,
+//                            parseInt(curChannelTextField.text) & 0xff, 1)
                 infoListModel.sqlCommit(
                             String("select * from AnalogInfo where %1").arg(
                                 selectInfo()))
@@ -127,12 +127,12 @@ Item
             height: 30
             width: 100
             onClicked: {
-                Crt.sendAnalogCommand(
-                            parseInt(networkNumTextField.text)&0xff, parseInt(
-                                extNumTextField.text) & 0xff,
-                            parseInt(loopNumTextField.text) & 0xff, parseInt(
-                                addrNumTextField.text) & 0xff,
-                            0, 1)
+//                Crt.sendAnalogCommand(
+//                            parseInt(networkNumTextField.text)&0xff, parseInt(
+//                                extNumTextField.text) & 0xff,
+//                            parseInt(loopNumTextField.text) & 0xff, parseInt(
+//                                addrNumTextField.text) & 0xff,
+//                            0, 1)
                 infoListModel.sqlCommit("select * from AnalogInfo")
                 infoTableView.resizeColumnsToContents()
             }
@@ -206,7 +206,7 @@ Item
         }
 
         model: infoListModel
-        onClicked: {
+        onDoubleClicked: {
             var curExtNum = new String
             var curLoopNum = new String
             var curAddrNum = new String

@@ -38,12 +38,29 @@ InfoTableView::InfoTableView(QWidget *parent)
         emit fitToWiew();
     }) ;
 
-    connect(this,&InfoTableView::clicked,this,[=](const QModelIndex &index)
+    connect(this,&InfoTableView::doubleClicked,this,[=](const QModelIndex &index)
     {
         QSqlRecord record = m_tableModel->record(index.row());
         emit tableValue(record);
         emit setAlarmNum(m_tableModel->rowCount(),index.row()+1);
     });
+
+
+    connect(this->verticalScrollBar(),&QScrollBar::valueChanged,this,[=](int value)
+    {
+        QScrollBar *bar = this->verticalScrollBar();
+        if(bar!=nullptr)
+        {
+            if(bar->maximum()==value)
+            {
+               int dataSize= m_tableModel->rowCount();
+               emit addDataToTable(dataSize);
+            }
+        }
+       // this->verticalScrollBar()->maximum();
+        //if(value==);
+    });
+
 }
 
 InfoTableView::~InfoTableView()
@@ -83,7 +100,7 @@ void InfoTableView::setTableHeader()
 
 void InfoTableView::toMaxPosition()
 {
-   // Controller::instance()->delayMs(50);
+
     int rowCount = m_tableModel->rowCount();
     int currentHeight=0;
     if(rowCount>0)
@@ -116,6 +133,8 @@ void InfoTableView::initWidget()
     this->setModel(m_tableModel);
     this->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     this->horizontalHeader()->setStretchLastSection(true);
-   // horizontalHeader()->setMinimumSectionSize(60);
+
     this->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+    this->verticalHeader()->setMaximumSectionSize(40);
 }

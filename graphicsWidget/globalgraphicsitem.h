@@ -32,6 +32,8 @@ public:
     bool animalIsRunning();
     QString personOnDuty();
     void setPersonOnDuty(const QString&name);
+    bool curAnimationRunState();
+    void setCurAnimationRunState(bool curState);
 
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *);
@@ -48,6 +50,7 @@ private:
     QPropertyAnimation *m_propertyAnimation;
     QFont m_font;
     int m_scaleRunNum{0};
+    bool m_curAnimationState;
 
 };
 

@@ -4,7 +4,7 @@ import QtQuick.Controls 1.4 as Controls1_4
 Rectangle {
 
     width: 960
-    height: 720
+    height: 750
     signal checkedAll(int networkNum,bool isOk)
     signal checkedOne(int networkNum,int index,bool isOk)
     signal networkChanged(int networkNum)
@@ -26,7 +26,11 @@ Rectangle {
         id: titleTxt
         anchors.top: parent.top
         anchors.topMargin: 10
+        //anchors.horizontalCenter:parent.horizontalCenter
+        width: parent.width
         text: qsTr("设置主机打开或关闭")
+
+
         font.pointSize: 14
     }
 
@@ -76,9 +80,12 @@ Rectangle {
         anchors.leftMargin: 10
 
         columns: 13
-        spacing: 5
+        spacing: 10
+        columnSpacing:2
+
         Repeater {
             model: listModel
+
 
             RadioButton
             {
@@ -87,7 +94,7 @@ Rectangle {
                 checkable:true
                 autoExclusive:false
                 checked: checkedOnce
-                height: 25
+                height: 20
 
 
                 onClicked:
@@ -108,7 +115,7 @@ Rectangle {
 
 
         anchors.top: grid.bottom
-        anchors.topMargin: 10
+        anchors.topMargin: 15
         anchors.left: parent.left
         anchors.leftMargin: 10
         spacing: 10

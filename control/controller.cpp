@@ -15,13 +15,14 @@ Controller::~Controller()
     m_commObj.clear();
     m_speechObj->deleteLater();
     m_tcpObj.clear();
-    m_IndicatorObj.clear();
+    m_userManager->deleteLater();
 
     //m_speechObj.clear();
     //m_operatorInfo->deleteLater();
     m_operatorInfo.clear();
     //m_logMsg.clear();
     m_drawImageThread.clear();
+
 
 }
 
@@ -148,10 +149,7 @@ AbstractLink *Controller::getTcpObj()
     return m_tcpObj.data();
 }
 
-AbstractLink *Controller::getIndicatorObj()
-{
-    return m_IndicatorObj.data();
-}
+
 
 
 ConfigurationManager *Controller::getSerialConfigurationManager()
@@ -195,12 +193,14 @@ TransportInfo *Controller::getTransportInfo()
 
 void Controller::delayMs(int ms)
 {
-    QElapsedTimer eTime;
-    eTime.start();
-    while(eTime.elapsed() < ms)
+    QTime dieTime = QTime::currentTime().addMSecs(ms);
+
+    while( QTime::currentTime() < dieTime )
     {
-        QCoreApplication::processEvents();
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
     }
+
+
 }
 
 DataStore *Controller::getDataStore()
@@ -214,29 +214,26 @@ DrawImageThread *Controller::getDrawImageThread()
 }
 
 
-
-
-
-
-
-
 Controller::Controller()
 {
     m_commObj = QSharedPointer<AbstractLink>(new SerialLink(),&QObject::deleteLater);
     m_tcpObj = QSharedPointer<AbstractLink>(new TcpLink(),&QObject::deleteLater);
-    m_IndicatorObj = QSharedPointer<AbstractLink>(new IndicatorLightCom,&QObject::deleteLater);
+   // m_IndicatorObj = QSharedPointer<AbstractLink>(new SpeechCom,&QObject::deleteLater);
     //m_logMsg = QSharedPointer<LogMsg>(new DebugLogMsg(nullptr),&QObject::deleteLater);
     m_userManager =new UserManager(this);
     m_speechObj = new SpeechObj;
     m_serialConfigurationManager =QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new SerialConfiguration)),&QObject::deleteLater);
     m_tcpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new TcpConfiguration)),&QObject::deleteLater);
     m_ftpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new FtpConfiguration)),&QObject::deleteLater);
-    m_indicatorConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new IndicatorLightConfiguration)),&QObject::deleteLater);
+    m_indicatorConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new SpeechComConfiguration)),&QObject::deleteLater);
     m_operatorInfo = QSharedPointer<OperatorInfo>(new OperatorInfo,&QObject::deleteLater);
     m_transportInfo = QSharedPointer<TransportInfo>(new TransportInfo,&QObject::deleteLater);
 
     m_dataStore = QSharedPointer<DataStore>(new DataStore(this));
     m_drawImageThread = QSharedPointer<DrawImageThread>(new DrawImageThread,&QObject::deleteLater);
+
+
+
 
 
 }

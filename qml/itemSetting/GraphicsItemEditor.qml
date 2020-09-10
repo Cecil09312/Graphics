@@ -343,9 +343,9 @@ Item {
                             width: 160
                             height: 40
                             from: 10
-                            to: 80
+                            to: 100
                             stepSize: 1
-                            value: 30
+                            value: 40
                             onValueChanged: {
                                 emit: setSize(value)
                             }

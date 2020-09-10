@@ -20,7 +20,7 @@ SerialLink::SerialLink( QObject *parent)
     connect(m_serialPort,&QSerialPort::readyRead,this,&SerialLink::readData);
     connect(this,&SerialLink::writeData,this,[=](const QByteArray &array)
     {
-        QMutexLocker locker(&m_mutex);
+        //QMutexLocker locker(&m_mutex);
 
         m_sendArrayList.push_back(array);
         if(m_serialPort->isOpen())
@@ -35,7 +35,7 @@ SerialLink::SerialLink( QObject *parent)
                 {
                     m_sendArrayList.removeOne(curArray);
                 }
-                m_thread->msleep(5);
+                m_thread->msleep(10);
             }
 
         }
@@ -47,10 +47,10 @@ SerialLink::SerialLink( QObject *parent)
     {
 
         QHash <QString,QVariant>valueHash=  m_serialConfiguration.data()->getConfiguration().toHash();
-        QString portName = valueHash["portName"].toString();
+        QString portName = valueHash.value("portName").toString();
+        m_serialPort->close();//关闭以前的连接
         if(m_serialPort->portName()!=portName)
         {
-            m_serialPort->close();
             m_serialPort->setPortName(portName);
         }
         if(!m_serialPort->isOpen())
@@ -98,10 +98,10 @@ SerialLink::~SerialLink()
 
 void SerialLink::readData()
 {
-    QMutexLocker locker(&m_mutex);
+    //QMutexLocker locker(&m_mutex);
     QByteArray array = m_serialPort->readAll();
     emit getData(array);
-    m_thread->msleep(10);
+    m_thread->msleep(5);
 }
 
 

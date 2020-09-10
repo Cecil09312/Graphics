@@ -106,7 +106,7 @@ Item
                 id: alarmInfoAlarmTypeComboBox
                 height: 30
                 width: 100
-                model: [qsTr("火警"),qsTr("监管"),qsTr("启动"),qsTr("反馈"),qsTr("故障"),qsTr("屏蔽"),qsTr("停止"),qsTr("反馈消除"),qsTr("故障恢复"),qsTr("屏蔽解除")]
+                model: [qsTr("火警"),qsTr("监管"),qsTr("启动"),qsTr("反馈"),qsTr("故障"),qsTr("屏蔽"),qsTr("停止"),qsTr("反馈消除"),qsTr("故障恢复"),qsTr("屏蔽解除"),qsTr("联动请求")]
             }
         }
         Row {
@@ -276,7 +276,7 @@ Item
                 onClicked: {
                     alarmInfoListModel.sqlCommit(
                                 String(
-                                    "select 分机号,回路号,地址号,网络号,电源地址,系统,设备编码,设备,事件类型,状态,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo where %1 ").arg(
+                                    "select 分机号,回路号,地址号,网络号,电源地址,系统,设备编码,设备,事件类型,时间,建筑名称,楼层,位置,操作员 from AlarmInfo where %1 ").arg(
                                     selectInfo()))
                     alarmInfoTableView.resizeColumnsToContents()
 
@@ -290,7 +290,7 @@ Item
                 width: 100
                 onClicked: {
                     alarmInfoListModel.sqlCommit(
-                                String("select 分机号,回路号,地址号,网络号,电源地址,系统,设备编码,设备,事件类型,状态,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo where 状态='%1'").arg(qsTr("正常")))
+                                "select 分机号,回路号,地址号,网络号,电源地址,系统,设备编码,设备,事件类型,时间,建筑名称,楼层,位置,操作员 from AlarmInfo where 状态='OK'")
                     alarmInfoTableView.resizeColumnsToContents()
                 }
             }
@@ -368,12 +368,12 @@ Item
             width: 60
         }
 
-        Controls1_4.TableViewColumn {
-            id:currentState
-            role: "currentAlarmState"
-            title: qsTr("状态")
-            width: 60
-        }
+//        Controls1_4.TableViewColumn {
+//            id:currentState
+//            role: "currentAlarmState"
+//            title: qsTr("状态")
+//            width: 60
+//        }
 
         Controls1_4.TableViewColumn {
             id:alarmTime
@@ -410,15 +410,15 @@ Item
             width: 60
         }
 
-        Controls1_4.TableViewColumn {
-            id:remarks
-            role: "remarks"
-            title: qsTr("备注")
-            width: 60
-        }
+//        Controls1_4.TableViewColumn {
+//            id:remarks
+//            role: "remarks"
+//            title: qsTr("备注")
+//            width: 60
+//        }
 
         model: alarmInfoListModel
-        onClicked: {
+        onDoubleClicked: {
             var curExtNum = new String
             var curLoopNum = new String
             var curAddrNum = new String
@@ -438,9 +438,9 @@ Item
         dbDriver: "QSQLITE"
         dbName: Crt.alarmInfoDbName()
         dbConnectionName: "alarmInfoDb"
-        dbPort: 888
-        roleNameList: ["extNum", "loopNum", "addrNum", "networkNum", "powerAddr","deviceSys", "productNum", "deviceType", "alarmType", "currentAlarmState", "alarmTime", "buildName", "floor", "deviceLocation", "operator","remarks"]
-        titleList: [qsTr("分机号"), qsTr("回路号"), qsTr("地址号"), qsTr("网络号"),qsTr("电源地址"), qsTr("系统"), qsTr("设备编码"), qsTr("设备"), qsTr("事件类型"), qsTr("状态"), qsTr("时间"), qsTr("建筑名称"), qsTr("楼层"), qsTr("位置"), qsTr("操作员"),qsTr("备注")]
+        dbPort: 9999
+        roleNameList: ["extNum", "loopNum", "addrNum", "networkNum", "powerAddr","deviceSys", "productNum", "deviceType", "alarmType", "alarmTime", "buildName", "floor", "deviceLocation", "operator"]
+        titleList: [qsTr("分机号"), qsTr("回路号"), qsTr("地址号"), qsTr("网络号"),qsTr("电源地址"), qsTr("系统"), qsTr("设备编码"), qsTr("设备"), qsTr("事件类型"), qsTr("时间"), qsTr("建筑名称"), qsTr("楼层"), qsTr("位置"), qsTr("操作员")]
     }
     function selectInfo() {
         var info = new String
@@ -512,7 +512,7 @@ Item
         if (info.length > 0) {
             info += " and "
         }
-        info+=String("状态='%1'").arg(qsTr("正常"))
+        info+="状态='OK'"
         return info
     }
 
@@ -593,12 +593,12 @@ Item
         productNum.title = qsTr("设备编码")
         deviceType.title = qsTr("设备")
         alarmType.title = qsTr("事件类型")
-        currentState.title = qsTr("状态")
+
         alarmTime.title = qsTr("时间")
         buildingName.title = qsTr("建筑名称")
         floor.title = qsTr("楼层")
         location.title = qsTr("位置")
         operator.title = qsTr("操作员")
-        remarks.title = qsTr("备注")
+
     }
 }

@@ -84,14 +84,15 @@ SOURCES += \
     communication/ftpconfiguration.cpp \
     database/operatorinfo.cpp \
     jsonEdit/transportinfo.cpp \
-    communication/indicatorlightcom.cpp \
-    communication/indicatorlightconfiguration.cpp \
-    architePlan/firstfirealarminfowidget.cpp \
     customTimer/customtimer.cpp \
     communication/tcpserver.cpp \
     graphicsWidget/svgitem.cpp \
     graphicsWidget/drawimagethread.cpp \
-    control/segfault.c
+    control/segfault.c \
+    communication/speechcom.cpp \
+    communication/speechcomconfiguration.cpp \
+    dongle/checkdonglethread.cpp \
+    architePlan/firstalarminfowidget.cpp
 
 
 HEADERS += \
@@ -137,14 +138,16 @@ HEADERS += \
     communication/ftpconfiguration.h \
     database/operatorinfo.h \
     jsonEdit/transportinfo.h \
-    communication/indicatorlightcom.h \
-    communication/indicatorlightconfiguration.h \
-    architePlan/firstfirealarminfowidget.h \
     customTimer/customtimer.h \
     communication/tcpserver.h \
     graphicsWidget/svgitem.h \
     graphicsWidget/drawimagethread.h \
-    control/segfault.h
+    control/segfault.h \
+    communication/speechcom.h \
+    communication/speechcomconfiguration.h \
+    dongle/usbkeydev.h \
+    dongle/checkdonglethread.h \
+    architePlan/firstalarminfowidget.h
 include($$PWD/3rdparty/qtxlsx/src/xlsx/qtxlsx.pri)
 
 FORMS +=

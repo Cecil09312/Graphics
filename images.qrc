@@ -10,5 +10,11 @@
         <file>images/delete.png</file>
         <file>images/ldlogo.png</file>
         <file>images/greenCircle.png</file>
+        <file>images/alarm.gif</file>
+        <file>images/fire.gif</file>
+        <file>images/down.png</file>
+        <file>images/up.png</file>
+        <file>images/left.png</file>
+        <file>images/right.png</file>
     </qresource>
 </RCC>

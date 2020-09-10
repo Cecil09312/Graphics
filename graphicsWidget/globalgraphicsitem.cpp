@@ -3,7 +3,7 @@
 #include "control/controller.h"
 #include <QDebug>
 GlobalGraphicsItem::GlobalGraphicsItem(GlobalGraphicsScene *scene)
-    :m_radius(30.0)
+    :m_radius(40.0)
 {
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);
@@ -14,7 +14,12 @@ GlobalGraphicsItem::GlobalGraphicsItem(GlobalGraphicsScene *scene)
     setProperty("size",m_radius);
 
     m_font.setPointSize(qFloor(m_radius/4));
-    m_font.setFamily("Times New Roman");
+   // m_font.setFamily("Times New Roman");
+
+    m_curAnimationState = false;
+    setIconName(m_iconName);
+
+
 
 }
 
@@ -78,18 +83,18 @@ void GlobalGraphicsItem::startAnimal(bool isStart)
     if(m_propertyAnimation==nullptr)
     {
         m_propertyAnimation = new QPropertyAnimation(this,"size");
-        m_propertyAnimation->setDuration(1200);
+        m_propertyAnimation->setDuration(1600);
         m_propertyAnimation->setStartValue(0.5);
         m_propertyAnimation->setEndValue(2);
         m_propertyAnimation->setLoopCount(-1);
 
         connect(m_propertyAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &value)
         {
-            if(m_scaleRunNum>=60)
+            if(m_scaleRunNum>=100)
             {
                 m_scaleRunNum =0;
             }
-            if(m_scaleRunNum%12==0)
+            if(m_scaleRunNum%25==0)
             {
                 qreal scale =qvariant_cast<qreal> (value);
                 setScale(scale);
@@ -102,7 +107,11 @@ void GlobalGraphicsItem::startAnimal(bool isStart)
     {
         if(isStart)
         {
-            m_propertyAnimation->start();
+            if(m_propertyAnimation->state()!=QPropertyAnimation::Running)
+            {
+                m_propertyAnimation->start();
+            }
+
         }
         else
         {
@@ -123,8 +132,6 @@ void GlobalGraphicsItem::startAnimal(bool isStart)
                     setTransform(currentTransform);
                 }
             }
-
-
         }
     }
 
@@ -161,6 +168,16 @@ void GlobalGraphicsItem::setPersonOnDuty(const QString &name)
     m_personOnDuty = name;
 }
 
+bool GlobalGraphicsItem::curAnimationRunState()
+{
+    return  m_curAnimationState;
+}
+
+void GlobalGraphicsItem::setCurAnimationRunState(bool curState)
+{
+    m_curAnimationState = curState;
+}
+
 QRectF GlobalGraphicsItem::boundingRect() const
 {
     qreal penWidth = 1;
@@ -189,6 +206,7 @@ void GlobalGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
     if(m_radius>0)
     {
 
+        painter->setPen(QColor("blue"));
         if(curBuildName.size()>8)
         {
             painter->drawText(QRectF(-m_radius,-m_radius,2.7*m_radius,2.7*m_radius),Qt::AlignHCenter,curBuildName);
@@ -200,8 +218,16 @@ void GlobalGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 
         QRectF rectF = QRectF(-m_radius/2,-m_radius/2,m_radius,m_radius);
        // DrawImageThread drawImageThread;
+        if(!m_iconName.endsWith(".svg"))
+        {
+             painter->drawImage(rectF,Controller::instance()->getDrawImageThread()->getImageFromName(m_iconName));
+        }
+        else
+        {
+            QSvgRenderer renderer(m_iconName);
+            renderer.render(painter,rectF);
+        }
 
-        painter->drawImage(rectF,Controller::instance()->getDrawImageThread()->getImageFromName(m_iconName));
     }
 
 

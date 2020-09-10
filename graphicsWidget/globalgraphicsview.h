@@ -16,6 +16,7 @@ public:
     QString pictureName();
     GlobalGraphicsScene *currentScene();
     void retranslate();
+    void deleteItemFromScene(GlobalGraphicsItem*item);
 
 private:
     SvgItem *m_item;

@@ -18,7 +18,7 @@
 #include "database/sqlitemanager.h"
 #include "database/sqlitemanager.h"
 #include "customTimer/customtimer.h"
-#include "firstfirealarminfowidget.h"
+#include "firstalarminfowidget.h"
 #include "dataStore/datastore.h"
 #ifdef Q_OS_LINUX
 #include "control/segfault.h"
@@ -66,7 +66,9 @@ public:
     void closeQuickView();
     void retranslate();
     bool firstAlarmViewIsVisible();
-    FirstFireAlarmInfoWidget *getFirstFireAlarmWidget();
+    FirstAlarmInfoWidget *getFirstFireAlarmWidget();
+
+
 
     Q_INVOKABLE static bool &itemLimit();
     Q_INVOKABLE void setItemLimit(bool isOk);
@@ -79,7 +81,7 @@ public:
                                  const QString& alarmState, const QString &alarmTime=QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss"));//生成报警
 
     Q_INVOKABLE void clearAlarm(bool clearFireAlarm);//清空报警
-    Q_INVOKABLE void clearAlarmFromExtNum(const QString &extNum);//按照主机号清除报警
+    Q_INVOKABLE void clearAlarmFromExtNum(const QString &extNum, const QString &networkNum);//按照主机号清除报警
     Q_INVOKABLE void clearExcptFireAlarm();
 
     Q_INVOKABLE void toAlarmView();
@@ -93,8 +95,7 @@ public:
     void itemIconSetting();
     void setGlobalArchiteFromJson();
     void initFromJsonFile();
-    void startCheckAlarmTimer(int ms);
-    void stopCheckAlarmTimer();
+    void filterAlarm(GraphicsItem *item);
 
 signals:
     void alarmHappend(const QString &alarmType);
@@ -111,11 +112,19 @@ signals:
     void tabIndex(int index);
     void keepStartState();
     void clearTableAlarm();
-    void alarmStateUpdate(const QString &extNum);
+    void alarmStateUpdate(const QString &extNum,const QString &networkNum);
     void findAlarmNum(int totalNum,int currentNum);
     void showExtNumState();
     void sendAnalogValue(GraphicsItem*curItem,quint8 channelNum);
+    void sendAnalogNoNetwork(GraphicsItem*curItem,quint8 channelNum);
     void clearAllAlarmExceptFire();
+    void getAnalogAlarm(QString alarmType);
+    void setFirstAlarmInfo(GraphicsItem*item);
+    void hideFirstFireAlarmInfo();
+    void updateFirstAlarmView();
+    void eliminateAnalogAlarm(QString alarmType);
+
+
 
 
 
@@ -126,6 +135,7 @@ public slots:
     void toPreviousPage();
     void toNextPage();
     void deleteViewFromItem(QStandardItem *item);
+    void deleteViewFromIndex(QStandardItem *item);
     void viewsAutoSwitch();
     void startAutoSwitch(bool isAuto);
     void eliminateAlarm(const QString &extNum, const QString &loopNum,
@@ -151,6 +161,8 @@ public slots:
     void setAnalogSelect(bool selected);
     void setSizeSelect(bool selected);
 
+
+
 private:
     void initWidget();
     void showMenu(const QPoint &point );
@@ -163,9 +175,9 @@ private:
 
     void updateAlarmWidget(GraphicsView *currentView);
     void deleteAlarmWidget(GraphicsView *currentView);
-    void filterAlarm(GraphicsItem *item);
+
     void filterAlarmView(GraphicsItem *item,const QString &alarmType);
-    void viewSwitch();
+    void viewSwitch(GraphicsItem *item);
     void startAlarmAnimation(const QString &alarmType);
     void startAlarmAnimation(GraphicsItem*item);
 
@@ -226,7 +238,7 @@ private:
     QObject *m_maintenanceObj;
     QObject *m_analogAlarmObj;
 
-    FirstFireAlarmInfoWidget*m_firstFireWidget;
+
     static bool m_itemLimit;
     QHash<quint32,QString>m_loopAddrExtHash;
     QHash<quint32,QString>m_loopAddrDeviceHash;
@@ -234,9 +246,10 @@ private:
     QMenu *m_modeSelectMenu;
     QHash<QString,bool>m_itemInfoSelectHash;
     bool m_firstSetSysInfo;
-    CustomTimer *m_checkAlarmTimer;
      QHash<GraphicsView*,QString>m_viewImageHash;
      QMutex m_mutex;
+    QList<QString> m_typeList;
+
 
 
 };

@@ -7,8 +7,10 @@
     color: white;
     padding-left: 4px;
     border: 1px solid #6c6c6c;
-    font:12pt 'Times New Roman'
+    font:11pt 'Times New Roman'
 }
+
+
 
 QTableView
 {
@@ -34,7 +36,7 @@ QTabBar::tab{
         border-top-right-radius: 8px;
 
         min-width:15ex;/*linux系统为15*/
-        min-height:6ex;/*linux系统为6*/
+        min-height:5ex;/*linux系统为5*/
         border: 2px solid #C4C4C3
 
 }
@@ -65,8 +67,94 @@ QTreeView::item {
 
 QTreeView
 {
-  font:12pt 'Times New Roman'
+  font:11pt 'Times New Roman'
 }
 
+QScrollBar:horizontal {
+      border: 2px solid gray;
+      background: #32CC99;
+      height: 15px;
+      margin: 0px 20px 0 20px;
+  }
+  QScrollBar::handle:horizontal {
+      background:green;
+      min-width: 20px;
+  }
+  QScrollBar::add-line:horizontal {
+      border: 2px solid gray;
+      background: cyan;
+      width: 20px;
+      subcontrol-position: right;
+      subcontrol-origin: margin;
+  }
+
+  QScrollBar::sub-line:horizontal {
+      border: 2px solid gray;
+      background: magenta;
+      width: 20px;
+      subcontrol-position: left;
+      subcontrol-origin: margin;
+  }
 
 
+QScrollBar:left-arrow:horizontal
+{
+   width: 8px;
+   height: 8px;
+   border-image:url(:/images/left.png);
+
+}
+QScrollBar::right-arrow:horizontal {
+   width: 8px;
+   height: 8px;
+   border-image:url(:/images/right.png);
+  }
+
+  QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+      background: none;
+  }
+
+
+
+QScrollBar:vertical {
+     border: 2px solid gray;
+     background: #32CC99;
+     width: 15px;
+     margin: 22px 0 22px 0;
+ }
+ QScrollBar::handle:vertical {
+     background: green;
+     min-height: 20px;
+ }
+ QScrollBar::add-line:vertical {
+     border: 2px solid gray;
+     background: cyan;
+     height: 20px;
+     subcontrol-position: bottom;
+     subcontrol-origin: margin;
+ }
+
+ QScrollBar::sub-line:vertical {
+     border: 2px solid gray;
+     background:magenta;
+     height: 20px;
+     subcontrol-position: top;
+     subcontrol-origin: margin;
+ }
+
+QScrollBar::up-arrow:vertical {
+    /*border: 2px solid gray;*/
+    width: 8px;
+    height: 8px;
+    border-image:url(:/images/up.png);
+}
+
+QScrollBar::down-arrow:vertical
+{
+  width: 8px;
+  height: 8px;
+  border-image:url(:/images/down.png);
+}
+ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+     background: none;
+ }

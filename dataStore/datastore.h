@@ -27,15 +27,16 @@ public:
     void deleteType(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum, const QString &powerAddr="0");
     void deleteTypeItem(const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum);
     void deleteTypeNoItem(const QString&extNum);
-    void insertTypeNoItem(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum, const QString &powerAddr="0");
+    void insertTypeNoItem(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum, const QString &powerAddr="0", const QString &timeStr="");
     void clearTypeItem();
     int numOfTypeItem(const QString &type);
     GraphicsView *itemDisplayView(GraphicsItem *item);
     bool haveTypeItem(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum);
     QHash<QString,QList<QString> >&getTypeNoItemHash();
     int indexOfItem(const QString &extNum,const QString &loopNum,const QString &addrNum,const QString &networkNum,const QString &alarmType);
-    bool containsFireAlarm(const QString &alarm);
-    bool containsFireAlarmNoItem(const QString &alarm);
+    int indexOfTypeFromItem(const QString &alarmType,GraphicsItem*item);
+    bool containsAlarms(const QString &alarm);
+    bool containsAlarmsNoItem(const QString &alarm);
     int itemNum();
     void setItemNum(int num);
     QString &loopNum();
@@ -49,12 +50,20 @@ public:
     QString &powerAddr();
     void reInit();
     void clearStoreAlarm();
+    int & priority();
+    QString priorityType(int prioityValue);
+    QString currentPriorityType();
+    void updatePriority();
+    QString getTypeNoItemTime(const QString &str);
+
+    void setPriority();
 signals:
 
     void curLoopAddr(const QString loopNum,const QString addrNum);
 private:
     QHash<QString,QList<QGraphicsItem*> >m_typeItemHash;
     QHash<QString,QList<QString> >m_typeNoItemHash;
+    QHash<QString,QString>m_typeNoItemTimeHash;
     int s_itemNum;
     QString m_loopNum;
     QString m_extNum;
@@ -66,6 +75,8 @@ private:
     qreal m_iconSize;
     QString m_operator;
     int s_itemNumTemp;
+    int m_priority;
+    QHash<QString,int>m_priorityHash;
 
 
 };

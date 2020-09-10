@@ -1,12 +1,12 @@
-﻿#ifndef INDICATORLIGHTCOM_H
-#define INDICATORLIGHTCOM_H
+﻿#ifndef SPEECHCOM_H
+#define SPEECHCOM_H
 #include "abstractlink.h"
 #include <QSerialPort>
-class IndicatorLightCom : public AbstractLink
+class SpeechCom : public AbstractLink
 {
 public:
-    IndicatorLightCom();
-    ~IndicatorLightCom();
+    SpeechCom();
+    ~SpeechCom();
 public slots:
     void readData();
     void setConfiguration();
@@ -20,7 +20,7 @@ private :
     QSerialPort::FlowControl m_flowControl;
     QSerialPort::Parity m_parity;
     bool m_isOpen;
-   Configuration m_indicatorConfiguration;
+   Configuration m_speechComConfiguration;
 };
 
 #endif // INDICATORLIGHTCOM_H

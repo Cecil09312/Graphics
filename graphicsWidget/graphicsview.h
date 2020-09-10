@@ -32,6 +32,7 @@ public:
     void scaleValueChanged(qreal value);
     void updateSvg();
     QGraphicsScene *sysScene();
+    QList<QGraphicsTextItem *> textItemList();
 
 signals:
     void currentScaleValue(qreal value);

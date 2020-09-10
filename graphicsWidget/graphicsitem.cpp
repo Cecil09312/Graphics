@@ -41,8 +41,9 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     setProperty("scale",m_scale);
 
     // setProperty("angle",m_angle);
-    m_itemTextFont.setPointSize(qFloor(m_radius/4));
-    m_itemTextFont.setFamily("Arial");
+    m_itemTextFont.setPointSize(qFloor(m_radius/3));
+   // m_itemTextFont.setFamily("Arial");
+
 
 
     QString num = QString("%1").arg(Controller::instance()->getDataStore()->itemNum());
@@ -95,7 +96,7 @@ QRectF GraphicsItem::boundingRect() const
     if(m_radius>0)
     {
         return QRectF(-m_radius*0.9 - penWidth / 2, -m_radius*0.9 - penWidth / 2,
-                      m_radius*1.5+ penWidth, m_radius*1.5 + penWidth);
+                      m_radius*1.6+ penWidth, m_radius*1.6 + penWidth);
     }
     else
     {
@@ -112,31 +113,43 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*optio
      QString curDeviceNum=QString("%1-%2").arg(m_itemInfo.m_loopNum).arg(m_itemInfo.m_addrNum) ;
     if(m_itemTextIsVisiable)
     {
-        int fontSize = qFloor(m_radius/4);
+        int fontSize = qFloor(m_radius/3);
         m_itemTextFont.setPointSize(fontSize);
         painter->setFont(m_itemTextFont);
+
     }
 
     if(m_radius>0)
     {
         if(m_itemTextIsVisiable)
         {
+            painter->setPen(QColor("blue"));
             if(curDeviceNum.size()>8)
             {
-                painter->drawText(QRectF(-m_radius*0.9,-m_radius*0.9,1.6*m_radius,1.6*m_radius),Qt::TextWordWrap|Qt::AlignLeft,curDeviceNum);
+                painter->drawText(QRectF(-m_radius,-m_radius,1.8*m_radius,1.8*m_radius),Qt::TextWordWrap|Qt::AlignLeft,curDeviceNum);
             }
             else
             {
-                painter->drawText(QRectF(-m_radius*0.9,-m_radius*0.9,1.6*m_radius,1.6*m_radius),Qt::AlignHCenter,curDeviceNum);
+                painter->drawText(QRectF(-m_radius,-m_radius,1.8*m_radius,1.8*m_radius),Qt::AlignHCenter,curDeviceNum);
             }
 
         }
 
         painter->setPen(m_penColor);
         painter->setBrush(m_color);
-        painter->drawRect(QRectF(-m_radius*0.5,-m_radius*0.5,m_radius,m_radius));
-        QRectF rectF = QRectF(-m_radius*0.35,-m_radius*0.35,m_radius*0.7,m_radius*0.7);
-        painter->drawImage(rectF,Controller::instance()->getDrawImageThread()->getImageFromName(m_iconName));
+        painter->drawRect(QRectF(-m_radius*0.55,-m_radius*0.5,1.1*m_radius,1.1*m_radius));
+        QRectF rectF = QRectF(-m_radius*0.45,-m_radius*0.4,0.9*m_radius,0.9*m_radius);
+
+        if(!m_iconName.endsWith(".svg"))
+        {
+            painter->drawImage(rectF,Controller::instance()->getDrawImageThread()->getImageFromName(m_iconName));
+        }
+        else
+        {
+            QSvgRenderer renderer(m_iconName);
+            renderer.render(painter,rectF);
+        }
+
 
     }
 
@@ -152,7 +165,7 @@ void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*optio
     {
         painter->setPen(QPen(Qt::black, 0, Qt::DashLine));
         painter->setBrush(Qt::NoBrush);
-        painter->drawRect(QRectF(-m_radius*0.55,-m_radius*0.55,1.1*m_radius,1.1*m_radius));
+        painter->drawRect(QRectF(-m_radius*0.6,-m_radius*0.55,1.2*m_radius,1.2*m_radius));
     }
 }
 
@@ -223,15 +236,15 @@ void GraphicsItem::startColorAnimation()
         m_colorAnimation = new QPropertyAnimation(this,"color");
         m_colorAnimation->setStartValue(QColor(Qt::transparent));
         m_colorAnimation->setEndValue(QColor(Qt::red));
-        m_colorAnimation->setDuration(1200);
+        m_colorAnimation->setDuration(1600);
         m_colorAnimation->setLoopCount(-1);
         connect(m_colorAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &/*value*/)
         {
-            if(m_colorRunNum>60)
+            if(m_colorRunNum>=100)
             {
                 m_colorRunNum =0;
             }
-            if(m_colorRunNum%12==0)
+            if(m_colorRunNum%25==0)
             {
                 QColor color =qvariant_cast<QColor> (m_colorAnimation->currentValue());
                 m_color = color;
@@ -264,33 +277,38 @@ void GraphicsItem::stopColorAnimation()
 
     m_color = QColor(Qt::transparent);
     m_penColor = QColor(Qt::transparent);
+
     update();
     //setColorEffectValue(0.0);
 }
 
-void GraphicsItem::startScaleAnimation()
+void GraphicsItem::startScaleAnimation(int loopCount)
 {
     if(m_scaleAnimation==nullptr)
     {
         m_scaleAnimation = new QPropertyAnimation(this,"scale");
         m_scaleAnimation->setStartValue(0.5);
         m_scaleAnimation->setEndValue(2);
-        m_scaleAnimation->setDuration(1200);
-        m_scaleAnimation->setLoopCount(-1);
+        m_scaleAnimation->setDuration(1600);
+        m_scaleAnimation->setLoopCount(loopCount);
         connect(m_scaleAnimation,&QPropertyAnimation::valueChanged,this,[=](const QVariant &/*value*/)
         {
 
-            if(m_scaleRunNum>=60)
+            if(m_scaleRunNum>=100)
             {
                 m_scaleRunNum=0;
             }
-            if(m_scaleRunNum%12==0)
+            if(m_scaleRunNum%25==0)
             {
                 qreal scale =qvariant_cast<qreal> (m_scaleAnimation->currentValue());
                 setScale(scale);
             }
             m_scaleRunNum++;
 
+        });
+
+        connect(m_scaleAnimation,&QPropertyAnimation::finished,this,[=](){
+            restoreSize();
         });
     }
 
@@ -299,6 +317,7 @@ void GraphicsItem::startScaleAnimation()
 
         if(m_scaleAnimation->state()!=QPropertyAnimation::Running)
         {
+            m_scaleAnimation->setLoopCount(loopCount);
             m_scaleAnimation->start();
         }
     }
@@ -470,7 +489,7 @@ void GraphicsItem::setIconName(const QString &iconName)
     {
         m_iconName = curIconName;
 #ifdef Q_OS_LINUX
-        if(!m_iconName.startsWith("/home"))
+        if(!m_iconName.startsWith("/home")&&(!m_iconName.startsWith(":/")))
         {
             QFileInfo fileInfo(m_iconName);
             m_iconName =QApplication::applicationDirPath()+"/设备图标/" +fileInfo.fileName();
@@ -639,14 +658,14 @@ QString GraphicsItem::currentState()
     QString curRecord = currentAlarmRecord();
     if(curRecord.isEmpty())
     {
-        return tr("正常");
+        return "OK";
     }
     else
     {
         QString curResult = m_alarmStateHash.value(curRecord);
         if(curResult.isEmpty())
         {
-            return tr("正常");
+            return "OK";
         }
         else
         {
@@ -742,7 +761,7 @@ QString GraphicsItem::alarmState(const QString &alarmType)
     }
     else
     {
-        return tr("正常");
+        return "OK";
     }
 
 }
@@ -768,7 +787,7 @@ QString GraphicsItem::currentAlarmRecord()
         foreach (QString alarmType, alarmRecordList)
         {
             QString alarmRecordState = m_alarmStateHash.value(alarmType);
-            if(alarmRecordState!=tr("正常")&& !alarmRecordState.isEmpty())
+            if(alarmRecordState!="OK"&& !alarmRecordState.isEmpty())
             {
                 priority = qMin(priority,int(m_alarmPriorityHash.value(alarmType)));
                 if(priority==m_alarmPriorityHash.value(alarmType))
@@ -856,7 +875,7 @@ void GraphicsItem::removeAlarmRecord(const QString &alarmType, const QString &al
     if(m_alarmTimeHash.contains(alarmType))
     {
         m_alarmReplyTimeHash[alarmType] = alarmReplyTime;
-        m_alarmStateHash[alarmType]= tr("正常");
+        m_alarmStateHash[alarmType]= "OK";
 
     }
 
@@ -866,7 +885,7 @@ void GraphicsItem::clearAllAlarm()
 {
     foreach (QString type, m_alarmStateHash.keys())
     {
-        m_alarmStateHash[type] = tr("正常");
+        m_alarmStateHash[type] = "OK";
         m_alarmReplyTimeHash[type] = QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss");
     }
 }
@@ -907,7 +926,7 @@ void GraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 void GraphicsItem::updateHoverText()
 {
     QString curType ;
-    if(currentState()==tr("正常")&&(!alarmType().isEmpty()))
+    if(currentState()=="OK"&&(!alarmType().isEmpty()))
     {
         curType =alarmType()+ tr("消除");
     }

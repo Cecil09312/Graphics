@@ -26,7 +26,9 @@ public:
     Q_INVOKABLE  void addUser(const QString &userName,const UserRight& right,const QString &password);
     Q_INVOKABLE  void removeUser(const QString &userName,const UserRight& right,const QString &password);
     Q_INVOKABLE  bool userIsExist(const QString &userName,const UserRight& right);
+    Q_INVOKABLE  void deleteUsers(const QString &userName);
     ~UserManager();
+    Q_INVOKABLE QVariantList selectUsers();
 
 signals:
     void userNameChanged(const QString &userName);
@@ -40,6 +42,8 @@ private:
     QString m_userName;
     QString m_password;
     SqlManager *m_sqliteManager;
+   // QStringList m_getUserList;
+    //int m_userNum;
 };
 
 #endif // USERMANAGER_H

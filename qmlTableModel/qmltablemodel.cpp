@@ -7,7 +7,7 @@ QmlTableModel::QmlTableModel(QObject *parent)
     : QSqlQueryModel(parent),
       m_sqlManager(nullptr)
 {
-    m_print = new Print();
+    m_print = Print::instance();
 }
 
 QmlTableModel::~QmlTableModel()
@@ -18,7 +18,7 @@ QmlTableModel::~QmlTableModel()
         m_sqlManager->deleteLater();
         m_sqlManager = nullptr;
     }
-    m_print->deleteLater();
+   // m_print->deleteLater();
 
 }
 
@@ -50,13 +50,13 @@ void QmlTableModel::sqlCommit(const QString &sqlStr)
 {
     if(m_sqlManager!=nullptr)
     {
+
         setQuery(sqlStr,m_sqlManager->getDatabase());
         if(!sqlStr.startsWith("delete"))
         {
             while (canFetchMore())
             {
                 fetchMore();
-                Controller::instance()->delayMs(10);
             }
         }
     }
@@ -72,8 +72,9 @@ void QmlTableModel::sqlCommit(const QSqlQuery &query)
         //{
             while (canFetchMore())
             {
+               // Controller::instance()->delayMs(50);
                 fetchMore();
-                Controller::instance()->delayMs(10);
+
             }
        // }
     }
@@ -237,6 +238,11 @@ void QmlTableModel::startPrint()
 void QmlTableModel::printPreview()
 {
     m_print->printPreview(titleList(),getValues());
+}
+
+void QmlTableModel::clearData()
+{
+    this->clear();
 }
 
 QList<QVariant> QmlTableModel::getValues()

@@ -7,12 +7,17 @@ import QtQuick.Dialogs 1.2
 import architePlanView 1.0
 import "../infoSetting"
 
-Item
+Rectangle
 {
+    width: 960
+    height: 480
+    anchors.fill: parent
     signal setCurAlarm(string alarmType)
     Column {
-        id: alarmInfoQuery
+        id: alarmInfoQueryColumn
         spacing: 10
+        anchors.top: parent.top
+        anchors.topMargin: 20
         Row {
             spacing: 5
             Text {
@@ -106,17 +111,17 @@ Item
                 id: alarmInfoAlarmTypeComboBox
                 height: 30
                 width: 100
-                model: [qsTr("火警"),qsTr("监管"),qsTr("启动"),qsTr("反馈"),qsTr("故障"),qsTr("屏蔽"),qsTr("停止"),qsTr("反馈消除"),qsTr("故障恢复"),qsTr("屏蔽解除"),qsTr("联动请求")]
+                model: [qsTr("火警"),qsTr("监管"),qsTr("启动"),qsTr("反馈"),qsTr("故障"),qsTr("屏蔽")]
                 onCurrentTextChanged:
                 {
-                    if(currentText===qsTr("火警")||currentText===qsTr("监管")||currentText===qsTr("启动")||currentText===qsTr("反馈")||currentText===qsTr("故障")||currentText===qsTr("屏蔽"))
-                    {
+                   // if(currentText===qsTr("火警")||currentText===qsTr("监管")||currentText===qsTr("启动")||currentText===qsTr("反馈")||currentText===qsTr("故障")||currentText===qsTr("屏蔽"))
+                   // {
                         emit:setCurAlarm(currentText)
-                    }
-                    else
-                    {
-                        emit:setCurAlarm(qsTr("火警"))
-                    }
+                   // }
+//                    else
+//                    {
+//                        emit:setCurAlarm(qsTr("火警"))
+//                    }
 
 
                 }
@@ -136,7 +141,7 @@ Item
                 onClicked: {
                     currentAlarmListModel.sqlCommit(
                                 String(
-                                    "select 分机号,回路号,地址号,网络号,电源地址,系统,设备编码,设备,事件类型,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo where %1").arg(
+                                    "select 分机号,回路号,地址号,网络号,电源地址,系统,设备,事件类型,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo where %1").arg(
                                     selectInfo()))
 
                     alarmInfoTableView.resizeColumnsToContents()
@@ -149,10 +154,7 @@ Item
                 height: 30
                 width: 100
                 onClicked: {
-                    currentAlarmListModel.sqlCommit(
-                                "select 分机号,回路号,地址号,网络号,电源地址,系统,设备编码,设备,事件类型,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo where 状态!='OK'")
-
-                    alarmInfoTableView.resizeColumnsToContents()
+                    selectAll()
                 }
             }
         }
@@ -160,11 +162,14 @@ Item
 
     Controls1_4.TableView {
         id: alarmInfoTableView
+        //anchors.fill: parent
         width: parent.width
         anchors.topMargin: 10
         clip: true
         anchors.bottom: parent.bottom
-        anchors.top: alarmInfoQuery.bottom
+        anchors.top: alarmInfoQueryColumn.bottom
+
+
 
         Controls1_4.TableViewColumn {
             id:extNum
@@ -207,12 +212,7 @@ Item
             width: 60
         }
 
-        Controls1_4.TableViewColumn {
-            id:productNum
-            role: "productNum"
-            title: qsTr("设备编码")
-            width: 60
-        }
+
 
         Controls1_4.TableViewColumn {
             id:deviceType
@@ -290,10 +290,10 @@ Item
         id: currentAlarmListModel
         dbDriver: "QSQLITE"
         dbName: Crt.alarmInfoDbName()
-        dbConnectionName: "curAlarmInfoDb"
-        dbPort: 6688
-        roleNameList: ["extNum", "loopNum", "addrNum", "networkNum", "powerAddr","deviceSys", "productNum", "deviceType", "alarmType",  "alarmTime", "buildName", "floor", "deviceLocation", "operator","remarks"]
-        titleList: [qsTr("分机号"), qsTr("回路号"), qsTr("地址号"), qsTr("网络号"),qsTr("电源地址"), qsTr("系统"), qsTr("设备编码"), qsTr("设备"), qsTr("事件类型"), qsTr("时间"), qsTr("建筑名称"), qsTr("楼层"), qsTr("位置"), qsTr("操作员"),qsTr("备注")]
+        dbConnectionName: "oneAlarmInfoDb"
+        dbPort: 77980
+        roleNameList: ["extNum", "loopNum", "addrNum", "networkNum", "powerAddr","deviceSys",  "deviceType", "alarmType",  "alarmTime", "buildName", "floor", "deviceLocation", "operator","remarks"]
+        titleList: [qsTr("分机号"), qsTr("回路号"), qsTr("地址号"), qsTr("网络号"),qsTr("电源地址"), qsTr("系统"),  qsTr("设备"), qsTr("事件类型"), qsTr("时间"), qsTr("建筑名称"), qsTr("楼层"), qsTr("位置"), qsTr("操作员"),qsTr("备注")]
     }
     function selectInfo() {
         var info = new String
@@ -343,7 +343,7 @@ Item
         if (info.length > 0) {
             info += " and "
         }
-        info += "状态!='OK'"
+        info += String("状态!='%1'").arg("OK")
 
 
         return info
@@ -367,6 +367,18 @@ Item
 
     }
 
+    function setCurrentAlarm(curAlarm)
+    {
+
+        currentAlarmListModel.clearData()
+        if(alarmInfoAlarmTypeComboBox.contains(curAlarm))
+        {
+          var index=  alarmInfoAlarmTypeComboBox.find(curAlarm)
+            alarmInfoAlarmTypeComboBox.currentIndex=index
+        }
+
+    }
+
     function retranslate()
     {
         alarmInfoExtNum.text = qsTr("分机号")
@@ -375,7 +387,7 @@ Item
         alarmInfoNetworkNum.text = qsTr("网络号")
         alarmInfoPowerAddr.text = qsTr("电源地址")
         alarmInfoAlarmType.text=qsTr("事件类型")
-        alarmInfoAlarmTypeComboBox.model =[qsTr("火警"),qsTr("监管"),qsTr("启动"),qsTr("反馈"),qsTr("故障"),qsTr("屏蔽"),qsTr("停止"),qsTr("反馈消除"),qsTr("故障恢复"),qsTr("屏蔽解除")]
+        alarmInfoAlarmTypeComboBox.model =[qsTr("火警"),qsTr("监管"),qsTr("启动"),qsTr("反馈"),qsTr("故障"),qsTr("屏蔽")]
         alarmInfoQueryBtn.text = qsTr("查询")
         alarmInfoQueryAllBtn.text = qsTr("查询所有")
         extNum.title = qsTr("分机号")
@@ -384,7 +396,6 @@ Item
         networkNum.title = qsTr("网络号")
         powerAddr.title = qsTr("电源地址")
         deviceSys.title = qsTr("系统")
-        productNum.title = qsTr("设备编码")
         deviceType.title = qsTr("设备")
         alarmType.title = qsTr("事件类型")
         alarmTime.title = qsTr("时间")
@@ -397,6 +408,15 @@ Item
 
     }
 
+
+   function selectAll()
+   {
+       currentAlarmListModel.sqlCommit(
+                   String("select 分机号,回路号,地址号,网络号,电源地址,系统,设备,事件类型,时间,建筑名称,楼层,位置,操作员,备注 from AlarmInfo where 状态!='%1' and 事件类型='%2' ").arg("OK").arg(alarmInfoAlarmTypeComboBox.currentText))
+
+       alarmInfoTableView.resizeColumnsToContents()
+
+   }
 
 }
 

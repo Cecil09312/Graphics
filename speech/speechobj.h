@@ -9,10 +9,13 @@
 #include <QMutex>
 #include "customTimer/customtimer.h"
 #include "jsonEdit/qmlforjson.h"
+#include <QSharedPointer>
+#include "communication/abstractlink.h"
+#include "communication/speechcom.h"
 /**
  * @brief The SpeechObj class
  * windows平台使用系统默认
- * linux系统使用ekho,使用版本ekho-7.7.1
+ * linux系统使用espeak
  */
 class SpeechObj : public QObject
 {
@@ -61,6 +64,8 @@ public:
     Q_INVOKABLE void saveSpeechInfoToJson();
     void setIsEnglish(bool is);
     Q_INVOKABLE bool isEnglish();
+    AbstractLink *speechCom();
+    void speechSetting();
 signals:
     void speechStart();
     void textToSpeechStop();
@@ -82,6 +87,8 @@ private slots:
     void runSpeech();
     void speechStop();
 private:
+    void processText(const QString &alarmText);
+private:
     QList<QString>m_alarmTextList;
     int m_alarmPos;
     bool m_isStoped;
@@ -99,6 +106,7 @@ private:
     QThread *m_thread;
     QStringList m_engineNameList;
     QHash<QString,QVariant>m_languageHash;
+    QSharedPointer<AbstractLink>m_speechCom;
     double m_rate;
     double m_pitch;
     double m_volume;
@@ -107,7 +115,12 @@ private:
     bool m_speechIsStop;
     int indexOfType(const QString &type);
     QmlForJson m_speechJson;
+    QByteArray m_readArray;
+    QList<QString>m_initSettingList;
+    bool m_isFinished{false};
+    bool m_isFinishedSetting{false};
     const QString c_speechJsonDir = QCoreApplication::applicationDirPath()+"/speech.json";
+
 };
 
 #endif // SPEECHOBJ_H

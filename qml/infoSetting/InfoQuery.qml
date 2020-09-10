@@ -37,6 +37,7 @@ Item {
             id: printPreviewBtn
             text: qsTr("打印预览")
             height: 30
+            visible: false
             onClicked:
             {
 
@@ -116,18 +117,22 @@ Item {
         MyTabButton {
             id:currentEventBtn
             text: qsTr("当前事件查询")
+
         }
         MyTabButton {
             id:alarmHistoryBtn
             text: qsTr("报警历史查询")
+
         }
         MyTabButton {
             id:deviceInfoBtn
             text: qsTr("设备信息查询")
+
         }
         MyTabButton {
             id:maintenBtn
             text:  qsTr("维保信息查询")
+
         }
 
         MyTabButton {

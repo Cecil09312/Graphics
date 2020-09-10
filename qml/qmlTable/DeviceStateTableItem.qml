@@ -119,7 +119,7 @@ Item
             onClicked: {
                 deviceStateModel.sqlCommit(
                             String(
-                                "select extNum ,loopNum,addrNum,networkNum,powerAddr,manufacturers,deviceInstallTime,periodOfValidity,deviceNum,equipmentModel  ,operator from ItemInfo where %1").arg(
+                                "select extNum ,loopNum,addrNum,networkNum,powerAddr,manufacturers,deviceInstallTime,periodOfValidity,deviceNum,equipmentModel ,operator from ItemInfo where %1").arg(
                                 selectInfo()))
                 deviceStateView.resizeColumnsToContents()
             }
@@ -132,7 +132,7 @@ Item
             width: 100
             onClicked: {
                 deviceStateModel.sqlCommit(
-                            "select extNum,loopNum,addrNum,networkNum,powerAddr,manufacturers,deviceInstallTime,periodOfValidity,deviceNum,equipmentModel  ,operator from ItemInfo")
+                            "select extNum,loopNum,addrNum,networkNum,powerAddr,manufacturers,deviceInstallTime,periodOfValidity,deviceNum,equipmentModel ,operator from ItemInfo")
                 deviceStateView.resizeColumnsToContents()
             }
         }
@@ -235,7 +235,7 @@ Item
             //resizable: true
         }
         model: deviceStateModel
-        onClicked: {
+        onDoubleClicked: {
             var curExtNum = new String
             var curLoopNum = new String
             var curAddrNum = new String

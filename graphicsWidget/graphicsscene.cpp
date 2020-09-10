@@ -45,6 +45,11 @@ void GraphicsScene::removeGraphicsItem(qreal ax, qreal ay)
 void GraphicsScene::removeGraphicsItem(const QPointF &pointF)
 {
     QGraphicsItem*currentItem= itemAt(pointF,QTransform());
+    removeGraphicsItem(currentItem);
+}
+
+void GraphicsScene::removeGraphicsItem(QGraphicsItem *currentItem)
+{
     if(currentItem!=nullptr)
     {
         if(m_itemList.contains(currentItem))
@@ -52,18 +57,14 @@ void GraphicsScene::removeGraphicsItem(const QPointF &pointF)
             GraphicsItem *graphicsItem = dynamic_cast<GraphicsItem *>(currentItem);
             if(graphicsItem!=nullptr)
             {
-                if(graphicsItem->currentState()==tr("正常")||graphicsItem->currentState().isEmpty())
+                if(graphicsItem->currentState()=="OK"||graphicsItem->currentState().isEmpty())
                 {
 
                     m_itemList.removeOne(currentItem);
                     removeItem(currentItem);
                     Controller::instance()->getDataStore()->deleteTypeItem(currentItem);
                 }
-                else
-                {
 
-                    QMessageBox::warning(nullptr,tr("警告"),tr("有报警，不能被删除"));
-                }
             }
 
         }
@@ -145,6 +146,12 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
     GraphicsItem *currentItem=dynamic_cast<GraphicsItem *> (itemAt(m_currentPointF,QTransform()));
     if(currentItem!=nullptr)
     {
+        if(!m_oldItemInfoHash.contains(currentItem))
+        {
+             m_oldItemInfoHash[currentItem]=QString("%1,%2,%3,%4,%5").arg(currentItem->extNum()).arg(currentItem->loopNum())
+                     .arg(currentItem->addrNum()).arg(currentItem->networkNum()).arg(currentItem->powerAddr());
+        }
+
         if(type=="currentState")
         {
             //currentItem->currentState() = info;
@@ -240,6 +247,12 @@ void GraphicsScene::setItemInfoFromType(const QString &type, const QString &info
             Controller::instance()->getDataStore()->analogValue() = info;
             currentItem->analogType()= info;
         }
+        if(!m_settingItemList.contains(currentItem))
+        {
+            m_settingItemList.push_back(currentItem);
+        }
+
+
     }
     else
     {
@@ -439,7 +452,7 @@ bool GraphicsScene::isHavingAlarms()
         GraphicsItem * graphicsItem = dynamic_cast<GraphicsItem *>(item);
         if(graphicsItem!=nullptr)
         {
-            if(graphicsItem->currentState()!=tr("正常"))
+            if(graphicsItem->currentState()!="OK")
             {
                 isHavingAlarm = true;
                 break;
@@ -447,6 +460,25 @@ bool GraphicsScene::isHavingAlarms()
         }
     }
     return isHavingAlarm;
+}
+
+void GraphicsScene::checkSettingItem()
+{
+    foreach(GraphicsItem*curItem,m_settingItemList)
+    {
+        emit itemSetting(curItem);
+    }
+    m_settingItemList.clear();
+}
+
+QString GraphicsScene::itemOldInfo(GraphicsItem *item)
+{
+    return  m_oldItemInfoHash.value(item);
+}
+
+void GraphicsScene::clearItemOldInfo()
+{
+    m_oldItemInfoHash.clear();
 }
 
 

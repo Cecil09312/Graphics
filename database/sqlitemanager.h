@@ -14,6 +14,7 @@ public:
     void quitThread();
     void processAnalogData(bool isAnalog);
 
+
 signals:
     void finishedProcessData();
     void selectData(const QSqlQuery &query);

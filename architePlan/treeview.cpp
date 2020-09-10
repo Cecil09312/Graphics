@@ -16,7 +16,7 @@ TreeView::TreeView(QWidget *parent):
 {
     initWidget();
     initMenu();
-    setDragDropMode(QAbstractItemView::InternalMove);
+    //setDragDropMode(QAbstractItemView::InternalMove);
     setEditTriggers(QAbstractItemView::NoEditTriggers);
     connect(m_closeAction,&QAction::triggered,this,[=]()
     {
@@ -33,17 +33,18 @@ TreeView::TreeView(QWidget *parent):
 
     connect(m_editAction,&QAction::triggered,this,[=]()
     {
-        QObject *obj= m_architeSettingView->rootObject();
+        Q_ASSERT(m_treeViewEditObj);
+        //QObject *obj= m_architeSettingView->rootObject();
         QStandardItem *item = m_stdModel->itemFromIndex(indexAt(m_rootPoint));
         if(item!=nullptr)
         {
-            QMetaObject::invokeMethod(obj, "setArchiteName",Q_ARG(QVariant,item->text()));
+            QMetaObject::invokeMethod(m_treeViewEditObj, "setArchiteName",Q_ARG(QVariant,item->text()));
 
             ArchitePlanView *architeView=  Controller::instance()->getArchitePlanView();
             GraphicsView *graphicsView =  architeView->viewFromChildItem(item);
             if(graphicsView!=nullptr)
             {
-                QMetaObject::invokeMethod(obj, "setArchiteImage",Q_ARG(QVariant,graphicsView->pixmapName()));
+                QMetaObject::invokeMethod(m_treeViewEditObj, "setArchiteImage",Q_ARG(QVariant,graphicsView->pixmapName()));
             }
         }
         //m_architeSettingView->close();
@@ -53,8 +54,13 @@ TreeView::TreeView(QWidget *parent):
 
     connect(m_deleteAction,&QAction::triggered,this,[=]()
     {
-        int btnValue= QMessageBox::warning(nullptr,tr("删除提示窗口"),tr("如果是建筑物，将删除此建筑物及其下的所有楼层和设备信息；如果是楼层，将删除此楼层和其下的设备信息；确认要删除吗?"),QMessageBox::Ok,QMessageBox::No);
-        if(btnValue==QMessageBox::Ok)
+        QMessageBox messageBox(QMessageBox::Warning,tr("删除提示窗口"),tr("如果是建筑物，将删除此建筑物及其下的所有楼层和设备信息；如果是楼层，将删除此楼层和其下的设备信息；确认要删除吗?"));
+        messageBox.addButton(QMessageBox::Yes);
+        messageBox.addButton(QMessageBox::No);
+        messageBox.setWindowFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
+        int btnValue=messageBox.exec();
+
+        if(btnValue==QMessageBox::Yes)
         {
             QModelIndex index = indexAt(m_rootPoint);
             deleteTreeItem(index);
@@ -150,7 +156,6 @@ TreeView::TreeView(QWidget *parent):
                 emit toGlobalGraphicsView(item);
             }
         }
-
     });
 
 
@@ -248,7 +253,7 @@ QStandardItem* TreeView::addChildItem(QModelIndex index)
                     auto it= std::minmax_element(childRowList.begin(),childRowList.end()).second;
                     rowCount = *it+1;
                 }
-                QStandardItem*childItem = new QStandardItem(QString("%1层").arg(rowCount+1));
+                QStandardItem*childItem = new QStandardItem(QString(tr("%1层")).arg(rowCount+1));
                 standardItem->setChild(size,childItem);
                 m_treeIndexMap[childItem] = totalRowCounts;
 
@@ -325,19 +330,20 @@ void TreeView::retranslate()
     m_deleteAction->setText(tr("删除"));
     //m_clearAction->setText(tr("清空"));
     m_closeAction->setText(tr("关闭"));
+
+    QMetaObject::invokeMethod(m_treeViewEditObj,"retranslate");
 }
 
 
 
-void TreeView::deleteTreeItem(QModelIndex index)
+void TreeView::deleteTreeItem(const QModelIndex &index)
 {
     if(index.isValid())
     {
         QStandardItem *standardItem = m_stdModel->itemFromIndex(index);
-
-        emit deleteIndex(standardItem);
         if(standardItem->parent()==nullptr)
         {
+            deleteParentIndex(standardItem);
             if(m_parentIndexList.size()>index.row())
             {
                 m_parentIndexList.removeAt(index.row());
@@ -347,23 +353,28 @@ void TreeView::deleteTreeItem(QModelIndex index)
         else
         {
             QStandardItem *parentItem =standardItem->parent();
-            if(parentItem)
+            if(parentItem!=nullptr)
             {
                 if(parentItem->rowCount()>index.row())
                 {
 
+                    emit deleteChildIndex(parentItem->child(index.row()));
+                    m_treeIndexMap.remove(parentItem->child(index.row()));
                     if(m_childIndexMap[parentItem].size()>index.row())
                     {
                         m_childIndexMap[parentItem].removeAt(index.row());
                     }
                     parentItem->removeRow(index.row());
                     m_stdModel->setItem(index.parent().row(),parentItem);
+
                 }
             }
 
         }
     }
 }
+
+
 
 void TreeView::clearItem()
 {
@@ -428,6 +439,7 @@ void TreeView::initWidget()
     m_architeSettingView->rootContext()->setContextProperty("TreeView",this);
     m_architeSettingView->setTitle(tr("建筑平面设置界面"));
     m_architeSettingView->setFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
+    m_treeViewEditObj = m_architeSettingView->rootObject();
     header()->hide();
     setModel(m_stdModel);
 }

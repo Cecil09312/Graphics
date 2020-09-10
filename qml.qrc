@@ -32,5 +32,6 @@
         <file>qml/alarmItem/HandOrAutoStateItem.qml</file>
         <file>qml/qmlTable/CurrentAlarmItem.qml</file>
         <file>qml/deviceOnline/DeviceOnlineSetting.qml</file>
+        <file>qml/qmlTable/OneAlarmSelectTableItem.qml</file>
     </qresource>
 </RCC>
