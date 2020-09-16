@@ -22,6 +22,7 @@ Print::Print(QObject *parent) : QObject(parent)
     m_printer->setPageSize(QPageSize(QPageSize::A4));
     m_printDialog = new QPrintDialog(m_printer,nullptr);
     m_printDialog->setWindowFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
+   // m_printDialog->setModal(true);
     m_printDialog->hide();
     m_process->moveToThread(m_thread);
     // m_threadDocument->moveToThread(m_thread);

@@ -10,7 +10,7 @@ GlobalGraphicsItem::GlobalGraphicsItem(GlobalGraphicsScene *scene)
     setAcceptHoverEvents(true);
     m_scene = scene;
     m_propertyAnimation =nullptr;
-    m_iconName = ":/images/build.png";
+    m_iconName = ":/images/building.svg";
     setProperty("size",m_radius);
 
     m_font.setPointSize(qFloor(m_radius/4));

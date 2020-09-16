@@ -26,7 +26,7 @@ Rectangle {
         id: listModel
         ListElement {
             deviceName: qsTr("报警装置")
-            imagePath: "qrc:/images/fireAlarm.png"
+            imagePath: "qrc:/images/alarmDevice.svg"
             manufacturers: qsTr("北京利达华信电子有限公司")
             deviceInstallTime:""
             periodOfvalidity:""
@@ -530,7 +530,7 @@ Rectangle {
                 var periodOfvalidity= new Date
                 periodOfvalidity.setFullYear(curDate.getFullYear()+13)
                 obj["imagePath"] = Qt.resolvedUrl(
-                            decodeURI("qrc:/images/fireAlarm.png"))
+                            decodeURI("qrc:/images/alarmDevice.svg"))
                 obj["deviceName"] = String(qsTr("报警装置%1").arg(listModel.count))
                 obj["manufacturers"] = qsTr("北京利达华信电子有限公司")
                 obj["periodOfvalidity"] = Qt.formatDate(periodOfvalidity,"yyyy/MM/dd")

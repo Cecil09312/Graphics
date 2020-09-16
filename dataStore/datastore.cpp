@@ -373,7 +373,7 @@ void DataStore::reInit()
     m_sysName = "";
     m_channelNum=0;
     m_analogValue="无";
-    m_iconSize=40;
+    m_iconSize=30;
     m_operator="";
     s_itemNumTemp =0;
     setPriority();

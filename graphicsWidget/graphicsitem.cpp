@@ -34,7 +34,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     m_penColor = QColor(Qt::transparent);
 
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
-    setFlags(ItemIsMovable|ItemIsSelectable|ItemIgnoresTransformations);
+    setFlags(ItemIsMovable|ItemIsSelectable);
 
     setAcceptHoverEvents(true);
     setProperty("color",m_color);
