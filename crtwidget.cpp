@@ -1170,6 +1170,7 @@ void CrtWidget::noItemUpdate(const QString &extNum, const QString &loopNum, cons
     //alarmStatistics(oldAlarmType);
     QString speechTxt = oldAlarmType+";"+QString("%1,%2,%3,%4").arg(extNum).arg(loopNum).arg(addrNum).arg(networkNum);
     Controller::instance()->getSpeechObj()->removeAlarmText(speechTxt);
+
     if(Controller::instance()->getDataStore()->priority()>0&&Controller::instance()->getDataStore()->priority()<=6)
     {
         QString curAlarmType=  Controller::instance()->getDataStore()->currentPriorityType();

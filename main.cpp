@@ -15,11 +15,6 @@ int main(int argc, char *argv[])
     qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
     QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
     QCoreApplication::setAttribute(Qt::AA_X11InitThreads, true);
-    // QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
-
-
-    // qDebug() <<"result" <<th.getCheckValue();
-
 #endif
     QApplication a(argc, argv);
     // 创建信号量
@@ -55,7 +50,6 @@ int main(int argc, char *argv[])
     }
 
 
-
     QFile file(":/qss/styleSheet.qss");
     QByteArray array;
     if(file.open(QIODevice::ReadOnly))
@@ -79,8 +73,6 @@ int main(int argc, char *argv[])
     CheckDongleThread m_dongleThread;
     m_dongleThread.startTimerMs(5000);
     int num =0;
-    //bool isExist = false;
-
     QMessageBox messageBox(QMessageBox::Warning,QObject::tr("警告!"),QObject::tr("未识别到加密狗，请检查加密狗是否插好！"));
     messageBox.addButton(QMessageBox::Yes);
     messageBox.setWindowFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
@@ -107,8 +99,6 @@ int main(int argc, char *argv[])
             num=0;
             messageBox.exec();
         }
-
-
 
     },Qt::QueuedConnection);
 #endif

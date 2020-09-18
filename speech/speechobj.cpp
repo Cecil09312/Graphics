@@ -144,7 +144,7 @@ SpeechObj::SpeechObj(QObject *parent):
     {
         processText(alarmText);
         runSpeech();
-        m_thread->msleep(10);
+
 
     });
 
@@ -155,6 +155,7 @@ SpeechObj::SpeechObj(QObject *parent):
         m_alarmPos=0;
         m_isFinished = false;
         m_isFinishedSetting = false;
+        //stopSpeech();
     });
     connect(this,QOverload<int>::of(&SpeechObj::removeText),this,[&](int pos)
     {
@@ -168,6 +169,12 @@ SpeechObj::SpeechObj(QObject *parent):
         {
             m_alarmPos =0;
         }
+        if(m_alarmTextList.isEmpty())
+        {
+            m_isFinished=false;
+        }
+
+       // stopSpeech();
 
     });
 
@@ -181,6 +188,11 @@ SpeechObj::SpeechObj(QObject *parent):
         {
             m_alarmPos =0;
         }
+        if(m_alarmTextList.isEmpty())
+        {
+            m_isFinished=false;
+        }
+        //stopSpeech();
     });
 
     connect(m_speechCom.data(),&SpeechCom::getData,this,[=](const QByteArray&array){
@@ -639,6 +651,7 @@ void SpeechObj::stopSpeech()
     }
     else
     {
+        m_isFinished=false;
         speechCom()->sendData(QString("AT+QTTS=0\r\n").toLocal8Bit());
 
     }
@@ -670,6 +683,7 @@ void SpeechObj::startSpeech()
 void SpeechObj::insertAlarmText(const QString &alarmText)
 {
 
+
 #ifdef Q_OS_LINUX
     if(m_isEnglish)
     {
@@ -677,7 +691,7 @@ void SpeechObj::insertAlarmText(const QString &alarmText)
     }
     else
     {
-        // qDebug() << alarmText;
+
         processText(alarmText);
 
         if(!m_isFinished)
@@ -714,6 +728,7 @@ void SpeechObj::repeatSpeak()
 
     if(m_alarmTextList.size()>0)
     {
+
         if(m_alarmPos<m_alarmTextList.size())
         {
             QString curSpeechText = m_alarmTextList.at(m_alarmPos);
@@ -755,7 +770,6 @@ void SpeechObj::repeatSpeak()
                 QString curStr = "\r\n";
                 QByteArray buf = QString("AT+QTTS=2,\"").toLocal8Bit()+gbkByteArray+QString("\"").toLocal8Bit()+curStr.toLocal8Bit();
                 // m_dataList.push_back(buf);
-
                 speechCom()->sendData(buf);
                 // m_textToSpeechProcess->start(QString("play -v %1 %2").arg(m_volume).arg(QCoreApplication::applicationDirPath()+"/media/"+ curSpeechText+".mp3"));
             }

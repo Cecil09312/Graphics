@@ -602,7 +602,9 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item, const QString &alarmTyp
     disconnect(item,&GraphicsItem::moveToPos,nullptr,nullptr);
     disconnect(item,&GraphicsItem::sizeChanged,nullptr,nullptr);
     deleteAlarmText(item,oldState);
+
     Controller::instance()->getDataStore()->deleteTypeItem(oldState,item);
+
 
     GraphicsView*curView = Controller::instance()->getDataStore()->itemDisplayView(item);
     if(curView!=nullptr)
@@ -2391,6 +2393,7 @@ void ArchitePlanView::startAlarmAnimation(GraphicsItem *item)
 void ArchitePlanView::deleteAlarmText(GraphicsItem *item, const QString &alarmType)
 {
     Controller::instance()->getSpeechObj()->removeAlarmText(speechInfo(item,alarmType));
+
 }
 
 void ArchitePlanView::updateAlarmText(GraphicsItem *item, const QString &alarmType)
@@ -2539,6 +2542,7 @@ void ArchitePlanView::clearItemsAlarmText(GraphicsItem*item)
         {
             deleteAlarmText(item,type);
         }
+
     }
 }
 
@@ -2675,6 +2679,7 @@ void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum,const QString &
     }
 
     Controller::instance()->getDataStore()->deleteTypeNoItem(extNum);
+
 
 
     int totalNum = Controller::instance()->getDataStore()->numOfTypeItem(m_currentAlarmType);
