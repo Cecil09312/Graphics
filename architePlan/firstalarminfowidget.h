@@ -20,6 +20,7 @@ public:
     void retranslate();
     void updateGeometry();
     void showTitle();
+    QString extLabelInfo();
 
 public slots:
     void setFirstAlarmInfo(GraphicsItem *item);

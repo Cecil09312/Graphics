@@ -67,11 +67,13 @@ public:
     void retranslate();
     bool firstAlarmViewIsVisible();
     FirstAlarmInfoWidget *getFirstFireAlarmWidget();
+    void setCurrentView(QGraphicsView*view);
 
 
 
     Q_INVOKABLE static bool &itemLimit();
     Q_INVOKABLE void setItemLimit(bool isOk);
+
 
     Q_INVOKABLE QString architeInfoDbName();
     Q_INVOKABLE void setGlobalArchitePixmap(const QString &pixmapName);
@@ -96,12 +98,14 @@ public:
     void setGlobalArchiteFromJson();
     void initFromJsonFile();
     void filterAlarm(GraphicsItem *item);
+    bool isLoop();
 
 signals:
     void alarmHappend(const QString &alarmType);
     void toLastPage();
     void toFirstPage();
     void noPage();
+    void firstAlarmFromExt(const QString&ext);
     void normalPage();
     void alarmItem(GraphicsItem *item,const QString &alarmType);
     void eliminateAlarmFromTable(GraphicsItem *item,const QString &alarmState,const QString&alarmReplyTime);
@@ -123,6 +127,7 @@ signals:
     void hideFirstFireAlarmInfo();
     void updateFirstAlarmView();
     void eliminateAnalogAlarm(QString alarmType);
+    void setLoopState(bool isLoop);
 
 
 
@@ -160,6 +165,7 @@ public slots:
     void setChannelSelect(bool selected);
     void setAnalogSelect(bool selected);
     void setSizeSelect(bool selected);
+    void setIsLoop(bool isLoop);
 
 
 
@@ -249,6 +255,7 @@ private:
      QHash<GraphicsView*,QString>m_viewImageHash;
      QMutex m_mutex;
     QList<QString> m_typeList;
+    bool m_isLoop{false};
 
 
 

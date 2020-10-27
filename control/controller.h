@@ -47,7 +47,7 @@ public:
     void setCrtWidget(CrtWidget *widget);
     CrtWidget *getCrtWidget();
     ArchitePlanView *getArchitePlanView() const;
-    UserManager *getUserManager() const;
+    UserManager *getUserManager();
     UserManager::UserRight getUserRight();
     SpeechObj *getSpeechObj();
     AbstractLink *getTcpObj();
@@ -79,7 +79,7 @@ private:
    // QSharedPointer<AbstractLink>m_IndicatorObj;
     SysArchitePlanView *m_sysArthitePlanView;
     ArchitePlanView *m_architePlanView;
-    UserManager*m_userManager;
+    QSharedPointer<UserManager> m_userManager;
     CrtWidget *m_crtWidget;
     SpeechObj*m_speechObj;
     QSharedPointer<ConfigurationManager> m_serialConfigurationManager;

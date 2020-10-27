@@ -15,7 +15,8 @@ Controller::~Controller()
     m_commObj.clear();
     m_speechObj->deleteLater();
     m_tcpObj.clear();
-    m_userManager->deleteLater();
+    m_userManager.clear();
+    //m_userManager->deleteLater();
 
     //m_speechObj.clear();
     //m_operatorInfo->deleteLater();
@@ -122,9 +123,9 @@ ArchitePlanView *Controller::getArchitePlanView() const
     return m_architePlanView;
 }
 
-UserManager *Controller::getUserManager() const
+UserManager *Controller::getUserManager()
 {
-    return m_userManager;
+    return m_userManager.data();
 }
 
 UserManager::UserRight Controller::getUserRight()
@@ -220,7 +221,7 @@ Controller::Controller()
     m_tcpObj = QSharedPointer<AbstractLink>(new TcpLink(),&QObject::deleteLater);
    // m_IndicatorObj = QSharedPointer<AbstractLink>(new SpeechCom,&QObject::deleteLater);
     //m_logMsg = QSharedPointer<LogMsg>(new DebugLogMsg(nullptr),&QObject::deleteLater);
-    m_userManager =new UserManager(this);
+    m_userManager =QSharedPointer<UserManager>(new UserManager,&QObject::deleteLater);
     m_speechObj = new SpeechObj;
     m_serialConfigurationManager =QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new SerialConfiguration)),&QObject::deleteLater);
     m_tcpConfigurationManager = QSharedPointer<ConfigurationManager>(new ConfigurationManager(Configuration(new TcpConfiguration)),&QObject::deleteLater);

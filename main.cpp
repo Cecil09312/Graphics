@@ -77,10 +77,11 @@ int main(int argc, char *argv[])
     messageBox.addButton(QMessageBox::Yes);
     messageBox.setWindowFlags(Qt::WindowStaysOnTopHint|Qt::WindowMaximizeButtonHint|Qt::MSWindowsFixedSizeDialogHint|Qt::WindowCloseButtonHint);
 
-    QObject::connect(&m_dongleThread,&CheckDongleThread::sendCheckDongleResult,&w,[&](int result)
+    QObject::connect(&m_dongleThread,&CheckDongleThread::sendCheckDongleResult,&w,[&](bool result)
     {
 
-        if(result==1)
+       // qDebug() <<"result" << result;
+        if(result)
         {
             num=0;
             return;

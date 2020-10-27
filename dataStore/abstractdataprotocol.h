@@ -22,6 +22,7 @@ private:
 signals:
     void errorFrameData(const QByteArray &errorArray);
     void finishProcessData(const QByteArray&array);
+
     void processDataFinished();
     void storeData(const QByteArray&array);
     void startDealWithData();

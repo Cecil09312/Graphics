@@ -213,6 +213,11 @@ void FirstAlarmInfoWidget::showTitle()
     qDebug() << m_titleLabel->text();
 }
 
+QString FirstAlarmInfoWidget::extLabelInfo()
+{
+    return m_extLabel->text();
+}
+
 
 
 void FirstAlarmInfoWidget::setFirstAlarmInfo(const QString &extNum, const QString &loopNum, const QString &addrNum,const QString &networkNum,const QString &timeStr,const QString &alarmType)

@@ -32,6 +32,7 @@ GraphicsItem::GraphicsItem(GraphicsScene *scene):
     // m_itemInfo.m_networkNum = "0";
     m_color = QColor(Qt::transparent);
     m_penColor = QColor(Qt::transparent);
+   // m_itemInfo.m_deviceNum=QString("%1-%2").arg(m_itemInfo.m_loopNum).arg(m_itemInfo.m_addrNum) ;
 
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setFlags(ItemIsMovable|ItemIsSelectable);
@@ -110,7 +111,7 @@ QRectF GraphicsItem::boundingRect() const
 void GraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*option, QWidget */*widget*/)
 {
 
-     QString curDeviceNum=QString("%1-%2").arg(m_itemInfo.m_loopNum).arg(m_itemInfo.m_addrNum) ;
+     QString curDeviceNum=m_itemInfo.m_deviceNum ;
     if(m_itemTextIsVisiable)
     {
         int fontSize = qFloor(m_radius/3);

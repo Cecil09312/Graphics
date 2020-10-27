@@ -13,6 +13,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
+#include "dongle/hasp_api.h"
+#include "dongle/hasp_vcode.h"
 #endif
 class CheckDongleThread : public QObject
 {
@@ -21,17 +23,20 @@ public:
     explicit CheckDongleThread(QObject *parent = nullptr);
     ~CheckDongleThread();
     int getCheckValue();
+    bool getValue();
     void startTimerMs(int mes);
     void startStopTimer();
 
 signals:
-    void sendCheckDongleResult(int result);
+    void sendCheckDongleResult(bool isOk);
     void setTimer(int mes);
     void stopTimer();
 public slots:
 private:
     QThread *m_thread;
     QTimer*m_timer;
+    bool m_loginState{false};
+
 };
 
 #endif // CHECKDONGLETHREAD_H

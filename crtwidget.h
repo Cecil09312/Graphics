@@ -27,6 +27,7 @@
 #include <QDesktopServices>
 #include <QMouseEvent>
 #include <QMessageBox>
+#include "communication/modbusobj.h"
 #ifdef Q_OS_LINUX
 #include "control/segfault.h"
 #endif
@@ -57,6 +58,7 @@ public:
     Q_INVOKABLE void queryViewShow();
     Q_INVOKABLE void transportIndicator(bool isOk);//传输指示灯
     Q_INVOKABLE bool isEnglish();
+
     void setIsEnglish(bool isEnglish);
 
     void closeQuickView();
@@ -87,6 +89,7 @@ public slots:
     void emergencyPowerState(const QString &status, bool isOK, const QString &extNum, const QString &loopNum,const QString &addrNum,
                              const QString &powerAddr,const QString &networkNum="",const QString &reMark="");
     void serialDataProcessing(const QByteArray&array);
+    void integrationSysDataProcessing(const QByteArray&array);
     void tcpDataProcessing(const QByteArray&arrayValue);
     void openHelpFile();
     void sendAnalogCommand(quint8 networkNum, quint8 extNum, quint8 loopNum, quint8 addrNum, quint8 channelNum, quint8 analogType);
@@ -115,6 +118,8 @@ public slots:
     void allAlarmStatistics();
     void setCurrentUserInfo();
     void setCloseTipInfo();
+    void setLoopState(bool isLoop);
+    void insertAlarmDataFromItem(GraphicsItem *item,const QString &alarmType);
    /*测试*/
     void sendSerialData();
 
@@ -241,7 +246,7 @@ private:
     QList<QByteArray>m_fireDataList;
     //QMutex m_mutex;
     const int c_mainHeartBeatTimeOut {90000};
-    const int c_mainHeartBeatTime {30000};
+    const int c_mainHeartBeatTime {3000};
     QHash<QString,QString>m_mainPowerStateHash;
     QHash<QString,QString>m_standbyPowerStateHash;
     QHash<QString,QString>m_handOrAutoStateHash;
@@ -257,6 +262,11 @@ private:
     bool m_isAnalog{false};
     FirstAlarmInfoWidget*m_firstAlarmWidget;
     bool m_dongleIsExist;
+
+    QList<QString>m_loopValueList;
+    ModbusObj *m_modbusObj;
+    QHash<quint8,QString>m_integrationSysDataHash;
+    QHash<quint8,QPair<QString,qreal> >m_integrationAnalogHash;
    // Language m_language;
     //QTranslator *m_translator;
 

@@ -748,23 +748,23 @@
     <name>ArchitePlanView</name>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="60"/>
-        <location filename="architePlan/architeplanview.cpp" line="248"/>
+        <location filename="architePlan/architeplanview.cpp" line="246"/>
         <source>删除提示窗口</source>
         <translation>The window is to delete tips</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="60"/>
-        <location filename="architePlan/architeplanview.cpp" line="248"/>
+        <location filename="architePlan/architeplanview.cpp" line="246"/>
         <source>确认要删除吗?</source>
         <translation>Are you sure you want to delete</translation>
     </message>
     <message>
-        <location filename="architePlan/architeplanview.cpp" line="172"/>
+        <location filename="architePlan/architeplanview.cpp" line="170"/>
         <source>清空提示窗口</source>
         <translation>The window is to clear tips</translation>
     </message>
     <message>
-        <location filename="architePlan/architeplanview.cpp" line="172"/>
+        <location filename="architePlan/architeplanview.cpp" line="170"/>
         <source>确认要清空吗?</source>
         <translation>Are you sure you want to clear</translation>
     </message>
@@ -777,29 +777,29 @@
         <translation type="vanished">normal</translation>
     </message>
     <message>
-        <location filename="architePlan/architeplanview.cpp" line="586"/>
+        <location filename="architePlan/architeplanview.cpp" line="584"/>
         <location filename="architePlan/architeplanview.cpp" line="674"/>
-        <location filename="architePlan/architeplanview.cpp" line="1963"/>
-        <location filename="architePlan/architeplanview.cpp" line="1965"/>
-        <location filename="architePlan/architeplanview.cpp" line="2167"/>
-        <location filename="architePlan/architeplanview.cpp" line="2272"/>
+        <location filename="architePlan/architeplanview.cpp" line="1954"/>
+        <location filename="architePlan/architeplanview.cpp" line="1956"/>
+        <location filename="architePlan/architeplanview.cpp" line="2192"/>
+        <location filename="architePlan/architeplanview.cpp" line="2302"/>
         <source>模拟</source>
         <translation>simulation</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="23"/>
         <location filename="architePlan/architeplanview.cpp" line="34"/>
-        <location filename="architePlan/architeplanview.cpp" line="1542"/>
-        <location filename="architePlan/architeplanview.cpp" line="1888"/>
-        <location filename="architePlan/architeplanview.cpp" line="2067"/>
-        <location filename="architePlan/architeplanview.cpp" line="2235"/>
-        <location filename="architePlan/architeplanview.cpp" line="2242"/>
-        <location filename="architePlan/architeplanview.cpp" line="2292"/>
-        <location filename="architePlan/architeplanview.cpp" line="2412"/>
-        <location filename="architePlan/architeplanview.cpp" line="2425"/>
-        <location filename="architePlan/architeplanview.cpp" line="2620"/>
-        <location filename="architePlan/architeplanview.cpp" line="2868"/>
-        <location filename="architePlan/architeplanview.cpp" line="2900"/>
+        <location filename="architePlan/architeplanview.cpp" line="1543"/>
+        <location filename="architePlan/architeplanview.cpp" line="1889"/>
+        <location filename="architePlan/architeplanview.cpp" line="2084"/>
+        <location filename="architePlan/architeplanview.cpp" line="2265"/>
+        <location filename="architePlan/architeplanview.cpp" line="2272"/>
+        <location filename="architePlan/architeplanview.cpp" line="2322"/>
+        <location filename="architePlan/architeplanview.cpp" line="2423"/>
+        <location filename="architePlan/architeplanview.cpp" line="2436"/>
+        <location filename="architePlan/architeplanview.cpp" line="2634"/>
+        <location filename="architePlan/architeplanview.cpp" line="2905"/>
+        <location filename="architePlan/architeplanview.cpp" line="2937"/>
         <source>火警</source>
         <translation>fire</translation>
     </message>
@@ -814,256 +814,256 @@
         <translation>Host:%1,loop:%2,address:%3,network:%4,successfully deleted</translation>
     </message>
     <message>
-        <location filename="architePlan/architeplanview.cpp" line="82"/>
-        <location filename="architePlan/architeplanview.cpp" line="208"/>
-        <location filename="architePlan/architeplanview.cpp" line="280"/>
+        <location filename="architePlan/architeplanview.cpp" line="80"/>
+        <location filename="architePlan/architeplanview.cpp" line="206"/>
+        <location filename="architePlan/architeplanview.cpp" line="278"/>
         <source>提示窗口</source>
         <translation>Prompt window</translation>
     </message>
     <message>
-        <location filename="architePlan/architeplanview.cpp" line="82"/>
+        <location filename="architePlan/architeplanview.cpp" line="80"/>
         <source>正在报警或者不是正常状态,不能删除!</source>
         <translation>It is alarming or not in normal state and cannot be deleted!</translation>
     </message>
     <message>
-        <location filename="architePlan/architeplanview.cpp" line="199"/>
+        <location filename="architePlan/architeplanview.cpp" line="197"/>
         <source>清空设备</source>
         <translation>Empty device</translation>
     </message>
     <message>
-        <location filename="architePlan/architeplanview.cpp" line="199"/>
+        <location filename="architePlan/architeplanview.cpp" line="197"/>
         <source>楼层:%1,清空设备成功</source>
         <translation>Floor:%1,empty device successfully</translation>
     </message>
     <message>
-        <location filename="architePlan/architeplanview.cpp" line="208"/>
+        <location filename="architePlan/architeplanview.cpp" line="206"/>
         <source>有报警不能清空!</source>
         <translation>There is an alarm that cannot be cleared</translation>
     </message>
     <message>
-        <location filename="architePlan/architeplanview.cpp" line="274"/>
+        <location filename="architePlan/architeplanview.cpp" line="272"/>
         <source>删除选中设备</source>
         <translation>Delete selected device</translation>
     </message>
     <message>
-        <location filename="architePlan/architeplanview.cpp" line="280"/>
+        <location filename="architePlan/architeplanview.cpp" line="278"/>
         <source>有报警存在,不能删除!</source>
         <translation>There is an alarm and cannot be deleted</translation>
     </message>
     <message>
-        <location filename="architePlan/architeplanview.cpp" line="411"/>
+        <location filename="architePlan/architeplanview.cpp" line="409"/>
         <source>添加建筑物</source>
         <translation>Add building</translation>
     </message>
     <message>
-        <location filename="architePlan/architeplanview.cpp" line="411"/>
+        <location filename="architePlan/architeplanview.cpp" line="409"/>
         <source>建筑物:%1,添加成功</source>
         <translation>Building:%1,added successfully</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="773"/>
-        <location filename="architePlan/architeplanview.cpp" line="2029"/>
+        <location filename="architePlan/architeplanview.cpp" line="2046"/>
         <source>总平面布局图</source>
         <translation>General layout</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="774"/>
-        <location filename="architePlan/architeplanview.cpp" line="2030"/>
+        <location filename="architePlan/architeplanview.cpp" line="2047"/>
         <source>建筑平面图</source>
         <translation>Building plans</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="775"/>
-        <location filename="architePlan/architeplanview.cpp" line="2031"/>
+        <location filename="architePlan/architeplanview.cpp" line="2048"/>
         <source>系统图</source>
         <translation>System diagram</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="813"/>
-        <location filename="architePlan/architeplanview.cpp" line="2033"/>
+        <location filename="architePlan/architeplanview.cpp" line="2050"/>
         <source>模式选择</source>
         <translation>Mode selection</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="814"/>
-        <location filename="architePlan/architeplanview.cpp" line="2034"/>
+        <location filename="architePlan/architeplanview.cpp" line="2051"/>
         <source>删除</source>
         <translation>Delete</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="815"/>
-        <location filename="architePlan/architeplanview.cpp" line="2035"/>
+        <location filename="architePlan/architeplanview.cpp" line="2052"/>
         <source>编辑</source>
         <translation>Edit</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="816"/>
-        <location filename="architePlan/architeplanview.cpp" line="2036"/>
+        <location filename="architePlan/architeplanview.cpp" line="2053"/>
         <source>清空</source>
         <translation>Clear</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="817"/>
-        <location filename="architePlan/architeplanview.cpp" line="2037"/>
+        <location filename="architePlan/architeplanview.cpp" line="2054"/>
         <source>删除选中</source>
         <translation>Delete selected</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="818"/>
-        <location filename="architePlan/architeplanview.cpp" line="2038"/>
+        <location filename="architePlan/architeplanview.cpp" line="2055"/>
         <source>关闭</source>
         <translation>Close</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="819"/>
-        <location filename="architePlan/architeplanview.cpp" line="2039"/>
+        <location filename="architePlan/architeplanview.cpp" line="2056"/>
         <source>报警模拟</source>
         <translation>Alarm simulation</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="820"/>
         <location filename="architePlan/architeplanview.cpp" line="861"/>
-        <location filename="architePlan/architeplanview.cpp" line="2040"/>
-        <location filename="architePlan/architeplanview.cpp" line="2048"/>
+        <location filename="architePlan/architeplanview.cpp" line="2057"/>
+        <location filename="architePlan/architeplanview.cpp" line="2065"/>
         <source>设备维保</source>
         <translation>Equipment maintenance</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="821"/>
-        <location filename="architePlan/architeplanview.cpp" line="2041"/>
+        <location filename="architePlan/architeplanview.cpp" line="2058"/>
         <source>手动拖拽模式</source>
         <translation>Manual drag mode</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="822"/>
-        <location filename="architePlan/architeplanview.cpp" line="2042"/>
+        <location filename="architePlan/architeplanview.cpp" line="2059"/>
         <source>橡皮筋模式</source>
         <translation>Rubber Band Mode</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="823"/>
-        <location filename="architePlan/architeplanview.cpp" line="2043"/>
+        <location filename="architePlan/architeplanview.cpp" line="2060"/>
         <source>文字可见</source>
         <translation>Text visible</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="824"/>
-        <location filename="architePlan/architeplanview.cpp" line="2044"/>
+        <location filename="architePlan/architeplanview.cpp" line="2061"/>
         <source>最佳视图</source>
         <translation>Best view</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="827"/>
-        <location filename="architePlan/architeplanview.cpp" line="2045"/>
+        <location filename="architePlan/architeplanview.cpp" line="2062"/>
         <source>模拟量查询</source>
         <translation>Query analog quantity</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="843"/>
-        <location filename="architePlan/architeplanview.cpp" line="2046"/>
+        <location filename="architePlan/architeplanview.cpp" line="2063"/>
         <source>设备信息设置界面</source>
         <translation>Equipment information setting interface</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="852"/>
-        <location filename="architePlan/architeplanview.cpp" line="2047"/>
+        <location filename="architePlan/architeplanview.cpp" line="2064"/>
         <source>报警模拟界面</source>
         <translation>Alarm simulation interface</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="919"/>
-        <location filename="architePlan/architeplanview.cpp" line="988"/>
+        <location filename="architePlan/architeplanview.cpp" line="989"/>
         <source>信息提示</source>
         <translation>Message notification</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="919"/>
-        <location filename="architePlan/architeplanview.cpp" line="988"/>
+        <location filename="architePlan/architeplanview.cpp" line="989"/>
         <source>已经存在，确认要替换吗</source>
         <translation>Already exists, confirm to replace</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="936"/>
-        <location filename="architePlan/architeplanview.cpp" line="956"/>
+        <location filename="architePlan/architeplanview.cpp" line="957"/>
         <source>添加设备</source>
         <translation>Add device</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="936"/>
-        <location filename="architePlan/architeplanview.cpp" line="956"/>
+        <location filename="architePlan/architeplanview.cpp" line="957"/>
         <source>分机号:%1,回路号:%2,地址号:%3,网络号:%4,设备添加成功</source>
         <translation>Host:%1,loop:%2,address:%3,network:%4,device added successfully</translation>
     </message>
     <message>
-        <location filename="architePlan/architeplanview.cpp" line="1356"/>
+        <location filename="architePlan/architeplanview.cpp" line="1357"/>
         <source>无</source>
         <translation>Nothing</translation>
     </message>
     <message>
-        <location filename="architePlan/architeplanview.cpp" line="1366"/>
+        <location filename="architePlan/architeplanview.cpp" line="1367"/>
         <source>当前设备</source>
         <translation>Current Device</translation>
     </message>
     <message>
-        <location filename="architePlan/architeplanview.cpp" line="1370"/>
-        <location filename="architePlan/architeplanview.cpp" line="1398"/>
+        <location filename="architePlan/architeplanview.cpp" line="1371"/>
+        <location filename="architePlan/architeplanview.cpp" line="1399"/>
         <source>查询模拟量带子网号确认</source>
         <translation>Query the analog quantity subnet number to confirm</translation>
     </message>
     <message>
-        <location filename="architePlan/architeplanview.cpp" line="1370"/>
-        <location filename="architePlan/architeplanview.cpp" line="1398"/>
+        <location filename="architePlan/architeplanview.cpp" line="1371"/>
+        <location filename="architePlan/architeplanview.cpp" line="1399"/>
         <source>是否带子网号查询模拟量</source>
         <translation>Whether to check analog quantity with subnet number</translation>
     </message>
     <message>
-        <location filename="architePlan/architeplanview.cpp" line="1394"/>
+        <location filename="architePlan/architeplanview.cpp" line="1395"/>
         <source>%1通道</source>
         <translation>%1 channel</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="34"/>
-        <location filename="architePlan/architeplanview.cpp" line="1542"/>
-        <location filename="architePlan/architeplanview.cpp" line="2067"/>
+        <location filename="architePlan/architeplanview.cpp" line="1543"/>
+        <location filename="architePlan/architeplanview.cpp" line="2084"/>
         <source>启动</source>
         <translation>startup</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="34"/>
-        <location filename="architePlan/architeplanview.cpp" line="2067"/>
+        <location filename="architePlan/architeplanview.cpp" line="2084"/>
         <source>监管</source>
         <translation>supervision</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="34"/>
-        <location filename="architePlan/architeplanview.cpp" line="2067"/>
+        <location filename="architePlan/architeplanview.cpp" line="2084"/>
         <source>反馈</source>
         <translation>respond</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="34"/>
-        <location filename="architePlan/architeplanview.cpp" line="2067"/>
-        <location filename="architePlan/architeplanview.cpp" line="2303"/>
-        <location filename="architePlan/architeplanview.cpp" line="2371"/>
+        <location filename="architePlan/architeplanview.cpp" line="2084"/>
+        <location filename="architePlan/architeplanview.cpp" line="2333"/>
+        <location filename="architePlan/architeplanview.cpp" line="2381"/>
         <source>故障</source>
         <translation>failure</translation>
     </message>
     <message>
         <location filename="architePlan/architeplanview.cpp" line="34"/>
-        <location filename="architePlan/architeplanview.cpp" line="2067"/>
-        <location filename="architePlan/architeplanview.cpp" line="2307"/>
-        <location filename="architePlan/architeplanview.cpp" line="2375"/>
+        <location filename="architePlan/architeplanview.cpp" line="2084"/>
+        <location filename="architePlan/architeplanview.cpp" line="2337"/>
+        <location filename="architePlan/architeplanview.cpp" line="2385"/>
         <source>屏蔽</source>
         <translation>shielding</translation>
     </message>
     <message>
-        <location filename="architePlan/architeplanview.cpp" line="2414"/>
+        <location filename="architePlan/architeplanview.cpp" line="2425"/>
         <source>首火警</source>
         <translation>first fire</translation>
     </message>
     <message>
-        <location filename="architePlan/architeplanview.cpp" line="2419"/>
-        <location filename="architePlan/architeplanview.cpp" line="2427"/>
+        <location filename="architePlan/architeplanview.cpp" line="2430"/>
+        <location filename="architePlan/architeplanview.cpp" line="2438"/>
         <source>报警</source>
         <translation> alarm</translation>
     </message>
@@ -1158,53 +1158,56 @@
         <translation>System power on</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="328"/>
+        <location filename="crtwidget.cpp" line="327"/>
         <source>消除</source>
         <translation>release</translation>
     </message>
     <message>
         <location filename="crtwidget.cpp" line="495"/>
-        <location filename="crtwidget.cpp" line="1011"/>
-        <location filename="crtwidget.cpp" line="3258"/>
-        <location filename="crtwidget.cpp" line="3260"/>
-        <location filename="crtwidget.cpp" line="3269"/>
-        <location filename="crtwidget.cpp" line="3270"/>
+        <location filename="crtwidget.cpp" line="1049"/>
+        <location filename="crtwidget.cpp" line="4071"/>
+        <location filename="crtwidget.cpp" line="4073"/>
+        <location filename="crtwidget.cpp" line="4082"/>
+        <location filename="crtwidget.cpp" line="4083"/>
         <source>传输故障</source>
         <translation>Transmission failure</translation>
     </message>
     <message>
         <location filename="crtwidget.cpp" line="496"/>
-        <location filename="crtwidget.cpp" line="1559"/>
-        <location filename="crtwidget.cpp" line="1566"/>
-        <location filename="crtwidget.cpp" line="1567"/>
-        <location filename="crtwidget.cpp" line="1569"/>
-        <location filename="crtwidget.cpp" line="1616"/>
-        <location filename="crtwidget.cpp" line="1627"/>
-        <location filename="crtwidget.cpp" line="1628"/>
-        <location filename="crtwidget.cpp" line="1629"/>
-        <location filename="crtwidget.cpp" line="4180"/>
+        <location filename="crtwidget.cpp" line="1613"/>
+        <location filename="crtwidget.cpp" line="1620"/>
+        <location filename="crtwidget.cpp" line="1621"/>
+        <location filename="crtwidget.cpp" line="1623"/>
+        <location filename="crtwidget.cpp" line="1670"/>
+        <location filename="crtwidget.cpp" line="1681"/>
+        <location filename="crtwidget.cpp" line="1682"/>
+        <location filename="crtwidget.cpp" line="1683"/>
+        <location filename="crtwidget.cpp" line="2869"/>
+        <location filename="crtwidget.cpp" line="5007"/>
         <source>主电故障</source>
         <translation>Power failure</translation>
     </message>
     <message>
         <location filename="crtwidget.cpp" line="497"/>
-        <location filename="crtwidget.cpp" line="1585"/>
-        <location filename="crtwidget.cpp" line="1594"/>
-        <location filename="crtwidget.cpp" line="1595"/>
-        <location filename="crtwidget.cpp" line="1596"/>
-        <location filename="crtwidget.cpp" line="1642"/>
-        <location filename="crtwidget.cpp" line="1652"/>
-        <location filename="crtwidget.cpp" line="1653"/>
-        <location filename="crtwidget.cpp" line="1655"/>
-        <location filename="crtwidget.cpp" line="4189"/>
+        <location filename="crtwidget.cpp" line="1639"/>
+        <location filename="crtwidget.cpp" line="1648"/>
+        <location filename="crtwidget.cpp" line="1649"/>
+        <location filename="crtwidget.cpp" line="1650"/>
+        <location filename="crtwidget.cpp" line="1696"/>
+        <location filename="crtwidget.cpp" line="1706"/>
+        <location filename="crtwidget.cpp" line="1707"/>
+        <location filename="crtwidget.cpp" line="1709"/>
+        <location filename="crtwidget.cpp" line="2870"/>
+        <location filename="crtwidget.cpp" line="5016"/>
         <source>备电故障</source>
         <translation>Battery failure</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2148"/>
-        <location filename="crtwidget.cpp" line="2156"/>
-        <location filename="crtwidget.cpp" line="4040"/>
-        <location filename="crtwidget.cpp" line="4055"/>
+        <location filename="crtwidget.cpp" line="2265"/>
+        <location filename="crtwidget.cpp" line="2273"/>
+        <location filename="crtwidget.cpp" line="3272"/>
+        <location filename="crtwidget.cpp" line="4865"/>
+        <location filename="crtwidget.cpp" line="4880"/>
         <source>自动</source>
         <translation>Automatic</translation>
     </message>
@@ -1214,336 +1217,356 @@
         <location filename="crtwidget.cpp" line="540"/>
         <location filename="crtwidget.cpp" line="542"/>
         <location filename="crtwidget.cpp" line="547"/>
-        <location filename="crtwidget.cpp" line="735"/>
-        <location filename="crtwidget.cpp" line="738"/>
-        <location filename="crtwidget.cpp" line="751"/>
-        <location filename="crtwidget.cpp" line="754"/>
-        <location filename="crtwidget.cpp" line="869"/>
-        <location filename="crtwidget.cpp" line="883"/>
-        <location filename="crtwidget.cpp" line="884"/>
-        <location filename="crtwidget.cpp" line="1010"/>
+        <location filename="crtwidget.cpp" line="760"/>
+        <location filename="crtwidget.cpp" line="763"/>
+        <location filename="crtwidget.cpp" line="776"/>
+        <location filename="crtwidget.cpp" line="779"/>
+        <location filename="crtwidget.cpp" line="904"/>
+        <location filename="crtwidget.cpp" line="1048"/>
         <source>中心通信故障</source>
         <translation>Communication failure of monitoring center</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="715"/>
-        <location filename="crtwidget.cpp" line="717"/>
-        <location filename="crtwidget.cpp" line="786"/>
-        <location filename="crtwidget.cpp" line="792"/>
-        <location filename="crtwidget.cpp" line="805"/>
-        <location filename="crtwidget.cpp" line="807"/>
-        <location filename="crtwidget.cpp" line="848"/>
-        <location filename="crtwidget.cpp" line="857"/>
-        <location filename="crtwidget.cpp" line="1999"/>
-        <location filename="crtwidget.cpp" line="2029"/>
+        <location filename="crtwidget.cpp" line="739"/>
+        <location filename="crtwidget.cpp" line="742"/>
+        <location filename="crtwidget.cpp" line="811"/>
+        <location filename="crtwidget.cpp" line="817"/>
+        <location filename="crtwidget.cpp" line="830"/>
+        <location filename="crtwidget.cpp" line="843"/>
+        <location filename="crtwidget.cpp" line="883"/>
+        <location filename="crtwidget.cpp" line="892"/>
+        <location filename="crtwidget.cpp" line="2073"/>
+        <location filename="crtwidget.cpp" line="2111"/>
         <source>主机通信故障</source>
         <translation>Host communication failure</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="1342"/>
+        <location filename="crtwidget.cpp" line="1395"/>
         <source>系统关机</source>
         <translation>System shutdown</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="1406"/>
+        <location filename="crtwidget.cpp" line="1460"/>
         <source>警告</source>
         <translation>Warning</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="1406"/>
+        <location filename="crtwidget.cpp" line="1460"/>
         <source>此权限不允许打开，请重新登陆到其它权限。</source>
         <translation>This permission is not allowed to open. Please login to other permissions again.</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="315"/>
-        <location filename="crtwidget.cpp" line="1473"/>
-        <location filename="crtwidget.cpp" line="2978"/>
-        <location filename="crtwidget.cpp" line="3467"/>
-        <location filename="crtwidget.cpp" line="3664"/>
-        <location filename="crtwidget.cpp" line="4089"/>
-        <location filename="crtwidget.cpp" line="4097"/>
+        <location filename="crtwidget.cpp" line="314"/>
+        <location filename="crtwidget.cpp" line="1527"/>
+        <location filename="crtwidget.cpp" line="2812"/>
+        <location filename="crtwidget.cpp" line="3069"/>
+        <location filename="crtwidget.cpp" line="3759"/>
+        <location filename="crtwidget.cpp" line="4281"/>
+        <location filename="crtwidget.cpp" line="4478"/>
+        <location filename="crtwidget.cpp" line="4915"/>
+        <location filename="crtwidget.cpp" line="4923"/>
         <source>火警</source>
         <translation>fire</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="321"/>
-        <location filename="crtwidget.cpp" line="1482"/>
-        <location filename="crtwidget.cpp" line="2987"/>
-        <location filename="crtwidget.cpp" line="3469"/>
-        <location filename="crtwidget.cpp" line="3664"/>
-        <location filename="crtwidget.cpp" line="3964"/>
-        <location filename="crtwidget.cpp" line="4214"/>
-        <location filename="crtwidget.cpp" line="4249"/>
-        <location filename="crtwidget.cpp" line="4382"/>
-        <location filename="crtwidget.cpp" line="4424"/>
+        <location filename="crtwidget.cpp" line="320"/>
+        <location filename="crtwidget.cpp" line="1536"/>
+        <location filename="crtwidget.cpp" line="2824"/>
+        <location filename="crtwidget.cpp" line="3073"/>
+        <location filename="crtwidget.cpp" line="3147"/>
+        <location filename="crtwidget.cpp" line="3768"/>
+        <location filename="crtwidget.cpp" line="4283"/>
+        <location filename="crtwidget.cpp" line="4478"/>
+        <location filename="crtwidget.cpp" line="4789"/>
+        <location filename="crtwidget.cpp" line="5041"/>
+        <location filename="crtwidget.cpp" line="5077"/>
+        <location filename="crtwidget.cpp" line="5210"/>
+        <location filename="crtwidget.cpp" line="5254"/>
         <source>启动</source>
         <translation>startup</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="315"/>
-        <location filename="crtwidget.cpp" line="1492"/>
-        <location filename="crtwidget.cpp" line="2997"/>
-        <location filename="crtwidget.cpp" line="3470"/>
-        <location filename="crtwidget.cpp" line="3664"/>
-        <location filename="crtwidget.cpp" line="4377"/>
+        <location filename="crtwidget.cpp" line="314"/>
+        <location filename="crtwidget.cpp" line="1546"/>
+        <location filename="crtwidget.cpp" line="2861"/>
+        <location filename="crtwidget.cpp" line="3077"/>
+        <location filename="crtwidget.cpp" line="3155"/>
+        <location filename="crtwidget.cpp" line="3778"/>
+        <location filename="crtwidget.cpp" line="4284"/>
+        <location filename="crtwidget.cpp" line="4478"/>
+        <location filename="crtwidget.cpp" line="5205"/>
         <source>监管</source>
         <translation>supervision</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3449"/>
+        <location filename="crtwidget.cpp" line="4263"/>
         <source>电气火灾监控系统</source>
         <translation>Electrical fire monitoring system</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3450"/>
+        <location filename="crtwidget.cpp" line="4264"/>
         <source>火灾探测报警系统</source>
         <translation>Fire detection and alarm system</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3451"/>
+        <location filename="crtwidget.cpp" line="4265"/>
         <source>消防联动系统</source>
         <translation>Fire fighting linkage system</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3452"/>
+        <location filename="crtwidget.cpp" line="4266"/>
         <source>自动喷水灭火系统</source>
         <translation>Automatic fire extinguishing system</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3453"/>
+        <location filename="crtwidget.cpp" line="4267"/>
         <source>水喷雾灭火系统</source>
         <translation>Water spray fire extinguishing system</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3454"/>
+        <location filename="crtwidget.cpp" line="4268"/>
         <source>消火栓系统</source>
         <translation>Fire hydrant system</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3455"/>
+        <location filename="crtwidget.cpp" line="4269"/>
         <source>气体灭火系统</source>
         <translation>Gas fire extinguishing system</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3456"/>
+        <location filename="crtwidget.cpp" line="4270"/>
         <source>泡沫灭火系统</source>
         <translation>Foam fire extinguishing system</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3457"/>
+        <location filename="crtwidget.cpp" line="4271"/>
         <source>干粉灭火系统</source>
         <translation>Dry powder fire extinguishing system</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3458"/>
+        <location filename="crtwidget.cpp" line="4272"/>
         <source>防烟排烟系统</source>
         <translation> Smoke control and exhaust system</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3459"/>
+        <location filename="crtwidget.cpp" line="4273"/>
         <source>防火及卷帘系统</source>
         <translation>Fire protection and rolling curtain system</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3460"/>
+        <location filename="crtwidget.cpp" line="4274"/>
         <source>电梯系统</source>
         <translation>Elevator system</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3461"/>
+        <location filename="crtwidget.cpp" line="4275"/>
         <source>消防电话系统</source>
         <translation>Fire telephone system</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3462"/>
+        <location filename="crtwidget.cpp" line="4276"/>
         <source>消防应急广播系统</source>
         <translation>Fire emergency broadcasting system</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3463"/>
+        <location filename="crtwidget.cpp" line="4277"/>
         <source>消防应急照明和疏散指示系统</source>
         <translation>Fire emergency lighting and evacuation system</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3464"/>
+        <location filename="crtwidget.cpp" line="4278"/>
         <source>消防电源系统</source>
         <translation>Fire power system</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="111"/>
-        <location filename="crtwidget.cpp" line="117"/>
+        <location filename="crtwidget.cpp" line="3860"/>
+        <location filename="crtwidget.cpp" line="3866"/>
         <source>模拟</source>
         <translation>simulation</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="317"/>
+        <location filename="crtwidget.cpp" line="316"/>
         <location filename="crtwidget.cpp" line="443"/>
         <location filename="crtwidget.cpp" line="460"/>
-        <location filename="crtwidget.cpp" line="1505"/>
-        <location filename="crtwidget.cpp" line="1556"/>
-        <location filename="crtwidget.cpp" line="1564"/>
-        <location filename="crtwidget.cpp" line="1583"/>
-        <location filename="crtwidget.cpp" line="1591"/>
-        <location filename="crtwidget.cpp" line="1613"/>
-        <location filename="crtwidget.cpp" line="1625"/>
-        <location filename="crtwidget.cpp" line="1640"/>
-        <location filename="crtwidget.cpp" line="1650"/>
-        <location filename="crtwidget.cpp" line="3010"/>
-        <location filename="crtwidget.cpp" line="3468"/>
-        <location filename="crtwidget.cpp" line="3664"/>
-        <location filename="crtwidget.cpp" line="3951"/>
-        <location filename="crtwidget.cpp" line="4021"/>
-        <location filename="crtwidget.cpp" line="4107"/>
-        <location filename="crtwidget.cpp" line="4112"/>
-        <location filename="crtwidget.cpp" line="4123"/>
-        <location filename="crtwidget.cpp" line="4129"/>
-        <location filename="crtwidget.cpp" line="4219"/>
-        <location filename="crtwidget.cpp" line="4254"/>
-        <location filename="crtwidget.cpp" line="4387"/>
-        <location filename="crtwidget.cpp" line="4430"/>
+        <location filename="crtwidget.cpp" line="1559"/>
+        <location filename="crtwidget.cpp" line="1610"/>
+        <location filename="crtwidget.cpp" line="1618"/>
+        <location filename="crtwidget.cpp" line="1637"/>
+        <location filename="crtwidget.cpp" line="1645"/>
+        <location filename="crtwidget.cpp" line="1667"/>
+        <location filename="crtwidget.cpp" line="1679"/>
+        <location filename="crtwidget.cpp" line="1694"/>
+        <location filename="crtwidget.cpp" line="1704"/>
+        <location filename="crtwidget.cpp" line="2867"/>
+        <location filename="crtwidget.cpp" line="3089"/>
+        <location filename="crtwidget.cpp" line="3163"/>
+        <location filename="crtwidget.cpp" line="3791"/>
+        <location filename="crtwidget.cpp" line="4282"/>
+        <location filename="crtwidget.cpp" line="4478"/>
+        <location filename="crtwidget.cpp" line="4776"/>
+        <location filename="crtwidget.cpp" line="4846"/>
+        <location filename="crtwidget.cpp" line="4933"/>
+        <location filename="crtwidget.cpp" line="4939"/>
+        <location filename="crtwidget.cpp" line="4950"/>
+        <location filename="crtwidget.cpp" line="4956"/>
+        <location filename="crtwidget.cpp" line="5046"/>
+        <location filename="crtwidget.cpp" line="5082"/>
+        <location filename="crtwidget.cpp" line="5215"/>
+        <location filename="crtwidget.cpp" line="5260"/>
         <source>故障</source>
         <translation>failure</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="319"/>
+        <location filename="crtwidget.cpp" line="318"/>
         <source>恢复</source>
         <translation> recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="323"/>
-        <location filename="crtwidget.cpp" line="3476"/>
-        <location filename="crtwidget.cpp" line="4425"/>
+        <location filename="crtwidget.cpp" line="322"/>
+        <location filename="crtwidget.cpp" line="2834"/>
+        <location filename="crtwidget.cpp" line="4290"/>
+        <location filename="crtwidget.cpp" line="5255"/>
         <source>停止</source>
         <translation>stop</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="333"/>
+        <location filename="crtwidget.cpp" line="332"/>
         <source>解除</source>
         <translation> release</translation>
     </message>
     <message>
         <location filename="crtwidget.cpp" line="524"/>
-        <location filename="crtwidget.cpp" line="738"/>
-        <location filename="crtwidget.cpp" line="871"/>
+        <location filename="crtwidget.cpp" line="763"/>
+        <location filename="crtwidget.cpp" line="906"/>
         <source>中心通信故障恢复</source>
         <translation>The failure of monitoring center recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="786"/>
-        <location filename="crtwidget.cpp" line="848"/>
-        <location filename="crtwidget.cpp" line="2029"/>
+        <location filename="crtwidget.cpp" line="811"/>
+        <location filename="crtwidget.cpp" line="883"/>
+        <location filename="crtwidget.cpp" line="2111"/>
         <source>主机通信故障恢复</source>
         <translation>Host communication failure recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="879"/>
+        <location filename="crtwidget.cpp" line="914"/>
         <source>控制中心权限</source>
         <translation>Authority of monitoring center</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="326"/>
-        <location filename="crtwidget.cpp" line="1518"/>
-        <location filename="crtwidget.cpp" line="3023"/>
-        <location filename="crtwidget.cpp" line="3472"/>
-        <location filename="crtwidget.cpp" line="3664"/>
-        <location filename="crtwidget.cpp" line="3956"/>
-        <location filename="crtwidget.cpp" line="4372"/>
-        <location filename="crtwidget.cpp" line="4418"/>
+        <location filename="crtwidget.cpp" line="325"/>
+        <location filename="crtwidget.cpp" line="1572"/>
+        <location filename="crtwidget.cpp" line="2831"/>
+        <location filename="crtwidget.cpp" line="3085"/>
+        <location filename="crtwidget.cpp" line="3151"/>
+        <location filename="crtwidget.cpp" line="3804"/>
+        <location filename="crtwidget.cpp" line="4286"/>
+        <location filename="crtwidget.cpp" line="4478"/>
+        <location filename="crtwidget.cpp" line="4781"/>
+        <location filename="crtwidget.cpp" line="5200"/>
+        <location filename="crtwidget.cpp" line="5248"/>
         <source>反馈</source>
         <translation>respond</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="331"/>
-        <location filename="crtwidget.cpp" line="1531"/>
-        <location filename="crtwidget.cpp" line="3036"/>
-        <location filename="crtwidget.cpp" line="3471"/>
-        <location filename="crtwidget.cpp" line="3508"/>
-        <location filename="crtwidget.cpp" line="3664"/>
-        <location filename="crtwidget.cpp" line="3968"/>
-        <location filename="crtwidget.cpp" line="4209"/>
-        <location filename="crtwidget.cpp" line="4244"/>
+        <location filename="crtwidget.cpp" line="330"/>
+        <location filename="crtwidget.cpp" line="1585"/>
+        <location filename="crtwidget.cpp" line="2863"/>
+        <location filename="crtwidget.cpp" line="3081"/>
+        <location filename="crtwidget.cpp" line="3159"/>
+        <location filename="crtwidget.cpp" line="3817"/>
+        <location filename="crtwidget.cpp" line="4285"/>
+        <location filename="crtwidget.cpp" line="4322"/>
+        <location filename="crtwidget.cpp" line="4478"/>
+        <location filename="crtwidget.cpp" line="4793"/>
+        <location filename="crtwidget.cpp" line="5036"/>
+        <location filename="crtwidget.cpp" line="5072"/>
         <source>屏蔽</source>
         <translation>shielding</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="1548"/>
-        <location filename="crtwidget.cpp" line="1607"/>
-        <location filename="crtwidget.cpp" line="3479"/>
-        <location filename="crtwidget.cpp" line="4180"/>
-        <location filename="crtwidget.cpp" line="4184"/>
+        <location filename="crtwidget.cpp" line="1602"/>
+        <location filename="crtwidget.cpp" line="1661"/>
+        <location filename="crtwidget.cpp" line="3211"/>
+        <location filename="crtwidget.cpp" line="3240"/>
+        <location filename="crtwidget.cpp" line="4293"/>
+        <location filename="crtwidget.cpp" line="5007"/>
+        <location filename="crtwidget.cpp" line="5011"/>
         <source>主电</source>
         <translation>power</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="1574"/>
-        <location filename="crtwidget.cpp" line="1634"/>
-        <location filename="crtwidget.cpp" line="3480"/>
-        <location filename="crtwidget.cpp" line="4189"/>
-        <location filename="crtwidget.cpp" line="4195"/>
+        <location filename="crtwidget.cpp" line="1628"/>
+        <location filename="crtwidget.cpp" line="1688"/>
+        <location filename="crtwidget.cpp" line="3215"/>
+        <location filename="crtwidget.cpp" line="3244"/>
+        <location filename="crtwidget.cpp" line="4294"/>
+        <location filename="crtwidget.cpp" line="5016"/>
+        <location filename="crtwidget.cpp" line="5022"/>
         <source>备电</source>
         <translation>battery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="1253"/>
-        <location filename="crtwidget.cpp" line="1853"/>
+        <location filename="crtwidget.cpp" line="1298"/>
+        <location filename="crtwidget.cpp" line="1911"/>
         <source>用户登陆界面</source>
         <translation>User login interface</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="1254"/>
-        <location filename="crtwidget.cpp" line="1861"/>
+        <location filename="crtwidget.cpp" line="1299"/>
+        <location filename="crtwidget.cpp" line="1919"/>
         <source>用户登陆之后关闭</source>
         <translation>Close after user login</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="1255"/>
-        <location filename="crtwidget.cpp" line="1867"/>
+        <location filename="crtwidget.cpp" line="1300"/>
+        <location filename="crtwidget.cpp" line="1925"/>
         <source>信息设置界面</source>
         <translation>Information setting interface</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="1256"/>
-        <location filename="crtwidget.cpp" line="1873"/>
+        <location filename="crtwidget.cpp" line="1301"/>
+        <location filename="crtwidget.cpp" line="1934"/>
         <source>复位权限登陆</source>
         <translation>Reset permission login</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="1257"/>
-        <location filename="crtwidget.cpp" line="1886"/>
+        <location filename="crtwidget.cpp" line="1302"/>
+        <location filename="crtwidget.cpp" line="1947"/>
         <source>信息查询界面</source>
         <translation>Information query interface</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="1252"/>
-        <location filename="crtwidget.cpp" line="1893"/>
+        <location filename="crtwidget.cpp" line="1297"/>
+        <location filename="crtwidget.cpp" line="1954"/>
         <source>主机在线状态</source>
         <translation>Host online status</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="1249"/>
-        <location filename="crtwidget.cpp" line="1902"/>
+        <location filename="crtwidget.cpp" line="1294"/>
+        <location filename="crtwidget.cpp" line="1963"/>
         <source>主电状态</source>
         <translation>power status</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="1250"/>
-        <location filename="crtwidget.cpp" line="1908"/>
+        <location filename="crtwidget.cpp" line="1295"/>
+        <location filename="crtwidget.cpp" line="1969"/>
         <source>备电状态</source>
         <translation>battery status</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="1251"/>
-        <location filename="crtwidget.cpp" line="1914"/>
+        <location filename="crtwidget.cpp" line="1296"/>
+        <location filename="crtwidget.cpp" line="1975"/>
         <source>手自动状态</source>
         <translation>manual and automatic status</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2498"/>
+        <location filename="crtwidget.cpp" line="2659"/>
         <source>本机复位</source>
         <translation>local reset</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2505"/>
+        <location filename="crtwidget.cpp" line="2668"/>
         <source>网络复位</source>
         <translation>network reset</translation>
     </message>
@@ -1552,222 +1575,233 @@
         <translation type="vanished">Communication board version :</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2634"/>
+        <location filename="crtwidget.cpp" line="3407"/>
         <source>消防控制室的管理机构</source>
         <translation>Management organization of fire control room</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2635"/>
+        <location filename="crtwidget.cpp" line="3408"/>
         <source>系统竣工图纸</source>
         <translation>System as built drawings</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2636"/>
+        <location filename="crtwidget.cpp" line="3409"/>
         <source>各分系统控制逻辑关系说明</source>
         <translation>Description of control logic relationship of each subsystem</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2637"/>
+        <location filename="crtwidget.cpp" line="3410"/>
         <source>设备使用说明书</source>
         <translation>Equipment operation manual</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2638"/>
+        <location filename="crtwidget.cpp" line="3411"/>
         <source>系统操作规程</source>
         <translation>System operation procedures</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2639"/>
+        <location filename="crtwidget.cpp" line="3412"/>
         <source>应急预案</source>
         <translation>Emergency plan</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2640"/>
+        <location filename="crtwidget.cpp" line="3413"/>
         <source>值班制度</source>
         <translation>Duty system</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2641"/>
+        <location filename="crtwidget.cpp" line="3414"/>
         <source>维护保养制度</source>
         <translation>Maintenance system</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2642"/>
+        <location filename="crtwidget.cpp" line="3415"/>
         <source>维护保养记录</source>
         <translation>Maintenance records</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3779"/>
-        <location filename="crtwidget.cpp" line="3921"/>
+        <location filename="crtwidget.cpp" line="4605"/>
+        <location filename="crtwidget.cpp" line="4746"/>
         <source>设备类型:常闭防火门</source>
         <translation>Device type :normally closed fire door</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3782"/>
-        <location filename="crtwidget.cpp" line="3924"/>
+        <location filename="crtwidget.cpp" line="4608"/>
+        <location filename="crtwidget.cpp" line="4749"/>
         <source>设备类型:常开防火门</source>
         <translation>Device type : normally open fire door</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3785"/>
-        <location filename="crtwidget.cpp" line="3927"/>
+        <location filename="crtwidget.cpp" line="4611"/>
+        <location filename="crtwidget.cpp" line="4752"/>
         <source>设备类型:输入模块</source>
         <translation>Device type : input module</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3794"/>
+        <location filename="crtwidget.cpp" line="4620"/>
         <source>,事件:门故障</source>
         <translation>, event : door failure</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3800"/>
+        <location filename="crtwidget.cpp" line="4626"/>
         <source>,事件:模块故障</source>
         <translation>, event :module failure</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3806"/>
+        <location filename="crtwidget.cpp" line="4632"/>
         <source>,事件:线路故障</source>
         <translation>, event : line failure</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2598"/>
-        <location filename="crtwidget.cpp" line="3890"/>
+        <location filename="crtwidget.cpp" line="2783"/>
+        <location filename="crtwidget.cpp" line="2940"/>
+        <location filename="crtwidget.cpp" line="4677"/>
         <source>温度(℃)</source>
         <translation>Temperature(℃)</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2566"/>
+        <location filename="crtwidget.cpp" line="2751"/>
+        <location filename="crtwidget.cpp" line="2979"/>
         <source>电压(V)</source>
         <translation>Voltage(V)</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2592"/>
+        <location filename="crtwidget.cpp" line="2777"/>
+        <location filename="crtwidget.cpp" line="3000"/>
         <source>剩余电流(mA)</source>
         <translation>Residual current</translation>
     </message>
     <message>
         <location filename="crtwidget.cpp" line="484"/>
-        <location filename="crtwidget.cpp" line="2790"/>
-        <location filename="crtwidget.cpp" line="2791"/>
-        <location filename="crtwidget.cpp" line="3524"/>
-        <location filename="crtwidget.cpp" line="4325"/>
+        <location filename="crtwidget.cpp" line="2906"/>
+        <location filename="crtwidget.cpp" line="3359"/>
+        <location filename="crtwidget.cpp" line="3366"/>
+        <location filename="crtwidget.cpp" line="3563"/>
+        <location filename="crtwidget.cpp" line="3564"/>
+        <location filename="crtwidget.cpp" line="4338"/>
+        <location filename="crtwidget.cpp" line="5153"/>
         <source>复位</source>
         <translation>Reset</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2521"/>
-        <location filename="crtwidget.cpp" line="2798"/>
-        <location filename="crtwidget.cpp" line="2800"/>
-        <location filename="crtwidget.cpp" line="3523"/>
+        <location filename="crtwidget.cpp" line="2686"/>
+        <location filename="crtwidget.cpp" line="2693"/>
+        <location filename="crtwidget.cpp" line="2928"/>
+        <location filename="crtwidget.cpp" line="3572"/>
+        <location filename="crtwidget.cpp" line="3573"/>
+        <location filename="crtwidget.cpp" line="4337"/>
         <source>消音</source>
         <translation>Eliminate voice</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3260"/>
+        <location filename="crtwidget.cpp" line="4073"/>
         <source>传输故障恢复</source>
         <translation>Transmission failure recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3474"/>
-        <location filename="crtwidget.cpp" line="4419"/>
+        <location filename="crtwidget.cpp" line="2833"/>
+        <location filename="crtwidget.cpp" line="4288"/>
+        <location filename="crtwidget.cpp" line="5249"/>
         <source>反馈消除</source>
         <translation>Failure recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3477"/>
-        <location filename="crtwidget.cpp" line="3515"/>
+        <location filename="crtwidget.cpp" line="2864"/>
+        <location filename="crtwidget.cpp" line="4291"/>
+        <location filename="crtwidget.cpp" line="4329"/>
         <source>屏蔽解除</source>
         <translation>Shielding release</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3481"/>
+        <location filename="crtwidget.cpp" line="4295"/>
         <source>手自动设置</source>
         <translation>Manual and automatic settings</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3482"/>
+        <location filename="crtwidget.cpp" line="4296"/>
         <source>手自动确认</source>
         <translation>Manual and automatic confirmation</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3483"/>
+        <location filename="crtwidget.cpp" line="4297"/>
         <source>过压</source>
         <translation> overvoltage</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3484"/>
+        <location filename="crtwidget.cpp" line="4298"/>
         <source>欠压</source>
         <translation> undervoltage</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3485"/>
+        <location filename="crtwidget.cpp" line="4299"/>
         <source>缺相</source>
         <translation> lack phase</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3486"/>
+        <location filename="crtwidget.cpp" line="4300"/>
         <source>错相</source>
         <translation> wrong phase</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3489"/>
+        <location filename="crtwidget.cpp" line="4303"/>
         <source>欠压恢复</source>
         <translation> undervoltage recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3490"/>
+        <location filename="crtwidget.cpp" line="4304"/>
         <source>缺相恢复</source>
         <translation> phase loss recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3491"/>
+        <location filename="crtwidget.cpp" line="4305"/>
         <source>错相恢复</source>
         <translation> wrong phase recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3493"/>
+        <location filename="crtwidget.cpp" line="4307"/>
         <source>过流</source>
         <translation> overcurrent</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3494"/>
+        <location filename="crtwidget.cpp" line="4308"/>
         <source>霍尔故障</source>
         <translation> hall fault</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3495"/>
+        <location filename="crtwidget.cpp" line="4309"/>
         <source>断电</source>
         <translation> power off</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3496"/>
+        <location filename="crtwidget.cpp" line="4310"/>
         <source>模块故障</source>
         <translation> module failure</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2898"/>
+        <location filename="crtwidget.cpp" line="3679"/>
         <source>确认要切换语言吗?</source>
         <translation>Are you sure you want to switch languages ?</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3822"/>
+        <location filename="crtwidget.cpp" line="4648"/>
         <source>常开门关闭</source>
         <translation> normally open door closed</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3475"/>
-        <location filename="crtwidget.cpp" line="4129"/>
-        <location filename="crtwidget.cpp" line="4431"/>
+        <location filename="crtwidget.cpp" line="2890"/>
+        <location filename="crtwidget.cpp" line="4289"/>
+        <location filename="crtwidget.cpp" line="4956"/>
+        <location filename="crtwidget.cpp" line="5261"/>
         <source>故障恢复</source>
         <translation>failure recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="1153"/>
-        <location filename="crtwidget.cpp" line="1165"/>
-        <location filename="crtwidget.cpp" line="4291"/>
-        <location filename="crtwidget.cpp" line="4315"/>
-        <location filename="crtwidget.cpp" line="4478"/>
-        <location filename="crtwidget.cpp" line="4499"/>
+        <location filename="crtwidget.cpp" line="1198"/>
+        <location filename="crtwidget.cpp" line="1209"/>
+        <location filename="crtwidget.cpp" line="5119"/>
+        <location filename="crtwidget.cpp" line="5143"/>
+        <location filename="crtwidget.cpp" line="5308"/>
+        <location filename="crtwidget.cpp" line="5329"/>
         <source>未定义设备</source>
         <translation>undefined device</translation>
     </message>
@@ -1777,45 +1811,47 @@
     </message>
     <message>
         <location filename="crtwidget.cpp" line="502"/>
-        <location filename="crtwidget.cpp" line="665"/>
-        <location filename="crtwidget.cpp" line="1302"/>
-        <location filename="crtwidget.cpp" line="1315"/>
-        <location filename="crtwidget.cpp" line="2151"/>
-        <location filename="crtwidget.cpp" line="2164"/>
-        <location filename="crtwidget.cpp" line="2210"/>
-        <location filename="crtwidget.cpp" line="2234"/>
-        <location filename="crtwidget.cpp" line="4045"/>
+        <location filename="crtwidget.cpp" line="669"/>
+        <location filename="crtwidget.cpp" line="678"/>
+        <location filename="crtwidget.cpp" line="1350"/>
+        <location filename="crtwidget.cpp" line="1364"/>
+        <location filename="crtwidget.cpp" line="2268"/>
+        <location filename="crtwidget.cpp" line="2281"/>
+        <location filename="crtwidget.cpp" line="2328"/>
+        <location filename="crtwidget.cpp" line="2353"/>
+        <location filename="crtwidget.cpp" line="4870"/>
         <source>默认</source>
         <translation>default</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2160"/>
-        <location filename="crtwidget.cpp" line="4050"/>
+        <location filename="crtwidget.cpp" line="2277"/>
+        <location filename="crtwidget.cpp" line="3268"/>
+        <location filename="crtwidget.cpp" line="4875"/>
         <source>手动</source>
         <translation>manual</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3488"/>
+        <location filename="crtwidget.cpp" line="4302"/>
         <source>过压恢复</source>
         <translation> overvoltage recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3498"/>
+        <location filename="crtwidget.cpp" line="4312"/>
         <source>过流恢复</source>
         <translation> overcurrent recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3499"/>
+        <location filename="crtwidget.cpp" line="4313"/>
         <source>霍尔故障恢复</source>
         <translation> hall failure recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3500"/>
+        <location filename="crtwidget.cpp" line="4314"/>
         <source>断电恢复</source>
         <translation> power failure recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3501"/>
+        <location filename="crtwidget.cpp" line="4315"/>
         <source>模块故障恢复</source>
         <translation> module failure recovery</translation>
     </message>
@@ -1836,711 +1872,1145 @@
         <translation type="vanished"> door failure</translation>
     </message>
     <message>
+        <location filename="crtwidget.cpp" line="2875"/>
         <source>线路故障</source>
-        <translation type="vanished"> line fault</translation>
+        <translation> line fault</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3840"/>
-        <location filename="crtwidget.cpp" line="3978"/>
+        <location filename="crtwidget.cpp" line="4696"/>
+        <location filename="crtwidget.cpp" line="4803"/>
         <source>模块</source>
         <translation>module</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3844"/>
-        <location filename="crtwidget.cpp" line="3982"/>
+        <location filename="crtwidget.cpp" line="4700"/>
+        <location filename="crtwidget.cpp" line="4807"/>
         <source>通道</source>
         <translation>aisle</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2570"/>
-        <location filename="crtwidget.cpp" line="3886"/>
+        <location filename="crtwidget.cpp" line="2755"/>
+        <location filename="crtwidget.cpp" line="4673"/>
         <source>电流(mA)</source>
         <translation>Electric current(mA)</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3935"/>
+        <location filename="crtwidget.cpp" line="4760"/>
         <source>,事件:门故障恢复</source>
         <translation>, event : door failure recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3938"/>
+        <location filename="crtwidget.cpp" line="4763"/>
         <source>,事件:模块故障恢复</source>
         <translation>, event : module failure recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3941"/>
+        <location filename="crtwidget.cpp" line="4766"/>
         <source>,事件:线路故障恢复</source>
         <translation>, event : line failure recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3959"/>
+        <location filename="crtwidget.cpp" line="4784"/>
         <source>常开门打开</source>
         <translation>Normally open door opens</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="4077"/>
+        <location filename="crtwidget.cpp" line="4902"/>
         <source>米</source>
         <translation> meter</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="4077"/>
+        <location filename="crtwidget.cpp" line="4902"/>
         <source>位置</source>
         <translation> location</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="4089"/>
-        <location filename="crtwidget.cpp" line="4097"/>
+        <location filename="crtwidget.cpp" line="4915"/>
+        <location filename="crtwidget.cpp" line="4923"/>
         <source>光纤火警</source>
         <translation>Fiber optic fire alarm</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="4107"/>
-        <location filename="crtwidget.cpp" line="4112"/>
+        <location filename="crtwidget.cpp" line="4933"/>
+        <location filename="crtwidget.cpp" line="4939"/>
         <source>光纤故障</source>
         <translation>Fiber failure</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="4129"/>
+        <location filename="crtwidget.cpp" line="4956"/>
         <source>光纤故障恢复</source>
         <translation>Fiber failure recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="4138"/>
-        <location filename="crtwidget.cpp" line="4142"/>
+        <location filename="crtwidget.cpp" line="4965"/>
+        <location filename="crtwidget.cpp" line="4969"/>
         <source>光纤主电</source>
         <translation>Fiber Optic Main</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="4150"/>
-        <location filename="crtwidget.cpp" line="4154"/>
+        <location filename="crtwidget.cpp" line="4977"/>
+        <location filename="crtwidget.cpp" line="4981"/>
         <source>光纤备电</source>
         <translation>optical fiber backup</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3505"/>
+        <location filename="crtwidget.cpp" line="4319"/>
         <source>通信故障</source>
         <translation> communication failure</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3506"/>
+        <location filename="crtwidget.cpp" line="4320"/>
         <source>光源故障</source>
         <translation> light source failure</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3507"/>
+        <location filename="crtwidget.cpp" line="4321"/>
         <source>自检故障</source>
         <translation> self-check failure</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3509"/>
+        <location filename="crtwidget.cpp" line="4323"/>
         <source>应急启动</source>
         <translation> emergency start</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3510"/>
+        <location filename="crtwidget.cpp" line="4324"/>
         <source>设备丢失</source>
         <translation> device lost</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3512"/>
+        <location filename="crtwidget.cpp" line="4326"/>
         <source>灯具故障恢复</source>
         <translation> lamp failure recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3513"/>
+        <location filename="crtwidget.cpp" line="4327"/>
         <source>光源故障恢复</source>
         <translation> light source failure recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3514"/>
+        <location filename="crtwidget.cpp" line="4328"/>
         <source>自检故障恢复</source>
         <translation> self-test failure recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3516"/>
+        <location filename="crtwidget.cpp" line="4330"/>
         <source>应急解除</source>
         <translation> emergency release</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3518"/>
+        <location filename="crtwidget.cpp" line="4332"/>
         <source>输出开路</source>
         <translation> output open</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3519"/>
+        <location filename="crtwidget.cpp" line="4333"/>
         <source>进入月检</source>
         <translation> enter monthly inspection</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3520"/>
+        <location filename="crtwidget.cpp" line="4334"/>
         <source>进入年检</source>
         <translation> enter the annual inspection</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3521"/>
+        <location filename="crtwidget.cpp" line="4335"/>
         <source>新注册</source>
         <translation> new registration</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3522"/>
+        <location filename="crtwidget.cpp" line="2904"/>
+        <location filename="crtwidget.cpp" line="4336"/>
         <source>开机</source>
         <translation> boot</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3525"/>
+        <location filename="crtwidget.cpp" line="4339"/>
         <source>重码</source>
         <translation> heavy code</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3526"/>
+        <location filename="crtwidget.cpp" line="4340"/>
         <source>输出过载</source>
         <translation> output overload</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3529"/>
+        <location filename="crtwidget.cpp" line="4343"/>
         <source>开路恢复</source>
         <translation> open recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3530"/>
+        <location filename="crtwidget.cpp" line="4344"/>
         <source>月检结束</source>
         <translation> end of monthly inspection</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3531"/>
+        <location filename="crtwidget.cpp" line="4345"/>
         <source>年检结束</source>
         <translation> end of annual inspection</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3533"/>
+        <location filename="crtwidget.cpp" line="2905"/>
+        <location filename="crtwidget.cpp" line="4347"/>
         <source>关机</source>
         <translation> shut down</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3534"/>
+        <location filename="crtwidget.cpp" line="2813"/>
+        <source>电气火灾报警（电气火灾探测器报警）</source>
+        <translation>Electrical fire alarm (electrical fire detector alarm)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2814"/>
+        <source>可燃气体低限报警</source>
+        <translation>Low combustible gas alarm</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2815"/>
+        <source>可燃气体高限报警</source>
+        <translation>Combustible gas high limit alarm</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2816"/>
+        <source>可燃气体超量程报警</source>
+        <translation>Combustible gas over-range alarm</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2817"/>
+        <source>电气火灾预警（电气火灾探测器预警）</source>
+        <translation>Electric fire warning (electrical fire detector warning)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2819"/>
+        <source>电气火灾探测器脱扣动作(自动)</source>
+        <translation>Electric fire detector tripping action (automatic)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2820"/>
+        <source>电气火灾探测器脱扣停止(自动)</source>
+        <translation>Electrical fire detector trips to stop (automatic)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2821"/>
+        <source>电气火灾探测器脱扣动作(手动)</source>
+        <translation>Electric fire detector tripping action (manual)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2822"/>
+        <source>电气火灾探测器脱扣停止(手动)</source>
+        <translation>Electrical fire detector trip and stop (manual)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2825"/>
+        <source>自动启动</source>
+        <translation>Automatic start</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2827"/>
+        <source>现场急启</source>
+        <translation>On-site emergency</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2829"/>
+        <source>气体灭火开始延时</source>
+        <translation>Gas fire extinguishing start delay</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2830"/>
+        <source>气体喷洒</source>
+        <translation>Gas spray</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2837"/>
+        <source>应急</source>
+        <translation>Emergency</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2838"/>
+        <source>月检</source>
+        <translation>Monthly inspection</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2839"/>
+        <source>年检</source>
+        <translation>Annual inspection</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2841"/>
+        <source>标志灯具改变方向</source>
+        <translation>Sign light fixture to change direction</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2842"/>
+        <source>电梯迫降</source>
+        <translation>Elevator landing</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2843"/>
+        <source>卷帘半降</source>
+        <translation>Roller blind half down</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2845"/>
+        <source>卷帘全降</source>
+        <translation>Roller blind down</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2846"/>
+        <source>呼叫</source>
+        <translation>call</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2847"/>
+        <source>通话</source>
+        <translation>talking</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2849"/>
+        <source>消防设备电源失电</source>
+        <translation>Power failure of fire fighting equipment</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2850"/>
+        <source>消防设备电源欠压</source>
+        <translation>Undervoltage of fire-fighting equipment power supply</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2851"/>
+        <source>消防设备电源过压</source>
+        <translation>Overvoltage of fire-fighting equipment power supply</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2852"/>
+        <source>消防设备电源过载</source>
+        <translation>Overload of fire-fighting equipment power supply</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2853"/>
+        <source>消防设备电源缺相</source>
+        <translation>Phase lack of power supply of fire fighting equipment</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2854"/>
+        <source>消防设备电源错相</source>
+        <translation>Wrong phase of fire equipment power supply</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2856"/>
+        <source>消防水箱（池）水位低</source>
+        <translation>Low water level of fire water tank (pool)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2857"/>
+        <source>消防电梯停用</source>
+        <translation>Fire elevator disabled</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2858"/>
+        <source>消防设备电源过相</source>
+        <translation>Over-phase of fire fighting equipment power supply</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2859"/>
+        <source>常开防火门关门反馈</source>
+        <translation>Normally open fire door closed respond</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2862"/>
+        <source>监管解除</source>
+        <translation>Deregulation</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2868"/>
+        <source>通讯故障</source>
+        <translation>communication fail</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2872"/>
+        <source>充电故障</source>
+        <translation>Charging failure</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2873"/>
+        <source>回路故障</source>
+        <translation>Loop failure</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2874"/>
+        <source>部件故障</source>
+        <translation>Component failure</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2877"/>
+        <source>接地故障</source>
+        <translation>Ground Fault</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2878"/>
+        <source>常闭防火门打开</source>
+        <translation>Normally closed fire door open</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2879"/>
+        <source>常开防火门关闭</source>
+        <translation>Normally open fire door closed</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2880"/>
+        <source>防火门延时关闭</source>
+        <translation>Delayed closing of fire doors</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2883"/>
+        <source>防火门正在关闭（自动）</source>
+        <translation>The fire door is closing (automatic)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2884"/>
+        <source>防火门正在关闭消息撤销(自动)</source>
+        <translation>The fire door is closing message canceled (automatic)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2885"/>
+        <source>防火门正在关闭(手动)</source>
+        <translation>The fire door is closing (manually)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2886"/>
+        <source>防火门正在关闭消息撤销(手动)</source>
+        <translation>The fire door is closing message canceled (manually)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2888"/>
+        <source>防火门成功关闭(由于启动)</source>
+        <translation>Fire door closed successfully (due to activation)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2889"/>
+        <source>防火门成功关闭消息撤销</source>
+        <translation>The fire door closed successfully message canceled</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2891"/>
+        <source>通讯故障恢复</source>
+        <translation>Communication failure recovery</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2893"/>
+        <source>主电故障恢复</source>
+        <translation>Main power failure recovery</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2894"/>
+        <source>备电故障恢复</source>
+        <translation>Battery failure recovery</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2895"/>
+        <source>充电故障恢复</source>
+        <translation>Charging failure recovery</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2896"/>
+        <source>回路故障恢复</source>
+        <translation>Loop failure recovery</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2898"/>
+        <source>部件故障恢复</source>
+        <translation>Component failure recovery</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2899"/>
+        <source>线路故障恢复</source>
+        <translation>Line failure recovery</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2900"/>
+        <source>接地故障恢复</source>
+        <translation>Ground fault recovery</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2901"/>
+        <source>常闭防火门恢复关闭状态</source>
+        <translation>Normally closed fire doors return to closed state</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2902"/>
+        <source>常开防火门恢复开门状态</source>
+        <translation>Normally open fire door to restore the open state</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2908"/>
+        <source>自检失败</source>
+        <translation>Self-test failed</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2912"/>
+        <source>确认/消音</source>
+        <translation>Confirmation/silence</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2914"/>
+        <source>消防设备电源欠压恢复</source>
+        <translation>Fire protection equipment power supply undervoltage recovery</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2915"/>
+        <source>消防设备电源错相恢复</source>
+        <translation>Recovery of power supply of fire fighting equipment</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2916"/>
+        <source>消防设备电源过压恢复</source>
+        <translation>Overvoltage recovery of fire equipment power supply</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2918"/>
+        <source>消防设备电源供电中断故障</source>
+        <translation>Power supply interruption of fire fighting equipment</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2919"/>
+        <source>消防设备电源供电中断故障恢复</source>
+        <translation>Power supply interruption of fire fighting equipment and fault recovery</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2920"/>
+        <source>消防设备电源过载恢复</source>
+        <translation>Fire protection equipment power overload recovery</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2921"/>
+        <location filename="crtwidget.cpp" line="2922"/>
+        <source>消防设备电源缺相恢复</source>
+        <translation>Recovery of power failure of fire fighting equipment</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2924"/>
+        <source>输入动作</source>
+        <translation>Input action</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2925"/>
+        <source>输入撤销</source>
+        <translation>Input cancellation</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2926"/>
+        <source>输出动作</source>
+        <translation>Output action</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2927"/>
+        <source>输出撤销</source>
+        <translation>Output undo</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2936"/>
+        <source>高度(m)</source>
+        <translation>height (m)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2944"/>
+        <source>压力(Mpa)</source>
+        <translation>Pressure (Mpa)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2949"/>
+        <source>压力(Kpa)</source>
+        <translation>Pressure (Kpa)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2953"/>
+        <source>气体浓度(%LEL)</source>
+        <translation>Gas concentration (%LEL)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2957"/>
+        <source>气体浓度(PPM)</source>
+        <translation>Gas concentration (PPM)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2962"/>
+        <source>气体浓度(%V/V)</source>
+        <translation>Gas concentration (%V/V)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2966"/>
+        <source>气体浓度(KPPM)</source>
+        <translation>Gas concentration (KPPM)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2970"/>
+        <source>气体浓度(Mg/m3)</source>
+        <translation>Gas concentration (Mg/m3)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2975"/>
+        <source>时间(s)</source>
+        <translation>Time(s)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2983"/>
+        <source>电流(A)</source>
+        <translation>Current (A)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2987"/>
+        <source>流量(L/s)</source>
+        <translation>Flow rate (L/s)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2991"/>
+        <source>风量(m3/min)</source>
+        <translation>Air volume (m3/min)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="2995"/>
+        <source>风速(m/s)</source>
+        <translation>Wind speed (m/s)</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="3004"/>
+        <source>烟参量</source>
+        <translation>Smoke parameter</translation>
+    </message>
+    <message>
+        <location filename="crtwidget.cpp" line="4348"/>
         <source>消音取消</source>
         <translation> silence cancel</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3535"/>
+        <location filename="crtwidget.cpp" line="4349"/>
         <source>重码恢复</source>
         <translation> heavy code recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3536"/>
+        <location filename="crtwidget.cpp" line="4350"/>
         <source>输出过载恢复</source>
         <translation> output overload recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3539"/>
+        <location filename="crtwidget.cpp" line="4353"/>
         <source>灯具改变方向</source>
         <translation> lamp changes direction</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3542"/>
+        <location filename="crtwidget.cpp" line="4356"/>
         <source>壁挂式应急照明控制器</source>
         <translation>wall-mounted emergency lighting controller </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3543"/>
+        <location filename="crtwidget.cpp" line="4357"/>
         <source>入柜式应急照明控制器</source>
         <translation>cabinet-mounted emergency lighting controller </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3544"/>
+        <location filename="crtwidget.cpp" line="4358"/>
         <source>分配电装置</source>
         <translation>distribution device </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3545"/>
+        <location filename="crtwidget.cpp" line="4359"/>
         <source>虚拟分配电装置</source>
         <translation>virtual distribution device </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3546"/>
+        <location filename="crtwidget.cpp" line="4360"/>
         <source>集中电源250w</source>
         <translation>250w centralized power supply </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3547"/>
+        <location filename="crtwidget.cpp" line="4361"/>
         <source>集中电源500w</source>
         <translation> 500w centralized power supply</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3548"/>
+        <location filename="crtwidget.cpp" line="4362"/>
         <source>集中电源1000w</source>
         <translation>1000w centralized power supply </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3550"/>
+        <location filename="crtwidget.cpp" line="4364"/>
         <source>双面单向</source>
         <translation> unidirectional</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3550"/>
+        <location filename="crtwidget.cpp" line="4364"/>
         <source>双面双向</source>
         <translation> double-sided</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3550"/>
-        <location filename="crtwidget.cpp" line="3553"/>
-        <location filename="crtwidget.cpp" line="3557"/>
+        <location filename="crtwidget.cpp" line="4364"/>
+        <location filename="crtwidget.cpp" line="4367"/>
+        <location filename="crtwidget.cpp" line="4371"/>
         <source>安全出口</source>
         <translation> exit</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3551"/>
-        <location filename="crtwidget.cpp" line="3554"/>
-        <location filename="crtwidget.cpp" line="3557"/>
+        <location filename="crtwidget.cpp" line="4365"/>
+        <location filename="crtwidget.cpp" line="4368"/>
+        <location filename="crtwidget.cpp" line="4371"/>
         <source>语音安全出口</source>
         <translation> voice security exit</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3551"/>
-        <location filename="crtwidget.cpp" line="3554"/>
-        <location filename="crtwidget.cpp" line="3557"/>
+        <location filename="crtwidget.cpp" line="4365"/>
+        <location filename="crtwidget.cpp" line="4368"/>
+        <location filename="crtwidget.cpp" line="4371"/>
         <source>楼层标志</source>
         <translation> floor sign</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3551"/>
-        <location filename="crtwidget.cpp" line="3556"/>
+        <location filename="crtwidget.cpp" line="4365"/>
+        <location filename="crtwidget.cpp" line="4370"/>
         <source>左向</source>
         <translation> left</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3553"/>
-        <location filename="crtwidget.cpp" line="3556"/>
+        <location filename="crtwidget.cpp" line="4367"/>
+        <location filename="crtwidget.cpp" line="4370"/>
         <source>右向</source>
         <translation> right</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3553"/>
-        <location filename="crtwidget.cpp" line="3556"/>
+        <location filename="crtwidget.cpp" line="4367"/>
+        <location filename="crtwidget.cpp" line="4370"/>
         <source>双向</source>
         <translation> bidirectional</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3563"/>
+        <location filename="crtwidget.cpp" line="4377"/>
         <source>小型吊挂</source>
         <translation> small hanging</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3567"/>
+        <location filename="crtwidget.cpp" line="4381"/>
         <source>小型嵌墙</source>
         <translation> small embedded wall</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3571"/>
+        <location filename="crtwidget.cpp" line="4385"/>
         <source>小型壁挂</source>
         <translation> small wall mount</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3576"/>
+        <location filename="crtwidget.cpp" line="4390"/>
         <source>中型吊挂</source>
         <translation>medium-sized hanging</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3580"/>
+        <location filename="crtwidget.cpp" line="4394"/>
         <source>中型嵌墙</source>
         <translation>medium wall</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3584"/>
+        <location filename="crtwidget.cpp" line="4398"/>
         <source>中型壁挂</source>
         <translation>medium wall mount</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3592"/>
+        <location filename="crtwidget.cpp" line="4406"/>
         <source>大型吊挂</source>
         <translation>large hanging</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3596"/>
+        <location filename="crtwidget.cpp" line="4410"/>
         <source>大型嵌墙</source>
         <translation>large embedded wall</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3600"/>
+        <location filename="crtwidget.cpp" line="4414"/>
         <source>大型壁挂</source>
         <translation>large wall mount</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3605"/>
+        <location filename="crtwidget.cpp" line="4419"/>
         <source>特大型吊挂</source>
         <translation>extra large hanging</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3609"/>
+        <location filename="crtwidget.cpp" line="4423"/>
         <source>特大型嵌墙</source>
         <translation>extra large embedded wall</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3613"/>
+        <location filename="crtwidget.cpp" line="4427"/>
         <source>特大型壁挂</source>
         <translation>extra large wall hanging</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3626"/>
+        <location filename="crtwidget.cpp" line="4440"/>
         <source>壁挂式应急照明灯具</source>
         <translation>wall-mounted emergency lighting </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3630"/>
+        <location filename="crtwidget.cpp" line="4444"/>
         <source>吸顶式应急照明灯具</source>
         <translation>ceiling emergency lighting </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3634"/>
+        <location filename="crtwidget.cpp" line="4448"/>
         <source>嵌入式应急照明灯具</source>
         <translation>embedded emergency lighting </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3638"/>
+        <location filename="crtwidget.cpp" line="4452"/>
         <source>吊装式应急照明灯具</source>
         <translation>ceiling-mounted emergency lighting </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3642"/>
+        <location filename="crtwidget.cpp" line="4456"/>
         <source>应急照明灯管</source>
         <translation>emergency lighting </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3647"/>
+        <location filename="crtwidget.cpp" line="4461"/>
         <source>Ⅰ型地埋单向</source>
         <translation>type I buried one way </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3648"/>
+        <location filename="crtwidget.cpp" line="4462"/>
         <source>Ⅰ型地埋双向</source>
         <translation>type Ⅰ buried two-way </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3649"/>
+        <location filename="crtwidget.cpp" line="4463"/>
         <source>Ⅱ型地埋单向</source>
         <translation>type Ⅱ buried one way </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3650"/>
+        <location filename="crtwidget.cpp" line="4464"/>
         <source>Ⅱ型地埋双向</source>
         <translation>type Ⅱ buried two-way </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3651"/>
+        <location filename="crtwidget.cpp" line="4465"/>
         <source>Ⅲ型地埋单向</source>
         <translation>type Ⅲ buried unidirectional </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3652"/>
+        <location filename="crtwidget.cpp" line="4466"/>
         <source>Ⅲ型地埋双向</source>
         <translation>type Ⅲ buried two-way </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3653"/>
+        <location filename="crtwidget.cpp" line="4467"/>
         <source>Led信息屏蔽疏散标志灯</source>
         <translation>LED information shield evacuation sign lamp </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3654"/>
+        <location filename="crtwidget.cpp" line="4468"/>
         <source>红外感应开关</source>
         <translation>infrared sensor switch </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3655"/>
+        <location filename="crtwidget.cpp" line="4469"/>
         <source>模块开关</source>
         <translation>module switch </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3656"/>
+        <location filename="crtwidget.cpp" line="4470"/>
         <source>现场电源</source>
         <translation>on-site power </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3657"/>
+        <location filename="crtwidget.cpp" line="4471"/>
         <source>小型分配电装置</source>
         <translation>small distribution device </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3658"/>
+        <location filename="crtwidget.cpp" line="4472"/>
         <source>中型吊挂疏散出口</source>
         <translation>medium-sized hanging evacuation exit </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3659"/>
+        <location filename="crtwidget.cpp" line="4473"/>
         <source>中型嵌墙疏散出口</source>
         <translation>medium-sized embedded wall evacuation exit </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3660"/>
+        <location filename="crtwidget.cpp" line="4474"/>
         <source>中型壁挂疏散出口</source>
         <translation>medium-sized wall evacuation exit </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3667"/>
+        <location filename="crtwidget.cpp" line="4481"/>
         <source>手动允许</source>
         <translation>allow manually</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3667"/>
+        <location filename="crtwidget.cpp" line="4481"/>
         <source>自动允许</source>
         <translation>allow automatically</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3668"/>
+        <location filename="crtwidget.cpp" line="4482"/>
         <source>启瓶线路故障</source>
         <translation>bottle opening line failure</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3668"/>
+        <location filename="crtwidget.cpp" line="2826"/>
+        <location filename="crtwidget.cpp" line="4482"/>
         <source>手动启动</source>
         <translation>start manually</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3669"/>
+        <location filename="crtwidget.cpp" line="4483"/>
         <source>手动停止</source>
         <translation>manual stop</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3669"/>
+        <location filename="crtwidget.cpp" line="4483"/>
         <source>现场急启按下</source>
         <translation>press on the scene</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3670"/>
+        <location filename="crtwidget.cpp" line="2835"/>
+        <location filename="crtwidget.cpp" line="4484"/>
         <source>现场急停</source>
         <translation>emergency stop</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3670"/>
+        <location filename="crtwidget.cpp" line="2832"/>
+        <location filename="crtwidget.cpp" line="4484"/>
         <source>喷洒反馈</source>
         <translation>Spray respond</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3672"/>
+        <location filename="crtwidget.cpp" line="4486"/>
         <source>接点线路故障</source>
         <oldsource>节点线路故障</oldsource>
         <translation>node line failure</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3672"/>
+        <location filename="crtwidget.cpp" line="4486"/>
         <source>现场线路故障</source>
         <translation>field line failure</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3673"/>
+        <location filename="crtwidget.cpp" line="4487"/>
         <source>喷洒禁止</source>
         <translation>spraying prohibited</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3673"/>
+        <location filename="crtwidget.cpp" line="4487"/>
         <source>自动禁止</source>
         <translation>automatically prohibited</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3674"/>
+        <location filename="crtwidget.cpp" line="4488"/>
         <source>启瓶线路恢复</source>
         <translation>bottle opening line resume</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3674"/>
+        <location filename="crtwidget.cpp" line="4488"/>
         <source>启动键弹起</source>
         <translation>start button pops up</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3675"/>
+        <location filename="crtwidget.cpp" line="4489"/>
         <source>停止键弹起</source>
         <translation>stop button pops up</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3675"/>
+        <location filename="crtwidget.cpp" line="4489"/>
         <source>急启键弹起</source>
         <translation>quick start button pops up</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3677"/>
+        <location filename="crtwidget.cpp" line="4491"/>
         <source>急停键弹起</source>
         <translation>emergency stop button pops up</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3677"/>
+        <location filename="crtwidget.cpp" line="4491"/>
         <source>反馈取消</source>
         <translation>respond elimination</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3678"/>
+        <location filename="crtwidget.cpp" line="4492"/>
         <source>接点线路恢复</source>
         <oldsource>节点线路恢复</oldsource>
         <translation>node line restoration</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3678"/>
+        <location filename="crtwidget.cpp" line="4492"/>
         <source>现场线路恢复</source>
         <translation>on-site line restoration</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3679"/>
+        <location filename="crtwidget.cpp" line="4493"/>
         <source>钢瓶启动</source>
         <translation>cylinder start</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3679"/>
+        <location filename="crtwidget.cpp" line="4493"/>
         <source>延时开始</source>
         <translation>delay start</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3680"/>
+        <location filename="crtwidget.cpp" line="4494"/>
         <source>延时取消</source>
         <translation>delayed cancellation</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3680"/>
+        <location filename="crtwidget.cpp" line="4494"/>
         <source>延时结束</source>
         <translation>end of delay</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3682"/>
+        <location filename="crtwidget.cpp" line="4496"/>
         <source>声光线路故障</source>
         <translation>acousto-optic line failure</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3682"/>
+        <location filename="crtwidget.cpp" line="4496"/>
         <source>急启线路故障</source>
         <translation>emergency line fault</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3683"/>
+        <location filename="crtwidget.cpp" line="4497"/>
         <source>急停线路故障</source>
         <translation>emergency stop line failure</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3683"/>
+        <location filename="crtwidget.cpp" line="4497"/>
         <source>放气反馈故障</source>
         <translation>deflation feedback failure</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3684"/>
+        <location filename="crtwidget.cpp" line="4498"/>
         <source>气灭声光强启</source>
         <translation>gas fire extinguishing sound and light</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3684"/>
+        <location filename="crtwidget.cpp" line="4498"/>
         <source>允许状态</source>
         <translation>allowed state</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3685"/>
+        <location filename="crtwidget.cpp" line="2910"/>
+        <location filename="crtwidget.cpp" line="4499"/>
         <source>手动状态</source>
         <translation>manual state</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3685"/>
+        <location filename="crtwidget.cpp" line="2911"/>
+        <location filename="crtwidget.cpp" line="4499"/>
         <source>自动状态</source>
         <translation>automatic state</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3687"/>
+        <location filename="crtwidget.cpp" line="4501"/>
         <source>禁止状态</source>
         <translation>prohibited</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3687"/>
+        <location filename="crtwidget.cpp" line="4501"/>
         <source>声光线路恢复</source>
         <translation>acousto-optic line restoration</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3688"/>
+        <location filename="crtwidget.cpp" line="4502"/>
         <source>急启线路恢复</source>
         <translation>quick start line recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3688"/>
+        <location filename="crtwidget.cpp" line="4502"/>
         <source>急停线路恢复</source>
         <translation>emergency stop line recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3689"/>
+        <location filename="crtwidget.cpp" line="4503"/>
         <source>反馈故障恢复</source>
         <translation>feedback failure recovery</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3689"/>
+        <location filename="crtwidget.cpp" line="4503"/>
         <source>气灭声光强停</source>
         <translation>gas fire sound and light intensity stop</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3690"/>
+        <location filename="crtwidget.cpp" line="4504"/>
         <source>预警确认</source>
         <translation>early warning confirmation</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3690"/>
+        <location filename="crtwidget.cpp" line="4504"/>
         <source>火警确认</source>
         <translation>fire confirmation</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="3691"/>
+        <location filename="crtwidget.cpp" line="4505"/>
         <source>未正常通信</source>
         <translation>not communicating normally</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="666"/>
-        <location filename="crtwidget.cpp" line="667"/>
-        <location filename="crtwidget.cpp" line="1303"/>
-        <location filename="crtwidget.cpp" line="1304"/>
-        <location filename="crtwidget.cpp" line="1316"/>
-        <location filename="crtwidget.cpp" line="1317"/>
-        <location filename="crtwidget.cpp" line="2211"/>
-        <location filename="crtwidget.cpp" line="2212"/>
-        <location filename="crtwidget.cpp" line="2235"/>
-        <location filename="crtwidget.cpp" line="2236"/>
+        <location filename="crtwidget.cpp" line="670"/>
+        <location filename="crtwidget.cpp" line="671"/>
+        <location filename="crtwidget.cpp" line="680"/>
+        <location filename="crtwidget.cpp" line="682"/>
+        <location filename="crtwidget.cpp" line="1351"/>
+        <location filename="crtwidget.cpp" line="1352"/>
+        <location filename="crtwidget.cpp" line="1365"/>
+        <location filename="crtwidget.cpp" line="1366"/>
+        <location filename="crtwidget.cpp" line="2329"/>
+        <location filename="crtwidget.cpp" line="2330"/>
+        <location filename="crtwidget.cpp" line="2354"/>
+        <location filename="crtwidget.cpp" line="2355"/>
         <source>待确认</source>
         <translation>waiting for confirmation</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="1552"/>
-        <location filename="crtwidget.cpp" line="1553"/>
-        <location filename="crtwidget.cpp" line="1611"/>
-        <location filename="crtwidget.cpp" line="1619"/>
-        <location filename="crtwidget.cpp" line="4184"/>
+        <location filename="crtwidget.cpp" line="1606"/>
+        <location filename="crtwidget.cpp" line="1607"/>
+        <location filename="crtwidget.cpp" line="1665"/>
+        <location filename="crtwidget.cpp" line="1673"/>
+        <location filename="crtwidget.cpp" line="5011"/>
         <source>主电正常</source>
         <translation>power is normal</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="1579"/>
-        <location filename="crtwidget.cpp" line="1580"/>
-        <location filename="crtwidget.cpp" line="1638"/>
-        <location filename="crtwidget.cpp" line="1645"/>
-        <location filename="crtwidget.cpp" line="4195"/>
+        <location filename="crtwidget.cpp" line="1633"/>
+        <location filename="crtwidget.cpp" line="1634"/>
+        <location filename="crtwidget.cpp" line="1692"/>
+        <location filename="crtwidget.cpp" line="1699"/>
+        <location filename="crtwidget.cpp" line="5022"/>
         <source>备电正常</source>
         <translation>battery is normal</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2515"/>
+        <location filename="crtwidget.cpp" line="2678"/>
         <source>LD6901-A版本:V</source>
         <translation>LD6901-A version :V</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2531"/>
+        <location filename="crtwidget.cpp" line="2707"/>
+        <location filename="crtwidget.cpp" line="2714"/>
+        <location filename="crtwidget.cpp" line="2907"/>
+        <location filename="crtwidget.cpp" line="2929"/>
         <source>自检</source>
         <translation>self-check</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2545"/>
+        <location filename="crtwidget.cpp" line="2730"/>
         <source>A项</source>
         <translation>A </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2548"/>
+        <location filename="crtwidget.cpp" line="2733"/>
         <source>B项</source>
         <translation>B </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2551"/>
+        <location filename="crtwidget.cpp" line="2736"/>
         <source>C项</source>
         <translation>C </translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2898"/>
+        <location filename="crtwidget.cpp" line="3679"/>
         <source>信息提示</source>
         <translation>Message notification</translation>
     </message>
@@ -2549,19 +3019,29 @@
         <translation type="vanished">It is recommended to restore all settings to the factory state and reset after switching the language. Are you sure you want to delete?</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="4339"/>
-        <location filename="crtwidget.cpp" line="4343"/>
-        <location filename="crtwidget.cpp" line="4345"/>
+        <location filename="crtwidget.cpp" line="3320"/>
+        <location filename="crtwidget.cpp" line="3324"/>
+        <location filename="crtwidget.cpp" line="3328"/>
+        <location filename="crtwidget.cpp" line="3336"/>
+        <location filename="crtwidget.cpp" line="3340"/>
+        <location filename="crtwidget.cpp" line="3344"/>
+        <location filename="crtwidget.cpp" line="5167"/>
+        <location filename="crtwidget.cpp" line="5171"/>
+        <location filename="crtwidget.cpp" line="5173"/>
         <source>校时</source>
         <translation>school time</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="4339"/>
+        <location filename="crtwidget.cpp" line="3324"/>
+        <location filename="crtwidget.cpp" line="3340"/>
+        <location filename="crtwidget.cpp" line="5167"/>
         <source>成功</source>
         <translation> successed</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="4343"/>
+        <location filename="crtwidget.cpp" line="3328"/>
+        <location filename="crtwidget.cpp" line="3344"/>
+        <location filename="crtwidget.cpp" line="5171"/>
         <source>失败</source>
         <translation> failed</translation>
     </message>
@@ -2570,44 +3050,44 @@
         <translation type="vanished">Gas fire extinguisher status :</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="4456"/>
+        <location filename="crtwidget.cpp" line="5286"/>
         <source>,后续上传</source>
         <translation>,subsequent upload</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="4460"/>
+        <location filename="crtwidget.cpp" line="5290"/>
         <source>,开机时上传</source>
         <translation>,upload at boot</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="4464"/>
+        <location filename="crtwidget.cpp" line="5294"/>
         <source>,复位后上传</source>
         <translation>,upload after reset</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="4492"/>
-        <location filename="crtwidget.cpp" line="4493"/>
-        <location filename="crtwidget.cpp" line="4499"/>
+        <location filename="crtwidget.cpp" line="5322"/>
+        <location filename="crtwidget.cpp" line="5323"/>
+        <location filename="crtwidget.cpp" line="5329"/>
         <source>联动请求</source>
         <translation>Linkage request</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2558"/>
+        <location filename="crtwidget.cpp" line="2743"/>
         <source>交流</source>
         <translation> alternating current</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2562"/>
+        <location filename="crtwidget.cpp" line="2747"/>
         <source>直流</source>
         <translation> direct current</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2574"/>
+        <location filename="crtwidget.cpp" line="2759"/>
         <source>直流电流</source>
         <translation>DC current</translation>
     </message>
     <message>
-        <location filename="crtwidget.cpp" line="2578"/>
+        <location filename="crtwidget.cpp" line="2763"/>
         <source>直流电压</source>
         <translation>DC voltage</translation>
     </message>
@@ -2827,38 +3307,38 @@
 <context>
     <name>DataStore</name>
     <message>
-        <location filename="dataStore/datastore.cpp" line="433"/>
-        <location filename="dataStore/datastore.cpp" line="472"/>
+        <location filename="dataStore/datastore.cpp" line="434"/>
+        <location filename="dataStore/datastore.cpp" line="473"/>
         <source>火警</source>
         <translation>fire</translation>
     </message>
     <message>
-        <location filename="dataStore/datastore.cpp" line="437"/>
-        <location filename="dataStore/datastore.cpp" line="473"/>
+        <location filename="dataStore/datastore.cpp" line="438"/>
+        <location filename="dataStore/datastore.cpp" line="474"/>
         <source>监管</source>
         <translation>supervision</translation>
     </message>
     <message>
-        <location filename="dataStore/datastore.cpp" line="441"/>
-        <location filename="dataStore/datastore.cpp" line="474"/>
+        <location filename="dataStore/datastore.cpp" line="442"/>
+        <location filename="dataStore/datastore.cpp" line="475"/>
         <source>启动</source>
         <translation>startup</translation>
     </message>
     <message>
-        <location filename="dataStore/datastore.cpp" line="445"/>
-        <location filename="dataStore/datastore.cpp" line="475"/>
+        <location filename="dataStore/datastore.cpp" line="446"/>
+        <location filename="dataStore/datastore.cpp" line="476"/>
         <source>反馈</source>
         <translation>respond</translation>
     </message>
     <message>
-        <location filename="dataStore/datastore.cpp" line="449"/>
-        <location filename="dataStore/datastore.cpp" line="476"/>
+        <location filename="dataStore/datastore.cpp" line="450"/>
+        <location filename="dataStore/datastore.cpp" line="477"/>
         <source>故障</source>
         <translation>failure</translation>
     </message>
     <message>
-        <location filename="dataStore/datastore.cpp" line="454"/>
-        <location filename="dataStore/datastore.cpp" line="477"/>
+        <location filename="dataStore/datastore.cpp" line="455"/>
+        <location filename="dataStore/datastore.cpp" line="478"/>
         <source>屏蔽</source>
         <translation>shielding</translation>
     </message>
@@ -2866,44 +3346,65 @@
 <context>
     <name>DeviceOnline</name>
     <message>
-        <location filename="qml/deviceOnline/DeviceOnline.qml" line="26"/>
-        <location filename="qml/deviceOnline/DeviceOnline.qml" line="244"/>
         <source>主机在线状态(指示灯左边的数字代表主机号)</source>
-        <translation>Host online status ( the number on the left of the indicator represents the host number )</translation>
+        <translation type="vanished">Host online status ( the number on the left of the indicator represents the host number )</translation>
     </message>
     <message>
-        <location filename="qml/deviceOnline/DeviceOnline.qml" line="38"/>
-        <location filename="qml/deviceOnline/DeviceOnline.qml" line="245"/>
+        <source>默认是主机在线状态(数字表示主机号),回路被勾选时，表示回路(数字表示回路号)</source>
+        <translation type="vanished">The default is the host online status (the number indicates the host number), when the loop is checked, it indicates the loop (the number indicates the loop number)</translation>
+    </message>
+    <message>
+        <location filename="qml/deviceOnline/DeviceOnline.qml" line="14"/>
+        <location filename="qml/deviceOnline/DeviceOnline.qml" line="158"/>
+        <location filename="qml/deviceOnline/DeviceOnline.qml" line="296"/>
+        <source>主机在线状态(数字表示主机号)</source>
+        <translation>Host online status (number indicates host number)</translation>
+    </message>
+    <message>
+        <location filename="qml/deviceOnline/DeviceOnline.qml" line="40"/>
+        <location filename="qml/deviceOnline/DeviceOnline.qml" line="300"/>
         <source>在线:</source>
         <translation>Online:</translation>
     </message>
     <message>
-        <location filename="qml/deviceOnline/DeviceOnline.qml" line="54"/>
-        <location filename="qml/deviceOnline/DeviceOnline.qml" line="246"/>
+        <location filename="qml/deviceOnline/DeviceOnline.qml" line="57"/>
+        <location filename="qml/deviceOnline/DeviceOnline.qml" line="301"/>
         <source>    离线:</source>
         <translation>    Off-line:</translation>
     </message>
     <message>
-        <location filename="qml/deviceOnline/DeviceOnline.qml" line="67"/>
-        <location filename="qml/deviceOnline/DeviceOnline.qml" line="247"/>
+        <location filename="qml/deviceOnline/DeviceOnline.qml" line="71"/>
+        <location filename="qml/deviceOnline/DeviceOnline.qml" line="302"/>
         <source>   初始状态:</source>
         <translation>   Initial state:</translation>
     </message>
     <message>
-        <location filename="qml/deviceOnline/DeviceOnline.qml" line="110"/>
-        <location filename="qml/deviceOnline/DeviceOnline.qml" line="249"/>
+        <location filename="qml/deviceOnline/DeviceOnline.qml" line="115"/>
+        <location filename="qml/deviceOnline/DeviceOnline.qml" line="304"/>
         <source>设置</source>
         <translation>Setting</translation>
     </message>
     <message>
-        <location filename="qml/deviceOnline/DeviceOnline.qml" line="250"/>
-        <location filename="qml/deviceOnline/DeviceOnline.qml" line="257"/>
+        <location filename="qml/deviceOnline/DeviceOnline.qml" line="136"/>
+        <location filename="qml/deviceOnline/DeviceOnline.qml" line="299"/>
+        <source>回路</source>
+        <translation>Loop</translation>
+    </message>
+    <message>
+        <location filename="qml/deviceOnline/DeviceOnline.qml" line="143"/>
+        <location filename="qml/deviceOnline/DeviceOnline.qml" line="291"/>
+        <source>回路打开(数字表示回路号)</source>
+        <translation>The circuit is open (the number indicates the circuit number)</translation>
+    </message>
+    <message>
+        <location filename="qml/deviceOnline/DeviceOnline.qml" line="305"/>
+        <location filename="qml/deviceOnline/DeviceOnline.qml" line="319"/>
         <source>信息提示</source>
         <translation>Message notification</translation>
     </message>
     <message>
-        <location filename="qml/deviceOnline/DeviceOnline.qml" line="251"/>
-        <location filename="qml/deviceOnline/DeviceOnline.qml" line="258"/>
+        <location filename="qml/deviceOnline/DeviceOnline.qml" line="306"/>
+        <location filename="qml/deviceOnline/DeviceOnline.qml" line="320"/>
         <source>在超级用户模式下才可打开</source>
         <translation>Only open under super user</translation>
     </message>
@@ -2912,43 +3413,55 @@
         <translation type="vanished">   Shielding status</translation>
     </message>
     <message>
-        <location filename="qml/deviceOnline/DeviceOnline.qml" line="81"/>
-        <location filename="qml/deviceOnline/DeviceOnline.qml" line="248"/>
+        <location filename="qml/deviceOnline/DeviceOnline.qml" line="86"/>
+        <location filename="qml/deviceOnline/DeviceOnline.qml" line="303"/>
         <source>   网络号:</source>
-        <translation>  Network No.</translation>
+        <translation>  Network number.</translation>
     </message>
 </context>
 <context>
     <name>DeviceOnlineSetting</name>
     <message>
-        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="31"/>
-        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="204"/>
-        <source>设置主机打开或关闭</source>
-        <translation>Set the host to turn on or off</translation>
+        <source>设置主机或者回路打开或关闭</source>
+        <oldsource>设置主机打开或关闭</oldsource>
+        <translation type="vanished">Set the host or loop to turn on or off</translation>
     </message>
     <message>
-        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="45"/>
-        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="205"/>
+        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="11"/>
+        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="212"/>
+        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="230"/>
+        <source>设置主机打开或关闭</source>
+        <translation>Set the host on or off</translation>
+    </message>
+    <message>
+        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="47"/>
+        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="215"/>
         <source>打开:</source>
         <translation>Open:</translation>
     </message>
     <message>
-        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="59"/>
-        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="206"/>
+        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="61"/>
+        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="216"/>
         <source>关闭:</source>
         <translation>Close:</translation>
     </message>
     <message>
-        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="126"/>
-        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="207"/>
+        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="128"/>
+        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="217"/>
         <source>全选</source>
         <translation>Select all</translation>
     </message>
     <message>
-        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="147"/>
-        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="208"/>
+        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="149"/>
+        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="218"/>
         <source>网络号:</source>
         <translation>Network number:</translation>
+    </message>
+    <message>
+        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="208"/>
+        <location filename="qml/deviceOnline/DeviceOnlineSetting.qml" line="226"/>
+        <source>设置回路打开或关闭</source>
+        <translation>Set the loop to open or close</translation>
     </message>
 </context>
 <context>
@@ -3126,18 +3639,18 @@
     </message>
     <message>
         <location filename="architePlan/firstalarminfowidget.cpp" line="110"/>
-        <location filename="architePlan/firstalarminfowidget.cpp" line="220"/>
+        <location filename="architePlan/firstalarminfowidget.cpp" line="225"/>
         <source>首%1信息</source>
         <translation>First %1 information</translation>
     </message>
     <message>
         <location filename="architePlan/firstalarminfowidget.cpp" line="111"/>
-        <location filename="architePlan/firstalarminfowidget.cpp" line="221"/>
+        <location filename="architePlan/firstalarminfowidget.cpp" line="226"/>
         <source>火警</source>
         <translation>fire</translation>
     </message>
     <message>
-        <location filename="architePlan/firstalarminfowidget.cpp" line="240"/>
+        <location filename="architePlan/firstalarminfowidget.cpp" line="245"/>
         <source>未定义设备</source>
         <translation>undefined device</translation>
     </message>
@@ -3436,152 +3949,152 @@
         <translation type="vanished">normal</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="813"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="814"/>
         <source>火警</source>
         <translation>fire</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="818"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="819"/>
         <source>监管</source>
         <translation>supervision</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="822"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="823"/>
         <source>启动</source>
         <translation>startup</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="826"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="827"/>
         <source>反馈</source>
         <translation>respond</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="830"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="831"/>
         <source>故障</source>
         <translation>failure</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="834"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="835"/>
         <source>屏蔽</source>
         <translation>shielding</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="838"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="839"/>
         <source>模拟火警</source>
         <translation>simulated fire</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="842"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="843"/>
         <source>模拟监管</source>
         <translation>simulated supervision</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="847"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="848"/>
         <source>模拟启动</source>
         <translation>simulated startup</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="852"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="853"/>
         <source>模拟反馈</source>
         <translation>simulated respond</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="857"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="858"/>
         <source>模拟故障</source>
         <translation>simulated failure</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="862"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="863"/>
         <source>模拟屏蔽</source>
         <translation>simulated shielding</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="931"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="932"/>
         <source>消除</source>
         <translation>release</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="933"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="934"/>
         <source>分机号:%1</source>
         <translation>Host : %1</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="934"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="935"/>
         <source>回路号:%2</source>
         <translation>Loop : %2</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="935"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="936"/>
         <source>地址号:%3</source>
         <translation>Address : %3</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="936"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="937"/>
         <source>网络号:%4</source>
         <translation>Network : %4</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="937"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="938"/>
         <source>电源地址:%5</source>
         <translation>Power address : %5</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="938"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="939"/>
         <source>设备编码:%6</source>
         <translation>Equipment number : %6</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="939"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="940"/>
         <source>设备:%7</source>
         <translation>Device : %7</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="940"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="941"/>
         <source>事件类型:%8</source>
         <translation>Event type : %8</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="941"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="942"/>
         <source>状态:%9</source>
         <translation>State : %9</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="942"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="943"/>
         <source>时间:%10</source>
         <translation>Time : %10</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="943"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="944"/>
         <source>系统:%11</source>
         <translation>System : %11</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="944"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="945"/>
         <source>建筑名称:%12</source>
         <translation>Building name : %12</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="945"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="946"/>
         <source>楼层:%13</source>
         <translation>Floor : %13</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="946"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="947"/>
         <source>位置:%14</source>
         <translation>State : %14</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="947"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="948"/>
         <source>制造商:%15</source>
         <translation>Manufacturer : %15</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="948"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="949"/>
         <source>有效期:%16</source>
         <translation>Expiration date : %16</translation>
     </message>
     <message>
-        <location filename="graphicsWidget/graphicsitem.cpp" line="949"/>
+        <location filename="graphicsWidget/graphicsitem.cpp" line="950"/>
         <source>操作员:%17</source>
         <translation>Operator : %17</translation>
     </message>
@@ -4977,6 +5490,148 @@ Use the software to shut down, and then turn it back on after 8 seconds, the dev
     </message>
 </context>
 <context>
+    <name>ModbusObj</name>
+    <message>
+        <location filename="communication/modbusobj.cpp" line="53"/>
+        <location filename="communication/modbusobj.cpp" line="59"/>
+        <location filename="communication/modbusobj.cpp" line="155"/>
+        <location filename="communication/modbusobj.cpp" line="161"/>
+        <source>火警</source>
+        <translation>fire</translation>
+    </message>
+    <message>
+        <location filename="communication/modbusobj.cpp" line="64"/>
+        <location filename="communication/modbusobj.cpp" line="70"/>
+        <location filename="communication/modbusobj.cpp" line="166"/>
+        <location filename="communication/modbusobj.cpp" line="172"/>
+        <source>监管</source>
+        <translation>supervision</translation>
+    </message>
+    <message>
+        <location filename="communication/modbusobj.cpp" line="75"/>
+        <location filename="communication/modbusobj.cpp" line="81"/>
+        <location filename="communication/modbusobj.cpp" line="177"/>
+        <location filename="communication/modbusobj.cpp" line="183"/>
+        <source>启动</source>
+        <translation>startup</translation>
+    </message>
+    <message>
+        <location filename="communication/modbusobj.cpp" line="86"/>
+        <location filename="communication/modbusobj.cpp" line="92"/>
+        <location filename="communication/modbusobj.cpp" line="188"/>
+        <location filename="communication/modbusobj.cpp" line="194"/>
+        <source>反馈</source>
+        <translation>respond</translation>
+    </message>
+    <message>
+        <location filename="communication/modbusobj.cpp" line="97"/>
+        <location filename="communication/modbusobj.cpp" line="103"/>
+        <location filename="communication/modbusobj.cpp" line="199"/>
+        <location filename="communication/modbusobj.cpp" line="205"/>
+        <source>故障</source>
+        <translation>failure</translation>
+    </message>
+    <message>
+        <location filename="communication/modbusobj.cpp" line="108"/>
+        <location filename="communication/modbusobj.cpp" line="114"/>
+        <location filename="communication/modbusobj.cpp" line="210"/>
+        <location filename="communication/modbusobj.cpp" line="216"/>
+        <source>屏蔽</source>
+        <translation>shielding</translation>
+    </message>
+</context>
+<context>
+    <name>ModbusSetting</name>
+    <message>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="90"/>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="232"/>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="345"/>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="354"/>
+        <source>端口</source>
+        <translation>Port</translation>
+    </message>
+    <message>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="102"/>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="346"/>
+        <source>波特率</source>
+        <translation>Baud rate</translation>
+    </message>
+    <message>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="114"/>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="347"/>
+        <source>数据位</source>
+        <translation>Data Bits</translation>
+    </message>
+    <message>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="127"/>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="348"/>
+        <source>停止位</source>
+        <translation>Stop bit</translation>
+    </message>
+    <message>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="139"/>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="349"/>
+        <source>校验</source>
+        <translation>Parity bit</translation>
+    </message>
+    <message>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="159"/>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="350"/>
+        <source>打开</source>
+        <translation>Open</translation>
+    </message>
+    <message>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="173"/>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="351"/>
+        <source>刷新</source>
+        <translation>Refresh</translation>
+    </message>
+    <message>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="187"/>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="352"/>
+        <source>关闭</source>
+        <translation>Close</translation>
+    </message>
+    <message>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="220"/>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="353"/>
+        <source>地址</source>
+        <translation>Address</translation>
+    </message>
+    <message>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="251"/>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="355"/>
+        <source>连接</source>
+        <translation>Connect</translation>
+    </message>
+    <message>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="266"/>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="356"/>
+        <source>断开</source>
+        <translation>Disconnect</translation>
+    </message>
+    <message>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="319"/>
+        <source>modbus 串口连接成功</source>
+        <translation>Modbus serial port connection is successful</translation>
+    </message>
+    <message>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="324"/>
+        <source>modbus 串口连接失败</source>
+        <translation>Modbus serial port connection failed</translation>
+    </message>
+    <message>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="334"/>
+        <source>modbus Tcp连接成功</source>
+        <translation>modbus Tcp connection is successful</translation>
+    </message>
+    <message>
+        <location filename="qml/infoSetting/ModbusSetting.qml" line="339"/>
+        <source>modbus Tcp连接失败</source>
+        <translation>Modbus Tcp connection failed</translation>
+    </message>
+</context>
+<context>
     <name>OneAlarmSelectTableItem</name>
     <message>
         <location filename="qml/qmlTable/OneAlarmSelectTableItem.qml" line="25"/>
@@ -5520,12 +6175,12 @@ Use the software to shut down, and then turn it back on after 8 seconds, the dev
 <context>
     <name>QObject</name>
     <message>
-        <location filename="main.cpp" line="84"/>
+        <location filename="main.cpp" line="76"/>
         <source>警告!</source>
         <translation>Warning!</translation>
     </message>
     <message>
-        <location filename="main.cpp" line="84"/>
+        <location filename="main.cpp" line="76"/>
         <source>未识别到加密狗，请检查加密狗是否插好！</source>
         <translation>The dongle is not recognized, please check if the dongle is plugged in!</translation>
     </message>
@@ -5678,51 +6333,55 @@ Use the software to shut down, and then turn it back on after 8 seconds, the dev
     <name>SettingView</name>
     <message>
         <location filename="qml/infoSetting/SettingView.qml" line="20"/>
-        <location filename="qml/infoSetting/SettingView.qml" line="123"/>
+        <location filename="qml/infoSetting/SettingView.qml" line="164"/>
         <source>串口设置</source>
         <translation>Serial port</translation>
     </message>
     <message>
         <location filename="qml/infoSetting/SettingView.qml" line="24"/>
-        <location filename="qml/infoSetting/SettingView.qml" line="124"/>
+        <location filename="qml/infoSetting/SettingView.qml" line="165"/>
         <source>建筑平面图设置</source>
         <translation>Building layout</translation>
     </message>
     <message>
         <location filename="qml/infoSetting/SettingView.qml" line="28"/>
-        <location filename="qml/infoSetting/SettingView.qml" line="125"/>
+        <location filename="qml/infoSetting/SettingView.qml" line="166"/>
         <source>密码设置</source>
         <translation>Password setting</translation>
     </message>
     <message>
         <location filename="qml/infoSetting/SettingView.qml" line="33"/>
-        <location filename="qml/infoSetting/SettingView.qml" line="126"/>
+        <location filename="qml/infoSetting/SettingView.qml" line="167"/>
         <source>系统图设置</source>
         <translation>System diagram</translation>
     </message>
     <message>
         <location filename="qml/infoSetting/SettingView.qml" line="37"/>
-        <location filename="qml/infoSetting/SettingView.qml" line="127"/>
+        <location filename="qml/infoSetting/SettingView.qml" line="168"/>
         <source>语音设置</source>
         <translation>Voice setting</translation>
     </message>
     <message>
         <location filename="qml/infoSetting/SettingView.qml" line="43"/>
-        <location filename="qml/infoSetting/SettingView.qml" line="128"/>
+        <location filename="qml/infoSetting/SettingView.qml" line="169"/>
         <source>维保信息</source>
         <translation>Maintenance</translation>
     </message>
     <message>
         <location filename="qml/infoSetting/SettingView.qml" line="49"/>
-        <location filename="qml/infoSetting/SettingView.qml" line="129"/>
+        <location filename="qml/infoSetting/SettingView.qml" line="170"/>
         <source>消防控制室管理信息</source>
         <translation>Management</translation>
     </message>
     <message>
         <location filename="qml/infoSetting/SettingView.qml" line="55"/>
-        <location filename="qml/infoSetting/SettingView.qml" line="130"/>
+        <location filename="qml/infoSetting/SettingView.qml" line="171"/>
         <source>中心通信设置</source>
         <translation>Monitoring center</translation>
+    </message>
+    <message>
+        <source>Modbus</source>
+        <translation type="vanished">Modbus</translation>
     </message>
 </context>
 <context>
@@ -5742,62 +6401,62 @@ Use the software to shut down, and then turn it back on after 8 seconds, the dev
         <translation>Chinese</translation>
     </message>
     <message>
-        <location filename="speech/speechobj.cpp" line="827"/>
-        <location filename="speech/speechobj.cpp" line="845"/>
-        <location filename="speech/speechobj.cpp" line="866"/>
-        <location filename="speech/speechobj.cpp" line="886"/>
+        <location filename="speech/speechobj.cpp" line="850"/>
+        <location filename="speech/speechobj.cpp" line="868"/>
+        <location filename="speech/speechobj.cpp" line="889"/>
+        <location filename="speech/speechobj.cpp" line="909"/>
         <source>首火警</source>
         <translation>first fire</translation>
     </message>
     <message>
-        <location filename="speech/speechobj.cpp" line="840"/>
-        <location filename="speech/speechobj.cpp" line="845"/>
-        <location filename="speech/speechobj.cpp" line="886"/>
+        <location filename="speech/speechobj.cpp" line="863"/>
+        <location filename="speech/speechobj.cpp" line="868"/>
+        <location filename="speech/speechobj.cpp" line="909"/>
         <source>火警</source>
         <translation>fire</translation>
     </message>
     <message>
-        <location filename="speech/speechobj.cpp" line="853"/>
-        <location filename="speech/speechobj.cpp" line="892"/>
-        <location filename="speech/speechobj.cpp" line="894"/>
-        <location filename="speech/speechobj.cpp" line="902"/>
-        <location filename="speech/speechobj.cpp" line="914"/>
-        <location filename="speech/speechobj.cpp" line="930"/>
-        <location filename="speech/speechobj.cpp" line="950"/>
+        <location filename="speech/speechobj.cpp" line="876"/>
+        <location filename="speech/speechobj.cpp" line="915"/>
+        <location filename="speech/speechobj.cpp" line="917"/>
+        <location filename="speech/speechobj.cpp" line="925"/>
+        <location filename="speech/speechobj.cpp" line="937"/>
+        <location filename="speech/speechobj.cpp" line="953"/>
+        <location filename="speech/speechobj.cpp" line="973"/>
         <source>监管</source>
         <translation>supervision</translation>
     </message>
     <message>
-        <location filename="speech/speechobj.cpp" line="853"/>
-        <location filename="speech/speechobj.cpp" line="900"/>
-        <location filename="speech/speechobj.cpp" line="906"/>
-        <location filename="speech/speechobj.cpp" line="918"/>
-        <location filename="speech/speechobj.cpp" line="934"/>
-        <location filename="speech/speechobj.cpp" line="954"/>
+        <location filename="speech/speechobj.cpp" line="876"/>
+        <location filename="speech/speechobj.cpp" line="923"/>
+        <location filename="speech/speechobj.cpp" line="929"/>
+        <location filename="speech/speechobj.cpp" line="941"/>
+        <location filename="speech/speechobj.cpp" line="957"/>
+        <location filename="speech/speechobj.cpp" line="977"/>
         <source>启动</source>
         <translation>startup</translation>
     </message>
     <message>
-        <location filename="speech/speechobj.cpp" line="853"/>
-        <location filename="speech/speechobj.cpp" line="912"/>
-        <location filename="speech/speechobj.cpp" line="922"/>
-        <location filename="speech/speechobj.cpp" line="938"/>
-        <location filename="speech/speechobj.cpp" line="958"/>
+        <location filename="speech/speechobj.cpp" line="876"/>
+        <location filename="speech/speechobj.cpp" line="935"/>
+        <location filename="speech/speechobj.cpp" line="945"/>
+        <location filename="speech/speechobj.cpp" line="961"/>
+        <location filename="speech/speechobj.cpp" line="981"/>
         <source>反馈</source>
         <translation>respond</translation>
     </message>
     <message>
-        <location filename="speech/speechobj.cpp" line="853"/>
-        <location filename="speech/speechobj.cpp" line="928"/>
-        <location filename="speech/speechobj.cpp" line="942"/>
-        <location filename="speech/speechobj.cpp" line="962"/>
+        <location filename="speech/speechobj.cpp" line="876"/>
+        <location filename="speech/speechobj.cpp" line="951"/>
+        <location filename="speech/speechobj.cpp" line="965"/>
+        <location filename="speech/speechobj.cpp" line="985"/>
         <source>故障</source>
         <translation>failure</translation>
     </message>
     <message>
-        <location filename="speech/speechobj.cpp" line="853"/>
-        <location filename="speech/speechobj.cpp" line="948"/>
-        <location filename="speech/speechobj.cpp" line="966"/>
+        <location filename="speech/speechobj.cpp" line="876"/>
+        <location filename="speech/speechobj.cpp" line="971"/>
+        <location filename="speech/speechobj.cpp" line="989"/>
         <source>屏蔽</source>
         <translation>shielding</translation>
     </message>
@@ -6031,11 +6690,10 @@ Use the software to shut down, and then turn it back on after 8 seconds, the dev
 <context>
     <name>ToolBarWindow</name>
     <message>
-        <location filename="qml/toolBar/ToolBarWindow.qml" line="67"/>
         <location filename="qml/toolBar/ToolBarWindow.qml" line="394"/>
-        <source>软件版本V6.0</source>
-        <oldsource>消防控制室图形显示装置V6.0</oldsource>
-        <translation>Software version V6.0</translation>
+        <source>软件版本S6.0</source>
+        <oldsource>软件版本V6.0</oldsource>
+        <translation>Software version S6.0</translation>
     </message>
     <message>
         <source>登陆</source>

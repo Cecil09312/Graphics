@@ -17,6 +17,8 @@ public slots:
     void startProcessData(const QByteArray&array);
 //protected:
 //    void run();
+signals:
+    void fininsedIntegrationSysData(const QByteArray&array);
 
 private:
     QByteArray dataPackage(const QList<QByteArray> &arrayList,int start);
@@ -27,6 +29,7 @@ private:
     bool m_threadState;
     //bool m_startThread;
     QList<QByteArray>m_dataArrayList;
+    QList<QByteArray>m_dataArrayList2;
     QMutex m_mutex;
     QThread *m_thread;
     QTimer*m_processDataTimer;

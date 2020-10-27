@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui quick svg  concurrent sql texttospeech serialport  printsupport network
+QT       += core gui quick svg  concurrent sql texttospeech serialport  printsupport network serialbus
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -92,7 +92,8 @@ SOURCES += \
     communication/speechcom.cpp \
     communication/speechcomconfiguration.cpp \
     dongle/checkdonglethread.cpp \
-    architePlan/firstalarminfowidget.cpp
+    architePlan/firstalarminfowidget.cpp \
+    communication/modbusobj.cpp
 
 
 HEADERS += \
@@ -147,7 +148,10 @@ HEADERS += \
     communication/speechcomconfiguration.h \
     dongle/usbkeydev.h \
     dongle/checkdonglethread.h \
-    architePlan/firstalarminfowidget.h
+    architePlan/firstalarminfowidget.h \
+    communication/modbusobj.h \
+    dongle/hasp_api.h \
+    dongle/hasp_vcode.h
 include($$PWD/3rdparty/qtxlsx/src/xlsx/qtxlsx.pri)
 
 FORMS +=
@@ -165,8 +169,8 @@ RESOURCES += \
     qss.qrc \
     qml.qrc
 
-#linux{
+linux{
 #include(package.pri)
-
-#}
+LIBS +=$$PWD/dongle/lib/libhasp_linux_armhf*.a
+}
 

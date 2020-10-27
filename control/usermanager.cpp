@@ -198,7 +198,7 @@ UserManager::~UserManager()
     {
         m_sqliteManager->close();
         m_sqliteManager->deleteLater();
-        m_sqliteManager = nullptr;
+       // m_sqliteManager = nullptr;
     }
 }
 

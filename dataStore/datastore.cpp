@@ -102,15 +102,15 @@ void DataStore::insertTypeItem(const QString &type, QGraphicsItem *item)
 {
     if(item!=nullptr)
     {
-       // if(!m_typeItemHash.value(type).contains(item))
-       // {
+        if(!m_typeItemHash.value(type).contains(item))
+        {
             m_typeItemHash[type].push_back(item);
             if(m_priority>m_priorityHash.value(type))
             {
                 m_priority = m_priorityHash.value(type);
             }
 
-       // }
+        }
     }
 }
 
@@ -169,14 +169,15 @@ void DataStore::insertTypeNoItem(const QString &type, const QString &extNum, con
 {
     QString curStr=QString("%1,%2,%3,%4,%5").arg(extNum).arg(loopNum).arg(addrNum).arg(networkNum).arg(powerAddr);
     m_typeNoItemTimeHash[curStr] = timeStr;
-    //if(!m_typeNoItemHash.value(type).contains(curStr))
-   // {
+
+    if(!m_typeNoItemHash.value(type).contains(curStr))
+    {
         m_typeNoItemHash[type].push_back(curStr);
         if(m_priority>m_priorityHash.value(type))
         {
             m_priority = m_priorityHash.value(type);
         }
-   // }
+    }
 
 }
 
@@ -223,10 +224,10 @@ GraphicsView *DataStore::itemDisplayView(GraphicsItem *item)
     return currentView;
 }
 
-bool DataStore::haveTypeItem(const QString &type,const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum)
+bool DataStore::haveTypeItem(const QString &type,const QString &extNum, const QString &loopNum, const QString &addrNum, const QString &networkNum,const QString &powerAddr)
 {
     QList<QString> dataInfoList = m_typeNoItemHash.value(type);
-    QString curStr=QString("%1,%2,%3,%4").arg(extNum).arg(loopNum).arg(addrNum).arg(networkNum);
+    QString curStr=QString("%1,%2,%3,%4,%5").arg(extNum).arg(loopNum).arg(addrNum).arg(networkNum).arg(powerAddr);
     return dataInfoList.contains(curStr);
 }
 
@@ -393,7 +394,7 @@ void DataStore::clearStoreAlarm()
                 item->stopAnimations();
 
                 disconnect(item,&GraphicsItem::moveToPos,nullptr,nullptr);
-                disconnect(item,&GraphicsItem::sizeChanged,nullptr,nullptr);
+                //disconnect(item,&GraphicsItem::sizeChanged,nullptr,nullptr);
                 item->clearAllAlarm();
             }
         }

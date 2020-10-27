@@ -52,7 +52,7 @@ SerialDataProtocol::SerialDataProtocol(QObject *parent):
                                 for(int t=0;t<(dataArray.size()/10);t++)
                                 {
                                     m_dataArrayList.push_back(dataArray.left(10));
-                                    m_dataHash[dataArray.left(10)]=dataByte(frameArray,1);
+                                    //m_dataHash[dataArray.left(10)]=dataByte(frameArray,1);
                                     dataArray.remove(0,10);
                                     m_thread->msleep(5);
                                 }
@@ -65,6 +65,40 @@ SerialDataProtocol::SerialDataProtocol(QObject *parent):
                             }
                         }
 
+                    }
+                    else if(frameLen%15==0)
+                    {
+                        if(m_receiveDataArray.size()>=frameLen+5)
+                        {
+                            QByteArray frameArray = dataBytes(m_receiveDataArray,0,frameLen+4);
+                            quint32 sum =0;
+                            quint8 average =0;
+                            for(int i=0;i<frameLen;i++)
+                            {
+                                sum +=dataByte(frameArray,i+3);
+                            }
+                            average = sum&0xff;
+                            if(average==dataByte(frameArray,frameLen+3)&&dataByte(frameArray,frameLen+4)==0x7e)//校验码和帧尾验证
+                            {
+                                m_receiveDataArray.remove(0,frameArray.size());
+
+                                QByteArray dataArray = dataBytes(frameArray,3,frameLen+2);
+
+                                for(int t=0;t<(dataArray.size()/15);t++)
+                                {
+                                    m_dataArrayList2.push_back(dataArray.left(15));
+                                   // m_dataHash[dataArray.left(15)]=dataByte(frameArray,1);
+                                    dataArray.remove(0,15);
+                                    m_thread->msleep(5);
+                                }
+
+                            }
+                            else
+                            {
+                               // m_receiveDataArray.remove(0,frameLen+5);
+                                //emit errorFrameData(frameArray);
+                            }
+                        }
                     }
                     else
                     {
@@ -88,16 +122,26 @@ SerialDataProtocol::SerialDataProtocol(QObject *parent):
         //QMutex mutex;
        QMutexLocker lock(&m_mutex);
 
-        if(!m_dataArrayList.isEmpty())
+        if((!m_dataArrayList.isEmpty())||(!m_dataArrayList2.isEmpty()))
         {
-            QByteArray curArray = m_dataArrayList.takeFirst();
-            emit finishProcessData(curArray);
+            if(!m_dataArrayList.isEmpty())
+            {
+                QByteArray curArray = m_dataArrayList.takeFirst();
+                emit finishProcessData(curArray);
+            }
+
+            if(!m_dataArrayList2.isEmpty())
+            {
+                QByteArray curArray = m_dataArrayList2.takeFirst();
+                emit fininsedIntegrationSysData(curArray);//一体化系统数据
+            }
+
             //qDebug() <<"curArray" <<curArray.toHex();
         }
         else
         {
             m_processDataTimer->stop();
-            return ;
+            //return ;
         }
        // m_thread->msleep(200);
     });
@@ -178,7 +222,7 @@ QList<QByteArray> SerialDataProtocol::frameData(const QByteArray &array)
                             while(dataArray.size()>=10)
                             {
                                 arrayList.push_back(dataArray.left(10));
-                                m_dataHash[dataArray.left(10)]=dataByte(frameArray,1);
+                                //m_dataHash[dataArray.left(10)]=dataByte(frameArray,1);
                                 dataArray.remove(0,10);
                             }
 

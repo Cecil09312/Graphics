@@ -165,16 +165,11 @@ SpeechObj::SpeechObj(QObject *parent):
             m_alarmTextList.removeAt(pos);
 
         }
-        if(m_alarmPos>m_alarmTextList.size())
+
+        if(m_alarmPos>=m_alarmTextList.size())
         {
             m_alarmPos =0;
         }
-        if(m_alarmTextList.isEmpty())
-        {
-            m_isFinished=false;
-        }
-
-       // stopSpeech();
 
     });
 
@@ -184,15 +179,11 @@ SpeechObj::SpeechObj(QObject *parent):
         {
             m_alarmTextList.removeOne(alarmText);
         }
-        if(m_alarmPos>m_alarmTextList.size())
+        if(m_alarmPos>=m_alarmTextList.size())
         {
             m_alarmPos =0;
         }
-        if(m_alarmTextList.isEmpty())
-        {
-            m_isFinished=false;
-        }
-        //stopSpeech();
+
     });
 
     connect(m_speechCom.data(),&SpeechCom::getData,this,[=](const QByteArray&array){
@@ -203,7 +194,7 @@ SpeechObj::SpeechObj(QObject *parent):
         if(m_readArray.endsWith(QString("+QTTS:0\r\n").toLocal8Bit()))
         {
 
-            // qDebug() <<QString(m_readArray) ;
+
             m_readArray.clear();
 
             if(m_initSettingList.size()>0)
@@ -212,9 +203,11 @@ SpeechObj::SpeechObj(QObject *parent):
             }
             else
             {
+               //qDebug() << "m_alarmTextList" << m_alarmTextList;
                 if(m_alarmTextList.size()==0)
                 {
                     m_isFinishedSetting = false;
+                    m_isFinished=false;
 
                 }
                 else
@@ -250,6 +243,7 @@ SpeechObj::SpeechObj(QObject *parent):
                         if(m_alarmTextList.size()==0)
                         {
                             m_isFinishedSetting = false;
+                            m_isFinished=false;
 
                         }
                         else
@@ -260,10 +254,23 @@ SpeechObj::SpeechObj(QObject *parent):
                     }
 
                 }
+                else if(m_readArray.contains(QString("AT+QTTS=0").toLocal8Bit()))
+                {
+                    if(m_alarmTextList.size()==0)
+                    {
+                        m_isFinished=false;
+
+                    }
+                    else
+                    {
+                        repeatSpeak();
+                    }
+                }
 
                 m_readArray.clear();
                 //repeatSpeak();
             }
+
 
 
         }
@@ -651,7 +658,7 @@ void SpeechObj::stopSpeech()
     }
     else
     {
-        m_isFinished=false;
+        //m_isFinished=false;
         speechCom()->sendData(QString("AT+QTTS=0\r\n").toLocal8Bit());
 
     }
@@ -694,6 +701,7 @@ void SpeechObj::insertAlarmText(const QString &alarmText)
 
         processText(alarmText);
 
+
         if(!m_isFinished)
         {
             runSpeech();
@@ -729,6 +737,7 @@ void SpeechObj::repeatSpeak()
     if(m_alarmTextList.size()>0)
     {
 
+        //qDebug() << "m_alarmPos" << m_alarmPos;
         if(m_alarmPos<m_alarmTextList.size())
         {
             QString curSpeechText = m_alarmTextList.at(m_alarmPos);

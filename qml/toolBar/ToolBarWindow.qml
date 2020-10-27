@@ -391,7 +391,7 @@ ToolBar {
             titleText.font.pixelSize = 30
             contentText.text="中"
         }
-        titleText.text = qsTr("软件版本V6.0")
+        titleText.text = qsTr("软件版本S6.0")
         logInTxt.text =qsTr("登录")
         infoQueryTxt.text = qsTr("信息查询")
         infoSettingTxt.text=qsTr("信息设置")

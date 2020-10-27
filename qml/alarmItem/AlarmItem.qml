@@ -733,7 +733,7 @@ Rectangle {
                 //font.family: "Times New Roman"
                 onClicked: {
                     ArchitePlanView.startAutoSwitch(checked)
-                  // CrtWidget.sendSerialData()//用来测试
+                    //CrtWidget.sendSerialData()//用来测试
 
                 }
             }

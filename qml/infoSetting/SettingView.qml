@@ -54,6 +54,12 @@ Rectangle
             id:monitoringBtn
             text:qsTr("中心通信设置")
         }
+
+        MyTabButton
+        {
+            id:modbusBtn
+            text:"Modbus"
+        }
     }
 
     StackLayout {
@@ -97,6 +103,30 @@ Rectangle
                 emit:heartbeatClose()
             }
         }
+
+        ModbusSetting
+        {
+           id:modbusSetting
+
+
+        }
+    }
+
+//    Component.onCompleted:
+//    {
+//      modbusSetting.init()
+
+//    }
+
+    function saveModbusInfo()
+    {
+      modbusSetting.saveModbusInfo()
+
+    }
+    function modbusInit()
+    {
+      modbusSetting.init()
+
     }
     function setPassword()
     {
@@ -110,6 +140,17 @@ Rectangle
     function setSysArchiteInfo()
     {
         sysArchitePlanSetting.setSysArchitePlan()
+
+    }
+
+    function setSerialModbusState(isOk)
+    {
+       modbusSetting.setSerialModbusState(isOk)
+
+    }
+    function setTcpModbusState(isOk)
+    {
+      modbusSetting.setTcpModbusState(isOk)
 
     }
 
@@ -137,6 +178,7 @@ Rectangle
         controlCenteSetting.retranslate()
         infoTransport.retranslate()
         speechSetting.reinitSpeech()
+        modbusSetting.retranslate()
     }
 
     function initSpeechSetting()
@@ -144,5 +186,6 @@ Rectangle
       speechSetting.reinitSpeech()
 
     }
+
 }
 

@@ -8,6 +8,8 @@ Rectangle {
     signal checkedAll(int networkNum,bool isOk)
     signal checkedOne(int networkNum,int index,bool isOk)
     signal networkChanged(int networkNum)
+    property string titleName: qsTr("设置主机打开或关闭")
+    property bool loopState: false
     ListModel
     {
 
@@ -28,7 +30,7 @@ Rectangle {
         anchors.topMargin: 10
         //anchors.horizontalCenter:parent.horizontalCenter
         width: parent.width
-        text: qsTr("设置主机打开或关闭")
+        text: titleName
 
 
         font.pointSize: 14
@@ -201,11 +203,35 @@ Rectangle {
 
     function retranslate()
     {
-        titleTxt.text = qsTr("设置主机打开或关闭")
+        if(loopState)
+        {
+          titleName=qsTr("设置回路打开或关闭")
+        }
+        else
+        {
+          titleName=qsTr("设置主机打开或关闭")
+        }
+        titleTxt.text = titleName
         openTxt.text = qsTr("打开:")
         closeTxt.text = qsTr("关闭:")
         allRadioBtn.text = qsTr("全选")
         networkTxt.text = qsTr("网络号:")
+    }
+
+    function updateTitle(isLoop)
+    {
+        loopState = isLoop
+        if(isLoop)
+        {
+          titleName=qsTr("设置回路打开或关闭")
+        }
+        else
+        {
+          titleName=qsTr("设置主机打开或关闭")
+        }
+
+        titleTxt.text = titleName
+
     }
 
 }

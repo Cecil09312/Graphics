@@ -31,7 +31,7 @@ public:
     void clearTypeItem();
     int numOfTypeItem(const QString &type);
     GraphicsView *itemDisplayView(GraphicsItem *item);
-    bool haveTypeItem(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum);
+    bool haveTypeItem(const QString &type, const QString&extNum, const QString&loopNum, const QString&addrNum, const QString &networkNum, const QString &powerAddr="0");
     QHash<QString,QList<QString> >&getTypeNoItemHash();
     int indexOfItem(const QString &extNum,const QString &loopNum,const QString &addrNum,const QString &networkNum,const QString &alarmType);
     int indexOfTypeFromItem(const QString &alarmType,GraphicsItem*item);

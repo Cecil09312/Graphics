@@ -10,6 +10,8 @@ Item {
     property int indicatorNum: 256
     signal editIndicatorState(string networkNum)
     signal shieldIndicatorState(string extNum,string networkNum,bool curState)
+    signal setIsLoop(bool isLoop)
+    property string onlineInfo: qsTr("主机在线状态(数字表示主机号)")
 
     signal onlineStateSetting()
     Text {
@@ -23,7 +25,7 @@ Item {
         width: parent.width
         wrapMode: Text.WordWrap
         color: "blue"
-        text: qsTr("主机在线状态(指示灯左边的数字代表主机号)")
+        text: onlineInfo
     }
     Row
     {
@@ -43,6 +45,7 @@ Item {
 
         StatusIndicator
         {
+            id:onlineIndicator
             color:"green"
             active: true
         }
@@ -56,6 +59,7 @@ Item {
         }
         StatusIndicator
         {
+            id:offlineIndicator
             color: "yellow"
             active: true
         }
@@ -70,6 +74,7 @@ Item {
         }
         StatusIndicator
         {
+            id:initIndicator
             color: "gray"
             active: true
         }
@@ -110,18 +115,57 @@ Item {
             text: qsTr("设置")
             //enabled: UserManager.userRight() ===UserManager.Super ? true:false
             onClicked:
-             {
+            {
                 if(UserManager.userRight() ===UserManager.Super)
                 {
-                   onlineStateSetting()
+                    emit:onlineStateSetting()
                 }
                 else
                 {
-                  messageDialog.open()
+                    messageDialog.open()
                 }
 
-              }
+            }
 
+
+        }
+
+        CheckBox
+        {
+            id:loopCheckBox
+            text: qsTr("回路")
+
+            onCheckStateChanged:
+            {
+                emit:setIsLoop(checked);
+                if(checked)
+                {
+                    onlineInfo=qsTr("回路打开(数字表示回路号)")
+
+                    txt.text=onlineInfo
+                    onLineTxt.visible=false
+                    onlineIndicator.visible=false
+                    offLineTxt.visible=false
+                    offlineIndicator.visible=false
+                    initTxt.visible=false
+                    initIndicator.visible=false
+//                    networkNumTextField.visible=false
+//                    networkTxt.visible =false
+                }
+                else
+                {
+
+                    onlineInfo=qsTr("主机在线状态(数字表示主机号)")
+                    txt.text=onlineInfo
+                    onLineTxt.visible=true
+                    onlineIndicator.visible=true
+                    offLineTxt.visible=true
+                    offlineIndicator.visible=true
+                    initTxt.visible=true
+                    initIndicator.visible=true
+
+                }
+            }
 
         }
 
@@ -241,7 +285,18 @@ Item {
     function retranslate()
     {
 
-        txt.text = qsTr("主机在线状态(指示灯左边的数字代表主机号)")
+        if(loopCheckBox.checked)
+        {
+
+          onlineInfo=qsTr("回路打开(数字表示回路号)")
+        }
+        else
+        {
+
+           onlineInfo=qsTr("主机在线状态(数字表示主机号)")
+        }
+        txt.text = onlineInfo
+        loopCheckBox.text=qsTr("回路")
         onLineTxt.text = qsTr("在线:")
         offLineTxt.text = qsTr("    离线:")
         initTxt.text = qsTr("   初始状态:")
@@ -251,6 +306,13 @@ Item {
         messageDialog.text = qsTr("在超级用户模式下才可打开")
 
     }
+
+    function setCurLoopState(isLoop)
+    {
+        loopCheckBox.checked=isLoop;
+
+    }
+
 
     MessageDialog {
         id: messageDialog

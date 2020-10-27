@@ -72,8 +72,6 @@ ArchitePlanView::ArchitePlanView(QWidget *parent)
                                 Controller::instance()->getOperatorInfo()->insertEvent(tr("删除设备"),QString(tr("分机号:%1,回路号:%2,地址号:%3,网络号:%4,设备删除成功")).arg(item->extNum())
                                                                                        .arg(item->loopNum()).arg(item->addrNum()).arg(item->networkNum()));
                             }
-
-
                         }
 
                     }
@@ -600,7 +598,7 @@ void ArchitePlanView::eliminateAlarm(GraphicsItem *item, const QString &alarmTyp
     item->stopAnimations();
 
     disconnect(item,&GraphicsItem::moveToPos,nullptr,nullptr);
-    disconnect(item,&GraphicsItem::sizeChanged,nullptr,nullptr);
+   // disconnect(item,&GraphicsItem::sizeChanged,nullptr,nullptr);
     deleteAlarmText(item,oldState);
 
     Controller::instance()->getDataStore()->deleteTypeItem(oldState,item);
@@ -955,6 +953,7 @@ void ArchitePlanView::initWidget()
                         {
                             if(item!=nullptr)
                             {
+                                saveItemInfoToDb(item);
                                 Controller::instance()->getOperatorInfo()->insertEvent(tr("添加设备"),QString(tr("分机号:%1,回路号:%2,地址号:%3,网络号:%4,设备添加成功")).arg(item->extNum())
                                                                                        .arg(item->loopNum()).arg(item->addrNum()).arg(item->networkNum()));
                             }
@@ -1951,32 +1950,29 @@ void ArchitePlanView::saveInfo()
 
 void ArchitePlanView::createAlarm(GraphicsItem *item,const QString &alarmType,const QString & alarmState,const QString &alarmTime)
 {
+    QString curAlarmType=alarmType;
+    if(alarmType.startsWith(tr("模拟")))
+    {
+        curAlarmType.remove(tr("模拟"));
+    }
 
     if(item!=nullptr)
     {
         QString  state=item->alarmState(alarmType);
-        //        if(!state.isEmpty()&&item->alarmState(alarmType)!="OK")
-        //        {
-        //            return;
-        //        }
         item->setAlarmRecord(alarmType,alarmTime,alarmState);
-        QString curAlarmType=alarmType;
-
-        if(alarmType.startsWith(tr("模拟")))
+        if(!Controller::instance()->getDataStore()->getTypeItemList(curAlarmType).contains(item))
         {
-            curAlarmType.remove(tr("模拟"));
+            item->stopAnimations();
+            Controller::instance()->getDataStore()->insertTypeItem(curAlarmType,item);
+            filterAlarm(item);
+            filterAlarmView(item,curAlarmType);
         }
-
-        item->stopAnimations();
-
-        Controller::instance()->getDataStore()->insertTypeItem(curAlarmType,item);
         updateAlarmText(item,curAlarmType);
-        filterAlarm(item);
-        filterAlarmView(item,curAlarmType);
         emit alarmItem(item,alarmType);
         //emit alarmHappend(curAlarmType);
 
     }
+
 }
 
 GraphicsItem *ArchitePlanView::itemFormInfo(const QString &extNum, const QString &loopNum, const QString &addressNum, const QString &networkNum,const QString &powerAddr)
@@ -1992,13 +1988,32 @@ GraphicsItem *ArchitePlanView::itemFormInfo(const QString &extNum, const QString
         foreach (QGraphicsItem*item, itemList)
         {
             GraphicsItem *curItem = dynamic_cast<GraphicsItem *>(item);
-            if(curItem->extNum()==extNum&&curItem->loopNum()==loopNum&&
-                    curItem->addrNum()==addressNum&&curItem->networkNum()==networkNum &&curItem->powerAddr()==powerAddr)
+            if(!m_isLoop)
             {
-                graphicsItem = curItem;
-                isFind = true;
-                break;
+                if(curItem->extNum()==extNum&&curItem->loopNum()==loopNum&&
+                        curItem->addrNum()==addressNum&&curItem->networkNum()==networkNum &&curItem->powerAddr()==powerAddr)
+                {
+
+                    graphicsItem = curItem;
+                    isFind = true;
+                    break;
+
+                }
             }
+
+            else
+            {
+                if(curItem->extNum()=="0"&&curItem->loopNum()==loopNum&&
+                        curItem->addrNum()==addressNum)
+                {
+                    graphicsItem = curItem;
+                    isFind = true;
+                    break;
+                }
+
+            }
+
+
         }
         if(isFind)
         {
@@ -2070,6 +2085,14 @@ void ArchitePlanView::retranslate()
 
 
 
+}
+
+void ArchitePlanView::setCurrentView(QGraphicsView *view)
+{
+    if(m_stackedWidget->indexOf(view)>=0)
+    {
+        m_stackedWidget->setCurrentWidget(view);
+    }
 }
 
 
@@ -2179,6 +2202,11 @@ void ArchitePlanView::filterAlarm(GraphicsItem *item)
         startAlarmAnimation(item);
         viewSwitch(item);
     }
+}
+
+bool ArchitePlanView::isLoop()
+{
+    return m_isLoop;
 }
 
 void ArchitePlanView::filterAlarmView(GraphicsItem *item, const QString &alarmType)
@@ -2321,10 +2349,10 @@ void ArchitePlanView::startAlarmAnimation(GraphicsItem *item)
                 if(view!=nullptr)
                 {
 
-                    qreal scaleValue = 0.6;
+
                     if(item!=nullptr)
                     {
-                        view->addGraphicsTextItem(QPointF(item->pos().x()-item->radius()*0.8/view->transform().m11(),item->pos().y()+item->radius()*scaleValue/view->transform().m22()),curState);
+                        view->addGraphicsTextItem(QPointF(item->pos().x()-item->radius()*0.8,item->pos().y()+item->radius()*0.6),curState);
                     }
 
                     QGraphicsTextItem *textItem = view->textItem(curState);
@@ -2335,27 +2363,7 @@ void ArchitePlanView::startAlarmAnimation(GraphicsItem *item)
 
                             if(textItem!=nullptr&&item!=nullptr)
                             {
-                                qreal m11 = view->transform().m11();
-                                qreal m22 = view->transform().m22();
-                                textItem->setPos(QPointF(pos.x()-item->radius()*1/m11*0.8,pos.y()+item->radius()*1/m22*scaleValue));
-                            }
-
-                        });
-                        connect(item,&GraphicsItem::sizeChanged,this,[=](qreal size)
-                        {
-                            if(textItem!=nullptr&&item!=nullptr)
-                            {
-                                qreal m11 = view->transform().m11();
-                                qreal m22 = view->transform().m22();
-                                textItem->setPos(QPointF(item->pos().x()-size*0.8/m11,item->pos().y()+size*scaleValue/m22));
-                            }
-
-                        });
-
-                        connect(view,&GraphicsView::currentScaleValue,this,[=](qreal currentValue){
-                            if(textItem!=nullptr&&item!=nullptr)
-                            {
-                                textItem->setPos(QPointF(item->pos().x()-item->radius()/currentValue*0.8,item->pos().y()+item->radius()*scaleValue/currentValue));
+                                textItem->setPos(QPointF(pos.x()-item->radius()*0.8,pos.y()+item->radius()*0.6));
                             }
 
                         });
@@ -2442,6 +2450,7 @@ QString ArchitePlanView::speechInfo(GraphicsItem *item, const QString &alarmType
         }
 
     }
+
     return speechText;
 }
 
@@ -2594,6 +2603,7 @@ void ArchitePlanView::clearAlarm(bool clearFireAlarm)
     emit findAlarmNum(0,0);
     clearAllGraphicsTextItem();
     Controller::instance()->getSpeechObj()->clearAlarmText();
+    Controller::instance()->getSpeechObj()->stopSpeech();
     clearAlarmWidget();
     m_alarmViewList.clear();
     emit noPage();
@@ -2632,7 +2642,7 @@ void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum,const QString &
                         }
 
                         disconnect(item,&GraphicsItem::moveToPos,nullptr,nullptr);
-                        disconnect(item,&GraphicsItem::sizeChanged,nullptr,nullptr);
+                        //disconnect(item,&GraphicsItem::sizeChanged,nullptr,nullptr);
                     }
 
                     clearItemsAlarmText(item);
@@ -2679,8 +2689,30 @@ void ArchitePlanView::clearAlarmFromExtNum(const QString &extNum,const QString &
     }
 
     Controller::instance()->getDataStore()->deleteTypeNoItem(extNum);
+    emit firstAlarmFromExt(extNum);
+    QList<QString>alarmList=  Controller::instance()->getSpeechObj()->alarmTextList();
+    foreach(QString alarmStr,alarmList)
+    {
+       QString curAlarm= alarmStr.section(";",1,1);
 
+        if(curAlarm.startsWith(extNum))
+        {
+            Controller::instance()->getSpeechObj()->removeAlarmText(alarmStr);
+        }
+    }
 
+//    QList<QList<QString> > curDeleteList=Controller::instance()->getDataStore()->getTypeNoItemHash().values();
+//    foreach(QList<QString>strList,curDeleteList)
+//    {
+//        foreach(QString str,strList)
+//        {
+//            if(str.startsWith(extNum))
+//            {
+//               // Controller::instance()->getDataStore()->deleteTypeNoItem()
+//            }
+//        }
+
+//    }
 
     int totalNum = Controller::instance()->getDataStore()->numOfTypeItem(m_currentAlarmType);
     emit findAlarmNum(totalNum,0);
@@ -2776,7 +2808,7 @@ void ArchitePlanView::toArchitePlan(const QString &extNum, const QString &loopNu
                         }
                         else if(curIndex<0)
                         {
-                            view->fitInView(currentItem,Qt::KeepAspectRatio);
+                            view->centerOn(currentItem);
                         }
 
 
@@ -4111,4 +4143,11 @@ bool &ArchitePlanView::itemLimit()
 void ArchitePlanView::setItemLimit(bool isOk)
 {
     m_itemLimit = isOk;
+}
+
+void ArchitePlanView::setIsLoop(bool isLoop)
+{
+    m_isLoop = isLoop;
+    emit setLoopState(isLoop);
+
 }

@@ -55,6 +55,7 @@ TcpLink::TcpLink(QObject *parent)
     {
 
         m_tcpServer->writeData(array);
+
     });
 
     connect(this,&TcpLink::oneFrameData,this,[=](const QByteArray &array){

@@ -46,7 +46,7 @@ QList<QByteArray> MonitoringProtocol::frameData(const QByteArray &array)
                     {
                         QByteArray curArray = dataBytes(frameArray,5,packageLen-4);
                         arrayList.push_back(curArray);
-                        m_dataHash[curArray] = dataBytes(frameArray,9,12).toInt();
+                        //m_dataHash[curArray] = dataBytes(frameArray,9,12).toInt();
                         m_receiveDataArray.remove(startIndex,packageLen);
                     }
                     else

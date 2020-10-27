@@ -1,4 +1,10 @@
 ﻿#include "checkdonglethread.h"
+#include <QDebug>
+#ifdef Q_OS_LINUX
+#define DEMO_MEMBUFFER_SIZE   128
+unsigned char membuffer[DEMO_MEMBUFFER_SIZE];
+#endif
+
 
 CheckDongleThread::CheckDongleThread(QObject *parent)
     : QObject(parent)
@@ -10,8 +16,15 @@ CheckDongleThread::CheckDongleThread(QObject *parent)
     m_thread->start();
     connect(m_timer,&QTimer::timeout,this,[=]()
     {
-       int value=  getCheckValue();
-       emit sendCheckDongleResult(value);
+      int value=  getCheckValue();
+      bool valueState1=false;
+      if(value==1)
+      {
+          valueState1=true;
+      }
+
+      bool valueState2= getValue();
+       emit sendCheckDongleResult(valueState1||valueState2);
 
     });
 
@@ -30,6 +43,10 @@ CheckDongleThread::~CheckDongleThread()
     m_timer->deleteLater();
     m_thread->quit();
     m_thread->deleteLater();
+#ifdef Q_OS_LINUX
+    hasp_handle_t   handle;
+    hasp_logout(handle);
+#endif
 }
 
 int CheckDongleThread::getCheckValue()
@@ -82,6 +99,44 @@ int CheckDongleThread::getCheckValue()
     close(fd);
 #endif
     return  arg;
+}
+
+bool CheckDongleThread::getValue()
+{
+    bool curState=false;
+#ifdef Q_OS_LINUX
+       hasp_status_t   status;
+       hasp_handle_t   handle;
+     //  hasp_time_t     time;
+       hasp_size_t     fsize;
+           status = hasp_login(HASP_DEFAULT_FID,
+                           (hasp_vendor_code_t)s_vendor_code,
+                           &handle);
+           if(status==HASP_STATUS_OK)
+           {
+              // m_loginState=true;
+               status = hasp_read(handle, HASP_FILEID_RW, 0,                 /* offset */
+                                  fsize,             /* length */
+                                  &membuffer);
+               if(status==HASP_STATUS_OK)
+               {
+                   curState = true;
+               }
+               else
+               {
+                   curState = false;
+
+               }
+           }
+           else
+           {
+               curState = false;
+           }
+
+
+  #endif
+
+       return  curState;
 }
 
 void CheckDongleThread::startTimerMs(int mes)

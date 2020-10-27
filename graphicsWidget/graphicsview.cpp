@@ -182,7 +182,7 @@ void GraphicsView::addGraphicsTextItem(const QPointF &pointF,const QString &alar
     {
         QGraphicsTextItem *textItem = new QGraphicsTextItem;
         //QGraphicsItemGroup *group = new QGraphicsItemGroup(item);
-        textItem->setFlag(QGraphicsItem::ItemIgnoresTransformations);
+        //textItem->setFlag(QGraphicsItem::ItemIgnoresTransformations);
         QFont font("Times New Roman",10);
         textItem->setFont(font);
         textItem->setDefaultTextColor(QColor(Qt::red));
@@ -205,7 +205,7 @@ void GraphicsView::removeGraphicsTextItem(const QString &alarmType)
 //        delete item;
 //        item = nullptr;
     }
-    disconnect(this,&GraphicsView::currentScaleValue,nullptr,nullptr);
+   // disconnect(this,&GraphicsView::currentScaleValue,nullptr,nullptr);
     // textItem->setPos(pointF);
 }
 
@@ -221,7 +221,7 @@ void GraphicsView::clearGraphicsTextItem()
         }
     }
     m_textItemHash.clear();
-    disconnect(this,&GraphicsView::currentScaleValue,nullptr,nullptr);
+   // disconnect(this,&GraphicsView::currentScaleValue,nullptr,nullptr);
 }
 
 QGraphicsTextItem *GraphicsView::textItem(const QString &alarmType)
